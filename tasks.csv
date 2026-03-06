@@ -1,0 +1,17 @@
+order,module,suite_file,test_case_id,test_case_name,type,tags
+1,Login,tests/login_tests.robot,TC_LOGIN_001,Valid Credentials Should Login Successfully,positive,smoke|regression|positive
+2,Login,tests/login_tests.robot,TC_LOGIN_002,Logout Should Redirect To Login Page,positive,smoke|regression|positive
+3,Login,tests/login_tests.robot,TC_LOGIN_003,Navigate To Manage Devices After Login,positive,smoke|regression|positive|navigation
+4,Login,tests/login_tests.robot,TC_LOGIN_004,Verify Manage Devices Page Elements,positive,regression|positive|navigation
+5,Login,tests/login_tests.robot,TC_LOGIN_005,Invalid Username Should Show Error,negative,regression|negative
+6,Login,tests/login_tests.robot,TC_LOGIN_006,Invalid Password Should Show Error,negative,regression|negative
+7,Login,tests/login_tests.robot,TC_LOGIN_007,Both Invalid Username And Password Should Show Error,negative,regression|negative
+8,Login,tests/login_tests.robot,TC_LOGIN_008,Empty Username Field Should Show Error,negative,regression|negative
+9,Login,tests/login_tests.robot,TC_LOGIN_009,Empty Password Field Should Show Error,negative,regression|negative
+10,Login,tests/login_tests.robot,TC_LOGIN_010,All Fields Empty Should Show Error,negative,regression|negative
+11,Login,tests/login_tests.robot,TC_LOGIN_011,Empty Captcha Should Show Error,negative,regression|negative|captcha
+12,Login,tests/login_tests.robot,TC_LOGIN_012,Incorrect Captcha Should Show Error,negative,regression|negative|captcha
+13,Login,tests/login_tests.robot,TC_LOGIN_013,SQL Injection In Username Should Be Rejected,negative,regression|negative|security
+14,Login,tests/login_tests.robot,TC_LOGIN_014,Special Characters In Username Should Show Error,negative,regression|negative|security
+15,Login,tests/login_tests.robot,TC_LOGIN_015,Whitespace Only Username Should Show Error,negative,regression|negative
+16,Login,tests/login_tests.robot,TC_LOGIN_016,Direct Access To ManageDevices Without Login Should Redirect,negative,regression|negative|security|navigation
