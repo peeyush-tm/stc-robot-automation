@@ -1,7 +1,3 @@
-# MarketLinq Automation
-
-Robot Framework-based test automation for UI (browser) and API (REST) testing.
-
 ## Structure
 
 - **config/** — Environment config (UI + API)
