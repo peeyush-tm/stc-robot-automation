@@ -1,0 +1,2 @@
+order,module,suite_file,test_case_id,test_case_name,type,tags
+1,Login,tests/login_tests.robot,TC_LOGIN_001,Valid Credentials Should Redirect To Dashboard,positive,smoke|regression|positive

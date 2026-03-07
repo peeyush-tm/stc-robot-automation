@@ -1,0 +1,2 @@
+test_name,ban,device_id,expected_status
+Offboard Invalid BAN,INVALID,89314404000403324727,404

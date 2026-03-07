@@ -1,0 +1,2 @@
+test_name,vin,iccid,imsi,expected_status
+Onboard Missing VIN,,89314404000403324727,310410012345678,400

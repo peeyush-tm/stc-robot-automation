@@ -1,0 +1,27 @@
+order,module,suite_file,test_case_id,test_case_name,type,tags
+1,Login,tests/login_tests.robot,TC_LOGIN_001,Valid Credentials Should Login Successfully,positive,smoke|regression|positive|login
+2,Login,tests/login_tests.robot,TC_LOGIN_002,Login And Navigate To Manage Devices,positive,smoke|regression|positive|login|navigation
+3,Login,tests/login_tests.robot,TC_LOGIN_004,Invalid Username Should Show Error,negative,regression|negative|login
+4,Login,tests/login_tests.robot,TC_LOGIN_005,Invalid Password Should Show Error,negative,regression|negative|login
+5,Login,tests/login_tests.robot,TC_LOGIN_006,Empty Username Should Show Error,negative,regression|negative|login
+6,Login,tests/login_tests.robot,TC_LOGIN_007,Empty Password Should Show Error,negative,regression|negative|login
+7,Login,tests/login_tests.robot,TC_LOGIN_008,Empty CAPTCHA Should Show Error,negative,regression|negative|login
+8,Login,tests/login_tests.robot,TC_LOGIN_009,All Fields Empty Should Show Error Or Prevent Submit,negative,regression|negative|login
+9,Login,tests/login_tests.robot,TC_LOGIN_010,Incorrect CAPTCHA Should Show Error,negative,regression|negative|login
+10,Login,tests/login_tests.robot,TC_LOGIN_011,SQL Injection In Username Should Be Rejected,negative,regression|negative|login|security
+11,Login,tests/login_tests.robot,TC_LOGIN_012,Special Characters In Username Should Show Error,negative,regression|negative|login
+12,Login,tests/login_tests.robot,TC_LOGIN_013,Whitespace Only Username Should Show Error,negative,regression|negative|login
+13,Login,tests/login_tests.robot,TC_LOGIN_014,Direct Access To Manage Devices Without Login Should Redirect To Login,negative,regression|negative|login|security
+14,ProductType,tests/product_type_tests.robot,TC_PT_001,Create SIM Product Type Standard Flow,positive,smoke|regression|positive|product-type|create-product-type
+15,ProductType,tests/product_type_tests.robot,TC_PT_002,Assign EC To Existing Product Type,positive,smoke|regression|positive|product-type|assign-ec
+16,ProductType,tests/product_type_tests.robot,TC_PT_003,Submit Without Selecting Account,negative,regression|negative|product-type|create-product-type
+17,ProductType,tests/product_type_tests.robot,TC_PT_004,Submit With Blank Product Type Name,negative,regression|negative|product-type|create-product-type
+18,ProductType,tests/product_type_tests.robot,TC_PT_005,Submit Without Selecting Service Type,negative,regression|negative|product-type|create-product-type
+19,ProductType,tests/product_type_tests.robot,TC_PT_006,Submit With Blank Service Sub Type 2,negative,regression|negative|product-type|create-product-type
+20,ProductType,tests/product_type_tests.robot,TC_PT_007,Submit With Blank Service Sub Type 3,negative,regression|negative|product-type|create-product-type
+21,ProductType,tests/product_type_tests.robot,TC_PT_008,Submit With Blank Service Sub Type 4,negative,regression|negative|product-type|create-product-type
+22,ProductType,tests/product_type_tests.robot,TC_PT_009,Submit With Esim Sub Type 3 But Blank Profile Name,negative,regression|negative|product-type|create-product-type
+23,ProductType,tests/product_type_tests.robot,TC_PT_010,Close Create Form Without Submitting,negative,regression|negative|product-type|create-product-type
+24,ProductType,tests/product_type_tests.robot,TC_PT_011,Verify Create Button Visible For RW User,positive,regression|positive|product-type
+25,ProductType,tests/product_type_tests.robot,TC_PT_012,Click Update Without Selecting Any EC,negative,regression|negative|product-type|assign-ec
+26,ProductType,tests/product_type_tests.robot,TC_PT_013,Close Assign Popup Without Assigning,negative,regression|negative|product-type|assign-ec

@@ -1,0 +1,2 @@
+test_name,username,password,api_key,expected_status
+Auth Invalid Username,invalid_user,FordService@2025!,b9e3e23cbccb,401

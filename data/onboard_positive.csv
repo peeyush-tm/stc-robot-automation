@@ -1,0 +1,2 @@
+test_name,vin,iccid,imsi,msisdn,oem_code,account_type,expected_status
+Onboard Subscriber,12345678981234748,89314404000403324727,310410012345678,15551234567,FORD,retail,202
