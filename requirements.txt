@@ -1,5 +1,0 @@
-robotframework
-robotframework-seleniumlibrary
-robotframework-databaselibrary
-pymysql
-webdriver-manager
