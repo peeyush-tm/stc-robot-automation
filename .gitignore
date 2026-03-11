@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+*.egg
+
+# Robot Framework reports (all output goes into reports/<timestamp>/)
+reports/
+results/
+
+# Root-level output files (should not exist, but ignore if they do)
+/output.xml
+/log.html
+/report.html
+
+# Screenshots
+selenium-screenshot-*.png
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+Thumbs.db
+Desktop.ini
+.DS_Store

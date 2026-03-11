@@ -1,0 +1,280 @@
+order,module,suite_file,test_case_id,test_case_name,type,tags
+1,Login,tests/login_tests.robot,TC_LOGIN_001,Valid Credentials Should Login Successfully,positive,smoke|regression|positive|login
+2,Login,tests/login_tests.robot,TC_LOGIN_002,Logout Should Redirect To Login Page,positive,smoke|regression|positive|login
+3,Login,tests/login_tests.robot,TC_LOGIN_003,Navigate To Manage Devices After Login,positive,smoke|regression|positive|login|navigation
+4,Login,tests/login_tests.robot,TC_LOGIN_004,Verify Manage Devices Page Elements,positive,regression|positive|login|navigation
+5,Login,tests/login_tests.robot,TC_LOGIN_005,Invalid Username Should Show Error,negative,regression|negative|login
+6,Login,tests/login_tests.robot,TC_LOGIN_006,Invalid Password Should Show Error,negative,regression|negative|login
+7,Login,tests/login_tests.robot,TC_LOGIN_007,Both Invalid Username And Password Should Show Error,negative,regression|negative|login
+8,Login,tests/login_tests.robot,TC_LOGIN_008,Empty Username Field Should Show Error,negative,regression|negative|login
+9,Login,tests/login_tests.robot,TC_LOGIN_009,Empty Password Field Should Show Error,negative,regression|negative|login
+10,Login,tests/login_tests.robot,TC_LOGIN_010,All Fields Empty Should Show Error,negative,regression|negative|login
+11,Login,tests/login_tests.robot,TC_LOGIN_011,Empty Captcha Should Show Error,negative,regression|negative|login|captcha
+12,Login,tests/login_tests.robot,TC_LOGIN_012,Incorrect Captcha Should Show Error,negative,regression|negative|login|captcha
+13,Login,tests/login_tests.robot,TC_LOGIN_013,SQL Injection In Username Should Be Rejected,negative,regression|negative|security|login
+14,Login,tests/login_tests.robot,TC_LOGIN_014,Special Characters In Username Should Show Error,negative,regression|negative|security|login
+15,Login,tests/login_tests.robot,TC_LOGIN_015,Whitespace Only Username Should Show Error,negative,regression|negative|login
+16,Login,tests/login_tests.robot,TC_LOGIN_016,Direct Access To ManageDevices Without Login Should Redirect,negative,regression|negative|security|login|navigation
+17,ProductType,tests/product_type_tests.robot,TC_PT_001,Create SIM Product Type Standard Flow,positive,smoke|regression|positive|product-type|create
+18,ProductType,tests/product_type_tests.robot,TC_PT_002,Assign EC To Existing Product Type,positive,smoke|regression|positive|product-type|assign-ec
+19,ProductType,tests/product_type_tests.robot,TC_PT_003,Submit Without Selecting Account,negative,regression|negative|product-type|validation
+20,ProductType,tests/product_type_tests.robot,TC_PT_004,Submit With Blank Product Type Name,negative,regression|negative|product-type|validation
+21,ProductType,tests/product_type_tests.robot,TC_PT_005,Submit Without Selecting Service Type,negative,regression|negative|product-type|validation
+22,ProductType,tests/product_type_tests.robot,TC_PT_006,Submit With Blank Service Sub Type 2,negative,regression|negative|product-type|validation
+23,ProductType,tests/product_type_tests.robot,TC_PT_007,Submit With Blank Service Sub Type 3,negative,regression|negative|product-type|validation
+24,ProductType,tests/product_type_tests.robot,TC_PT_008,Submit With Blank Service Sub Type 4,negative,regression|negative|product-type|validation
+25,ProductType,tests/product_type_tests.robot,TC_PT_009,Submit With Esim Sub Type 3 But Blank Profile Name,negative,regression|negative|product-type|validation
+26,ProductType,tests/product_type_tests.robot,TC_PT_010,Close Create Form Without Submitting,negative,regression|negative|product-type|cancel
+27,ProductType,tests/product_type_tests.robot,TC_PT_011,Verify Create Button Visible For RW User,positive,regression|positive|product-type|permission
+28,ProductType,tests/product_type_tests.robot,TC_PT_012,Click Update Without Selecting Any EC,negative,regression|negative|product-type|assign-ec
+29,ProductType,tests/product_type_tests.robot,TC_PT_13,Close Assign Popup Without Saving Should Not Change Assignment,positive,regression|positive|product-type|assign-ec
+30,ProductType,tests/product_type_tests.robot,TC_PT_14,Edit Icon Should Be Visible In Product Type Grid,positive,regression|positive|product-type|grid
+31,ProductType,tests/product_type_tests.robot,TC_PT_15,Assign Customer Icon Should Be Visible In Grid For RW User,positive,regression|positive|product-type|grid
+32,ProductType,tests/product_type_tests.robot,TC_PT_16,Search Product Type In Listing Grid,positive,regression|positive|product-type|search
+33,ProductType,tests/product_type_tests.robot,TC_PT_17,Duplicate Product Type Name Should Show Error Toast,negative,regression|negative|product-type|validation|duplicate
+34,ProductType,tests/product_type_tests.robot,TC_PT_18,Clear Search Should Reset Grid,positive,regression|positive|product-type|search
+35,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_001,Navigate To CSR Journey Module Via Admin,positive,smoke|regression|positive|csr-journey|navigation
+36,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_002,Select Customer And Verify BU Dropdown Populates,positive,regression|positive|csr-journey|customer-selection
+37,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_018,BU Dropdown Not Interactable Without Customer Selection,negative,regression|negative|csr-journey|validation
+38,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_003,Select BU And Verify Create Order Button Visible,positive,regression|positive|csr-journey|bu-selection
+39,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_017,Create Order Not Visible Without BU Selection,negative,regression|negative|csr-journey|validation
+40,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_006,Verify Wizard Step Indicators Are Visible,positive,regression|positive|csr-journey|wizard
+41,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_012,APN Type Dropdown Disabled Without Tariff Plan,negative,regression|negative|csr-journey|validation
+42,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_010,Select Tariff Plan And Verify APN Type Becomes Enabled,positive,regression|positive|csr-journey|tariff-plan
+43,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_013,Add APNs Button Disabled Without APN Type,negative,regression|negative|csr-journey|validation
+44,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_019,Select APN Type Public And Verify Add APNs Enabled,positive,regression|positive|csr-journey|apn-type
+45,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_020,Select APN Type Any And Verify Add APNs Enabled,positive,regression|positive|csr-journey|apn-type
+46,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_041,Service Plan Input Disabled Until Tariff Plan Selected,negative,regression|negative|csr-journey|validation
+47,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_036,Select Bundle Plan After Fetch Device Plan,positive,regression|positive|csr-journey|bundle-plan
+48,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_037,Fill End Date On Standard Services,positive,regression|positive|csr-journey|end-date
+49,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_007,Navigate Previous From Additional To Standard Services,positive,regression|positive|csr-journey|navigation|previous
+50,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_008,Navigate Previous From Summary To Additional Services,positive,regression|positive|csr-journey|navigation|previous
+51,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_009,Verify Customer And BU Info Displayed On Summary,positive,regression|positive|csr-journey|summary
+52,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_011,Verify Tariff Plan Accordion On Summary Shows Selected TP,positive,regression|positive|csr-journey|summary
+53,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_014,Close From Standard Services Should Redirect Without Saving,negative,regression|negative|csr-journey|close
+54,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_015,Close From Additional Services Should Redirect Without Saving,negative,regression|negative|csr-journey|close
+55,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_016,Close From Summary Should Redirect Without Saving,negative,regression|negative|csr-journey|close
+56,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_021,Close Service Plan Modal Without Saving,negative,regression|negative|csr-journey|modal
+57,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_022,Close Discount Modal Without Saving,negative,regression|negative|csr-journey|modal
+58,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_005,Save And Continue Should Stay On Wizard,positive,regression|positive|csr-journey|save-continue
+59,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_034,Fill And Save Service Plan Via Modal,positive,regression|positive|csr-journey|service-plan
+60,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_035,Fill And Save Discount On Additional Services,positive,regression|positive|csr-journey|discount
+61,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_027,Verify Account VAS Accordion Toggle,positive,regression|positive|csr-journey|vas
+62,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_028,Verify Device VAS Accordion Toggle,positive,regression|positive|csr-journey|vas
+63,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_029,Verify Breadcrumb Updates Across Wizard Steps,positive,regression|positive|csr-journey|breadcrumb
+64,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_030,Verify APN Table Headers On Landing Page,positive,regression|positive|csr-journey|grid
+65,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_031,Verify Discount Accordion Toggle On Additional Services,positive,regression|positive|csr-journey|discount
+66,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_032,Verify Summary Accordion Sections Expandable,positive,regression|positive|csr-journey|summary
+67,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_033,Select Addon Plan And Verify Table Populates,positive,regression|positive|csr-journey|addon-plan
+68,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_038,Search Customer By Name In Dropdown,positive,regression|positive|csr-journey|search
+69,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_039,Search Tariff Plan By Name In Dropdown,positive,regression|positive|csr-journey|search
+70,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_040,APN Type Conflict Should Show Error,negative,regression|negative|csr-journey|validation
+71,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_042,Save Account VAS Without Filling Required Fields,negative,regression|negative|csr-journey|validation
+72,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_043,Save Device VAS Without Filling Required Fields,negative,regression|negative|csr-journey|validation
+73,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_044,Save Discount Without Filling Required Fields,negative,regression|negative|csr-journey|validation
+74,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_050,Navigate Full Wizard Forward And Backward,positive,regression|positive|csr-journey|navigation
+75,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_051,Verify All APN Type Options Available,positive,regression|positive|csr-journey|apn-type
+76,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_004,Create CSR Journey End To End Standard Flow,positive,smoke|regression|positive|csr-journey|e2e
+77,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_023,Verify CSR Summary Icon Visible In Grid,positive,regression|positive|csr-journey|grid|icons
+78,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_024,Verify Edit Icon Visible In CSR Journey Grid,positive,regression|positive|csr-journey|grid|icons
+79,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_025,Verify Delete Icon Visible In CSR Journey Grid,positive,regression|positive|csr-journey|grid|icons
+80,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_026,Verify Change Tariff Plan Icon Visible In Grid,positive,regression|positive|csr-journey|grid|icons
+81,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_045,Verify Usage Based Charges Grid On Landing Page,positive,regression|positive|csr-journey|grid
+82,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_046,Verify Transaction History Grid On Landing Page,positive,regression|positive|csr-journey|grid
+83,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_047,Verify Order Summary Heading On Landing Page,positive,regression|positive|csr-journey|grid
+84,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_048,View CSR Summary Popup Via Eye Icon,positive,regression|positive|csr-journey|popup
+85,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_049,CSR Overwrite Modal In Edit Mode,positive,regression|positive|csr-journey|modal|edit
+86,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_052,Modify CSR Journey Via Edit And Save,positive,regression|positive|csr-journey|modify|edit
+87,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_053,Edit CSR Journey Update Service Types And Save,positive,regression|positive|csr-journey|edit
+88,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_054,Add Multiple Device Plans In Single CSR Journey,positive,regression|positive|csr-journey|multiple-device-plans
+89,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_055,Verify Multiple Device Plan Rows On Summary,positive,regression|positive|csr-journey|multiple-device-plans
+90,CSRJourney,tests/csr_journey_tests.robot,TC_CSRJ_004_Delete,Delete CSR Created In Test Case 4,positive,regression|positive|csr-journey|delete|cleanup
+91,CostCenter,tests/cost_center_tests.robot,TC_CC_001,Navigate To ManageAccount Page,positive,smoke|positive|cost-center|navigation
+92,CostCenter,tests/cost_center_tests.robot,TC_CC_002,Verify Create Cost Center Button Visible,positive,smoke|positive|cost-center|permission
+93,CostCenter,tests/cost_center_tests.robot,TC_CC_003,Open Create Cost Center Form,positive,smoke|positive|cost-center|form
+94,CostCenter,tests/cost_center_tests.robot,TC_CC_004,Verify All Form Fields Present,positive,positive|cost-center|form|ui
+95,CostCenter,tests/cost_center_tests.robot,TC_CC_005,Verify Parent Account TreeView Has Nodes,positive,positive|cost-center|form|treeview
+96,CostCenter,tests/cost_center_tests.robot,TC_CC_006,Verify Submit Button Is Present And Enabled,positive,positive|cost-center|form|ui
+97,CostCenter,tests/cost_center_tests.robot,TC_CC_007,Create Cost Center With All Fields,positive,smoke|regression|positive|cost-center|e2e
+98,CostCenter,tests/cost_center_tests.robot,TC_CC_008,Create Cost Center Without Comment,positive,regression|positive|cost-center|e2e
+99,CostCenter,tests/cost_center_tests.robot,TC_CC_009,Verify No Validation Errors With Valid Data,positive,positive|cost-center|validation
+100,CostCenter,tests/cost_center_tests.robot,TC_CC_010,Submit With Empty Account Name,negative,negative|cost-center|validation
+101,CostCenter,tests/cost_center_tests.robot,TC_CC_011,Submit Without Selecting Parent Account,negative,negative|cost-center|validation
+102,CostCenter,tests/cost_center_tests.robot,TC_CC_012,Submit With Both Mandatory Fields Empty,negative,negative|cost-center|validation
+103,CostCenter,tests/cost_center_tests.robot,TC_CC_013,Submit With Only Spaces In Account Name,negative,negative|cost-center|validation|edge
+104,CostCenter,tests/cost_center_tests.robot,TC_CC_014,Duplicate Cost Center Name,negative,negative|cost-center|validation|duplicate
+105,CostCenter,tests/cost_center_tests.robot,TC_CC_015,Account Name Exceeds 100 Characters,negative,negative|cost-center|boundary
+106,CostCenter,tests/cost_center_tests.robot,TC_CC_016,Account Name Exactly 100 Characters,edge-case,positive|cost-center|boundary|edge
+107,CostCenter,tests/cost_center_tests.robot,TC_CC_017,Comment Exceeds 50 Characters,negative,negative|cost-center|boundary
+108,CostCenter,tests/cost_center_tests.robot,TC_CC_018,Comment Exactly 50 Characters,edge-case,positive|cost-center|boundary|edge
+109,CostCenter,tests/cost_center_tests.robot,TC_CC_020,Account Name With Semicolons Stripped,edge-case,negative|cost-center|sanitization|edge
+110,CostCenter,tests/cost_center_tests.robot,TC_CC_021,Close Form Without Submitting,negative,negative|cost-center|cancel
+111,CostCenter,tests/cost_center_tests.robot,TC_CC_022,Close Empty Form,negative,negative|cost-center|cancel|edge
+112,CostCenter,tests/cost_center_tests.robot,TC_CC_023,Close After Selecting Only Parent Account,negative,negative|cost-center|cancel|edge
+113,CostCenter,tests/cost_center_tests.robot,TC_CC_024,Expand Billing Account And Verify Cost Center Tab,positive,positive|cost-center|listing|tab
+114,CostCenter,tests/cost_center_tests.robot,TC_CC_025,Open Cost Center Tab And Verify Grid Loads,positive,positive|cost-center|listing|grid
+115,CostCenter,tests/cost_center_tests.robot,TC_CC_026,Verify Edit Delete Buttons In Cost Center Grid,positive,positive|cost-center|listing|permission
+116,Sanity,tests/sanity_tests.robot,TC_SANITY_001,Manage Devices Page Loads With Grid,positive,sanity|devices|grid
+117,Sanity,tests/sanity_tests.robot,TC_SANITY_002,Upload History Page Loads With Grid,positive,sanity|devices|grid
+118,Sanity,tests/sanity_tests.robot,TC_SANITY_003,Blank SIM Page Loads With Grid,positive,sanity|devices|grid
+119,Sanity,tests/sanity_tests.robot,TC_SANITY_004,Lost SIM Page Loads With Grid,positive,sanity|devices|grid
+120,Sanity,tests/sanity_tests.robot,TC_SANITY_005,Pool Shared Plan Details Page Loads With Grid,positive,sanity|devices|grid
+121,Sanity,tests/sanity_tests.robot,TC_SANITY_006,Retention Cases Page Loads With Grid,positive,sanity|devices|grid
+122,Sanity,tests/sanity_tests.robot,TC_SANITY_007,Dashboard Page Loads With Charts,positive,sanity|dashboard
+123,Sanity,tests/sanity_tests.robot,TC_SANITY_008,Customer Dashboard Page Loads,positive,sanity|dashboard
+124,Sanity,tests/sanity_tests.robot,TC_SANITY_009,Account Plan Page Loads With Grid,positive,sanity|rate-plan|grid
+125,Sanity,tests/sanity_tests.robot,TC_SANITY_010,Price Model Page Loads With Grid,positive,sanity|rate-plan|grid
+126,Sanity,tests/sanity_tests.robot,TC_SANITY_011,Addon Plan Page Loads With Grid,positive,sanity|rate-plan|grid
+127,Sanity,tests/sanity_tests.robot,TC_SANITY_012,Device Plan Page Loads With Grid,positive,sanity|rate-plan|grid
+128,Sanity,tests/sanity_tests.robot,TC_SANITY_013,Zone Management Page Loads With Grid,positive,sanity|rate-plan|grid
+129,Sanity,tests/sanity_tests.robot,TC_SANITY_014,Service Plan Page Loads With Grid,positive,sanity|service|grid
+130,Sanity,tests/sanity_tests.robot,TC_SANITY_015,IP Whitelisting Page Loads With Grid,positive,sanity|service|grid
+131,Sanity,tests/sanity_tests.robot,TC_SANITY_016,APN Page Loads With Grid,positive,sanity|service|grid
+132,Sanity,tests/sanity_tests.robot,TC_SANITY_017,IP Pooling Page Loads With Grid,positive,sanity|service|grid
+133,Sanity,tests/sanity_tests.robot,TC_SANITY_018,APN Request Page Loads With Grid,positive,sanity|service|grid
+134,Sanity,tests/sanity_tests.robot,TC_SANITY_019,Report Page Loads With Grid,positive,sanity|report|grid
+135,Sanity,tests/sanity_tests.robot,TC_SANITY_020,Report Subscriptions Page Loads With Grid,positive,sanity|report|grid
+136,Sanity,tests/sanity_tests.robot,TC_SANITY_021,Report Packages Page Loads With Grid,positive,sanity|report|grid
+137,Sanity,tests/sanity_tests.robot,TC_SANITY_022,Invoice Page Loads With BU Filter,positive,sanity|billing|grid
+138,Sanity,tests/sanity_tests.robot,TC_SANITY_023,Admin User Page Loads With Grid,positive,sanity|admin|grid
+139,Sanity,tests/sanity_tests.robot,TC_SANITY_024,Admin Api User Page Loads With Grid,positive,sanity|admin|grid
+140,Sanity,tests/sanity_tests.robot,TC_SANITY_025,Admin Account Page Loads With Grid,positive,sanity|admin|grid
+141,Sanity,tests/sanity_tests.robot,TC_SANITY_026,Admin Role And Access Page Loads With Grid,positive,sanity|admin|grid
+142,Sanity,tests/sanity_tests.robot,TC_SANITY_027,Admin WL Account Page Loads With Grid,positive,sanity|admin|grid
+143,Sanity,tests/sanity_tests.robot,TC_SANITY_028,Admin Upload Logo Page Loads,positive,sanity|admin
+144,Sanity,tests/sanity_tests.robot,TC_SANITY_029,Admin SIM Range Page Loads With Grid,positive,sanity|admin|grid
+145,Sanity,tests/sanity_tests.robot,TC_SANITY_030,Admin SIM Product Type Page Loads With Grid,positive,sanity|admin|grid
+146,Sanity,tests/sanity_tests.robot,TC_SANITY_031,Admin SMSA Configuration Panel Page Loads With Grid,positive,sanity|admin|grid
+147,Sanity,tests/sanity_tests.robot,TC_SANITY_032,Admin Manage Label Page Loads With Grid,positive,sanity|admin|grid
+148,Sanity,tests/sanity_tests.robot,TC_SANITY_033,Admin CSR Journey Page Loads With Grid,positive,sanity|admin|grid
+149,Sanity,tests/sanity_tests.robot,TC_SANITY_034,Admin CSR Journey Penalties Page Loads With Grid,positive,sanity|admin|grid
+150,Sanity,tests/sanity_tests.robot,TC_SANITY_035,Admin Notification Template Page Loads With Grid,positive,sanity|admin|grid
+151,Sanity,tests/sanity_tests.robot,TC_SANITY_036,Admin LBS Restriction Page Loads With Grid,positive,sanity|admin|grid
+152,Sanity,tests/sanity_tests.robot,TC_SANITY_037,Admin Device Plan Requests Page Loads With Grid,positive,sanity|admin|grid
+153,Sanity,tests/sanity_tests.robot,TC_SANITY_038,Audit Trail Page Loads With Grid,positive,sanity|logging|grid
+154,Sanity,tests/sanity_tests.robot,TC_SANITY_039,API Transaction Log Page Loads With Grid,positive,sanity|logging|grid
+155,Sanity,tests/sanity_tests.robot,TC_SANITY_040,Rule Engine Log Page Loads With Grid,positive,sanity|logging|grid
+156,Sanity,tests/sanity_tests.robot,TC_SANITY_041,Batch Job Log Page Loads With Grid,positive,sanity|logging|grid
+157,Sanity,tests/sanity_tests.robot,TC_SANITY_042,Rule Engine Page Loads With Grid,positive,sanity|rule-engine|grid
+158,Sanity,tests/sanity_tests.robot,TC_SANITY_043,Active Alerts Page Loads With Grid,positive,sanity|alert-centre|grid
+159,Sanity,tests/sanity_tests.robot,TC_SANITY_044,Alerts History Page Loads With Grid,positive,sanity|alert-centre|grid
+160,Sanity,tests/sanity_tests.robot,TC_SANITY_045,Live Order Page Loads With Grid,positive,sanity|orders|grid
+161,Sanity,tests/sanity_tests.robot,TC_SANITY_046,Order History Page Loads With Grid,positive,sanity|orders|grid
+162,Sanity,tests/sanity_tests.robot,TC_SANITY_047,Download Center Page Loads With Grid,positive,sanity|download-center|grid
+163,Sanity,tests/sanity_tests.robot,TC_SANITY_048,Ticketing Page Loads With Grid,positive,sanity|ticketing|grid
+164,OnboardCustomer,tests/onboard_customer_api_tests.robot,TC_ONBOARD_001,Create Customer And Billing Account With All Fields,positive,smoke|positive|onboard|e2e|api
+165,OnboardCustomer,tests/onboard_customer_api_tests.robot,TC_ONBOARD_002,Create Customer Without Optional UnifiedID,positive,positive|onboard|optional-fields|api
+166,OnboardCustomer,tests/onboard_customer_api_tests.robot,TC_ONBOARD_003,Create Customer Without Optional Address Lines 2 To 5,positive,positive|onboard|optional-fields|api
+167,OnboardCustomer,tests/onboard_customer_api_tests.robot,TC_ONBOARD_004,Create Customer Without Optional AlternateName,positive,positive|onboard|optional-fields|api
+168,OnboardCustomer,tests/onboard_customer_api_tests.robot,TC_ONBOARD_005,Create Customer Without Optional TechContactPersonMobile,positive,positive|onboard|optional-fields|api
+169,OnboardCustomer,tests/onboard_customer_api_tests.robot,TC_ONBOARD_006,Create Customer Without Optional TechContactPersonEmail,positive,positive|onboard|optional-fields|api
+170,OnboardCustomer,tests/onboard_customer_api_tests.robot,TC_ONBOARD_007,Create Customer Without Optional LeadPersonOrAccManagerID,positive,positive|onboard|optional-fields|api
+171,OnboardCustomer,tests/onboard_customer_api_tests.robot,TC_ONBOARD_008,Create Customer Without Optional Billing Address Lines 2 To 5,positive,positive|onboard|optional-fields|api
+172,OnboardCustomer,tests/onboard_customer_api_tests.robot,TC_ONBOARD_009,Create Customer With Only Mandatory Fields,positive,positive|onboard|mandatory-only|api
+173,OnboardCustomer,tests/onboard_customer_api_tests.robot,TC_ONBOARD_010,Missing CustomerReferenceNumber Should Return Error,negative,negative|onboard|validation|api
+174,OnboardCustomer,tests/onboard_customer_api_tests.robot,TC_ONBOARD_011,Missing CompanyName Should Return Error,negative,negative|onboard|validation|api
+175,OnboardCustomer,tests/onboard_customer_api_tests.robot,TC_ONBOARD_012,Missing FirstName Should Return Error,negative,negative|onboard|validation|api
+176,OnboardCustomer,tests/onboard_customer_api_tests.robot,TC_ONBOARD_013,Missing LastName Should Return Error,negative,negative|onboard|validation|api
+177,OnboardCustomer,tests/onboard_customer_api_tests.robot,TC_ONBOARD_014,Missing IdentityNumber Should Return Error,negative,negative|onboard|validation|api
+178,OnboardCustomer,tests/onboard_customer_api_tests.robot,TC_ONBOARD_015,Missing CustomerSegmentCode Should Return Error,negative,negative|onboard|validation|api
+179,OnboardCustomer,tests/onboard_customer_api_tests.robot,TC_ONBOARD_016,Missing BusinessUnitName Should Return Error,negative,negative|onboard|validation|api
+180,OnboardCustomer,tests/onboard_customer_api_tests.robot,TC_ONBOARD_017,Missing BillingAccountName Should Return Error,negative,negative|onboard|validation|api
+181,OnboardCustomer,tests/onboard_customer_api_tests.robot,TC_ONBOARD_018,Missing BillingAccountNumber Should Return Error,negative,negative|onboard|validation|api
+182,OnboardCustomer,tests/onboard_customer_api_tests.robot,TC_ONBOARD_019,Missing CustomerAddressLine1 Should Return Error,negative,negative|onboard|validation|api
+183,OnboardCustomer,tests/onboard_customer_api_tests.robot,TC_ONBOARD_020,Missing CustomerCountry Should Return Error,negative,negative|onboard|validation|api
+184,OnboardCustomer,tests/onboard_customer_api_tests.robot,TC_ONBOARD_021,Missing OrderNumber In Header Should Return Error,negative,negative|onboard|validation|header|api
+185,OnboardCustomer,tests/onboard_customer_api_tests.robot,TC_ONBOARD_022,Missing TaskID In Header Should Return Error,negative,negative|onboard|validation|header|api
+186,OnboardCustomer,tests/onboard_customer_api_tests.robot,TC_ONBOARD_023,Invalid CustomerSegmentCode Should Return Error,negative,negative|onboard|validation|invalid|api
+187,OnboardCustomer,tests/onboard_customer_api_tests.robot,TC_ONBOARD_024,Invalid CustomerType Should Return Error,negative,negative|onboard|validation|invalid|api
+188,OnboardCustomer,tests/onboard_customer_api_tests.robot,TC_ONBOARD_025,Invalid BillHierarchyFlag Should Return Error,negative,negative|onboard|validation|invalid|api
+189,OnboardCustomer,tests/onboard_customer_api_tests.robot,TC_ONBOARD_026,Invalid BillingAccountStatus Should Return Error,negative,negative|onboard|validation|invalid|api
+190,OnboardCustomer,tests/onboard_customer_api_tests.robot,TC_ONBOARD_027,Invalid MaxNumberIMSIs Non Numeric Should Return Error,negative,negative|onboard|validation|invalid|api
+191,OnboardCustomer,tests/onboard_customer_api_tests.robot,TC_ONBOARD_028,Invalid CustomerGenre Should Return Error,negative,negative|onboard|validation|invalid|api
+192,OnboardCustomer,tests/onboard_customer_api_tests.robot,TC_ONBOARD_029,Invalid Category Should Return Error,negative,negative|onboard|validation|invalid|api
+193,OnboardCustomer,tests/onboard_customer_api_tests.robot,TC_ONBOARD_030,Invalid Email Format Should Return Error,negative,negative|onboard|validation|invalid|api
+194,OnboardCustomer,tests/onboard_customer_api_tests.robot,TC_ONBOARD_033,Duplicate CustomerReferenceNumber Should Return Error,edge-case,edge-case|onboard|duplicate|api
+195,OnboardCustomer,tests/onboard_customer_api_tests.robot,TC_ONBOARD_034,Malformed XML Body Should Return Error,edge-case,edge-case|onboard|malformed|api
+196,OnboardCustomer,tests/onboard_customer_api_tests.robot,TC_ONBOARD_035,Empty SOAP Body Should Return Error,edge-case,edge-case|onboard|empty-body|api
+197,OnboardCustomer,tests/onboard_customer_api_tests.robot,TC_ONBOARD_036,Wrong SOAPAction Header Should Return Error,edge-case,edge-case|onboard|header|api
+198,OnboardCustomer,tests/onboard_customer_api_tests.robot,TC_ONBOARD_037,MaxNumberIMSIs Zero Should Return Error Or Accept,edge-case,edge-case|onboard|boundary|api
+199,OnboardCustomer,tests/onboard_customer_api_tests.robot,TC_ONBOARD_038,MaxSIMNumber Zero Should Return Error Or Accept,edge-case,edge-case|onboard|boundary|api
+200,OnboardCustomer,tests/onboard_customer_api_tests.robot,TC_ONBOARD_039,Negative MaxNumberIMSIs Should Return Error,edge-case,edge-case|onboard|boundary|api
+201,OnboardCustomer,tests/onboard_customer_api_tests.robot,TC_ONBOARD_040,Special Characters In CompanyName,edge-case,edge-case|onboard|special-chars|api
+202,UserManagement,tests/user_management_tests.robot,TC_USER_001,Navigate To Manage User Page Via Admin Sidebar,positive,positive|user-management|navigation|smoke
+203,UserManagement,tests/user_management_tests.robot,TC_USER_002,Verify Manage User Grid Loads With Data,positive,positive|user-management|grid
+204,UserManagement,tests/user_management_tests.robot,TC_USER_003,Verify Manage User Grid Columns,positive,positive|user-management|grid|columns
+205,UserManagement,tests/user_management_tests.robot,TC_USER_004,Verify Manage User Grid Has Pagination,positive,positive|user-management|grid|pagination
+206,UserManagement,tests/user_management_tests.robot,TC_USER_005,Verify Create User Button Is Visible,positive,positive|user-management|button
+207,UserManagement,tests/user_management_tests.robot,TC_USER_006,Open Create User Form,positive,positive|user-management|create-form
+208,UserManagement,tests/user_management_tests.robot,TC_USER_007,Verify All Create User Form Fields Present,positive,positive|user-management|create-form|fields
+209,UserManagement,tests/user_management_tests.robot,TC_USER_008,Verify Submit And Close Buttons Present,positive,positive|user-management|create-form|buttons
+210,UserManagement,tests/user_management_tests.robot,TC_USER_009,Create User With All Required Fields,positive,positive|user-management|create|e2e|smoke
+211,UserManagement,tests/user_management_tests.robot,TC_USER_010,Create User With Email OTP Channel,positive,positive|user-management|create|otp
+212,UserManagement,tests/user_management_tests.robot,TC_USER_011,Create User With Both SMS And Email OTP Channels,positive,positive|user-management|create|otp
+213,UserManagement,tests/user_management_tests.robot,TC_USER_012,Search User In Grid By Username,positive,positive|user-management|search
+214,UserManagement,tests/user_management_tests.robot,TC_USER_013,Delete User And Verify Removal,positive,positive|user-management|delete|e2e|smoke
+215,UserManagement,tests/user_management_tests.robot,TC_USER_014,Close Create User Form Without Saving,positive,positive|user-management|close|form
+216,UserManagement,tests/user_management_tests.robot,TC_USER_015,Close Form After Filling Fields Should Not Create User,positive,positive|user-management|close|form
+217,UserManagement,tests/user_management_tests.robot,TC_USER_016,Submit Without Filling Any Field,negative,negative|user-management|validation|empty
+218,UserManagement,tests/user_management_tests.robot,TC_USER_017,Submit Without Selecting Account,negative,negative|user-management|validation|account
+219,UserManagement,tests/user_management_tests.robot,TC_USER_018,Submit Without Username,negative,negative|user-management|validation|username
+220,UserManagement,tests/user_management_tests.robot,TC_USER_019,Submit Without First Name,negative,negative|user-management|validation|first-name
+221,UserManagement,tests/user_management_tests.robot,TC_USER_020,Submit Without Last Name,negative,negative|user-management|validation|last-name
+222,UserManagement,tests/user_management_tests.robot,TC_USER_021,Submit Without Primary Phone,negative,negative|user-management|validation|phone
+223,UserManagement,tests/user_management_tests.robot,TC_USER_022,Submit Without Email Address,negative,negative|user-management|validation|email
+224,UserManagement,tests/user_management_tests.robot,TC_USER_023,Submit Without Confirm Email Address,negative,negative|user-management|validation|confirm-email
+225,UserManagement,tests/user_management_tests.robot,TC_USER_024,Submit Without Selecting Role,negative,negative|user-management|validation|role
+226,UserManagement,tests/user_management_tests.robot,TC_USER_025,Submit Without Selecting Country,negative,negative|user-management|validation|country
+227,UserManagement,tests/user_management_tests.robot,TC_USER_026,Submit Without Selecting Time Zone,negative,negative|user-management|validation|timezone
+228,UserManagement,tests/user_management_tests.robot,TC_USER_027,Submit Without Selecting Any OTP Channel,negative,negative|user-management|validation|otp
+229,UserManagement,tests/user_management_tests.robot,TC_USER_028,Username Less Than 5 Characters,negative,negative|user-management|validation|username|boundary
+230,UserManagement,tests/user_management_tests.robot,TC_USER_029,Username More Than 50 Characters,negative,negative|user-management|validation|username|boundary
+231,UserManagement,tests/user_management_tests.robot,TC_USER_030,Phone Less Than 5 Digits,negative,negative|user-management|validation|phone|boundary
+232,UserManagement,tests/user_management_tests.robot,TC_USER_031,Phone More Than 16 Digits,negative,negative|user-management|validation|phone|boundary
+233,UserManagement,tests/user_management_tests.robot,TC_USER_032,Phone With Non Numeric Characters,negative,negative|user-management|validation|phone
+234,UserManagement,tests/user_management_tests.robot,TC_USER_033,Invalid Email Format,negative,negative|user-management|validation|email
+235,UserManagement,tests/user_management_tests.robot,TC_USER_034,Mismatched Confirm Email,negative,negative|user-management|validation|confirm-email
+236,UserManagement,tests/user_management_tests.robot,TC_USER_035,Duplicate Username Should Show Error,negative,negative|user-management|validation|duplicate
+237,UserManagement,tests/user_management_tests.robot,TC_USER_036,Cancel Delete Confirmation Should Keep User,negative,negative|user-management|delete|cancel
+238,UserManagement,tests/user_management_tests.robot,TC_USER_037,Username Exactly 5 Characters,edge-case,edge-case|user-management|boundary|username
+239,UserManagement,tests/user_management_tests.robot,TC_USER_038,Username Exactly 50 Characters,edge-case,edge-case|user-management|boundary|username
+240,UserManagement,tests/user_management_tests.robot,TC_USER_039,Phone Exactly 5 Digits,edge-case,edge-case|user-management|boundary|phone
+241,UserManagement,tests/user_management_tests.robot,TC_USER_040,Phone Exactly 16 Digits,edge-case,edge-case|user-management|boundary|phone
+242,UserManagement,tests/user_management_tests.robot,TC_USER_041,Whitespace Only Username,edge-case,edge-case|user-management|validation|username
+243,UserManagement,tests/user_management_tests.robot,TC_USER_042,Whitespace Only First Name,edge-case,edge-case|user-management|validation|first-name
+244,UserManagement,tests/user_management_tests.robot,TC_USER_043,Whitespace Only Last Name,edge-case,edge-case|user-management|validation|last-name
+245,UserManagement,tests/user_management_tests.robot,TC_USER_044,Special Characters In Username,edge-case,edge-case|user-management|validation|username|special-chars
+246,UserManagement,tests/user_management_tests.robot,TC_USER_045,Verify Delete Confirmation Dialog Elements,positive,positive|user-management|delete|dialog
+247,RoleManagement,tests/role_management_tests.robot,TC_ROLE_001,Navigate To Manage Role Page,positive,positive|role-management|navigation|smoke
+248,RoleManagement,tests/role_management_tests.robot,TC_ROLE_002,Verify Role Grid Loads With Data,positive,positive|role-management|grid
+249,RoleManagement,tests/role_management_tests.robot,TC_ROLE_003,Verify Role Grid Has Pagination,positive,positive|role-management|grid|pagination
+250,RoleManagement,tests/role_management_tests.robot,TC_ROLE_004,Verify Create Role Button Visible,positive,positive|role-management|button|permission
+251,RoleManagement,tests/role_management_tests.robot,TC_ROLE_005,Open Create Role Form,positive,positive|role-management|create-form
+252,RoleManagement,tests/role_management_tests.robot,TC_ROLE_006,Verify Create Role Breadcrumb,positive,positive|role-management|create-form|breadcrumb
+253,RoleManagement,tests/role_management_tests.robot,TC_ROLE_007,Verify All Create Role Form Fields Present,positive,positive|role-management|create-form|fields
+254,RoleManagement,tests/role_management_tests.robot,TC_ROLE_008,Verify Submit Button Present On Create Form,positive,positive|role-management|create-form|button
+255,RoleManagement,tests/role_management_tests.robot,TC_ROLE_009,Verify Permissions Table Visible On Create Form,positive,positive|role-management|create-form|permissions
+256,RoleManagement,tests/role_management_tests.robot,TC_ROLE_010,Verify View All And Edit All Checkboxes Present,positive,positive|role-management|create-form|permissions
+257,RoleManagement,tests/role_management_tests.robot,TC_ROLE_011,Create Role With All Fields,positive,positive|role-management|create|e2e|smoke
+258,RoleManagement,tests/role_management_tests.robot,TC_ROLE_012,Create Role With Mandatory Fields Only,positive,positive|role-management|create|mandatory
+259,RoleManagement,tests/role_management_tests.robot,TC_ROLE_013,Create Role With Data Masking Checked,positive,positive|role-management|create|data-masking
+260,RoleManagement,tests/role_management_tests.robot,TC_ROLE_014,Create Role And Select View All Permissions,positive,positive|role-management|create|permissions
+261,RoleManagement,tests/role_management_tests.robot,TC_ROLE_015,Create Role And Select Edit All Permissions,positive,positive|role-management|create|permissions
+262,RoleManagement,tests/role_management_tests.robot,TC_ROLE_016,Search Role In Grid,positive,positive|role-management|search
+263,RoleManagement,tests/role_management_tests.robot,TC_ROLE_017,Delete Role And Verify Removal,positive,positive|role-management|delete|e2e|smoke
+264,RoleManagement,tests/role_management_tests.robot,TC_ROLE_018,Close Create Role Form Without Saving,positive,positive|role-management|close|form
+265,RoleManagement,tests/role_management_tests.robot,TC_ROLE_019,Close Form After Filling Fields Should Not Create Role,positive,positive|role-management|close|form
+266,RoleManagement,tests/role_management_tests.robot,TC_ROLE_020,Submit Without Filling Any Field,negative,negative|role-management|validation|empty
+267,RoleManagement,tests/role_management_tests.robot,TC_ROLE_021,Submit Without Selecting Account,negative,negative|role-management|validation|account
+268,RoleManagement,tests/role_management_tests.robot,TC_ROLE_022,Submit Without Role Name,negative,negative|role-management|validation|role-name
+269,RoleManagement,tests/role_management_tests.robot,TC_ROLE_023,Role Name More Than 250 Characters,negative,negative|role-management|validation|boundary|role-name
+270,RoleManagement,tests/role_management_tests.robot,TC_ROLE_024,Description More Than 500 Characters,negative,negative|role-management|validation|boundary|description
+271,RoleManagement,tests/role_management_tests.robot,TC_ROLE_025,Duplicate Role Name Should Show Error,negative,negative|role-management|validation|duplicate
+272,RoleManagement,tests/role_management_tests.robot,TC_ROLE_026,Whitespace Only Role Name,negative,negative|role-management|validation|role-name|whitespace
+273,RoleManagement,tests/role_management_tests.robot,TC_ROLE_027,Cannot Delete Own Role Shows Error,negative,negative|role-management|delete|guard|own-role
+274,RoleManagement,tests/role_management_tests.robot,TC_ROLE_028,Cancel Delete Confirmation Should Keep Role,negative,negative|role-management|delete|cancel
+275,RoleManagement,tests/role_management_tests.robot,TC_ROLE_029,Role Name Exactly 250 Characters,edge-case,edge-case|role-management|boundary|role-name
+276,RoleManagement,tests/role_management_tests.robot,TC_ROLE_030,Description Exactly 500 Characters,edge-case,edge-case|role-management|boundary|description
+277,RoleManagement,tests/role_management_tests.robot,TC_ROLE_031,Special Characters In Role Name,edge-case,edge-case|role-management|validation|role-name|special-chars
+278,RoleManagement,tests/role_management_tests.robot,TC_ROLE_032,Verify Delete Confirmation Dialog Elements,positive,positive|role-management|delete|dialog
+279,RoleManagement,tests/role_management_tests.robot,TC_ROLE_033,Verify Search Input On List Page,positive,positive|role-management|search|ui
