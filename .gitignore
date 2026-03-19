@@ -4,15 +4,22 @@ __pycache__/
 *.pyo
 *.egg-info/
 *.egg
+.run_seed.json
 
 # Robot Framework reports (all output goes into reports/<timestamp>/)
 reports/
 results/
+STC_Sanity_Automation/
 
 # Root-level output files (should not exist, but ignore if they do)
 /output.xml
 /log.html
 /report.html
+
+# Generated sanity reports
+STC_Sanity_Report_*.docx
+STC_Sanity_Report_*.pdf
+generate_sanity_report.py
 
 # Screenshots
 selenium-screenshot-*.png

@@ -40,31 +40,27 @@ ${LOC_PT_SUBMIT_BTN}            xpath=//a[contains(@class,'btn-custom-color') an
 # Close: <a href="javascript:void(0);" class="btn btn-cancel-color cursor-pointer width-75">Close</a>
 ${LOC_PT_CLOSE_BTN}             xpath=//a[contains(@class,'btn-cancel-color') and contains(.,'Close')]
 
-# ── Assign Customer Dialog (role='dialog') ──────────────────────────
+# ── Assign Customer Dialog (React Select multi-select, NOT Kendo) ──
 # Modal title
 ${LOC_ASSIGN_POPUP}                 xpath=//div[@role='dialog']//h4[normalize-space()='Assign Customers']
 # Close (X) button in dialog header
-${LOC_ASSIGN_CLOSE_X}              xpath=//div[@role='dialog'][.//h4[contains(.,'Assign Customers')]]//button[@type='button' and not(text())]
-# Customers dropdown input (placeholder="Select Customers")
-${LOC_ASSIGN_SELECT_CUSTOMERS}     xpath=//div[@role='dialog'][.//h4[contains(.,'Assign Customers')]]//input[@placeholder='Select Customers']
-# Customers dropdown arrow
-${LOC_ASSIGN_DD_ARROW}             xpath=//div[@role='dialog'][.//h4[contains(.,'Assign Customers')]]//*[contains(@class,'k-select')]
-# Dropdown list container (appears after clicking Select Customers)
-${LOC_ASSIGN_CUSTOMERS_MENU}       xpath=//div[@role='dialog'][.//h4[contains(.,'Assign Customers')]]//ul[contains(@class,'k-list') or contains(@class,'k-reset')]
-# First EC option in the dropdown list
-${LOC_ASSIGN_CUSTOMER_OPT_1}       xpath=(//div[@role='dialog'][.//h4[contains(.,'Assign Customers')]]//li[contains(@class,'k-item')])[1]
+${LOC_ASSIGN_CLOSE_X}              xpath=//div[@role='dialog'][.//h4[contains(.,'Assign Customers')]]//button[@type='button']
+# React Select control area (click to focus)
+${LOC_ASSIGN_SELECT_CONTROL}       xpath=//div[@role='dialog']//div[contains(@class,'select__control')]
+# React Select hidden text input (for typing to filter)
+${LOC_ASSIGN_SELECT_INPUT}         xpath=//div[@role='dialog']//input[@id='react-select-2-input']
+# React Select dropdown indicator arrow
+${LOC_ASSIGN_DD_ARROW}             xpath=//div[@role='dialog']//div[contains(@class,'select__dropdown-indicator')]
 # "Assign to All Customers" label
 ${LOC_ASSIGN_ALL_LABEL}            xpath=//div[@role='dialog']//span[normalize-space()='Assign to All Customers']
 # Yes radio button
-${LOC_ASSIGN_ALL_YES}              xpath=//div[@role='dialog'][.//h4[contains(.,'Assign Customers')]]//label[normalize-space()='Yes']//input[@type='radio']
+${LOC_ASSIGN_ALL_YES}              xpath=//div[@role='dialog']//input[@name='selectAllCustomers' and @value='true']
 # No radio button
-${LOC_ASSIGN_ALL_NO}               xpath=//div[@role='dialog'][.//h4[contains(.,'Assign Customers')]]//label[normalize-space()='No']//input[@type='radio']
-# Update (Assign dialog): <button class="btn btn-custom-color cursor-pointer width-75 m-r-10">Update</button>
-# Scoped inside the modal dialog to avoid conflict with Create form's <a> Submit
-${LOC_ASSIGN_UPDATE_BTN}           xpath=//div[contains(@class,'modal') and contains(@style,'display: block')]//button[contains(@class,'btn-custom-color')]
-# Close (Assign dialog): <button class="btn btn-cancel-color cursor-pointer width-75">Close</button>
-# Scoped inside the modal dialog to avoid conflict with Create form's <a> Close
-${LOC_ASSIGN_CLOSE_BTN}            xpath=//div[contains(@class,'modal') and contains(@style,'display: block')]//button[contains(@class,'btn-cancel-color')]
+${LOC_ASSIGN_ALL_NO}               xpath=//div[@role='dialog']//input[@name='selectAllCustomers' and @value='false']
+# Update button inside #customers div
+${LOC_ASSIGN_UPDATE_BTN}           xpath=//div[@id='customers']//button[contains(@class,'btn-custom-color')]
+# Close button inside #customers div
+${LOC_ASSIGN_CLOSE_BTN}            xpath=//div[@id='customers']//button[contains(@class,'btn-cancel-color')]
 
 # ── Grid Expand / No Data ──────────────────────────────────────────
 # Expand icon (row collapsed): <a class="k-icon k-i-expand">

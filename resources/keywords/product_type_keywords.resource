@@ -231,39 +231,91 @@ Verify Redirected To Product Type Listing
 # ═══════════════════════════════════════════════════════════════════════
 Click Assign Customer Icon On First Row
     [Documentation]    Clicks the Assign-Customer icon on the first grid row, waits for
-    ...                the Assign Customers dialog to open and loading to complete.
+    ...                the Assign Customers dialog to open.
     Wait Until Element Is Visible    ${LOC_PT_ASSIGN_CUST_ICON}    ${PT_TIMEOUT}
     Click Element Via JS             ${LOC_PT_ASSIGN_CUST_ICON}
     Wait Until Element Is Visible    ${LOC_ASSIGN_POPUP}           ${PT_TIMEOUT}
-    Wait For App Loading To Complete
-    Sleep    2s
-    Log    Assign Customers dialog opened and fully loaded.
+    Sleep    3s
+    Log    Assign Customers dialog opened.
 
 Verify Assign Customer Icon Visible
     [Documentation]    Asserts the Assign-Customer icon is visible in the grid.
     Wait Until Element Is Visible    ${LOC_PT_ASSIGN_CUST_ICON}    ${PT_TIMEOUT}
 
 Select First Enterprise Customer
-    [Documentation]    Clicks the Select Customers input to open the EC dropdown,
-    ...                retries click if list does not open, then clicks the first EC.
-    Wait For App Loading To Complete
-    Wait Until Element Is Visible    ${LOC_ASSIGN_POPUP}               ${PT_TIMEOUT}
-    Wait Until Element Is Visible    ${LOC_ASSIGN_SELECT_CUSTOMERS}    ${PT_TIMEOUT}
-    Wait Until Keyword Succeeds      3x    2s    Open EC Dropdown And Select First
-
-Open EC Dropdown And Select First
-    [Documentation]    Single attempt: click Select Customers input, wait for list, click first EC.
-    Click Element Via JS             ${LOC_ASSIGN_SELECT_CUSTOMERS}
+    [Documentation]    Opens the React Select dropdown in the Assign Customer dialog,
+    ...                types the EC name to filter, then clicks the matching option.
+    [Arguments]    ${ec_name}=${PT_EC_ACCOUNT_NAME}
+    Wait Until Element Is Visible    ${LOC_ASSIGN_POPUP}    ${PT_TIMEOUT}
     Sleep    2s
-    Wait Until Element Is Visible    ${LOC_ASSIGN_CUSTOMER_OPT_1}      10s
-    Click Element Via JS             ${LOC_ASSIGN_CUSTOMER_OPT_1}
+    Wait Until Keyword Succeeds    3x    3s    Open React Select And Pick EC    ${ec_name}
     Sleep    1s
+    Log    EC '${ec_name}' selected in Assign Customer dialog.
+
+Open React Select And Pick EC
+    [Documentation]    Opens the React Select dropdown by focusing the input, types the full
+    ...                EC name using Selenium Press Keys, waits up to 30s for the API-backed
+    ...                search to return results, then clicks the matching option.
+    [Arguments]    ${ec_name}
+    # Step 1: Focus the React Select input via JS (hidden behind placeholder)
+    Execute JavaScript
+    ...    var inp = document.querySelector('div[role="dialog"] input[id*="react-select"]');
+    ...    if (inp) { inp.focus(); inp.style.opacity = '1'; inp.style.width = '200px'; }
+    Sleep    1s
+    # Step 2: Clear any previous text and type full EC name
+    ${inp_loc}=    Set Variable    xpath=//div[@role='dialog']//input[contains(@id,'react-select')]
+    Press Keys    ${inp_loc}    CTRL+a    BACKSPACE
+    Sleep    0.5s
+    Press Keys    ${inp_loc}    ${ec_name}
+    Log    Typed '${ec_name}' — waiting up to 30s for search results...    console=yes
+    # Step 3: Poll for matching option to appear (API search takes 20-30s)
+    ${clicked}=    Set Variable    ${EMPTY}
+    FOR    ${attempt}    IN RANGE    1    7
+        Sleep    5s
+        ${clicked}=    Execute JavaScript
+        ...    var menu = document.querySelector('div[class*="select__menu"]');
+        ...    if (!menu) return '';
+        ...    var opts = menu.querySelectorAll('div[class*="select__option"]');
+        ...    for (var i = 0; i < opts.length; i++) {
+        ...        var text = opts[i].textContent.trim();
+        ...        if (text === '${ec_name}') {
+        ...            opts[i].scrollIntoView({block: 'nearest'});
+        ...            opts[i].click();
+        ...            return 'exact: ' + text;
+        ...        }
+        ...    }
+        ...    for (var i = 0; i < opts.length; i++) {
+        ...        if (opts[i].textContent.indexOf('${ec_name}') >= 0) {
+        ...            opts[i].scrollIntoView({block: 'nearest'});
+        ...            opts[i].click();
+        ...            return 'partial: ' + opts[i].textContent.trim();
+        ...        }
+        ...    }
+        ...    return '';
+        IF    '${clicked}' != ''    BREAK
+        Log    Attempt ${attempt}/6: option not yet available, waiting...    console=yes
+    END
+    Should Not Be Empty    ${clicked}    EC '${ec_name}' not found after 30s of polling.
+    Log    EC selected: ${clicked}    console=yes
 
 Click Update EC Assignment
-    [Documentation]    Waits for loading to complete, then clicks the Update button.
-    Wait For App Loading To Complete
-    Wait Until Element Is Visible    ${LOC_ASSIGN_UPDATE_BTN}    ${PT_TIMEOUT}
-    Click Element Via JS             ${LOC_ASSIGN_UPDATE_BTN}
+    [Documentation]    Clicks the Update button inside the Assign Customer dialog.
+    Sleep    2s
+    ${found}=    Run Keyword And Return Status
+    ...    Wait Until Element Is Visible    ${LOC_ASSIGN_UPDATE_BTN}    15s
+    IF    ${found}
+        Click Element Via JS    ${LOC_ASSIGN_UPDATE_BTN}
+    ELSE
+        ${clicked}=    Execute JavaScript
+        ...    var btns = document.querySelectorAll('div#customers button.btn-custom-color, div.modal button.btn-custom-color');
+        ...    for (var i = 0; i < btns.length; i++) {
+        ...        if (btns[i].textContent.trim() === 'Update') { btns[i].click(); return true; }
+        ...    }
+        ...    return false;
+        Should Be True    ${clicked}    Update button not found in Assign Customer dialog.
+    END
+    Sleep    2s
+    Log    Update button clicked.
 
 Click Close Assign Customer Popup
     [Documentation]    Waits for loading to complete, then clicks the Close button in dialog

@@ -28,7 +28,7 @@ UM_BU_ACCOUNT_NAME = "billingAccountSANJ_1003"
 UM_USER_CATEGORY = "NormalUser"
 UM_ROLE_NAME = "BillingAccount_Admin"
 UM_TIMEZONE_TEXT = "(GMT+03:00) Kuwait, Riyadh"
-UM_COUNTRY_TEXT = "India"
+UM_COUNTRY_TEXT = "Saudi Arabia"
 
 # ── Test User Data (from MD: Step 7–16) ──────────────────────────────
 # Username: min 5 chars, max 50 chars, must be unique

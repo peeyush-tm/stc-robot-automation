@@ -95,13 +95,15 @@ TC_ROLE_010 Verify View All And Edit All Checkboxes Present
 
 TC_ROLE_011 Create Role With All Fields
     [Documentation]    MD: TC-ROLE-001 full E2E — Steps 3.1–5.4:
-    ...                Open form → Select Account → Enter Role Name → Enter Description →
+    ...                Open form → Select Account (KSA_OPCO → SANJ_1002 → billingAccountSANJ_1003) →
+    ...                Enter Role Name → Enter Description →
+    ...                Configure View/Edit permissions for first 3 modules →
     ...                Leave Data Masking unchecked → Submit →
     ...                Verify success toast → Verify back on /ManageRole →
     ...                Search for role → Verify role in grid.
     [Tags]    positive    role-management    create    e2e    smoke
     Open Create Role Form
-    Fill Role Creation Form
+    Fill Role Creation Form With Permissions
     Click Role Submit Button
     Verify Role Success Toast
     Refresh Manage Role Page

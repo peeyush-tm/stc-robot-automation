@@ -72,7 +72,7 @@ pip install robotframework-seleniumlibrary
 ### 4.2 Run Command
 
 ```bash
-robot --outputdir results tests/TC_005_Create_CSR_Journey.robot
+robot --outputdir reports tests/csr_journey_tests.robot
 ```
 
 ### 4.3 Project Structure (aligned to TC_001 / TC_002 / TC_003 / TC_004)
@@ -1229,7 +1229,7 @@ After selecting APN → click **Save** → click **Fetch Device Plan** → wait 
 ### Run Command
 
 ```bash
-robot --outputdir results tests/csr_journey_tests.robot
+robot --outputdir reports tests/csr_journey_tests.robot
 ```
 
 ### 17.6 Test Case List (55 tests)

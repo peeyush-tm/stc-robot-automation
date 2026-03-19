@@ -27,5 +27,8 @@ PT_PACKAGING_SIZE = "100"
 PT_COMMENT = "Automation test product type"
 PT_DESC_EN = "Test product type created by automation"
 
+# ── EC Account for Assign Customer ──────────────────────────────────
+PT_EC_ACCOUNT_NAME = "SANJ_1002"
+
 # ── Duplicate Test Data ─────────────────────────────────────────────
 DUPLICATE_PT_NAME = "Test SIM Product Type"

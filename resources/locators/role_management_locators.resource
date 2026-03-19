@@ -5,10 +5,10 @@
 # ══════════════════════════════════════════════════════════════════════
 
 # ── Navigation (MD: Locator Reference → Admin, Role & Access) ────────
-# Admin menu item — Text: 'Admin'
-${LOC_NAV_ADMIN}                   xpath=//span[text()='Admin'] | //a[normalize-space(text())='Admin']
-# Role & Access sub-menu — Text: 'Role & Access'
-${LOC_NAV_ROLE_ACCESS}             xpath=//span[text()='Role & Access'] | //a[normalize-space(text())='Role & Access'] | //a[@href='/ManageRole']
+# Admin sidebar icon (same as User Management — <i class="admin-menu-icon">)
+${LOC_RM_SIDEBAR_ADMIN}            xpath=//i[contains(@class,'admin-menu-icon')]
+# Role & Access sub-tab: <a href="/ManageRole">Role &amp; Access</a>
+${LOC_RM_ROLE_ACCESS_TAB}          xpath=//a[@href='/ManageRole'] | //a[contains(@href,'/ManageRole')]
 
 # ── Manage Role Page (MD: Step 1.2) ─────────────────────────────────
 ${LOC_ROLE_GRID}                   xpath=//div[contains(@class,'k-grid')]
@@ -16,7 +16,7 @@ ${LOC_ROLE_GRID_COLUMN_HEADER}     xpath=//th[@role='columnheader']
 ${LOC_ROLE_GRID_PAGINATION}        xpath=//*[contains(@class,'k-pager-wrap')]
 
 # ── Create Role Button (MD: Locator Reference → CSS .btn-custom-color, Text: Create Role) ──
-${LOC_BTN_CREATE_ROLE}             xpath=//a[contains(text(),'Create Role')] | //a[contains(@class,'btn-custom-color') and contains(@href,'/CreateRole')]
+${LOC_BTN_CREATE_ROLE}             xpath=//a[contains(@href,'/CreateRole')] | //a[contains(text(),'Create Role')] | //a[contains(@class,'btn-custom-color') and contains(text(),'Create')]
 
 # ── Breadcrumb (MD: Step 2.3 — "Role & Access > Create") ────────────
 ${LOC_BREADCRUMB_CREATE}           xpath=//*[contains(text(),'Create')] | //li[contains(@class,'breadcrumb') and contains(text(),'Create')]
@@ -25,8 +25,12 @@ ${LOC_BREADCRUMB_CREATE}           xpath=//*[contains(text(),'Create')] | //li[c
 
 # Account — TreeView Dropdown (MD: Name: accountId / accountName)
 ${LOC_ROLE_ACCOUNT_DROPDOWN}       xpath=//input[@name='accountName'] | //input[@name='accountId'] | //div[contains(@class,'TreeViewDropdown')]//input
-${LOC_ROLE_ACCOUNT_TREE}           xpath=//div[contains(@class,'k-treeview')] | //ul[contains(@class,'k-treeview')]
+${LOC_ROLE_ACCOUNT_TREE}           xpath=//div[contains(@id,'showTreeView')] | //div[contains(@class,'k-treeview')] | //ul[contains(@class,'k-treeview')]
 ${LOC_ROLE_ACCOUNT_FIRST_NODE}     xpath=(//div[contains(@class,'k-treeview')]//span[contains(@class,'k-in')] | //ul[contains(@class,'k-treeview')]//li//span[contains(@class,'k-in')])[1]
+# TreeView expansion — root expand icon
+${LOC_ROLE_TREE_ROOT_EXPAND}       xpath=(//div[contains(@id,'showTreeView')]//span[contains(@class,'k-i-expand')])[1] | (//div[contains(@class,'k-treeview')]//span[contains(@class,'k-i-expand')])[1]
+# TreeView root node text
+${LOC_ROLE_TREE_ROOT_NODE}         xpath=(//div[contains(@id,'showTreeView')]//span[contains(@class,'k-in')])[1] | (//div[contains(@class,'k-treeview')]//span[contains(@class,'k-in')])[1]
 
 # Role Name (MD: Name: roleName, max 250 chars)
 ${LOC_INPUT_ROLE_NAME}             xpath=//input[@name='roleName']
@@ -38,18 +42,21 @@ ${LOC_INPUT_ROLE_DESCRIPTION}      xpath=//input[@name='roleDescription'] | //te
 ${LOC_CHK_DATA_MASKING}            xpath=//input[@name='accountCheckbox']
 
 # ── Permissions Table (MD: Step 4, Locator Reference) ────────────────
+# DOM: js-role-view / js-role-edit are NAME attributes, not CSS classes
 
-# View permission per screen (MD: CSS class: js-role-view)
-${LOC_CHK_VIEW_PERMISSION}         xpath=//input[contains(@class,'js-role-view')]
-# Edit permission per screen (MD: CSS class: js-role-edit)
-${LOC_CHK_EDIT_PERMISSION}         xpath=//input[contains(@class,'js-role-edit')]
-# View All header checkbox (MD: CSS class: js-role-viewheader)
-${LOC_CHK_VIEW_ALL}                xpath=//input[contains(@class,'js-role-viewheader')]
-# Edit All header checkbox (MD: CSS class: js-role-editheader)
-${LOC_CHK_EDIT_ALL}                xpath=//input[contains(@class,'js-role-editheader')]
+# View permission per screen (name='js-role-view')
+${LOC_CHK_VIEW_PERMISSION}         xpath=//input[@name='js-role-view']
+# Edit permission per screen (name='js-role-edit')
+${LOC_CHK_EDIT_PERMISSION}         xpath=//input[@name='js-role-edit']
+# View All header checkbox (name='js-role-viewheader')
+${LOC_CHK_VIEW_ALL}                xpath=//input[@name='js-role-viewheader']
+# Edit All header checkbox (name='js-role-editheader')
+${LOC_CHK_EDIT_ALL}                xpath=//input[@name='js-role-editheader']
 
-# Permissions table container
-${LOC_PERMISSIONS_TABLE}           xpath=//table[contains(@class,'permission')] | //div[contains(@class,'permission')]//table | //table[.//input[contains(@class,'js-role-view')]]
+# Permissions wrapper: div.gc-module-selector-wrapper
+${LOC_PERMISSIONS_TABLE}           xpath=//div[contains(@class,'gc-module-selector-wrapper')]
+# Individual module tables inside the wrapper
+${LOC_PERMISSIONS_MODULE_TABLE}    xpath=//table[contains(@class,'gc-module-selector-table')]
 
 # ── Permission Popup Modals (MD: Locator Reference → IDs) ───────────
 # Permission popup (Tab)
@@ -64,10 +71,10 @@ ${LOC_ROLES_TRIGGERS_POPUP}        xpath=//*[@id='openRolesTriggersPopup']
 ${LOC_POPUP_SAVE_BTN}              xpath=//div[contains(@class,'modal') and contains(@class,'show')]//button[contains(text(),'Save')]
 
 # ── Form Buttons (MD: Locator Reference → Submit/Update) ────────────
-# Submit button (create mode) — Text: 'Submit'
-${LOC_BTN_SUBMIT_ROLE}             xpath=//a[contains(text(),'Submit')] | //button[contains(text(),'Submit')]
-# Close / Back button
-${LOC_BTN_CLOSE_ROLE}              xpath=//a[contains(text(),'Close')] | //button[contains(text(),'Close')] | //a[contains(text(),'Back')]
+# Submit: <a href="javascript:void(0);" class="btn btn-custom-color cursor-pointer pull-right m-r-10 width-75">Submit</a>
+${LOC_BTN_SUBMIT_ROLE}             xpath=//a[contains(@class,'btn-custom-color') and normalize-space()='Submit'] | //a[contains(text(),'Submit') and contains(@class,'btn')] | //button[contains(text(),'Submit')]
+# Close: <a class="btn btn-cancel-color pull-right width-75 m-r-10" href="/ManageRole">Close</a>
+${LOC_BTN_CLOSE_ROLE}              xpath=//a[contains(@class,'btn-cancel-color') and normalize-space()='Close'] | //a[contains(text(),'Close') and @href='/ManageRole'] | //button[contains(text(),'Close')]
 
 # ── Search Input on List Page (MD: Locator Reference → Name: searchValue) ──
 ${LOC_ROLE_SEARCH_INPUT}           xpath=//input[@name='searchValue'] | //input[@placeholder='Enter Search Text']

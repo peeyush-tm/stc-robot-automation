@@ -847,7 +847,7 @@ This section documents the **actual implementation** in the project, mapping bac
 ### Run Command
 
 ```bash
-robot --outputdir results tests/cost_center_tests.robot
+robot --outputdir reports tests/cost_center_tests.robot
 ```
 
 ### Test Case List (25 tests)

@@ -3,8 +3,11 @@ Library     RequestsLibrary
 Library     XML
 Library     Collections
 Library     String
+Library     SeleniumLibrary
 Resource    ../resources/keywords/api_keywords.resource
 Variables   ../variables/onboard_customer_variables.py
+Variables   ../config/env_config.py
+Variables   ../variables/login_variables.py
 
 Suite Setup       Create Onboard API Session
 Suite Teardown    Delete All Sessions
@@ -16,9 +19,23 @@ Suite Teardown    Delete All Sessions
 
 TC_ONBOARD_001 Create Customer And Billing Account With All Fields
     [Documentation]    Sends createOnboardCustomer SOAP request with all fields populated.
-    ...                Verifies HTTP 200, no SOAP fault.
-    [Tags]    smoke    positive    onboard    e2e    api
+    ...                Verifies HTTP 200, no SOAP fault, resultCode, EC + BU in response.
+    ...                Then waits 10 minutes for the system to process the request,
+    ...                opens browser, logs in, navigates to ManageAccount,
+    ...                and verifies EC + BU are visible on the account page.
+    [Tags]    smoke    positive    onboard    e2e    api    ui-verify
+    [Timeout]    20 minutes
+    # ── Step 1: Generate unique test data ──
     ${data}=    Generate Unique Test Data
+    Log    ===== ONBOARD REQUEST DATA =====    console=yes
+    Log    EC Name (companyName): ${data}[company_name]    console=yes
+    Log    BU Name (billingAccountName): ${data}[billing_account_name]    console=yes
+    Log    BU Number (billingAccountNumber): ${data}[billing_account_number]    console=yes
+    Log    Order Number: ${data}[order_number]    console=yes
+    Log    Task ID: ${data}[task_id]    console=yes
+    Log    Business Unit Name: ${data}[business_unit_name]    console=yes
+    Log    Customer Ref Number: ${data}[customer_reference_number]    console=yes
+    # ── Step 2: Build and send SOAP request ──
     ${soap_body}=    Build Onboard Customer SOAP Envelope
     ...    order_number=${data}[order_number]
     ...    task_id=${data}[task_id]
@@ -28,9 +45,21 @@ TC_ONBOARD_001 Create Customer And Billing Account With All Fields
     ...    billing_account_name=${data}[billing_account_name]
     ...    billing_account_number=${data}[billing_account_number]
     ${response}=    Send Onboard Customer Request    ${soap_body}
-    Verify Response Status Code    ${response}    200
-    Verify SOAP Response Does Not Contain Fault    ${response}
-    Log    Full response: ${response.text}
+    # ── Step 3: Log server response ──
+    Log    ===== SERVER RESPONSE =====    console=yes
+    Log    Status Code: ${response.status_code}    console=yes
+    Log    Response Body: ${response.text}    console=yes
+    # ── Step 4: Validate API response ──
+    Verify EC And BU Created Successfully    ${response}    ${data}[company_name]    ${data}[billing_account_name]
+    Log    API validation passed. EC: ${data}[company_name] | BU: ${data}[billing_account_name]    console=yes
+    # ── Step 5: Wait 10 minutes for system processing ──
+    Log    Waiting 10 minutes for system to process onboarding...    console=yes
+    Sleep    10m
+    Log    10 minute wait completed. Starting UI verification.    console=yes
+    # ── Step 6: Verify EC and BU on ManageAccount page ──
+    Verify EC And BU On Account Page    ${data}[company_name]    ${data}[billing_account_name]
+    Log    ===== FULL VERIFICATION PASSED =====    console=yes
+    Log    EC '${data}[company_name]' and BU '${data}[billing_account_name]' verified on UI.    console=yes
 
 TC_ONBOARD_002 Create Customer Without Optional UnifiedID
     [Documentation]    Sends request with unifiedID left empty (optional).
@@ -46,8 +75,7 @@ TC_ONBOARD_002 Create Customer Without Optional UnifiedID
     ...    billing_account_number=${data}[billing_account_number]
     ...    unified_id=${EMPTY}
     ${response}=    Send Onboard Customer Request    ${soap_body}
-    Verify Response Status Code    ${response}    200
-    Verify SOAP Response Does Not Contain Fault    ${response}
+    Verify Onboard Response Is Successful    ${response}
 
 TC_ONBOARD_003 Create Customer Without Optional Address Lines 2 To 5
     [Documentation]    Only mandatory addressLine1 for customer address.
@@ -66,8 +94,7 @@ TC_ONBOARD_003 Create Customer Without Optional Address Lines 2 To 5
     ...    customer_address_line4=${EMPTY}
     ...    customer_address_line5=${EMPTY}
     ${response}=    Send Onboard Customer Request    ${soap_body}
-    Verify Response Status Code    ${response}    200
-    Verify SOAP Response Does Not Contain Fault    ${response}
+    Verify Onboard Response Is Successful    ${response}
 
 TC_ONBOARD_004 Create Customer Without Optional AlternateName
     [Documentation]    alternateName left empty.
@@ -83,8 +110,7 @@ TC_ONBOARD_004 Create Customer Without Optional AlternateName
     ...    billing_account_number=${data}[billing_account_number]
     ...    alternate_name=${EMPTY}
     ${response}=    Send Onboard Customer Request    ${soap_body}
-    Verify Response Status Code    ${response}    200
-    Verify SOAP Response Does Not Contain Fault    ${response}
+    Verify Onboard Response Is Successful    ${response}
 
 TC_ONBOARD_005 Create Customer Without Optional TechContactPersonMobile
     [Documentation]    techContactPersonMobile empty.
@@ -100,8 +126,7 @@ TC_ONBOARD_005 Create Customer Without Optional TechContactPersonMobile
     ...    billing_account_number=${data}[billing_account_number]
     ...    tech_contact_person_mobile=${EMPTY}
     ${response}=    Send Onboard Customer Request    ${soap_body}
-    Verify Response Status Code    ${response}    200
-    Verify SOAP Response Does Not Contain Fault    ${response}
+    Verify Onboard Response Is Successful    ${response}
 
 TC_ONBOARD_006 Create Customer Without Optional TechContactPersonEmail
     [Documentation]    techContactPersonEmail empty.
@@ -117,8 +142,7 @@ TC_ONBOARD_006 Create Customer Without Optional TechContactPersonEmail
     ...    billing_account_number=${data}[billing_account_number]
     ...    tech_contact_person_email=${EMPTY}
     ${response}=    Send Onboard Customer Request    ${soap_body}
-    Verify Response Status Code    ${response}    200
-    Verify SOAP Response Does Not Contain Fault    ${response}
+    Verify Onboard Response Is Successful    ${response}
 
 TC_ONBOARD_007 Create Customer Without Optional LeadPersonOrAccManagerID
     [Documentation]    leadPersonOrAccManagerID empty.
@@ -134,8 +158,7 @@ TC_ONBOARD_007 Create Customer Without Optional LeadPersonOrAccManagerID
     ...    billing_account_number=${data}[billing_account_number]
     ...    lead_person_or_acc_manager_id=${EMPTY}
     ${response}=    Send Onboard Customer Request    ${soap_body}
-    Verify Response Status Code    ${response}    200
-    Verify SOAP Response Does Not Contain Fault    ${response}
+    Verify Onboard Response Is Successful    ${response}
 
 TC_ONBOARD_008 Create Customer Without Optional Billing Address Lines 2 To 5
     [Documentation]    billingAddress lines 2-5 empty.
@@ -154,8 +177,7 @@ TC_ONBOARD_008 Create Customer Without Optional Billing Address Lines 2 To 5
     ...    billing_address_line4=${EMPTY}
     ...    billing_address_line5=${EMPTY}
     ${response}=    Send Onboard Customer Request    ${soap_body}
-    Verify Response Status Code    ${response}    200
-    Verify SOAP Response Does Not Contain Fault    ${response}
+    Verify Onboard Response Is Successful    ${response}
 
 TC_ONBOARD_009 Create Customer With Only Mandatory Fields
     [Documentation]    All optional fields empty — minimal valid payload.
@@ -188,8 +210,7 @@ TC_ONBOARD_009 Create Customer With Only Mandatory Fields
     ...    billing_address_line4=${EMPTY}
     ...    billing_address_line5=${EMPTY}
     ${response}=    Send Onboard Customer Request    ${soap_body}
-    Verify Response Status Code    ${response}    200
-    Verify SOAP Response Does Not Contain Fault    ${response}
+    Verify Onboard Response Is Successful    ${response}
 
 # ═══════════════════════════════════════════════════════════════════════
 #  NEGATIVE TEST CASES — Missing Mandatory Fields
@@ -209,7 +230,7 @@ TC_ONBOARD_010 Missing CustomerReferenceNumber Should Return Error
     ${response}=    Send Onboard Customer Request    ${soap_body}
     Log    Response: ${response.text}
     ${is_200}=    Run Keyword And Return Status    Verify Response Status Code    ${response}    200
-    IF    ${is_200}    Verify SOAP Fault Present    ${response}    END
+    IF    ${is_200}    Verify SOAP Fault Present    ${response}
 
 TC_ONBOARD_011 Missing CompanyName Should Return Error
     [Documentation]    companyName empty — mandatory field.
@@ -225,7 +246,7 @@ TC_ONBOARD_011 Missing CompanyName Should Return Error
     ${response}=    Send Onboard Customer Request    ${soap_body}
     Log    Response: ${response.text}
     ${is_200}=    Run Keyword And Return Status    Verify Response Status Code    ${response}    200
-    IF    ${is_200}    Verify SOAP Fault Present    ${response}    END
+    IF    ${is_200}    Verify SOAP Fault Present    ${response}
 
 TC_ONBOARD_012 Missing FirstName Should Return Error
     [Documentation]    firstName empty — mandatory field.
@@ -242,7 +263,7 @@ TC_ONBOARD_012 Missing FirstName Should Return Error
     ${response}=    Send Onboard Customer Request    ${soap_body}
     Log    Response: ${response.text}
     ${is_200}=    Run Keyword And Return Status    Verify Response Status Code    ${response}    200
-    IF    ${is_200}    Verify SOAP Fault Present    ${response}    END
+    IF    ${is_200}    Verify SOAP Fault Present    ${response}
 
 TC_ONBOARD_013 Missing LastName Should Return Error
     [Documentation]    lastName empty — mandatory field.
@@ -259,7 +280,7 @@ TC_ONBOARD_013 Missing LastName Should Return Error
     ${response}=    Send Onboard Customer Request    ${soap_body}
     Log    Response: ${response.text}
     ${is_200}=    Run Keyword And Return Status    Verify Response Status Code    ${response}    200
-    IF    ${is_200}    Verify SOAP Fault Present    ${response}    END
+    IF    ${is_200}    Verify SOAP Fault Present    ${response}
 
 TC_ONBOARD_014 Missing IdentityNumber Should Return Error
     [Documentation]    identityNumber empty — mandatory field.
@@ -276,7 +297,7 @@ TC_ONBOARD_014 Missing IdentityNumber Should Return Error
     ${response}=    Send Onboard Customer Request    ${soap_body}
     Log    Response: ${response.text}
     ${is_200}=    Run Keyword And Return Status    Verify Response Status Code    ${response}    200
-    IF    ${is_200}    Verify SOAP Fault Present    ${response}    END
+    IF    ${is_200}    Verify SOAP Fault Present    ${response}
 
 TC_ONBOARD_015 Missing CustomerSegmentCode Should Return Error
     [Documentation]    customerSegmentCode empty — mandatory field.
@@ -293,7 +314,7 @@ TC_ONBOARD_015 Missing CustomerSegmentCode Should Return Error
     ${response}=    Send Onboard Customer Request    ${soap_body}
     Log    Response: ${response.text}
     ${is_200}=    Run Keyword And Return Status    Verify Response Status Code    ${response}    200
-    IF    ${is_200}    Verify SOAP Fault Present    ${response}    END
+    IF    ${is_200}    Verify SOAP Fault Present    ${response}
 
 TC_ONBOARD_016 Missing BusinessUnitName Should Return Error
     [Documentation]    businessUnitName empty — mandatory field.
@@ -309,7 +330,7 @@ TC_ONBOARD_016 Missing BusinessUnitName Should Return Error
     ${response}=    Send Onboard Customer Request    ${soap_body}
     Log    Response: ${response.text}
     ${is_200}=    Run Keyword And Return Status    Verify Response Status Code    ${response}    200
-    IF    ${is_200}    Verify SOAP Fault Present    ${response}    END
+    IF    ${is_200}    Verify SOAP Fault Present    ${response}
 
 TC_ONBOARD_017 Missing BillingAccountName Should Return Error
     [Documentation]    billingAccountName empty — mandatory field.
@@ -325,7 +346,7 @@ TC_ONBOARD_017 Missing BillingAccountName Should Return Error
     ${response}=    Send Onboard Customer Request    ${soap_body}
     Log    Response: ${response.text}
     ${is_200}=    Run Keyword And Return Status    Verify Response Status Code    ${response}    200
-    IF    ${is_200}    Verify SOAP Fault Present    ${response}    END
+    IF    ${is_200}    Verify SOAP Fault Present    ${response}
 
 TC_ONBOARD_018 Missing BillingAccountNumber Should Return Error
     [Documentation]    billingAccountNumber empty — mandatory field.
@@ -341,7 +362,7 @@ TC_ONBOARD_018 Missing BillingAccountNumber Should Return Error
     ${response}=    Send Onboard Customer Request    ${soap_body}
     Log    Response: ${response.text}
     ${is_200}=    Run Keyword And Return Status    Verify Response Status Code    ${response}    200
-    IF    ${is_200}    Verify SOAP Fault Present    ${response}    END
+    IF    ${is_200}    Verify SOAP Fault Present    ${response}
 
 TC_ONBOARD_019 Missing CustomerAddressLine1 Should Return Error
     [Documentation]    customer addressLine1 empty — mandatory field.
@@ -358,7 +379,7 @@ TC_ONBOARD_019 Missing CustomerAddressLine1 Should Return Error
     ${response}=    Send Onboard Customer Request    ${soap_body}
     Log    Response: ${response.text}
     ${is_200}=    Run Keyword And Return Status    Verify Response Status Code    ${response}    200
-    IF    ${is_200}    Verify SOAP Fault Present    ${response}    END
+    IF    ${is_200}    Verify SOAP Fault Present    ${response}
 
 TC_ONBOARD_020 Missing CustomerCountry Should Return Error
     [Documentation]    customer country empty — mandatory field.
@@ -375,7 +396,7 @@ TC_ONBOARD_020 Missing CustomerCountry Should Return Error
     ${response}=    Send Onboard Customer Request    ${soap_body}
     Log    Response: ${response.text}
     ${is_200}=    Run Keyword And Return Status    Verify Response Status Code    ${response}    200
-    IF    ${is_200}    Verify SOAP Fault Present    ${response}    END
+    IF    ${is_200}    Verify SOAP Fault Present    ${response}
 
 TC_ONBOARD_021 Missing OrderNumber In Header Should Return Error
     [Documentation]    orderNumber in SOAP header empty.
@@ -391,7 +412,7 @@ TC_ONBOARD_021 Missing OrderNumber In Header Should Return Error
     ${response}=    Send Onboard Customer Request    ${soap_body}
     Log    Response: ${response.text}
     ${is_200}=    Run Keyword And Return Status    Verify Response Status Code    ${response}    200
-    IF    ${is_200}    Verify SOAP Fault Present    ${response}    END
+    IF    ${is_200}    Verify SOAP Fault Present    ${response}
 
 TC_ONBOARD_022 Missing TaskID In Header Should Return Error
     [Documentation]    taskID in SOAP header empty.
@@ -407,7 +428,7 @@ TC_ONBOARD_022 Missing TaskID In Header Should Return Error
     ${response}=    Send Onboard Customer Request    ${soap_body}
     Log    Response: ${response.text}
     ${is_200}=    Run Keyword And Return Status    Verify Response Status Code    ${response}    200
-    IF    ${is_200}    Verify SOAP Fault Present    ${response}    END
+    IF    ${is_200}    Verify SOAP Fault Present    ${response}
 
 # ═══════════════════════════════════════════════════════════════════════
 #  NEGATIVE TEST CASES — Invalid Values
@@ -428,7 +449,7 @@ TC_ONBOARD_023 Invalid CustomerSegmentCode Should Return Error
     ${response}=    Send Onboard Customer Request    ${soap_body}
     Log    Response: ${response.text}
     ${is_200}=    Run Keyword And Return Status    Verify Response Status Code    ${response}    200
-    IF    ${is_200}    Verify SOAP Fault Present    ${response}    END
+    IF    ${is_200}    Verify SOAP Fault Present    ${response}
 
 TC_ONBOARD_024 Invalid CustomerType Should Return Error
     [Documentation]    Invalid customerType value.
@@ -445,7 +466,7 @@ TC_ONBOARD_024 Invalid CustomerType Should Return Error
     ${response}=    Send Onboard Customer Request    ${soap_body}
     Log    Response: ${response.text}
     ${is_200}=    Run Keyword And Return Status    Verify Response Status Code    ${response}    200
-    IF    ${is_200}    Verify SOAP Fault Present    ${response}    END
+    IF    ${is_200}    Verify SOAP Fault Present    ${response}
 
 TC_ONBOARD_025 Invalid BillHierarchyFlag Should Return Error
     [Documentation]    Invalid billHierarchyFlag (not Y/N).
@@ -462,7 +483,7 @@ TC_ONBOARD_025 Invalid BillHierarchyFlag Should Return Error
     ${response}=    Send Onboard Customer Request    ${soap_body}
     Log    Response: ${response.text}
     ${is_200}=    Run Keyword And Return Status    Verify Response Status Code    ${response}    200
-    IF    ${is_200}    Verify SOAP Fault Present    ${response}    END
+    IF    ${is_200}    Verify SOAP Fault Present    ${response}
 
 TC_ONBOARD_026 Invalid BillingAccountStatus Should Return Error
     [Documentation]    Invalid billingAccountStatus value.
@@ -479,7 +500,7 @@ TC_ONBOARD_026 Invalid BillingAccountStatus Should Return Error
     ${response}=    Send Onboard Customer Request    ${soap_body}
     Log    Response: ${response.text}
     ${is_200}=    Run Keyword And Return Status    Verify Response Status Code    ${response}    200
-    IF    ${is_200}    Verify SOAP Fault Present    ${response}    END
+    IF    ${is_200}    Verify SOAP Fault Present    ${response}
 
 TC_ONBOARD_027 Invalid MaxNumberIMSIs Non Numeric Should Return Error
     [Documentation]    Non-numeric maxNumberIMSIs.
@@ -496,7 +517,7 @@ TC_ONBOARD_027 Invalid MaxNumberIMSIs Non Numeric Should Return Error
     ${response}=    Send Onboard Customer Request    ${soap_body}
     Log    Response: ${response.text}
     ${is_200}=    Run Keyword And Return Status    Verify Response Status Code    ${response}    200
-    IF    ${is_200}    Verify SOAP Fault Present    ${response}    END
+    IF    ${is_200}    Verify SOAP Fault Present    ${response}
 
 TC_ONBOARD_028 Invalid CustomerGenre Should Return Error
     [Documentation]    Invalid customerGenre.
@@ -513,7 +534,7 @@ TC_ONBOARD_028 Invalid CustomerGenre Should Return Error
     ${response}=    Send Onboard Customer Request    ${soap_body}
     Log    Response: ${response.text}
     ${is_200}=    Run Keyword And Return Status    Verify Response Status Code    ${response}    200
-    IF    ${is_200}    Verify SOAP Fault Present    ${response}    END
+    IF    ${is_200}    Verify SOAP Fault Present    ${response}
 
 TC_ONBOARD_029 Invalid Category Should Return Error
     [Documentation]    Invalid category value.
@@ -530,7 +551,7 @@ TC_ONBOARD_029 Invalid Category Should Return Error
     ${response}=    Send Onboard Customer Request    ${soap_body}
     Log    Response: ${response.text}
     ${is_200}=    Run Keyword And Return Status    Verify Response Status Code    ${response}    200
-    IF    ${is_200}    Verify SOAP Fault Present    ${response}    END
+    IF    ${is_200}    Verify SOAP Fault Present    ${response}
 
 TC_ONBOARD_030 Invalid Email Format Should Return Error
     [Documentation]    Invalid email format for techContactPersonEmail.
@@ -547,7 +568,7 @@ TC_ONBOARD_030 Invalid Email Format Should Return Error
     ${response}=    Send Onboard Customer Request    ${soap_body}
     Log    Response: ${response.text}
     ${is_200}=    Run Keyword And Return Status    Verify Response Status Code    ${response}    200
-    IF    ${is_200}    Verify SOAP Fault Present    ${response}    END
+    IF    ${is_200}    Verify SOAP Fault Present    ${response}
 
 # ═══════════════════════════════════════════════════════════════════════
 #  EDGE CASES
@@ -691,7 +712,7 @@ TC_ONBOARD_039 Negative MaxNumberIMSIs Should Return Error
     Log    Response Status: ${response.status_code}
     Log    Response Body: ${response.text}
     ${is_200}=    Run Keyword And Return Status    Verify Response Status Code    ${response}    200
-    IF    ${is_200}    Verify SOAP Fault Present    ${response}    END
+    IF    ${is_200}    Verify SOAP Fault Present    ${response}
 
 TC_ONBOARD_040 Special Characters In CompanyName
     [Documentation]    Special characters in companyName.

@@ -207,10 +207,10 @@ Verify that the role created in TC-ROLE-001 (`AutoRole_001`) can be successfully
 | Role Name input | Text input | Name: `roleName` |
 | Role Description input | Text input | Name: `roleDescription` |
 | Data Masking checkbox | Checkbox | Name: `accountCheckbox` |
-| View permission checkbox (per screen) | Checkbox | CSS class: `js-role-view` |
-| Edit permission checkbox (per screen) | Checkbox | CSS class: `js-role-edit` |
-| View All header checkbox | Checkbox | CSS class: `js-role-viewheader` |
-| Edit All header checkbox | Checkbox | CSS class: `js-role-editheader` |
+| View permission checkbox (per screen) | Checkbox | `name` attribute: `js-role-view` → selector: `input[name="js-role-view"]` |
+| Edit permission checkbox (per screen) | Checkbox | `name` attribute: `js-role-edit` → selector: `input[name="js-role-edit"]` |
+| View All header checkbox | Checkbox | `name` attribute: `js-role-viewheader` → selector: `input[name="js-role-viewheader"]` |
+| Edit All header checkbox | Checkbox | `name` attribute: `js-role-editheader` → selector: `input[name="js-role-editheader"]` |
 | Submit / Update button | Button (`<a>`) | Text: `Submit` (create) / `Update` (edit) |
 | Search input (list page) | Text input | Name: `searchValue` |
 | Delete button (grid row) | Button (Kendo command) | Text: `Delete` (in Action column) |
@@ -249,7 +249,7 @@ This section documents the **actual implementation** in the project, mapping bac
 ### Run Command
 
 ```bash
-robot --outputdir results tests/role_management_tests.robot
+robot --outputdir reports tests/role_management_tests.robot
 ```
 
 ### Test Case List (33 tests)
@@ -292,9 +292,16 @@ robot --outputdir results tests/role_management_tests.robot
 
 ### Key Implementation Details
 
-- **Navigation:** Uses Admin icon → Role & Access sub-tab navigation
-- **Account TreeView:** Clicks the tree-view dropdown and selects first available account node
-- **Permissions:** Uses `js-role-view` / `js-role-edit` checkbox classes; `js-role-viewheader` / `js-role-editheader` for select-all
+- **Navigation:** Uses dynamic URL from `BASE_URL` (`env_config.py`) — constructs `${BASE_URL}/ManageRole` with trailing-slash stripping. No hardcoded URLs.
+- **Refresh Manage Role Page:** Skips re-navigation if already on `/ManageRole` (checks `Location Should Contain` first)
+- **Account TreeView:** Hierarchical expansion KSA_OPCO → SANJ_1002 → billingAccountSANJ_1003 using JavaScript-based TreeView discovery and expansion (same pattern as Create User)
+- **Permissions DOM:** The MD spec says `js-role-view`/`js-role-edit` are CSS classes, but in the actual DOM they are **`name` attributes**:
+  - View per-row: `<input name="js-role-view" ...>` (selector: `input[name="js-role-view"]`)
+  - Edit per-row: `<input name="js-role-edit" ...>` (selector: `input[name="js-role-edit"]`)
+  - View All header: `<input name="js-role-viewheader" ...>` (selector: `input[name="js-role-viewheader"]`)
+  - Edit All header: `<input name="js-role-editheader" ...>` (selector: `input[name="js-role-editheader"]`)
+- **Permissions Table Container:** `<div class="gc-module-selector-wrapper role-access">` containing 14 `<table class="gc-module-selector-table">` elements (one per module: Devices, Dashboard, Rate Plan, etc.)
+- **Checkbox Interaction:** All permission checkboxes use `Execute JavaScript` with `document.querySelector('input[name="..."]')` because they are not "visible" in Selenium's sense but can be clicked via JS
 - **Permission Popups:** Handles Tab, Ticketing, Notification, and Rule Engine Triggers popup modals with Save buttons
 - **Browser Session:** Suite-level login; test-level page refresh back to Manage Role
 - **Delete Guard:** TC_ROLE_027 tests that a user cannot delete their own role

@@ -20,6 +20,10 @@ RM_TIMEOUT = "30s"
 MANAGE_ROLE_PATH = "/ManageRole"
 CREATE_ROLE_PATH = "/CreateRole"
 
+# ── Account TreeView hierarchy (same as Create User) ─────────────────
+RM_EC_ACCOUNT_NAME = "SANJ_1002"
+RM_BU_ACCOUNT_NAME = "billingAccountSANJ_1003"
+
 # ── Test Data (MD: Test Data table) ──────────────────────────────────
 # Role Name: max 250 chars, must be unique
 ROLE_NAME = f"AutoRole_{_SUFFIX}"

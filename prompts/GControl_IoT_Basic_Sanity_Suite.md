@@ -1101,7 +1101,11 @@ This section documents the **actual implementation** in the project.
 ### Run Command
 
 ```bash
-robot --outputdir results tests/sanity_tests.robot
+# Recommended — routes all output (log, report, screenshots, CSV) to STC_Sanity_Automation/<timestamp>/
+python run_tests.py --suite tests/sanity_tests.robot
+
+# Manual run — RF output goes to reports/, screenshots/CSV go to STC_Sanity_Automation/<timestamp>/
+robot --outputdir reports tests/sanity_tests.robot
 ```
 
 ### Test Case List (48 tests)

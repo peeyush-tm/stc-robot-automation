@@ -13,8 +13,9 @@ Command-line override:
 _ENVIRONMENTS = {
     "dev": {
         # ── Application URLs ─────────────────────────────────────────
-        "BASE_URL": "https://192.168.1.26:7874",
-        "LOGIN_URL": "https://192.168.1.26:7874",
+        "BASE_URL": "https://192.168.1.26:7874/",
+        "LOGIN_URL": "https://192.168.1.26:7874/",
+        "MANAGE_DEVICES_URL": "https://192.168.1.26:7874/ManageDevices",
 
         # ── Login Credentials ────────────────────────────────────────
         "VALID_USERNAME": "ksa_opco",
@@ -23,13 +24,21 @@ _ENVIRONMENTS = {
         # ── Browser Settings ─────────────────────────────────────────
         "BROWSER": "chrome",
         "HEADLESS": False,
+        "IMPLICIT_WAIT": "10",
+        "PAGE_LOAD_TIMEOUT": "30",
 
         # ── Timeouts ─────────────────────────────────────────────────
         "DEFAULT_TIMEOUT": "30s",
-        "PAGE_LOAD_TIMEOUT": "60s",
-        "IMPLICIT_WAIT": "0s",
         "RETRY_COUNT": "3x",
         "RETRY_INTERVAL": "5s",
+
+        # ── Captcha Database ─────────────────────────────────────────
+        "DB_HOST": "192.168.1.122",
+        "DB_PORT": "3306",
+        "DB_NAME": "stc_s5_p1",
+        "DB_USER": "java_dev",
+        "DB_PASS": "Java@123",
+        "CAPTCHA_QUERY": "SELECT captcha_text FROM captcha ORDER BY id DESC LIMIT 1",
 
         # ── API Configuration ────────────────────────────────────────
         "ONBOARD_API_BASE_URL": "https://10.121.77.94:8443",
@@ -42,22 +51,30 @@ _ENVIRONMENTS = {
     },
 
     "staging": {
-        "BASE_URL": "https://staging.gcontrol-iot.example.com",
-        "LOGIN_URL": "https://staging.gcontrol-iot.example.com",
+        "BASE_URL": "https://192.168.1.26:7874/",
+        "LOGIN_URL": "https://192.168.1.26:7874/",
+        "MANAGE_DEVICES_URL": "https://192.168.1.26:7874/ManageDevices",
 
         "VALID_USERNAME": "ksa_opco",
         "VALID_PASSWORD": "Admin@123",
 
         "BROWSER": "chrome",
         "HEADLESS": False,
+        "IMPLICIT_WAIT": "10",
+        "PAGE_LOAD_TIMEOUT": "30",
 
         "DEFAULT_TIMEOUT": "30s",
-        "PAGE_LOAD_TIMEOUT": "60s",
-        "IMPLICIT_WAIT": "0s",
         "RETRY_COUNT": "3x",
         "RETRY_INTERVAL": "5s",
 
-        "ONBOARD_API_BASE_URL": "https://staging-api.gcontrol-iot.example.com",
+        "DB_HOST": "192.168.1.122",
+        "DB_PORT": "3306",
+        "DB_NAME": "stc_s5_p1",
+        "DB_USER": "java_dev",
+        "DB_PASS": "Java@123",
+        "CAPTCHA_QUERY": "SELECT captcha_text FROM captcha ORDER BY id DESC LIMIT 1",
+
+        "ONBOARD_API_BASE_URL": "https://10.121.77.94:8443",
         "API_VERIFY_SSL": False,
 
         "ROOT_ACCOUNT_NAME": "KSA_OPCO",
@@ -66,22 +83,30 @@ _ENVIRONMENTS = {
     },
 
     "prod": {
-        "BASE_URL": "https://gcontrol-iot.example.com",
-        "LOGIN_URL": "https://gcontrol-iot.example.com",
+        "BASE_URL": "https://192.168.1.26:7874/",
+        "LOGIN_URL": "https://192.168.1.26:7874/",
+        "MANAGE_DEVICES_URL": "https://192.168.1.26:7874/ManageDevices",
 
         "VALID_USERNAME": "ksa_opco",
         "VALID_PASSWORD": "Admin@123",
 
         "BROWSER": "chrome",
         "HEADLESS": True,
+        "IMPLICIT_WAIT": "10",
+        "PAGE_LOAD_TIMEOUT": "30",
 
         "DEFAULT_TIMEOUT": "30s",
-        "PAGE_LOAD_TIMEOUT": "60s",
-        "IMPLICIT_WAIT": "0s",
         "RETRY_COUNT": "3x",
         "RETRY_INTERVAL": "5s",
 
-        "ONBOARD_API_BASE_URL": "https://api.gcontrol-iot.example.com",
+        "DB_HOST": "192.168.1.122",
+        "DB_PORT": "3306",
+        "DB_NAME": "stc_s5_p1",
+        "DB_USER": "java_dev",
+        "DB_PASS": "Java@123",
+        "CAPTCHA_QUERY": "SELECT captcha_text FROM captcha ORDER BY id DESC LIMIT 1",
+
+        "ONBOARD_API_BASE_URL": "https://10.121.77.94:8443",
         "API_VERIFY_SSL": True,
 
         "ROOT_ACCOUNT_NAME": "KSA_OPCO",
@@ -90,30 +115,9 @@ _ENVIRONMENTS = {
     },
 }
 
-# Default environment when none is specified
 _DEFAULT_ENV = "dev"
 
 
-def get_variables(env=None):
-    """Return environment-specific variables as a dictionary.
-
-    Called by Robot Framework when the variable file is imported.
-    - ``Variables  ../config/env_config.py``         → env defaults to "dev"
-    - ``Variables  ../config/env_config.py  staging`` → env = "staging"
-    - ``robot --variable ENV:staging tests/``         → env = "staging"
-    """
-    if env is None:
-        env = _DEFAULT_ENV
-
-    env = str(env).strip().lower()
-
-    if env not in _ENVIRONMENTS:
-        raise ValueError(
-            f"Unknown environment '{env}'. "
-            f"Valid options: {', '.join(_ENVIRONMENTS.keys())}"
-        )
-
-    config = dict(_ENVIRONMENTS[env])
-    config["ENV"] = env
-
-    return config
+def get_variables(ENV="dev"):
+    env = _ENVIRONMENTS.get(ENV, _ENVIRONMENTS["dev"])
+    return env

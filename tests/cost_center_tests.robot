@@ -24,7 +24,7 @@ Test Teardown     Run Keyword If Test Failed    Capture Page Screenshot
 #  Phase 3: Positive / Happy Path — 007, 008, 009
 #  Phase 4: Negative — Validation Errors — 010, 011, 012, 013, 014
 #  Phase 5: Negative — Field Boundaries — 015, 016, 017, 018
-#  Phase 6: Negative — Special Characters — 019, 020
+#  Phase 6: Negative — Special Characters — 020  (TC_CC_019 removed)
 #  Phase 7: Close / Cancel — 021, 022, 023
 #  Phase 8: Listing Verification — 024, 025, 026
 # ══════════════════════════════════════════════════════════════════════

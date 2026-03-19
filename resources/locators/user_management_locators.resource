@@ -21,10 +21,14 @@ ${LOC_BTN_CREATE_USER}            xpath=//a[@href='/CreateUser'] | //button[cont
 
 # ── Create User Form Fields (MD: Form Field Reference + XPaths) ──────
 
-# Account — TreeView Dropdown (same pattern as Cost Center parentAccount)
-${LOC_UM_ACCOUNT_INPUT}             xpath=//input[@name='accountId'] | //input[@name='parentAccount']
+# Account — TreeView Dropdown
+# The clickable trigger: try multiple patterns (the actual element varies by page)
+${LOC_UM_ACCOUNT_TRIGGER}           xpath=//input[@name='parentAccount'] | //input[@name='accountId'] | //input[contains(@name,'account') or contains(@name,'Account')] | //div[contains(@class,'account-tree-dropdown')] | //label[contains(text(),'Account')]/following-sibling::*//input | //label[contains(text(),'Account')]/parent::*//input
+# The treeview container that appears after clicking
 ${LOC_UM_ACCOUNT_TREEVIEW}          xpath=//div[contains(@id,'showTreeView')] | //div[contains(@class,'k-treeview')]
+# Root node expand icon
 ${LOC_UM_ACCOUNT_ROOT_EXPAND}       xpath=(//div[contains(@id,'showTreeView')]//span[contains(@class,'k-i-expand')])[1] | (//div[contains(@class,'k-treeview')]//span[contains(@class,'k-i-expand')])[1]
+# Root node text (KSA_OPCO)
 ${LOC_UM_ACCOUNT_ROOT_NODE}         xpath=(//div[contains(@id,'showTreeView')]//span[contains(@class,'k-in')])[1] | (//div[contains(@class,'k-treeview')]//span[contains(@class,'k-in')])[1]
 
 # Username (MD: Step 7, name='userName', min 5, max 50)
@@ -48,18 +52,17 @@ ${LOC_INPUT_CONFIRM_EMAIL}        xpath=//input[@name='confirmEmailId']
 # User Category (select[@name='userAccountType'])
 ${LOC_DDL_USER_CATEGORY_SELECT}   xpath=//select[@name='userAccountType']
 
-# Role — Custom dropdown (div-based, not native select)
-${LOC_ROLE_DROPDOWN_TRIGGER}      xpath=//div[@data-testid='roleSelectedValueuet']/ancestor::div[contains(@class,'custom-select') or contains(@class,'css-')][1] | //div[contains(@class,'select__control')][.//div[@name='roleSelectedValueuet' or @data-testid='roleSelectedValueuet']] | //div[@data-testid='roleSelectedValueuet']/ancestor::div[contains(@class,'select')][1]
-${LOC_ROLE_OPTION_TEMPLATE}       xpath=//div[contains(@class,'option') and contains(text(),'PLACEHOLDER')]
+# Role — Custom dropdown (same component as CSR Journey tariff/customer dropdowns)
+# Structure: container div[@data-testid] → selectBtn (trigger) + selectDropdown with option divs
+# Primary: CSR-style data-testid container → selectBtn inside (proven pattern)
+# Fallback: label-based navigation through form-group
+${LOC_ROLE_DD_BTN}                xpath=//div[@data-testid='roleSelectedValueuet' and not(contains(@class,'option'))]//div[contains(@class,'selectBtn')] | //div[contains(@class,'form-group')][.//div[@data-testid='roleSelectedValueuet']]//div[contains(@class,'selectBtn')] | //label[contains(text(),'Role')]/ancestor::div[contains(@class,'form-group')]//div[contains(@class,'selectBtn')] | //label[contains(text(),'Role')]/following-sibling::div//div[contains(@class,'selectBtn')]
 
-# Country — Custom dropdown (type to search, select from options)
-${LOC_COUNTRY_DROPDOWN_TRIGGER}   xpath=//div[contains(@class,'select__control')][.//div[contains(@data-testid,'country') or contains(@name,'country')]] | //div[contains(@class,'custom-select') or contains(@class,'css-')][.//div[contains(@data-testid,'country')]]
-${LOC_COUNTRY_INPUT}              xpath=//input[contains(@id,'country') or contains(@name,'country')] | //div[contains(@data-testid,'country')]/ancestor::div[contains(@class,'select')]//input
-${LOC_COUNTRY_OPTION_TEMPLATE}    xpath=//div[contains(@class,'option') and contains(text(),'PLACEHOLDER')]
+# Country — Custom dropdown (same pattern)
+${LOC_COUNTRY_DD_BTN}             xpath=//div[@data-testid='countrySelectedValueuet' and not(contains(@class,'option'))]//div[contains(@class,'selectBtn')] | //div[contains(@class,'form-group')][.//div[@data-testid='countrySelectedValueuet']]//div[contains(@class,'selectBtn')] | //label[contains(text(),'Country')]/ancestor::div[contains(@class,'form-group')]//div[contains(@class,'selectBtn')] | //label[contains(text(),'Country')]/following-sibling::div//div[contains(@class,'selectBtn')]
 
-# Time Zone — Custom dropdown (div-based, not native select)
-${LOC_TIMEZONE_DROPDOWN_TRIGGER}  xpath=//div[@data-testid='timeZoneSelectedValueuet']/ancestor::div[contains(@class,'custom-select') or contains(@class,'css-')][1] | //div[contains(@class,'select__control')][.//div[@name='timeZoneSelectedValueuet' or @data-testid='timeZoneSelectedValueuet']] | //div[@data-testid='timeZoneSelectedValueuet']/ancestor::div[contains(@class,'select')][1]
-${LOC_TIMEZONE_OPTION_TEMPLATE}   xpath=//div[contains(@class,'option') and contains(text(),'PLACEHOLDER')]
+# Time Zone — Custom dropdown (same pattern)
+${LOC_TIMEZONE_DD_BTN}            xpath=//div[@data-testid='timeZoneSelectedValueuet' and not(contains(@class,'option'))]//div[contains(@class,'selectBtn')] | //div[contains(@class,'form-group')][.//div[@data-testid='timeZoneSelectedValueuet']]//div[contains(@class,'selectBtn')] | //label[contains(text(),'Time Zone') or contains(text(),'Timezone')]/ancestor::div[contains(@class,'form-group')]//div[contains(@class,'selectBtn')] | //label[contains(text(),'Time Zone') or contains(text(),'Timezone')]/following-sibling::div//div[contains(@class,'selectBtn')]
 
 # OTP Delivery Channel Checkboxes (MD: Step 16)
 ${LOC_CHK_SMS}                    xpath=//input[@name='sms'] | //input[@type='checkbox' and contains(@id,'sms')]
@@ -71,8 +74,10 @@ ${LOC_RADIO_LOCAL_TIME_YES}       xpath=//input[@name='localTime' and @value='tr
 ${LOC_RADIO_LOCAL_TIME_NO}        xpath=//input[@name='localTime' and @value='false'] | //input[@name='localTime' and @value='No']
 
 # ── Form Buttons (MD: Buttons on Create User Form) ───────────────────
-${LOC_BTN_SUBMIT}                 xpath=//button[contains(text(),'Submit')]
-${LOC_BTN_CLOSE_FORM}             xpath=//button[contains(text(),'Close')] | //a[contains(text(),'Close')]
+# Submit: <a href="javascript:void(0);" class="btn btn-custom-color cursor-pointer width-75">Submit</a>
+${LOC_BTN_SUBMIT}                 xpath=//a[contains(@class,'btn-custom-color') and normalize-space()='Submit'] | //a[contains(text(),'Submit') and contains(@class,'btn')] | //button[contains(text(),'Submit')]
+# Close: <a class="btn btn-cancel-color width-75" href="/ManageUser">Close</a>
+${LOC_BTN_CLOSE_FORM}             xpath=//a[contains(@class,'btn-cancel-color') and normalize-space()='Close'] | //a[contains(text(),'Close') and @href='/ManageUser'] | //button[contains(text(),'Close')]
 
 # ── Validation Errors ────────────────────────────────────────────────
 ${LOC_VALIDATION_ERROR}           xpath=//*[contains(@class,'alert-danger')] | //*[contains(@class,'error-message')] | //*[contains(@class,'field-validation-error')]

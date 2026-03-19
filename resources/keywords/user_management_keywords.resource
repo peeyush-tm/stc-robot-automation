@@ -168,11 +168,11 @@ Verify All Form Fields Present
     Wait Until Element Is Visible    ${LOC_INPUT_EMAIL}          ${UM_TIMEOUT}
     Wait Until Element Is Visible    ${LOC_INPUT_CONFIRM_EMAIL}  ${UM_TIMEOUT}
     ${role_visible}=    Run Keyword And Return Status
-    ...    Wait Until Element Is Visible    ${LOC_DDL_ROLE}    10s
+    ...    Wait Until Element Is Visible    ${LOC_ROLE_DD_BTN}    10s
     ${country_visible}=    Run Keyword And Return Status
-    ...    Wait Until Element Is Visible    ${LOC_DDL_COUNTRY}    10s
+    ...    Wait Until Element Is Visible    ${LOC_COUNTRY_DD_BTN}    10s
     ${tz_visible}=    Run Keyword And Return Status
-    ...    Wait Until Element Is Visible    ${LOC_DDL_TIMEZONE}    10s
+    ...    Wait Until Element Is Visible    ${LOC_TIMEZONE_DD_BTN}    10s
     Log    All mandatory form fields verified.
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -180,18 +180,81 @@ Verify All Form Fields Present
 # ═══════════════════════════════════════════════════════════════════════
 Select Account In TreeView
     [Documentation]    Opens the Account TreeView dropdown and selects the target BU account.
-    ...                Same approach as Cost Center: click input → wait for tree → expand → select.
-    Wait Until Element Is Visible    ${LOC_UM_ACCOUNT_INPUT}    ${UM_TIMEOUT}
-    Click Element Via JS    ${LOC_UM_ACCOUNT_INPUT}
+    ...                Discovers the trigger element at runtime using JS, then uses the
+    ...                same expand logic as Cost Center: KSA_OPCO → EC → BU.
+    Sleep    2s
+    # Step 1: Dump all form inputs for debugging (helps identify the right field name)
+    ${form_inputs}=    Execute JavaScript
+    ...    var inputs = document.querySelectorAll('form input, form select, form .form-group input');
+    ...    var result = [];
+    ...    for (var i = 0; i < inputs.length; i++) {
+    ...        var el = inputs[i];
+    ...        result.push(el.tagName + ' name=' + (el.name||'') + ' id=' + (el.id||'') + ' type=' + (el.type||'') + ' class=' + (el.className||'').substring(0,50));
+    ...    }
+    ...    return result.join(' | ');
+    Log    CreateUser form inputs: ${form_inputs}
+    # Step 2: Find any showTreeView container already in DOM (may be hidden)
+    ${tree_id}=    Execute JavaScript
+    ...    var tv = document.querySelector('div[id^="showTreeView"]');
+    ...    return tv ? tv.id : '';
+    Log    Found TreeView container id: ${tree_id}
+    # Step 3: Derive the field name from showTreeView-{fieldName} and click the trigger
+    IF    '${tree_id}' != '${EMPTY}'
+        ${field_name}=    Execute JavaScript    return '${tree_id}'.replace('showTreeView-', '');
+        Log    TreeView field name: ${field_name}
+        ${clicked}=    Execute JavaScript
+        ...    var inp = document.querySelector('input[name="${field_name}"]');
+        ...    if (inp) { inp.scrollIntoView({block:'center'}); inp.click(); return true; }
+        ...    var tv = document.getElementById('${tree_id}');
+        ...    if (tv) { var parent = tv.closest('.form-group') || tv.parentElement;
+        ...        var trigger = parent ? parent.querySelector('input') : null;
+        ...        if (trigger) { trigger.scrollIntoView({block:'center'}); trigger.click(); return true; }
+        ...    }
+        ...    return false;
+        IF    not ${clicked}
+            # Click the tree container's parent area as fallback
+            Execute JavaScript    var tv = document.getElementById('${tree_id}'); if(tv && tv.parentElement){tv.parentElement.click();}
+        END
+    ELSE
+        # No showTreeView found — try clicking common input names
+        ${clicked}=    Execute JavaScript
+        ...    var names = ['parentAccount','accountId','account','accountName'];
+        ...    for (var n = 0; n < names.length; n++) {
+        ...        var inp = document.querySelector('input[name="' + names[n] + '"]');
+        ...        if (inp && (inp.offsetParent !== null || inp.offsetHeight > 0)) {
+        ...            inp.scrollIntoView({block:'center'}); inp.click(); return names[n];
+        ...        }
+        ...    }
+        ...    var labels = document.querySelectorAll('label');
+        ...    for (var l = 0; l < labels.length; l++) {
+        ...        if (labels[l].textContent.trim().match(/^Account/i)) {
+        ...            var fg = labels[l].closest('.form-group') || labels[l].parentElement;
+        ...            var inp2 = fg ? fg.querySelector('input, [class*="select"]') : null;
+        ...            if (inp2) { inp2.scrollIntoView({block:'center'}); inp2.click(); return 'label_' + labels[l].textContent.trim(); }
+        ...        }
+        ...    }
+        ...    return '';
+        Log    Fallback click result: ${clicked}
+        Should Not Be Empty    ${clicked}    Account TreeView trigger not found on CreateUser page. Form inputs: ${form_inputs}
+    END
     Sleep    2s
     Wait For App Loading To Complete
+    # Step 4: Wait for the TreeView to become visible
     ${tree_visible}=    Run Keyword And Return Status
     ...    Wait Until Element Is Visible    ${LOC_UM_ACCOUNT_TREEVIEW}    10s
     IF    not ${tree_visible}
-        Click Element    ${LOC_UM_ACCOUNT_INPUT}
-        Sleep    2s
-        Wait Until Element Is Visible    ${LOC_UM_ACCOUNT_TREEVIEW}    15s
+        # Log the DOM state for debugging
+        ${dom_state}=    Execute JavaScript
+        ...    var tvs = document.querySelectorAll('div[id^="showTreeView"], div.k-treeview');
+        ...    var info = [];
+        ...    for (var i = 0; i < tvs.length; i++) {
+        ...        info.push('id=' + (tvs[i].id||'none') + ' visible=' + (tvs[i].offsetHeight > 0) + ' display=' + getComputedStyle(tvs[i]).display);
+        ...    }
+        ...    return info.length > 0 ? info.join(' | ') : 'NO treeview divs found in DOM';
+        Log    TreeView DOM state after click: ${dom_state}    level=WARN
+        Fail    TreeView did not appear after clicking Account trigger. DOM state: ${dom_state}
     END
+    # Step 5: Wait for root node and expand hierarchy
     Wait Until Element Is Visible    ${LOC_UM_ACCOUNT_ROOT_NODE}    15s
     Sleep    1s
     UM Expand And Select BU Account
@@ -220,17 +283,19 @@ UM Expand And Select BU Account
 
 UM Expand Tree Node By Name
     [Documentation]    Finds a tree node by name and clicks its expand icon.
+    ...                Searches inside account-tree-dropdown, showTreeView containers, or any k-treeview.
     [Arguments]    ${node_name}
     ${expanded}=    Execute JavaScript
-    ...    var containers = document.querySelectorAll('div[id*="showTreeView"], div.k-treeview'); var nodes; if(containers.length>0){nodes=containers[0].querySelectorAll('span.k-in');}else{nodes=document.querySelectorAll('.k-treeview span.k-in, .k-item span.k-in');} for(var i=0; i<nodes.length; i++){if(nodes[i].textContent.trim()==='${node_name}'){var li=nodes[i].closest('li.k-item'); if(li){var icon=li.querySelector(':scope > div span.k-i-expand'); if(icon){icon.click(); return true;}}}} return false;
+    ...    var containers = document.querySelectorAll('.account-tree-dropdown, div[id*="showTreeView"], div.k-treeview'); var allNodes = []; if(containers.length>0){for(var c=0;c<containers.length;c++){var ns=containers[c].querySelectorAll('span.k-in'); for(var j=0;j<ns.length;j++) allNodes.push(ns[j]);}}else{allNodes=Array.from(document.querySelectorAll('.k-treeview span.k-in, .k-item span.k-in'));} for(var i=0;i<allNodes.length;i++){if(allNodes[i].textContent.trim()==='${node_name}'){var li=allNodes[i].closest('li.k-item'); if(li){var icon=li.querySelector(':scope > div span.k-i-expand'); if(icon){icon.click(); return true;}}}} return false;
     Should Be True    ${expanded}    Could not find or expand node '${node_name}' in the TreeView.
     Log    Expanded node: ${node_name}
 
 UM Select Tree Node By Name
     [Documentation]    Finds a tree node by exact text and clicks its checkbox or text to select.
+    ...                Searches inside account-tree-dropdown, showTreeView containers, or any k-treeview.
     [Arguments]    ${account_name}
     ${clicked}=    Execute JavaScript
-    ...    var containers = document.querySelectorAll('div[id*="showTreeView"], div.k-treeview'); var nodes; if(containers.length>0){nodes=containers[0].querySelectorAll('span.k-in');}else{nodes=document.querySelectorAll('.k-treeview span.k-in, .k-item span.k-in');} for(var i=0; i<nodes.length; i++){if(nodes[i].textContent.trim()==='${account_name}'){var li=nodes[i].closest('li.k-item'); var cb=li?li.querySelector(':scope > div input.k-checkbox'):null; if(cb){cb.click(); return true;} else{nodes[i].click(); return true;}}} return false;
+    ...    var containers = document.querySelectorAll('.account-tree-dropdown, div[id*="showTreeView"], div.k-treeview'); var allNodes = []; if(containers.length>0){for(var c=0;c<containers.length;c++){var ns=containers[c].querySelectorAll('span.k-in'); for(var j=0;j<ns.length;j++) allNodes.push(ns[j]);}}else{allNodes=Array.from(document.querySelectorAll('.k-treeview span.k-in, .k-item span.k-in'));} for(var i=0;i<allNodes.length;i++){if(allNodes[i].textContent.trim()==='${account_name}'){var li=allNodes[i].closest('li.k-item'); var cb=li?li.querySelector(':scope > div input.k-checkbox'):null; if(cb){cb.click(); return true;} else{allNodes[i].click(); return true;}}} return false;
     Should Be True    ${clicked}    Account '${account_name}' not found in the TreeView.
     Log    Selected account: ${account_name}
 
@@ -299,100 +364,72 @@ Select User Category
     Log    User Category selected: ${category}
 
 Select Role
-    [Documentation]    Selects a role from the custom (div-based) Role dropdown.
-    ...                Clicks trigger → waits for options → clicks "BillingAccount_Admin".
+    [Documentation]    Selects a role from the custom dropdown (same component as CSR Journey).
+    ...                Clicks selectBtn near Role label → options appear → clicks matching option.
     [Arguments]    ${role_name}=${UM_ROLE_NAME}
-    ${trigger_visible}=    Run Keyword And Return Status
-    ...    Wait Until Element Is Visible    ${LOC_ROLE_DROPDOWN_TRIGGER}    10s
-    IF    ${trigger_visible}
-        Click Element Via JS    ${LOC_ROLE_DROPDOWN_TRIGGER}
-        Sleep    2s
-        ${option_loc}=    Replace String    ${LOC_ROLE_OPTION_TEMPLATE}    PLACEHOLDER    ${role_name}
-        Wait Until Element Is Visible    ${option_loc}    10s
-        Click Element Via JS    ${option_loc}
-        Sleep    1s
-        Wait For App Loading To Complete
-        Log    Role selected: ${role_name}
-    ELSE
-        # Fallback: try clicking the area near the role data-testid
-        ${alt}=    Set Variable    xpath=//div[@data-testid='roleSelectedValueuet']
-        ${alt_vis}=    Run Keyword And Return Status
-        ...    Wait Until Element Is Visible    ${alt}    5s
-        IF    ${alt_vis}
-            Click Element Via JS    ${alt}
-            Sleep    2s
-            ${option_loc}=    Replace String    ${LOC_ROLE_OPTION_TEMPLATE}    PLACEHOLDER    ${role_name}
-            Wait Until Element Is Visible    ${option_loc}    10s
-            Click Element Via JS    ${option_loc}
-            Sleep    1s
-            Wait For App Loading To Complete
-            Log    Role selected via fallback: ${role_name}
-        ELSE
-            Log    Role dropdown not found.    level=WARN
-        END
-    END
+    Select Custom Dropdown Option    ${LOC_ROLE_DD_BTN}    roleSelectedValueuet    ${role_name}
+    Log    Role selected: ${role_name}
 
 Select Country
-    [Documentation]    Opens the Country custom dropdown, types the country name, and selects it.
-    ...                Country is a searchable dropdown — type "India" then select from options.
+    [Documentation]    Selects a country from the custom dropdown (same component as CSR Journey).
+    ...                Clicks selectBtn near Country label → options appear → clicks matching option.
     [Arguments]    ${country}=${UM_COUNTRY_TEXT}
-    ${trigger_visible}=    Run Keyword And Return Status
-    ...    Wait Until Element Is Visible    ${LOC_COUNTRY_DROPDOWN_TRIGGER}    10s
-    IF    ${trigger_visible}
-        Click Element Via JS    ${LOC_COUNTRY_DROPDOWN_TRIGGER}
-        Sleep    1s
-    END
-    # Type country name in the search input that appears
-    ${input_visible}=    Run Keyword And Return Status
-    ...    Wait Until Element Is Visible    ${LOC_COUNTRY_INPUT}    5s
-    IF    ${input_visible}
-        Input Text    ${LOC_COUNTRY_INPUT}    ${country}
-        Sleep    2s
-    ELSE
-        # Try typing via active element after clicking the dropdown
-        Press Keys    None    ${country}
-        Sleep    2s
-    END
-    ${option_loc}=    Replace String    ${LOC_COUNTRY_OPTION_TEMPLATE}    PLACEHOLDER    ${country}
-    Wait Until Element Is Visible    ${option_loc}    10s
-    Click Element Via JS    ${option_loc}
-    Sleep    1s
-    Wait For App Loading To Complete
+    Select Custom Dropdown Option    ${LOC_COUNTRY_DD_BTN}    countrySelectedValueuet    ${country}
     Log    Country selected: ${country}
 
 Select Time Zone
-    [Documentation]    Selects a time zone from the custom (div-based) Timezone dropdown.
-    ...                Clicks trigger → waits for options → clicks "(GMT+03:00) Kuwait, Riyadh".
+    [Documentation]    Selects a time zone from the custom dropdown (same component as CSR Journey).
+    ...                Clicks selectBtn near Timezone label → options appear → clicks matching option.
     [Arguments]    ${timezone}=${UM_TIMEZONE_TEXT}
-    ${trigger_visible}=    Run Keyword And Return Status
-    ...    Wait Until Element Is Visible    ${LOC_TIMEZONE_DROPDOWN_TRIGGER}    10s
-    IF    ${trigger_visible}
-        Click Element Via JS    ${LOC_TIMEZONE_DROPDOWN_TRIGGER}
-        Sleep    2s
-        ${option_loc}=    Replace String    ${LOC_TIMEZONE_OPTION_TEMPLATE}    PLACEHOLDER    ${timezone}
-        Wait Until Element Is Visible    ${option_loc}    10s
-        Click Element Via JS    ${option_loc}
-        Sleep    1s
-        Wait For App Loading To Complete
-        Log    Time Zone selected: ${timezone}
-    ELSE
-        # Fallback: try clicking the area near the timezone data-testid
-        ${alt}=    Set Variable    xpath=//div[@data-testid='timeZoneSelectedValueuet']
-        ${alt_vis}=    Run Keyword And Return Status
-        ...    Wait Until Element Is Visible    ${alt}    5s
-        IF    ${alt_vis}
-            Click Element Via JS    ${alt}
-            Sleep    2s
-            ${option_loc}=    Replace String    ${LOC_TIMEZONE_OPTION_TEMPLATE}    PLACEHOLDER    ${timezone}
-            Wait Until Element Is Visible    ${option_loc}    10s
-            Click Element Via JS    ${option_loc}
-            Sleep    1s
-            Wait For App Loading To Complete
-            Log    Time Zone selected via fallback: ${timezone}
-        ELSE
-            Log    Time Zone dropdown not found.    level=WARN
+    Select Custom Dropdown Option    ${LOC_TIMEZONE_DD_BTN}    timeZoneSelectedValueuet    ${timezone}
+    Log    Time Zone selected: ${timezone}
+
+Select Custom Dropdown Option
+    [Documentation]    Generic keyword for the custom div-based dropdowns on CreateUser form.
+    ...                Same component as CSR Journey (selectBtn + selectDropdown + option divs).
+    ...                Finds the selectBtn by label text, clicks it, finds option by JS text match.
+    [Arguments]    ${btn_locator}    ${testid}    ${option_text}
+    # Step 1: Find and click the selectBtn trigger
+    Scroll To Element Via JS    ${btn_locator}
+    Wait Until Element Is Visible    ${btn_locator}    ${UM_TIMEOUT}
+    Click Element Via JS    ${btn_locator}
+    Sleep    2s
+    # Step 2: Find option — exact CSR Journey pattern: @name + @data-testid + class + text
+    ${option}=    Set Variable    xpath=//div[@name='${testid}' and @data-testid='${testid}' and contains(@class,'option') and normalize-space()='${option_text}']
+    ${option_visible}=    Run Keyword And Return Status
+    ...    Wait Until Element Is Visible    ${option}    8s
+    IF    not ${option_visible}
+        # Fallback 1: data-testid + class + contains text
+        ${option}=    Set Variable    xpath=//div[@data-testid='${testid}' and contains(@class,'option') and contains(text(),'${option_text}')]
+        ${option_visible2}=    Run Keyword And Return Status
+        ...    Wait Until Element Is Visible    ${option}    5s
+        IF    not ${option_visible2}
+            # Broadest fallback: any visible div.option containing the text
+            ${option}=    Set Variable    xpath=//div[contains(@class,'option') and contains(text(),'${option_text}')]
+            ${option_visible3}=    Run Keyword And Return Status
+            ...    Wait Until Element Is Visible    ${option}    5s
+            IF    not ${option_visible3}
+                # Last resort: retry click on selectBtn then use JS to find and click
+                Click Element Via JS    ${btn_locator}
+                Sleep    2s
+                ${clicked}=    Execute JavaScript
+                ...    var opts = document.querySelectorAll('div.option, div[class*="option"]');
+                ...    for (var i = 0; i < opts.length; i++) {
+                ...        if (opts[i].textContent.trim().indexOf('${option_text}') >= 0 && opts[i].offsetParent !== null) {
+                ...            opts[i].click(); return true;
+                ...        }
+                ...    }
+                ...    return false;
+                Should Be True    ${clicked}    Option '${option_text}' not found in dropdown '${testid}'.
+                Sleep    1s
+                Wait For App Loading To Complete
+                RETURN
+            END
         END
     END
+    Click Element Via JS    ${option}
+    Sleep    1s
+    Wait For App Loading To Complete
 
 Select OTP SMS Checkbox
     [Documentation]    Selects the SMS OTP delivery channel checkbox.

@@ -36,23 +36,38 @@ Login And Navigate To Manage Role
 #  NAVIGATION (MD: TC-ROLE-001 Step 1, TC-ROLE-002 Step 1)
 # ═══════════════════════════════════════════════════════════════════════
 Navigate To Manage Role Page
-    [Documentation]    Navigates to /ManageRole and waits for page to load.
-    ...                MD: Step 1.2 — Browser navigates to /ManageRole.
-    Go To    ${BASE_URL}${MANAGE_ROLE_PATH}
-    Sleep    2s
+    [Documentation]    Navigates to /ManageRole using direct URL navigation.
+    ...                MD: Step 1.1–1.2 — Browser navigates to /ManageRole.
+    ...                Constructs URL from BASE_URL (env-dependent) + ManageRole path.
+    ${base}=    Evaluate    '${BASE_URL}'.rstrip('/')
+    Go To    ${base}/ManageRole
+    Sleep    3s
     Wait For App Loading To Complete    timeout=60s
-    Sleep    1s
+    Sleep    2s
     Wait For App Loading To Complete
+    Wait Until Keyword Succeeds    3x    5s    Location Should Contain    ${MANAGE_ROLE_PATH}
+    Wait Until Element Is Visible    ${LOC_ROLE_GRID}    ${RM_TIMEOUT}
     Log    Navigated to Manage Role page.
 
 Refresh Manage Role Page
-    [Documentation]    Refreshes the Manage Role page for test isolation.
-    Go To    ${BASE_URL}${MANAGE_ROLE_PATH}
-    Sleep    2s
-    Wait For App Loading To Complete    timeout=60s
-    Sleep    1s
-    Wait For App Loading To Complete
-    Log    Manage Role page refreshed.
+    [Documentation]    Ensures we are on /ManageRole. If already there, just waits for grid.
+    ...                If on another page (CreateRole, ManageUser, etc), navigates via URL.
+    ${on_manage_role}=    Run Keyword And Return Status
+    ...    Location Should Contain    ${MANAGE_ROLE_PATH}
+    IF    ${on_manage_role}
+        Sleep    1s
+        Wait For App Loading To Complete
+    ELSE
+        ${base}=    Evaluate    '${BASE_URL}'.rstrip('/')
+        Go To    ${base}/ManageRole
+        Sleep    3s
+        Wait For App Loading To Complete    timeout=60s
+        Sleep    2s
+        Wait For App Loading To Complete
+    END
+    Wait Until Keyword Succeeds    3x    5s    Location Should Contain    ${MANAGE_ROLE_PATH}
+    Wait Until Element Is Visible    ${LOC_ROLE_GRID}    ${RM_TIMEOUT}
+    Log    On Manage Role page.
 
 # ═══════════════════════════════════════════════════════════════════════
 #  MANAGE ROLE PAGE VERIFICATION (MD: Step 1.2)
@@ -133,15 +148,16 @@ Verify All Role Form Fields Present
 
 Verify Permissions Table Visible
     [Documentation]    MD: Step 4.1 — Permissions grid is visible.
+    ...                DOM: div.gc-module-selector-wrapper contains table.gc-module-selector-table
     ${visible}=    Run Keyword And Return Status
     ...    Wait Until Element Is Visible    ${LOC_PERMISSIONS_TABLE}    15s
     IF    ${visible}
         Log    Permissions table visible.
     ELSE
-        ${view_chk}=    Run Keyword And Return Status
-        ...    Wait Until Element Is Visible    ${LOC_CHK_VIEW_PERMISSION}    10s
-        IF    ${view_chk}
-            Log    View permission checkboxes found — permissions table exists.
+        ${cb_count}=    Execute JavaScript
+        ...    return document.querySelectorAll('input[name="js-role-view"]').length;
+        IF    ${cb_count} > 0
+            Log    View permission checkboxes found (${cb_count}) — permissions table exists.
         ELSE
             Log    Permissions table not found.    level=WARN
         END
@@ -151,33 +167,105 @@ Verify Permissions Table Visible
 #  FIELD INTERACTIONS (MD: Steps 3.1–3.5, Locator Reference)
 # ═══════════════════════════════════════════════════════════════════════
 Select Role Account In TreeView
-    [Documentation]    MD: Step 3.1–3.2 — Click Account tree-view dropdown,
-    ...                select first available account.
-    ${visible}=    Run Keyword And Return Status
-    ...    Wait Until Element Is Visible    ${LOC_ROLE_ACCOUNT_DROPDOWN}    10s
-    IF    ${visible}
-        Click Element Via JS    ${LOC_ROLE_ACCOUNT_DROPDOWN}
-        Sleep    2s
-        Wait For App Loading To Complete
-        Sleep    1s
-        ${tree_visible}=    Run Keyword And Return Status
-        ...    Wait Until Element Is Visible    ${LOC_ROLE_ACCOUNT_TREE}    10s
-        IF    ${tree_visible}
-            ${node}=    Run Keyword And Return Status
-            ...    Wait Until Element Is Visible    ${LOC_ROLE_ACCOUNT_FIRST_NODE}    10s
-            IF    ${node}
-                Click Element Via JS    ${LOC_ROLE_ACCOUNT_FIRST_NODE}
-                Sleep    1s
-                Log    Account selected from TreeView.
-            ELSE
-                Log    No tree nodes found.    level=WARN
-            END
+    [Documentation]    MD: Step 3.1–3.2 — Click Account tree-view dropdown and select the
+    ...                target BU account: KSA_OPCO → SANJ_1002 → billingAccountSANJ_1003.
+    ...                Same hierarchical expansion as Create User TreeView.
+    Sleep    2s
+    # Step 1: Try to find and click the account dropdown trigger
+    ${clicked}=    Execute JavaScript
+    ...    var names = ['accountName','accountId','parentAccount','account'];
+    ...    for (var n = 0; n < names.length; n++) {
+    ...        var inp = document.querySelector('input[name="' + names[n] + '"]');
+    ...        if (inp && (inp.offsetParent !== null || inp.offsetHeight > 0)) {
+    ...            inp.scrollIntoView({block:'center'}); inp.click(); return names[n];
+    ...        }
+    ...    }
+    ...    var labels = document.querySelectorAll('label');
+    ...    for (var l = 0; l < labels.length; l++) {
+    ...        if (labels[l].textContent.trim().match(/^Account/i)) {
+    ...            var fg = labels[l].closest('.form-group') || labels[l].parentElement;
+    ...            var inp2 = fg ? fg.querySelector('input, [class*="select"]') : null;
+    ...            if (inp2) { inp2.scrollIntoView({block:'center'}); inp2.click(); return 'label_' + labels[l].textContent.trim(); }
+    ...        }
+    ...    }
+    ...    return '';
+    Log    Account trigger click result: ${clicked}
+    IF    '${clicked}' == '${EMPTY}'
+        ${fallback_visible}=    Run Keyword And Return Status
+        ...    Wait Until Element Is Visible    ${LOC_ROLE_ACCOUNT_DROPDOWN}    10s
+        IF    ${fallback_visible}
+            Click Element Via JS    ${LOC_ROLE_ACCOUNT_DROPDOWN}
         ELSE
-            Log    Account TreeView not visible after click.    level=WARN
+            Fail    Account TreeView trigger not found on CreateRole page.
         END
-    ELSE
-        Log    Account dropdown not found on form.    level=WARN
     END
+    Sleep    2s
+    Wait For App Loading To Complete
+    # Step 2: Wait for the TreeView to appear
+    ${tree_visible}=    Run Keyword And Return Status
+    ...    Wait Until Element Is Visible    ${LOC_ROLE_ACCOUNT_TREE}    10s
+    IF    not ${tree_visible}
+        Fail    TreeView did not appear after clicking Account trigger.
+    END
+    # Step 3: Wait for root node and expand hierarchy
+    Wait Until Element Is Visible    ${LOC_ROLE_TREE_ROOT_NODE}    15s
+    Sleep    1s
+    RM Expand And Select BU Account
+    Sleep    2s
+    Wait For App Loading To Complete
+    Log    Account selected: ${RM_BU_ACCOUNT_NAME}
+
+RM Expand And Select BU Account
+    [Documentation]    Expand KSA_OPCO → expand EC (RM_EC_ACCOUNT_NAME) →
+    ...                select BU (RM_BU_ACCOUNT_NAME). Same pattern as Create User.
+    ${root_expand}=    Run Keyword And Return Status
+    ...    Wait Until Element Is Visible    ${LOC_ROLE_TREE_ROOT_EXPAND}    5s
+    IF    ${root_expand}
+        Click Element Via JS    ${LOC_ROLE_TREE_ROOT_EXPAND}
+        Sleep    4s
+        Wait For App Loading To Complete    timeout=30s
+        Sleep    2s
+        Log    KSA_OPCO expanded.
+    END
+    RM Expand Tree Node By Name    ${RM_EC_ACCOUNT_NAME}
+    Sleep    4s
+    Wait For App Loading To Complete    timeout=30s
+    Sleep    2s
+    Log    EC '${RM_EC_ACCOUNT_NAME}' expanded.
+    RM Select Tree Node By Name    ${RM_BU_ACCOUNT_NAME}
+
+RM Expand Tree Node By Name
+    [Documentation]    Finds a tree node by name and clicks its expand icon.
+    [Arguments]    ${node_name}
+    ${expanded}=    Execute JavaScript
+    ...    var containers = document.querySelectorAll('.account-tree-dropdown, div[id*="showTreeView"], div.k-treeview');
+    ...    var allNodes = [];
+    ...    if(containers.length>0){for(var c=0;c<containers.length;c++){var ns=containers[c].querySelectorAll('span.k-in'); for(var j=0;j<ns.length;j++) allNodes.push(ns[j]);}}
+    ...    else{allNodes=Array.from(document.querySelectorAll('.k-treeview span.k-in, .k-item span.k-in'));}
+    ...    for(var i=0;i<allNodes.length;i++){
+    ...        if(allNodes[i].textContent.trim()==='${node_name}'){
+    ...            var li=allNodes[i].closest('li.k-item');
+    ...            if(li){var icon=li.querySelector(':scope > div span.k-i-expand');
+    ...                if(icon){icon.click(); return true;}}}} return false;
+    Should Be True    ${expanded}    Could not find or expand node '${node_name}' in the TreeView.
+    Log    Expanded node: ${node_name}
+
+RM Select Tree Node By Name
+    [Documentation]    Finds a tree node by exact text and clicks its checkbox or text.
+    [Arguments]    ${account_name}
+    ${clicked}=    Execute JavaScript
+    ...    var containers = document.querySelectorAll('.account-tree-dropdown, div[id*="showTreeView"], div.k-treeview');
+    ...    var allNodes = [];
+    ...    if(containers.length>0){for(var c=0;c<containers.length;c++){var ns=containers[c].querySelectorAll('span.k-in'); for(var j=0;j<ns.length;j++) allNodes.push(ns[j]);}}
+    ...    else{allNodes=Array.from(document.querySelectorAll('.k-treeview span.k-in, .k-item span.k-in'));}
+    ...    for(var i=0;i<allNodes.length;i++){
+    ...        if(allNodes[i].textContent.trim()==='${account_name}'){
+    ...            var li=allNodes[i].closest('li.k-item');
+    ...            var cb=li?li.querySelector(':scope > div input.k-checkbox'):null;
+    ...            if(cb){cb.click(); return true;}
+    ...            else{allNodes[i].click(); return true;}}} return false;
+    Should Be True    ${clicked}    Account '${account_name}' not found in the TreeView.
+    Log    Selected account: ${account_name}
 
 Fill Role Name
     [Documentation]    MD: Step 3.3 — Enter role name (max 250 chars).
@@ -239,26 +327,80 @@ Uncheck Data Masking Checkbox
 #  PERMISSIONS (MD: Step 4, Locator Reference)
 # ═══════════════════════════════════════════════════════════════════════
 Click View All Header Checkbox
-    [Documentation]    MD: Step 4.3 — Click View All header checkbox (js-role-viewheader).
-    ${visible}=    Run Keyword And Return Status
-    ...    Wait Until Element Is Visible    ${LOC_CHK_VIEW_ALL}    10s
-    IF    ${visible}
-        Click Element Via JS    ${LOC_CHK_VIEW_ALL}
+    [Documentation]    MD: Step 4.3 — Click View All header checkbox (name=js-role-viewheader).
+    ...                DOM: multiple header checkboxes exist (one per module table).
+    ...                Clicks the first one found.
+    ${clicked}=    Execute JavaScript
+    ...    var cb = document.querySelector('input[name="js-role-viewheader"]');
+    ...    if (cb) { cb.click(); return true; }
+    ...    return false;
+    IF    ${clicked}
         Log    View All header checkbox clicked.
     ELSE
         Log    View All header checkbox not found.    level=WARN
     END
 
 Click Edit All Header Checkbox
-    [Documentation]    MD: Step 4.3 — Click Edit All header checkbox (js-role-editheader).
-    ${visible}=    Run Keyword And Return Status
-    ...    Wait Until Element Is Visible    ${LOC_CHK_EDIT_ALL}    10s
-    IF    ${visible}
-        Click Element Via JS    ${LOC_CHK_EDIT_ALL}
+    [Documentation]    MD: Step 4.3 — Click Edit All header checkbox (name=js-role-editheader).
+    ...                DOM: multiple header checkboxes exist (one per module table).
+    ...                Clicks the first one found.
+    ${clicked}=    Execute JavaScript
+    ...    var cb = document.querySelector('input[name="js-role-editheader"]');
+    ...    if (cb) { cb.click(); return true; }
+    ...    return false;
+    IF    ${clicked}
         Log    Edit All header checkbox clicked.
     ELSE
         Log    Edit All header checkbox not found.    level=WARN
     END
+
+Toggle View Permission By Row Index
+    [Documentation]    MD: Step 4.2 — Check/uncheck the View checkbox for a specific row.
+    ...                Row index is 1-based. DOM: name='js-role-view'.
+    [Arguments]    ${row_index}
+    ${clicked}=    Execute JavaScript
+    ...    var cbs = document.querySelectorAll('input[name="js-role-view"]');
+    ...    if (${row_index} - 1 < cbs.length) { cbs[${row_index} - 1].click(); return true; }
+    ...    return false;
+    IF    ${clicked}
+        Log    View checkbox toggled for row ${row_index}.
+    ELSE
+        Log    View checkbox for row ${row_index} not found.    level=WARN
+    END
+
+Toggle Edit Permission By Row Index
+    [Documentation]    MD: Step 4.2 — Check/uncheck the Edit checkbox for a specific row.
+    ...                Row index is 1-based. DOM: name='js-role-edit'.
+    [Arguments]    ${row_index}
+    ${clicked}=    Execute JavaScript
+    ...    var cbs = document.querySelectorAll('input[name="js-role-edit"]');
+    ...    if (${row_index} - 1 < cbs.length) { cbs[${row_index} - 1].click(); return true; }
+    ...    return false;
+    IF    ${clicked}
+        Log    Edit checkbox toggled for row ${row_index}.
+    ELSE
+        Log    Edit checkbox for row ${row_index} not found.    level=WARN
+    END
+
+Select View And Edit For First N Rows
+    [Documentation]    Checks both View and Edit checkboxes for the first N permission rows.
+    ...                DOM: tables have class gc-module-selector-table, checkboxes use name attrs.
+    [Arguments]    ${count}=3
+    ${cb_count}=    Execute JavaScript
+    ...    return document.querySelectorAll('input[name="js-role-view"]').length;
+    IF    ${cb_count} == 0
+        Log    No View permission checkboxes found on page.    level=WARN
+        RETURN
+    END
+    Scroll To Element Via JS    ${LOC_PERMISSIONS_TABLE}
+    Sleep    1s
+    FOR    ${i}    IN RANGE    1    ${count} + 1
+        Toggle View Permission By Row Index    ${i}
+        Sleep    0.5s
+        Toggle Edit Permission By Row Index    ${i}
+        Sleep    0.5s
+    END
+    Log    View and Edit permissions selected for first ${count} rows.
 
 # ═══════════════════════════════════════════════════════════════════════
 #  FILL COMPLETE FORM
@@ -271,6 +413,16 @@ Fill Role Creation Form
     Fill Role Name    ${role_name}
     Fill Role Description    ${description}
     Log    Role creation form filled.
+
+Fill Role Creation Form With Permissions
+    [Documentation]    Fills all fields + configures View/Edit permissions for first N rows.
+    ...                MD: Steps 3.1–4.3 — Account, Role Name, Description + permissions.
+    [Arguments]    ${role_name}=${ROLE_NAME}    ${description}=${ROLE_DESCRIPTION}    ${perm_rows}=3
+    Select Role Account In TreeView
+    Fill Role Name    ${role_name}
+    Fill Role Description    ${description}
+    Select View And Edit For First N Rows    ${perm_rows}
+    Log    Role creation form filled with permissions (${perm_rows} rows).
 
 Fill Role Creation Form Mandatory Only
     [Documentation]    Fills only mandatory fields (Account + Role Name).

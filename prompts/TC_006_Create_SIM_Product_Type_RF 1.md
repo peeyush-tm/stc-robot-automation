@@ -72,10 +72,10 @@ pip install robotframework-seleniumlibrary
 
 ```bash
 # Workflow A — Create SIM Product Type
-robot --outputdir results tests/TC_006_Create_SIM_Product_Type.robot
+robot --outputdir reports tests/product_type_tests.robot
 
 # Workflow B — Assign EC to Product Type
-robot --outputdir results tests/TC_006b_Assign_EC_Product_Type.robot
+robot --outputdir reports tests/product_type_tests.robot
 ```
 
 ### 4.3 Project Structure (aligned to TC_001 / TC_002 / TC_003 / TC_004 / TC_005)
@@ -1775,7 +1775,7 @@ This section documents the **actual implementation** in the project.
 ### Run Command
 
 ```bash
-robot --outputdir results tests/product_type_tests.robot
+robot --outputdir reports tests/product_type_tests.robot
 ```
 
 ### Test Case List (18 tests)
@@ -1807,8 +1807,16 @@ robot --outputdir results tests/product_type_tests.robot
 - **Account Dropdown:** Custom div-based dropdown (not native select) — uses JS click to open and select KSA_OPCO
 - **Service Sub Type 1:** Always disabled, auto-set to GCT/GCT WBU — automation verifies disabled state only
 - **Submit/Close:** Both are `<a>` tags with `href="javascript:void(0);"` — uses Click Element, not Submit Form
-- **Assign Customer:** jQuery-injected icon in Kendo grid; uses Kendo k-list/k-item pattern for EC selection
-- **Browser Session:** Suite-level login; test-level page refresh
+- **Assign Customer Dialog:** Uses a **React Select** multi-select component (NOT Kendo):
+  - Control area: `<div class="select__control">` — click to focus
+  - Hidden input: `<input id="react-select-2-input">` — covered by placeholder div
+  - Placeholder: `<div class="select__placeholder">Select Customers</div>`
+  - Dropdown options: `<div class="select__option">` inside `<div class="select__menu">`
+  - Update button: `<button class="btn btn-custom-color">Update</button>` inside `<div id="customers">`
+  - Close button: `<button class="btn btn-cancel-color">Close</button>` inside `<div id="customers">`
+- **EC Selection Flow:** Focus input via JS (`inp.focus(); inp.style.opacity='1'; inp.style.width='200px'`), type full EC name using Selenium `Press Keys`, then poll every 5 seconds up to 30 seconds for the API-backed search to return results. Click matching `select__option` via JS.
+- **EC Account Name:** `PT_EC_ACCOUNT_NAME = "SANJ_1002"` (variable in `product_type_variables.py`)
+- **Browser Session:** Each test gets a fresh browser via Test Setup; test-level teardown captures screenshot and closes browser
 
 ---
 
