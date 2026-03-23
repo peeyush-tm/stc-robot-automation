@@ -1,0 +1,29 @@
+testcaseid,testcasename,taglist,tasklist,variables,isdatadriven,datafile,isactive
+TC_RE_001,Create Rule With SIM Lifecycle And Raise Alert Action,smoke|regression|positive|rule-engine|sim-lifecycle,TC_RE_001,,false,,true
+TC_RE_002,Create Rule With SIM Lifecycle Trigger Option 2,regression|positive|rule-engine|sim-lifecycle|trigger-2,TC_RE_002,,false,,true
+TC_RE_003,Create Rule With SIM Lifecycle Trigger Option 3,regression|positive|rule-engine|sim-lifecycle|trigger-3,TC_RE_003,,false,,true
+TC_RE_004,Create Rule With Fraud Prevention Trigger Option 1,regression|positive|rule-engine|fraud-prevention|trigger-1,TC_RE_004,,false,,true
+TC_RE_005,Create Rule With Fraud Prevention Trigger Option 2,regression|positive|rule-engine|fraud-prevention|trigger-2,TC_RE_005,,false,,true
+TC_RE_006,Create Rule With Cost Control Trigger Option 1,regression|positive|rule-engine|cost-control|trigger-1,TC_RE_006,,false,,true
+TC_RE_007,Create Rule With Cost Control Trigger Option 2,regression|positive|rule-engine|cost-control|trigger-2,TC_RE_007,,false,,true
+TC_RE_008,Create Rule With Others Category Trigger Option 1,regression|positive|rule-engine|others|trigger-1,TC_RE_008,,false,,true
+TC_RE_009,Create Rule With Others Category Trigger Option 2,regression|positive|rule-engine|others|trigger-2,TC_RE_009,,false,,true
+TC_RE_009A,Create Rules For All SIM Lifecycle Rule Category Options (Define Triggers),regression|positive|rule-engine|sim-lifecycle|all-triggers,TC_RE_009A,,false,,true
+TC_RE_009B,Create Rules For All Fraud Prevention Rule Category Options (Define Triggers),regression|positive|rule-engine|fraud-prevention|all-triggers,TC_RE_009B,,false,,true
+TC_RE_009C,Create Rules For All Cost Control Rule Category Options (Define Triggers),regression|positive|rule-engine|cost-control|all-triggers,TC_RE_009C,,false,,true
+TC_RE_009D,Create Rules For All Others Rule Category Options (Define Triggers),regression|positive|rule-engine|others|all-triggers,TC_RE_009D,,false,,true
+TC_RE_009E,Create Rules For All Category And Action Combinations,regression|positive|rule-engine|category-action-combo,TC_RE_009E,,false,,true
+TC_RE_010,NEG01 Next On Tab1 With Rule Name Blank,regression|negative|rule-engine,TC_RE_010,,false,,true
+TC_RE_011,NEG02 Next On Tab1 With Category Not Selected,regression|negative|rule-engine,TC_RE_011,,false,,true
+TC_RE_012,NEG03 Next On Tab1 With App Level Not Selected,regression|negative|rule-engine,TC_RE_012,,false,,true
+TC_RE_013,NEG04 Next On Tab1 With Customer Not Selected,regression|negative|rule-engine,TC_RE_013,,false,,true
+TC_RE_014,NEG05 Next On Tab1 With Device Plan Not Selected,regression|negative|rule-engine,TC_RE_014,,false,,true
+TC_RE_015,NEG06 Next On Tab2 With No Rule Category Selected,regression|negative|rule-engine,TC_RE_015,,false,,true
+TC_RE_016,NEG07 Next On Tab2 With No Trigger Saved,regression|negative|rule-engine,TC_RE_016,,false,,true
+TC_RE_017,NEG08 Next On Tab3 With No Aggregation Level,regression|negative|rule-engine,TC_RE_017,,false,,true
+TC_RE_018,NEG09 Submit On Tab4 With No Action Saved,regression|negative|rule-engine,TC_RE_018,,false,,true
+TC_RE_019,NEG10 Save Email Action Without Recipients,regression|negative|rule-engine,TC_RE_019,,false,,true
+TC_RE_020,NEG11 Invalid Email In Raise Alert To Field,regression|negative|rule-engine,TC_RE_020,,false,,true
+TC_RE_021,NEG12 Close Wizard Mid Way,regression|negative|rule-engine,TC_RE_021,,false,,true
+TC_RE_022,NEG13 Rule Name Exceeds 50 Characters,regression|negative|rule-engine,TC_RE_022,,false,,true
+TC_RE_023,NEG14 Device Plan Disabled When All DP Checked,regression|negative|rule-engine,TC_RE_023,,false,,true

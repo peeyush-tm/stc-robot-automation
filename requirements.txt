@@ -1,5 +1,8 @@
 robotframework
 robotframework-seleniumlibrary
+robotframework-requests
 robotframework-databaselibrary
+robotframework-sshlibrary
 pymysql
-webdriver-manager
+reportlab>=4.0.0
+python-docx>=1.0.0

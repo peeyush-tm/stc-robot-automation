@@ -1,15 +1,37 @@
 venv/
 __pycache__/
 *.pyc
-reports/
-*.log
-.env
+
+# ── All automation execution output goes into reports/ ──────────────────
+# Run artifacts (timestamped sub-folders created by run_tests.py)
+reports/*/
+!reports/.gitkeep
+
+# Legacy output folders — no longer used; everything goes to reports/
+output/
+STC_Sanity_Automation/
+
+# Invoice CSV downloads from E2E Step 17 — these are test run artifacts
+billing/*.csv
+
+# Stray Robot Framework files if robot is run directly from project root
 output.xml
 log.html
 report.html
 selenium-screenshot-*.png
-.cursor/
-variables/.run_seed.json
+pabot_results/
+.pabotsuitenames
+
+# Config / secrets
+*.log
+.env
 email_config.json
+
+# Dev tools
 scheduled_run.py
 check_results.py
+variables/.run_seed.json
+
+# IDE
+.cursor/
+_temp_pulak/

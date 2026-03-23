@@ -1,0 +1,9 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sim="http://simorder.fingerprint.webservice.stc.comarch.com/">
+<soapenv:Header/>
+<soapenv:Body>
+<sim:updateOrderStatus>
+<orderID>REPLACE_ORDER_ID</orderID>
+<status>Approved</status>
+</sim:updateOrderStatus>
+</soapenv:Body>
+</soapenv:Envelope>

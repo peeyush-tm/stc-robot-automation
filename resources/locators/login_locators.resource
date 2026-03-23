@@ -7,6 +7,10 @@ ${LOC_LOGIN_CAPTCHA_INPUT}         xpath=//input[@name='captcha']
 ${LOC_LOGIN_CAPTCHA_IMAGE}         xpath=//img[@id='image']
 ${LOC_LOGIN_BUTTON}                xpath=//input[@type='button' and contains(@class,'btn-custom-color')]
 ${LOC_LOGIN_ERROR_MESSAGE}         xpath=//div[contains(@class,'erre-it')]
+${LOC_LOGIN_TOAST_ERROR}           xpath=//div[contains(@class,'Toastify__toast--error')] | //div[contains(@class,'Toastify')]//div[contains(@class,'toast--error')]
+${LOC_LOGIN_FIELD_VALIDATION}      xpath=//*[contains(text(),'is required') or contains(text(),'Required')]
+${LOC_USERNAME_VALIDATION}         xpath=//*[contains(text(),'Username is required')]
+${LOC_PASSWORD_VALIDATION}         xpath=//*[contains(text(),'Password Required')]
 
 # ── Post-Login / Navigation Locators ────────────────────────────────
 ${LOC_POST_LOGIN_LANDMARK}         xpath=//div[@id='gridData']//tbody[@role='rowgroup']//tr[contains(@class,'k-master-row')]

@@ -18,6 +18,12 @@ LONG_INPUT = "a" * 256
 EMPTY_STRING = ""
 INCORRECT_CAPTCHA = "ZZZZZZ"
 
-# ── URLs ─────────────────────────────────────────────────────────────
+# ── Expected Error Messages ──────────────────────────────────────────
+ERROR_INVALID_CAPTCHA = "Invalid Captcha"
+ERROR_AUTH_FAILURE = "Authorization Failure"
+ERROR_PLEASE_ENTER_CAPTCHA = "Please Enter Captcha"
+ERROR_USERNAME_REQUIRED = "Username is required"
+ERROR_PASSWORD_REQUIRED = "Password Required"
+
+# ── URLs (MANAGE_DEVICES_URL from config/<env>/config.json per ENV) ───
 MANAGE_DEVICES_PATH = "/ManageDevices"
-MANAGE_DEVICES_URL = "https://192.168.1.26:7874/ManageDevices"

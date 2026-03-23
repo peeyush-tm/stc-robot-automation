@@ -1,0 +1,17 @@
+testcaseid,testcasename,taglist,tasklist,variables,isdatadriven,datafile,isactive
+TC_LOGIN_001,Valid Credentials Should Login Successfully,smoke|regression|positive,TC_LOGIN_001,,false,,true
+TC_LOGIN_002,Logout Should Redirect To Login Page,smoke|regression|positive,TC_LOGIN_002,,false,,true
+TC_LOGIN_003,Navigate To Manage Devices After Login,smoke|regression|positive|navigation,TC_LOGIN_003,,false,,true
+TC_LOGIN_004,Verify Manage Devices Page Elements,regression|positive|navigation,TC_LOGIN_004,,false,,true
+TC_LOGIN_005,Invalid Username Should Show Error,regression|negative,TC_LOGIN_005,,false,,true
+TC_LOGIN_006,Invalid Password Should Show Error,regression|negative,TC_LOGIN_006,,false,,true
+TC_LOGIN_007,Both Invalid Username And Password Should Show Error,regression|negative,TC_LOGIN_007,,false,,true
+TC_LOGIN_008,Empty Username Field Should Show Error,regression|negative,TC_LOGIN_008,,false,,true
+TC_LOGIN_009,Empty Password Field Should Show Error,regression|negative,TC_LOGIN_009,,false,,true
+TC_LOGIN_010,All Fields Empty Should Show Error,regression|negative,TC_LOGIN_010,,false,,true
+TC_LOGIN_011,Empty Captcha Should Show Error,regression|negative|captcha,TC_LOGIN_011,,false,,true
+TC_LOGIN_012,Incorrect Captcha Should Show Error,regression|negative|captcha,TC_LOGIN_012,,false,,true
+TC_LOGIN_013,SQL Injection In Username Should Be Rejected,regression|negative|security,TC_LOGIN_013,,false,,true
+TC_LOGIN_014,Special Characters In Username Should Show Error,regression|negative|security,TC_LOGIN_014,,false,,true
+TC_LOGIN_015,Whitespace Only Username Should Show Error,regression|negative,TC_LOGIN_015,,false,,true
+TC_LOGIN_016,Direct Access To ManageDevices Without Login Should Redirect,regression|negative|security|navigation,TC_LOGIN_016,,false,,true

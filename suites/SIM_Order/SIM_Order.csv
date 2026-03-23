@@ -1,0 +1,22 @@
+testcaseid,testcasename,taglist,tasklist,variables,isdatadriven,datafile,isactive
+TC_SO_001,E2E Create SIM Order Successfully,smoke|regression|positive|sim_order,TC_SO_001,,false,,true
+TC_SO_002,Verify Live Order Grid Loads After Login,smoke|regression|positive|sim_order,TC_SO_002,,false,,true
+TC_SO_003,Verify Create SIM Order Wizard Elements Visible,smoke|regression|positive|sim_order,TC_SO_003,,false,,true
+TC_SO_004,Verify Wizard Previous Button Navigates Back,regression|positive|sim_order|navigation,TC_SO_004,,false,,true
+TC_SO_005,Verify Preview Page Shows Order And Shipping Summary,regression|positive|sim_order,TC_SO_005,,false,,true
+TC_SO_006,Verify Close Button On Preview Redirects To Live Order,regression|positive|sim_order|navigation,TC_SO_006,,false,,true
+TC_SO_007,Verify Search Functionality On Live Order Grid,regression|positive|sim_order,TC_SO_007,,false,,true
+TC_SO_008,Cancel Order With Valid Reason And Remarks,regression|positive|sim_order|cancel,TC_SO_008,,false,,true
+TC_SO_009,Close Cancel Modal Without Proceeding,regression|positive|sim_order|cancel,TC_SO_009,,false,,true
+TC_SO_010,Next Blocked When Account Not Selected,regression|negative|sim_order,TC_SO_010,,false,,true
+TC_SO_011,Next Blocked When SIM Type Not Selected,regression|negative|sim_order,TC_SO_011,,false,,true
+TC_SO_012,Quantity Zero Should Show Error Or Block Next,regression|negative|sim_order|boundary,TC_SO_012,,false,,true
+TC_SO_013,Quantity Negative Should Show Error Or Block Next,regression|negative|sim_order|boundary,TC_SO_013,,false,,true
+TC_SO_014,Quantity Non Numeric Should Show Error Or Block Next,regression|negative|sim_order|boundary,TC_SO_014,,false,,true
+TC_SO_015,Next Blocked On Step 2 When Address Line 1 Empty,regression|negative|sim_order,TC_SO_015,,false,,true
+TC_SO_016,Submit Without Accepting Terms Should Be Blocked,regression|negative|sim_order,TC_SO_016,,false,,true
+TC_SO_017,SQL Injection In Quantity Field,regression|negative|security|sim_order,TC_SO_017,,false,,true
+TC_SO_018,Special Characters In Address Fields,regression|negative|security|sim_order,TC_SO_018,,false,,true
+TC_SO_019,Cancel Order With Empty Reason Should Be Blocked,regression|negative|sim_order|cancel,TC_SO_019,,false,,true
+TC_SO_020,Direct Access To Create SIM Order Without Login Should Redirect,regression|negative|security|sim_order|navigation,TC_SO_020,,false,,true
+TC_SO_021,Direct Access To Live Order Without Login Should Redirect,regression|negative|security|sim_order|navigation,TC_SO_021,,false,,true

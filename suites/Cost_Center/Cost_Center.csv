@@ -1,0 +1,26 @@
+testcaseid,testcasename,taglist,tasklist,variables,isdatadriven,datafile,isactive
+TC_CC_001,Navigate To ManageAccount Page,positive|smoke|cost-center|navigation,TC_CC_001,,false,,true
+TC_CC_002,Verify Create Cost Center Button Visible,positive|smoke|cost-center|permission,TC_CC_002,,false,,true
+TC_CC_003,Open Create Cost Center Form,positive|smoke|cost-center|form,TC_CC_003,,false,,true
+TC_CC_004,Verify All Form Fields Present,positive|cost-center|form|ui,TC_CC_004,,false,,true
+TC_CC_005,Verify Parent Account TreeView Has Nodes,positive|cost-center|form|dropdown,TC_CC_005,,false,,true
+TC_CC_006,Verify Submit Button Is Present And Enabled,positive|cost-center|form|ui,TC_CC_006,,false,,true
+TC_CC_007,Create Cost Center With All Fields,positive|smoke|regression|cost-center|e2e,TC_CC_007,,false,,true
+TC_CC_008,Create Cost Center Without Comment,positive|regression|cost-center|e2e,TC_CC_008,,false,,true
+TC_CC_009,Verify No Validation Errors With Valid Data,positive|cost-center|validation,TC_CC_009,,false,,true
+TC_CC_010,Submit With Empty Account Name,negative|cost-center|validation,TC_CC_010,,false,,true
+TC_CC_011,Submit Without Selecting Parent Account,negative|cost-center|validation,TC_CC_011,,false,,true
+TC_CC_012,Submit With Both Mandatory Fields Empty,negative|cost-center|validation,TC_CC_012,,false,,true
+TC_CC_013,Submit With Only Spaces In Account Name,negative|cost-center|validation|edge,TC_CC_013,,false,,true
+TC_CC_014,Duplicate Cost Center Name,negative|cost-center|validation|duplicate,TC_CC_014,,false,,true
+TC_CC_015,Account Name Exceeds 100 Characters,negative|cost-center|boundary,TC_CC_015,,false,,true
+TC_CC_016,Account Name Exactly 100 Characters,positive|cost-center|boundary|edge,TC_CC_016,,false,,true
+TC_CC_017,Comment Exceeds 50 Characters,negative|cost-center|boundary,TC_CC_017,,false,,true
+TC_CC_018,Comment Exactly 50 Characters,positive|cost-center|boundary|edge,TC_CC_018,,false,,true
+TC_CC_020,Account Name With Semicolons Stripped,negative|cost-center|sanitization|edge,TC_CC_020,,false,,true
+TC_CC_021,Close Form Without Submitting,negative|cost-center|cancel,TC_CC_021,,false,,true
+TC_CC_022,Close Empty Form,negative|cost-center|cancel|edge,TC_CC_022,,false,,true
+TC_CC_023,Close After Selecting Only Parent Account,negative|cost-center|cancel|edge,TC_CC_023,,false,,true
+TC_CC_024,Expand Billing Account And Verify Cost Center Tab,positive|cost-center|listing|tab,TC_CC_024,,false,,true
+TC_CC_025,Open Cost Center Tab And Verify Grid Loads,positive|cost-center|listing|grid,TC_CC_025,,false,,true
+TC_CC_026,Verify Edit Delete Buttons In Cost Center Grid,positive|cost-center|listing|permission,TC_CC_026,,false,,true

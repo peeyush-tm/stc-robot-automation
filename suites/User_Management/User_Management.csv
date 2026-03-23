@@ -1,0 +1,46 @@
+testcaseid,testcasename,taglist,tasklist,variables,isdatadriven,datafile,isactive
+TC_USER_001,Navigate To Manage User Page Via Admin Sidebar,positive|user-management|navigation|smoke,TC_USER_001,,false,,true
+TC_USER_002,Verify Manage User Grid Loads With Data,positive|user-management|grid,TC_USER_002,,false,,true
+TC_USER_003,Verify Manage User Grid Columns,positive|user-management|grid|columns,TC_USER_003,,false,,true
+TC_USER_004,Verify Manage User Grid Has Pagination,positive|user-management|grid|pagination,TC_USER_004,,false,,true
+TC_USER_005,Verify Create User Button Is Visible,positive|user-management|button,TC_USER_005,,false,,true
+TC_USER_006,Open Create User Form,positive|user-management|create-form,TC_USER_006,,false,,true
+TC_USER_007,Verify All Create User Form Fields Present,positive|user-management|create-form|fields,TC_USER_007,,false,,true
+TC_USER_008,Verify Submit And Close Buttons Present,positive|user-management|create-form|buttons,TC_USER_008,,false,,true
+TC_USER_009,Create User With All Required Fields,positive|user-management|create|e2e|smoke,TC_USER_009,,false,,true
+TC_USER_010,Create User With Email OTP Channel,positive|user-management|create|otp,TC_USER_010,,false,,true
+TC_USER_011,Create User With Both SMS And Email OTP Channels,positive|user-management|create|otp,TC_USER_011,,false,,true
+TC_USER_012,Search User In Grid By Username,positive|user-management|search,TC_USER_012,,false,,true
+TC_USER_013,Delete User And Verify Removal,positive|user-management|delete|e2e|smoke,TC_USER_013,,false,,true
+TC_USER_014,Close Create User Form Without Saving,positive|user-management|close|form,TC_USER_014,,false,,true
+TC_USER_015,Close Form After Filling Fields Should Not Create User,positive|user-management|close|form,TC_USER_015,,false,,true
+TC_USER_016,Submit Without Filling Any Field,negative|user-management|validation|empty,TC_USER_016,,false,,true
+TC_USER_017,Submit Without Selecting Account,negative|user-management|validation|account,TC_USER_017,,false,,true
+TC_USER_018,Submit Without Username,negative|user-management|validation|username,TC_USER_018,,false,,true
+TC_USER_019,Submit Without First Name,negative|user-management|validation|first-name,TC_USER_019,,false,,true
+TC_USER_020,Submit Without Last Name,negative|user-management|validation|last-name,TC_USER_020,,false,,true
+TC_USER_021,Submit Without Primary Phone,negative|user-management|validation|phone,TC_USER_021,,false,,true
+TC_USER_022,Submit Without Email Address,negative|user-management|validation|email,TC_USER_022,,false,,true
+TC_USER_023,Submit Without Confirm Email Address,negative|user-management|validation|confirm-email,TC_USER_023,,false,,true
+TC_USER_024,Submit Without Selecting Role,negative|user-management|validation|role,TC_USER_024,,false,,true
+TC_USER_025,Submit Without Selecting Country,negative|user-management|validation|country,TC_USER_025,,false,,true
+TC_USER_026,Submit Without Selecting Time Zone,negative|user-management|validation|timezone,TC_USER_026,,false,,true
+TC_USER_027,Submit Without Selecting Any OTP Channel,negative|user-management|validation|otp,TC_USER_027,,false,,true
+TC_USER_028,Username Less Than 5 Characters,negative|user-management|validation|username|boundary,TC_USER_028,,false,,true
+TC_USER_029,Username More Than 50 Characters,negative|user-management|validation|username|boundary,TC_USER_029,,false,,true
+TC_USER_030,Phone Less Than 5 Digits,negative|user-management|validation|phone|boundary,TC_USER_030,,false,,true
+TC_USER_031,Phone More Than 16 Digits,negative|user-management|validation|phone|boundary,TC_USER_031,,false,,true
+TC_USER_032,Phone With Non Numeric Characters,negative|user-management|validation|phone,TC_USER_032,,false,,true
+TC_USER_033,Invalid Email Format,negative|user-management|validation|email,TC_USER_033,,false,,true
+TC_USER_034,Mismatched Confirm Email,negative|user-management|validation|confirm-email,TC_USER_034,,false,,true
+TC_USER_035,Duplicate Username Should Show Error,negative|user-management|validation|duplicate,TC_USER_035,,false,,true
+TC_USER_036,Cancel Delete Confirmation Should Keep User,negative|user-management|delete|cancel,TC_USER_036,,false,,true
+TC_USER_037,Username Exactly 5 Characters,edge-case|user-management|boundary|username,TC_USER_037,,false,,true
+TC_USER_038,Username Exactly 50 Characters,edge-case|user-management|boundary|username,TC_USER_038,,false,,true
+TC_USER_039,Phone Exactly 5 Digits,edge-case|user-management|boundary|phone,TC_USER_039,,false,,true
+TC_USER_040,Phone Exactly 16 Digits,edge-case|user-management|boundary|phone,TC_USER_040,,false,,true
+TC_USER_041,Whitespace Only Username,edge-case|user-management|validation|username,TC_USER_041,,false,,true
+TC_USER_042,Whitespace Only First Name,edge-case|user-management|validation|first-name,TC_USER_042,,false,,true
+TC_USER_043,Whitespace Only Last Name,edge-case|user-management|validation|last-name,TC_USER_043,,false,,true
+TC_USER_044,Special Characters In Username,edge-case|user-management|validation|username|special-chars,TC_USER_044,,false,,true
+TC_USER_045,Verify Delete Confirmation Dialog Elements,edge-case|user-management|delete|dialog,TC_USER_045,,false,,true

@@ -1,0 +1,815 @@
+Live Order Page — Complete XPath Reference
+URL: https://192.168.1.26:7874/LiveOrder
+Section 1: Global Header Navigation
+ElementXPathSite Logo / Home Link//a[@href='/ManageDevices']Global Search — ICCID/IMEI Dropdown//select[contains(@class,'search-box-dropdown')]Global Search — Device Text Input//input[@id='txtLimit']Notifications Bell//a[@id='dropdownbell']Language Selector//li[@id='header-notification']//a[contains(@class,'dropdown-toggle')]Language — English//a[normalize-space()='English' and not(@href='javascript:void(0)')]Language — Arabic//a[normalize-space()='Arabic (عربى)']User Settings Dropdown//li[@id='userSetting']//a[contains(@class,'dropdown-toggle')]User Display Name//li[@id='userSetting']//a[normalize-space()='Hello! KSA']User Manual//li[@id='UserManual']//a[contains(normalize-space(),'User Manual')]Change Password//a[@href='/ChangePassword']Log Out//a[normalize-space()='Log Out']
+
+Section 2: Left Sidebar Navigation
+ElementXPathDevices Menu//a[@id='devices-menu-icon']Dashboard Menu//a[@id='dashboard-icon']Rate Plan Menu//a[@id='rate-plan-menu-icon']Service Menu//a[@id='service-menu-icon']Report Menu//a[@id='Report-icon']Billing Menu//a[@id='billing-menu-icon']Admin Menu//a[@id='admin-menu-icon']Application Logging Menu//a[@id='appliction-logging']Rule Engine Menu//a[@id='rule-engine-menu-icon']Alert Centre Menu//a[@id='active-menu-icon']Orders Menu (active)//a[@id='orders']Download Center Menu//a[@id='download-center-icon']Orders Sub-menu — Live Order (active)//a[@id='orders']/parent::li//ul[contains(@class,'sub')]//a[@href='/LiveOrder']Orders Sub-menu — Order History//a[@id='orders']/parent::li//ul[contains(@class,'sub')]//a[@href='/OrderHistory']
+
+Section 3: Page Tab Navigation
+ElementXPathPage Tab Container//ul[@id='pageHeading']Live Order Tab (active)//ul[@id='pageHeading']//a[@href='/LiveOrder']Live Order Tab (active, by class)//ul[@id='pageHeading']//a[contains(@class,'selected') and normalize-space()='Live Order']Order History Tab//ul[@id='pageHeading']//a[@href='/OrderHistory']Order History Tab (by text)//ul[@id='pageHeading']//a[normalize-space()='Order History']
+
+Section 4: Toolbar — Search, Info, Create SIM Order, Download CSV
+ElementXPathSearch Text Input//input[@name='searchValue']Search Text Input (by placeholder)//input[@placeholder='Enter Search Text']Search Button (magnifier icon)//a[@id='searchButton']Info Icon (search hint)//i[contains(@class,'fa-info-circle') and contains(@title,'Order Number and Status')]Create SIM Order Button//a[contains(@class,'btn-custom-color') and normalize-space()='Create SIM Order']Download CSV Button//div[@id='downloadCSVSIMOrder']Download CSV (by title)//div[@title='Download CSV']
+
+Section 5: Kendo Grid — #simOrderGrid
+5.1 Grid Column Headers (Sort Links)
+ColumnSort Link XPathFilter Icon XPathdata-fieldACTION (no sort/filter)//th[@id='2ed144c5-665c-4fb1-ab0e-c0c2e4dcf072']——ORDER NUMBER//th[@data-field='orderNumber']//a[contains(@class,'k-link')]//th[@data-field='orderNumber']//a[contains(@class,'k-grid-filter')]orderNumberORDER TIME//th[@data-field='createDate']//a[contains(@class,'k-link')]//th[@data-field='createDate']//a[contains(@class,'k-grid-filter')]createDateACCOUNT//th[@data-field='account.name']//a[contains(@class,'k-link')]//th[@data-field='account.name']//a[contains(@class,'k-grid-filter')]account.nameCREATED BY//th[@data-field='orderedByName']//a[contains(@class,'k-link')]//th[@data-field='orderedByName']//a[contains(@class,'k-grid-filter')]orderedByNameSTATUS//th[@data-field='orderStatus']//a[contains(@class,'k-link')]//th[@data-field='orderStatus']//a[contains(@class,'k-grid-filter')]orderStatusSIM REPLACEMENT ORDER//th[@data-field='blankSim']//a[contains(@class,'k-link')]//th[@data-field='blankSim']//a[contains(@class,'k-grid-filter')]blankSimQUANTITY//th[@data-field='quantity']//a[contains(@class,'k-link')]//th[@data-field='quantity']//a[contains(@class,'k-grid-filter')]quantityLAST MODIFIED ON//th[@data-field='statusUpdatedDate']//a[contains(@class,'k-link')]//th[@data-field='statusUpdatedDate']//a[contains(@class,'k-grid-filter')]statusUpdatedDate
+5.2 Column Header — Stable ID-Based XPaths
+ColumnXPath by Header IDORDER NUMBER//th[@id='d4020f92-b1e0-487c-9e28-6a30f4415739']ORDER TIME//th[@id='ec1f4788-cf9a-4796-90ec-511cb52dd356']ACCOUNT//th[@id='df402140-dab1-46ed-bffb-a4bee397acb5']CREATED BY//th[@id='5797be22-15cb-4b6d-ab71-87b8c0c1e2a6']STATUS//th[@id='175e62d7-586d-4a45-a7a5-e903840f849f']SIM REPLACEMENT ORDER//th[@id='5e947437-aeb5-453e-958b-85635ae47bcb']QUANTITY//th[@id='984bee20-6822-46be-972d-f0423fb82b5e']LAST MODIFIED ON//th[@id='b62dbdec-8566-4af8-9420-5820d51b1935']
+
+Note: UUID-based header IDs may change on page reload. Always prefer data-field based XPaths.
+
+
+Section 6: Grid Data Rows
+6.1 Row Structure
+ElementXPathAll Data Rows (master rows)//div[@id='simOrderGrid']//tbody/tr[contains(@class,'k-master-row')]First Data Row//div[@id='simOrderGrid']//tbody/tr[contains(@class,'k-master-row')][1]Row by Status class (Failed)//div[@id='simOrderGrid']//tbody/tr[contains(@class,'k-master-row') and contains(@class,'Failed')]Row Expand/Collapse Icon//div[@id='simOrderGrid']//tbody/tr[contains(@class,'k-master-row')][1]//td[contains(@class,'k-hierarchy-cell')]/aExpanded Child Row//div[@id='simOrderGrid']//tbody/tr[contains(@class,'k-detail-row')]
+6.2 Row Data Cells (by column position)
+CellXPath (first row)XPath (any row)Expand Toggle (col 1)//div[@id='simOrderGrid']//tbody/tr[1]/td[1]/a//div[@id='simOrderGrid']//tbody/tr[N]/td[1]/aAction Buttons (col 2)//div[@id='simOrderGrid']//tbody/tr[1]/td[contains(@class,'k-command-cell')]//div[@id='simOrderGrid']//tbody/tr[N]/td[contains(@class,'k-command-cell')]Order Number (col 3)//div[@id='simOrderGrid']//tbody/tr[1]/td[3]//div[@id='simOrderGrid']//tbody/tr[contains(td[3],'ORDER_NUM')]Order Time (col 4)//div[@id='simOrderGrid']//tbody/tr[1]/td[4]—Account (col 5)//div[@id='simOrderGrid']//tbody/tr[1]/td[5]—Created By (col 6)//div[@id='simOrderGrid']//tbody/tr[1]/td[6]—Status (col 7)//div[@id='simOrderGrid']//tbody/tr[1]/td[7]/span//div[@id='simOrderGrid']//tbody/tr[1]/td[7]/span[contains(@class,'Failed')]SIM Replacement Order (col 8)//div[@id='simOrderGrid']//tbody/tr[1]/td[8]/span—Quantity (col 9)//div[@id='simOrderGrid']//tbody/tr[1]/td[9]—Last Modified On (col 10)//div[@id='simOrderGrid']//tbody/tr[1]/td[10]—
+
+Section 7: Row Action Buttons (Per Row)
+ActionXPath (first row)Icon TitleDownload Invoice//div[@id='simOrderGrid']//tbody/tr[1]//a[contains(@class,'k-grid-Edit') and contains(@class,'printOrderprint')]"Download Invoice"Cancel Order//div[@id='simOrderGrid']//tbody/tr[1]//a[contains(@class,'k-grid-Delete') and contains(@class,'printOrderdelete')]"Cancel Order"Fail Order//div[@id='simOrderGrid']//tbody/tr[1]//a[contains(@class,'k-grid-Fail')]"Fail Order"Retry Order//div[@id='simOrderGrid']//tbody/tr[1]//a[contains(@class,'k-grid-Retry')]"Retry Order"Download Invoice (icon)//div[@id='simOrderGrid']//tbody/tr[1]//i[contains(@class,'printOrderprint') and @title='Download Invoice']—Cancel Order (icon)//div[@id='simOrderGrid']//tbody/tr[1]//i[contains(@class,'printOrderdeletecross') and @title='Cancel Order']—Fail Order (icon)//div[@id='simOrderGrid']//tbody/tr[1]//i[contains(@class,'printOrderfailcross') and @title='Fail Order']—Retry Order (icon)//div[@id='simOrderGrid']//tbody/tr[1]//i[contains(@class,'k-grid-Retry') and @title='Retry Order']—
+
+Section 8: Cancel Order Modal (#savePopup)
+ElementXPathModal Container//div[@id='savePopup']Modal Title//div[@id='savePopup']//h4[contains(@class,'modal-title')]Close (X) Button//div[@id='savePopup']//button[contains(@class,'close')]Cancel Reason Label//div[@id='savePopup']//label[normalize-space()='Cancel Reason']Cancel Reason Input//input[@name='cancelReason']Cancel Remarks Label//div[@id='savePopup']//label[normalize-space()='Cancel Remarks']Cancel Remarks Textarea//textarea[@id='cancelRemarks']Cancel Remarks (by name)//textarea[@name='cancelRemarks']Proceed Button//button[@id='prceedBtn']Proceed Button (by text)//div[@id='savePopup']//button[normalize-space()='Proceed']Close Button (footer)//div[@id='savePopup']//button[contains(@class,'btn-cancel-color') and normalize-space()='Close']
+
+Section 9: Pagination
+ElementXPathPagination Container//div[contains(@class,'k-pager-wrap k-grid-pager')]First Page Button//a[@aria-label='Go to the first page']Previous Page Button//a[@aria-label='Go to the previous page']Page Number Input//span[contains(@class,'k-pager-input')]//inputNext Page Button//a[@aria-label='Go to the next page']Last Page Button//a[@aria-label='Go to the last page']Page Size Dropdown//div[contains(@class,'k-pager-sizes')]//span[contains(@class,'k-dropdown')]Page Info Label (total items)//span[contains(@class,'k-pager-info')]
+
+Total Records: 292 items across 15 pages (20 per page default). Page size options: 20, 40, 60, 80, 100.
+
+
+Section 10: Status Legend
+ElementXPathLegend Container//ul[contains(@class,'legent_style')]New (legend dot)//ul[contains(@class,'legent_style')]//li[contains(@class,'New')]In Progress (legend dot)//ul[contains(@class,'legent_style')]//li[contains(@class,'InProgress')]Pending (legend dot)//ul[contains(@class,'legent_style')]//li[contains(@class,'Pending')]Approved (legend dot)//ul[contains(@class,'legent_style')]//li[contains(@class,'Approved')]Failed (legend dot)//ul[contains(@class,'legent_style')]//li[contains(@class,'Failed')]
+
+Robot Framework Automation File
+robot*** Settings ***
+Library           SeleniumLibrary
+*** Variables ***
+# URLs
+${LIVE_ORDER_URL}                    https://192.168.1.26:7874/LiveOrder
+${ORDER_HISTORY_URL}                 https://192.168.1.26:7874/OrderHistory
+# --- Page Tabs ---
+${TAB_LIVE_ORDER}                    //ul[@id='pageHeading']//a[@href='/LiveOrder']
+${TAB_ORDER_HISTORY}                 //ul[@id='pageHeading']//a[@href='/OrderHistory']
+# --- Toolbar ---
+${SEARCH_INPUT}                      //input[@name='searchValue']
+${SEARCH_BTN}                        //a[@id='searchButton']
+${INFO_ICON}                         //i[contains(@class,'fa-info-circle')]
+${BTN_CREATE_SIM_ORDER}              //a[contains(@class,'btn-custom-color') and normalize-space()='Create SIM Order']
+${BTN_DOWNLOAD_CSV}                  //div[@id='downloadCSVSIMOrder']
+# --- Grid ---
+${GRID}                              //div[@id='simOrderGrid']
+${GRID_ROWS}                         //div[@id='simOrderGrid']//tbody/tr[contains(@class,'k-master-row')]
+${GRID_FIRST_ROW}                    //div[@id='simOrderGrid']//tbody/tr[contains(@class,'k-master-row')][1]
+# --- Column Headers (Sort) ---
+${COL_SORT_ORDER_NUMBER}             //th[@data-field='orderNumber']//a[contains(@class,'k-link')]
+${COL_SORT_ORDER_TIME}               //th[@data-field='createDate']//a[contains(@class,'k-link')]
+${COL_SORT_ACCOUNT}                  //th[@data-field='account.name']//a[contains(@class,'k-link')]
+${COL_SORT_CREATED_BY}               //th[@data-field='orderedByName']//a[contains(@class,'k-link')]
+${COL_SORT_STATUS}                   //th[@data-field='orderStatus']//a[contains(@class,'k-link')]
+${COL_SORT_SIM_REPLACEMENT}          //th[@data-field='blankSim']//a[contains(@class,'k-link')]
+${COL_SORT_QUANTITY}                 //th[@data-field='quantity']//a[contains(@class,'k-link')]
+${COL_SORT_LAST_MODIFIED}            //th[@data-field='statusUpdatedDate']//a[contains(@class,'k-link')]
+# --- Column Filter Icons ---
+${COL_FILTER_ORDER_NUMBER}           //th[@data-field='orderNumber']//a[contains(@class,'k-grid-filter')]
+${COL_FILTER_ORDER_TIME}             //th[@data-field='createDate']//a[contains(@class,'k-grid-filter')]
+${COL_FILTER_ACCOUNT}                //th[@data-field='account.name']//a[contains(@class,'k-grid-filter')]
+${COL_FILTER_CREATED_BY}             //th[@data-field='orderedByName']//a[contains(@class,'k-grid-filter')]
+${COL_FILTER_STATUS}                 //th[@data-field='orderStatus']//a[contains(@class,'k-grid-filter')]
+${COL_FILTER_SIM_REPLACEMENT}        //th[@data-field='blankSim']//a[contains(@class,'k-grid-filter')]
+${COL_FILTER_QUANTITY}               //th[@data-field='quantity']//a[contains(@class,'k-grid-filter')]
+${COL_FILTER_LAST_MODIFIED}          //th[@data-field='statusUpdatedDate']//a[contains(@class,'k-grid-filter')]
+# --- Row Action Buttons (first row) ---
+${ROW_BTN_DOWNLOAD_INVOICE}          //div[@id='simOrderGrid']//tbody/tr[1]//a[contains(@class,'k-grid-Edit') and contains(@class,'printOrderprint')]
+${ROW_BTN_CANCEL_ORDER}              //div[@id='simOrderGrid']//tbody/tr[1]//a[contains(@class,'k-grid-Delete') and contains(@class,'printOrderdelete')]
+${ROW_BTN_FAIL_ORDER}                //div[@id='simOrderGrid']//tbody/tr[1]//a[contains(@class,'k-grid-Fail')]
+${ROW_BTN_RETRY_ORDER}               //div[@id='simOrderGrid']//tbody/tr[1]//a[contains(@class,'k-grid-Retry')]
+${ROW_EXPAND_BTN}                    //div[@id='simOrderGrid']//tbody/tr[1]//td[contains(@class,'k-hierarchy-cell')]/a
+# --- Cancel Order Modal ---
+${MODAL_CANCEL_ORDER}                //div[@id='savePopup']
+${MODAL_CANCEL_TITLE}                //div[@id='savePopup']//h4[contains(@class,'modal-title')]
+${MODAL_CANCEL_CLOSE_X}              //div[@id='savePopup']//button[contains(@class,'close')]
+${MODAL_CANCEL_REASON_INPUT}         //input[@name='cancelReason']
+${MODAL_CANCEL_REMARKS_TEXTAREA}     //textarea[@id='cancelRemarks']
+${MODAL_CANCEL_BTN_PROCEED}          //button[@id='prceedBtn']
+${MODAL_CANCEL_BTN_CLOSE}            //div[@id='savePopup']//button[contains(@class,'btn-cancel-color')]
+# --- Pagination ---
+${PAGINATION_FIRST}                  //a[@aria-label='Go to the first page']
+${PAGINATION_PREV}                   //a[@aria-label='Go to the previous page']
+${PAGINATION_PAGE_INPUT}             //span[contains(@class,'k-pager-input')]//input
+${PAGINATION_NEXT}                   //a[@aria-label='Go to the next page']
+${PAGINATION_LAST}                   //a[@aria-label='Go to the last page']
+${PAGINATION_PAGE_SIZE}              //div[contains(@class,'k-pager-sizes')]//span[contains(@class,'k-dropdown')]
+${PAGINATION_INFO}                   //span[contains(@class,'k-pager-info')]
+# --- Status Legend ---
+${LEGEND_CONTAINER}                  //ul[contains(@class,'legent_style')]
+${LEGEND_NEW}                        //ul[contains(@class,'legent_style')]//li[contains(@class,'New')]
+${LEGEND_IN_PROGRESS}                //ul[contains(@class,'legent_style')]//li[contains(@class,'InProgress')]
+${LEGEND_PENDING}                    //ul[contains(@class,'legent_style')]//li[contains(@class,'Pending')]
+${LEGEND_APPROVED}                   //ul[contains(@class,'legent_style')]//li[contains(@class,'Approved')]
+${LEGEND_FAILED}                     //ul[contains(@class,'legent_style')]//li[contains(@class,'Failed')]
+*** Keywords ***
+Navigate To Live Order
+    Go To    ${LIVE_ORDER_URL}
+    Wait Until Element Is Visible    ${GRID}    timeout=15s
+Navigate To Order History
+    Click Element    ${TAB_ORDER_HISTORY}
+    Wait Until Element Is Visible    ${GRID}    timeout=10s
+Search Live Orders
+    [Arguments]    ${search_text}
+    Clear Element Text    ${SEARCH_INPUT}
+    Input Text    ${SEARCH_INPUT}    ${search_text}
+    Click Element    ${SEARCH_BTN}
+    Wait Until Element Is Visible    ${GRID_ROWS}    timeout=10s
+Click Create SIM Order
+    Click Element    ${BTN_CREATE_SIM_ORDER}
+Download CSV
+    Click Element    ${BTN_DOWNLOAD_CSV}
+Sort Grid By Column
+    [Arguments]    ${sort_xpath}
+    Click Element    ${sort_xpath}
+    Sleep    1s
+Filter Grid By Column
+    [Arguments]    ${filter_xpath}
+    Click Element    ${filter_xpath}
+Row Action Download Invoice
+    [Arguments]    ${row_index}=1
+    Click Element    //div[@id='simOrderGrid']//tbody/tr[${row_index}]//a[contains(@class,'k-grid-Edit') and contains(@class,'printOrderprint')]
+Row Action Cancel Order
+    [Arguments]    ${row_index}=1
+    Click Element    //div[@id='simOrderGrid']//tbody/tr[${row_index}]//a[contains(@class,'k-grid-Delete') and contains(@class,'printOrderdelete')]
+    Wait Until Element Is Visible    ${MODAL_CANCEL_ORDER}    timeout=5s
+Row Action Fail Order
+    [Arguments]    ${row_index}=1
+    Click Element    //div[@id='simOrderGrid']//tbody/tr[${row_index}]//a[contains(@class,'k-grid-Fail')]
+Row Action Retry Order
+    [Arguments]    ${row_index}=1
+    Click Element    //div[@id='simOrderGrid']//tbody/tr[${row_index}]//a[contains(@class,'k-grid-Retry')]
+Expand Row
+    [Arguments]    ${row_index}=1
+    Click Element    //div[@id='simOrderGrid']//tbody/tr[${row_index}]//td[contains(@class,'k-hierarchy-cell')]/a
+    Wait Until Element Is Visible    //div[@id='simOrderGrid']//tbody/tr[contains(@class,'k-detail-row')]    timeout=5s
+Submit Cancel Order Modal
+    [Arguments]    ${reason}    ${remarks}
+    Wait Until Element Is Visible    ${MODAL_CANCEL_ORDER}    timeout=5s
+    Input Text    ${MODAL_CANCEL_REASON_INPUT}    ${reason}
+    Input Text    ${MODAL_CANCEL_REMARKS_TEXTAREA}    ${remarks}
+    Click Element    ${MODAL_CANCEL_BTN_PROCEED}
+Close Cancel Order Modal
+    Click Element    ${MODAL_CANCEL_BTN_CLOSE}
+Go To Page
+    [Arguments]    ${page_number}
+    Triple Click    ${PAGINATION_PAGE_INPUT}
+    Input Text    ${PAGINATION_PAGE_INPUT}    ${page_number}
+    Press Keys    ${PAGINATION_PAGE_INPUT}    RETURN
+    Sleep    1s
+Change Page Size
+    [Arguments]    ${size}
+    Click Element    ${PAGINATION_PAGE_SIZE}
+    Click Element    //ul[contains(@class,'k-list')]//li[normalize-space()='${size}']
+Get Row Count
+    ${rows}=    Get Element Count    ${GRID_ROWS}
+    [Return]    ${rows}
+Get Cell Value
+    [Arguments]    ${row_index}    ${col_index}
+    ${value}=    Get Text    //div[@id='simOrderGrid']//tbody/tr[${row_index}]/td[${col_index}]
+    [Return]    ${value}
+Get Order Status In Row
+    [Arguments]    ${row_index}=1
+    ${status}=    Get Text    //div[@id='simOrderGrid']//tbody/tr[${row_index}]/td[7]/span
+    [Return]    ${status}
+
+Key Notes for Robot Framework Automation
+
+Grid ID is #simOrderGrid — Stable Kendo UI grid container. Use it as the anchor for all row/cell XPaths.
+Column Header UUIDs will change on page reload — Always prefer data-field based XPaths (e.g., //th[@data-field='orderNumber']).
+Action Buttons: 4 per row — Download Invoice (k-grid-Edit printOrderprint), Cancel Order (k-grid-Delete printOrderdelete), Fail Order (k-grid-Fail), Retry Order (k-grid-Retry). These are <a role="button"> elements, not <button>.
+Cancel Order Modal ID = #savePopup — Contains Cancel Reason (input[name="cancelReason"], maxlength 500) and Cancel Remarks (textarea#cancelRemarks, maxlength 500). Proceed button has id="prceedBtn" (note: typo in source).
+Search applies only to Order Number and Status columns — Confirmed by the info icon tooltip.
+Row Expand — Clicking the k-i-expand anchor in td.k-hierarchy-cell reveals a detail child row with class="k-detail-row".
+Status Classes on Rows — Rows have status CSS classes applied (e.g., k-master-row Failed, k-master-row Approved) — useful for filtering rows by status.
+Page Size options: 20, 40, 60, 80, 100. Total: 292 items, 15 pages.
+Create SIM Order button is an <a> with no href — Use Click Element (not Go To). It likely triggers a JavaScript navigation.
+
+
+
+
+
+
+
+Create SIM Order Page — Complete XPath Reference
+URL: https://192.168.1.26:7874/CreateSIMOrder
+Section 1: Global Header Navigation
+ElementXPathSite Logo / Home Link//a[@href='/ManageDevices']Global Search — Type Dropdown//select[contains(@class,'search-box-dropdown')]Global Search — Device Input//input[@id='txtLimit']Notifications Bell//a[@id='dropdownbell']Language Selector//li[@id='header-notification']//a[contains(@class,'dropdown-toggle')]User Settings//li[@id='userSetting']//a[contains(@class,'dropdown-toggle')]Change Password//a[@href='/ChangePassword']Log Out//a[normalize-space()='Log Out']
+
+Section 2: Breadcrumb & Tab Navigation
+ElementXPathBreadcrumb Container//ul[contains(@class,'breadcrumb breadcrumb-page')]Breadcrumb — Live Order Link//ul[contains(@class,'breadcrumb')]//a[@href='/LiveOrder']Breadcrumb — Create (current)//ul[contains(@class,'breadcrumb')]//li[normalize-space()='Create']Page Tab — Live Order (active)//ul[@id='pageHeading']//a[@href='/LiveOrder' and contains(@class,'selected')]Page Tab — Order History//ul[@id='pageHeading']//a[@href='/OrderHistory']
+
+Section 3: Wizard Step Tabs
+ElementXPathWizard Tab Container//section[@id='process-tab']Step 1 — Order Details Tab (active)//li[@id='order']Step 1 — Order Details Link//a[@id='orderDetails']Step 1 — Order Details Link (by href)//a[@href='#discover' and @id='orderDetails']Step 2 — Shipping Details Tab//li[@id='shipping']Step 2 — Shipping Details Link//a[@id='shippingDetails']Step 2 — Shipping Details Link (by href)//a[@href='#strategy' and @id='shippingDetails']Step 3 — Preview Tab//li[@id='preview']Step 3 — Preview Link//a[@id='previewDetails']Step 3 — Preview Link (by href)//a[@href='#optimization' and @id='previewDetails']Tab Content — Order Details (active)//div[@id='discover' and contains(@class,'tab-pane')]Tab Content — Shipping Details//div[@id='strategy' and contains(@class,'tab-pane')]Tab Content — Preview//div[@id='optimization' and contains(@class,'tab-pane')]
+
+Section 4: Step 1 — Order Details (#discover)
+4.1 SIM Replacement Order (Radio Buttons — Required)
+ElementXPathLabel//div[@id='discover']//label[contains(@class,'control-label') and normalize-space()='SIM Replacement Order']Radio — Yes//div[@id='discover']//input[@name='isBlank' and @value='true']Radio — No (default selected)//div[@id='discover']//input[@name='isBlank' and @value='false']Label — Yes//div[@id='discover']//label[contains(@class,'gc-radio-btn-label')]//span[normalize-space()='Yes']Label — No//div[@id='discover']//label[contains(@class,'gc-radio-btn-label')]//span[normalize-space()='No']
+4.2 Account Name (Required — Text Input + Kendo TreeView)
+ElementXPathAccount Name Label//div[@id='discover']//label[contains(@class,'control-label') and normalize-space()='Account Name']Account Name Text Input//input[@name='accountSelected']Account Name Input (by placeholder)//input[@placeholder='Select Account']TreeView Search Input//input[contains(@class,'search-textbox') and contains(@class,'inputtree') and @placeholder='Enter Search Text']TreeView Container//div[@id='discover']//div[contains(@class,'k-widget k-treeview')]TreeView Item (by text)//div[@id='discover']//div[contains(@class,'k-treeview')]//li[contains(@class,'k-item')]//span[normalize-space()='KSA_OPCO']TreeView Checkbox (select all)//input[@id='86239a45-e1f6-468d-b1e0-2a5d78902c93' and contains(@class,'k-checkbox')]
+
+Note: Account Name uses a Kendo TreeView. Type in the accountSelected input to search, then select from the tree items.
+
+4.3 SIM Category (Required — Custom Dropdown)
+ElementXPathSIM Category Label//div[@id='discover']//label[contains(@class,'control-label') and normalize-space()='SIM Category']SIM Category Dropdown Container//div[@data-testid='orderSimCategory' and contains(@class,'select')]SIM Category Select Button (trigger)//div[@data-testid='orderSimCategory']//div[contains(@class,'selectBtn')]SIM Category Search Input`//div[@data-testid='orderSimCategory']/preceding-sibling::input[@placeholder='Search'] \SIM Category Option (by name)//div[@data-testid='orderSimCategory' and @class='option' and normalize-space()='OPTION_TEXT']
+4.4 SIM Type (Required — Native Select)
+ElementXPathSIM Type Label//div[@id='discover']//label[contains(@class,'control-label') and normalize-space()='SIM Type']SIM Type Select//select[@name='simType']SIM Type Select (by data-testid)//select[@data-testid='simType']Option — Select (default)//select[@name='simType']/option[@value='']Option — e-Sim//select[@name='simType']/option[@value='5']Option — Physical//select[@name='simType']/option[@value='6']
+4.5 SIM Product Type (Required — Custom Dropdown)
+ElementXPathSIM Product Type Label//div[@id='discover']//label[contains(@class,'control-label') and normalize-space()='SIM Product Type']SIM Product Type Dropdown Container//div[@data-testid='productCatalog' and contains(@class,'select')]SIM Product Type Select Button//div[@data-testid='productCatalog']//div[contains(@class,'selectBtn')]SIM Product Type Option (by name)//div[@data-testid='productCatalog' and @class='option' and normalize-space()='OPTION_TEXT']
+4.6 Quantity (Required — Number Input)
+ElementXPathQuantity Label//div[@id='discover']//label[contains(@class,'control-label') and normalize-space()='Quantity']Quantity Input//input[@name='quantity' and @type='number']Quantity Input (by class)//input[@name='quantity' and contains(@class,'form-control')]
+4.7 Activation Type (Radio Buttons)
+ElementXPathRadio — Auto Activation (default)//input[@name='activationOption' and @value='autoActivation']Radio — Manual Activation//input[@name='activationOption' and @value='nonAutoActivation']Label — Auto Activation//label[contains(@class,'gc-radio-btn-label')]//span[normalize-space()='Auto Activation']Label — Manual Activation//label[contains(@class,'gc-radio-btn-label')]//span[normalize-space()='Manual Activation']
+4.8 SIM State (Required — Custom Dropdown)
+ElementXPathSIM State Label//div[@id='discover']//label[contains(@class,'control-label') and normalize-space()='SIM State']SIM State Dropdown Container//div[@data-testid='simState' and contains(@class,'select')]SIM State Select Button//div[@data-testid='simState']//div[contains(@class,'selectBtn')]SIM State Search Input//div[@data-testid='simState']/parent::div//input[@class='searchInput']SIM State Option (by value)//div[@data-testid='simState' and @class='option' and @value='1']
+4.9 Step 1 Action Button
+ElementXPathNext Button (→ Shipping Details)//div[@id='discover']//a[contains(@class,'btn-custom-color') and normalize-space()='Next']Next Button (by href)//div[@id='discover']//a[@href='#strategy']
+
+Section 5: Step 2 — Shipping Details (#strategy)
+FieldXPathSection Header//div[@id='strategy']//div[contains(@class,'headding') or normalize-space()='Shipping Details']Address Line 1 Label//div[@id='strategy']//label[contains(@class,'control-label') and normalize-space()='Address Line 1']Address Line 1 Input//input[@name='addressLine1']Address Line 2 Label//div[@id='strategy']//label[contains(@class,'control-label') and normalize-space()='Address Line 2']Address Line 2 Input//input[@name='addressLine2']Country Label//div[@id='strategy']//label[contains(@class,'control-label') and normalize-space()='Country']Country Dropdown Container//div[@data-testid='countryname' and contains(@class,'select')]Country Select Button//div[@data-testid='countryname']//div[contains(@class,'selectBtn')]Country Search Input//div[@data-testid='countryname']/parent::div//input[@class='searchInput']Country Option (by name)//div[@data-testid='countryname' and @class='option' and normalize-space()='COUNTRY_NAME']Area Label//div[@id='strategy']//label[contains(@class,'control-label') and normalize-space()='Area']Area Input//input[@name='state']City Label//div[@id='strategy']//label[contains(@class,'control-label') and normalize-space()='City']City Input//input[@name='city']Postal Code Label//div[@id='strategy']//label[contains(@class,'control-label') and normalize-space()='Postal Code']Postal Code Input//input[@name='pinCode' and @type='number']Billing Contact Name Label//div[@id='strategy']//label[contains(@class,'control-label') and normalize-space()='Billing Contact Name']Billing Contact Name Input//input[@name='billingContactName']Email Address Label//div[@id='strategy']//label[contains(@class,'control-label') and normalize-space()='Email Address']Email Address Input//input[@name='emailAddress']Primary Phone Label//div[@id='strategy']//label[contains(@class,'control-label') and normalize-space()='Primary Phone']Primary Phone Input//input[@name='primaryPhone' and @type='number']Secondary Phone Label//div[@id='strategy']//label[contains(@class,'control-label') and normalize-space()='Secondary Phone']Secondary Phone Input//input[@name='secondaryPhone' and @type='number']Previous Button (→ Order Details)//div[@id='strategy']//a[@href='#discover']Next Button (→ Preview)//div[@id='strategy']//a[@href='#optimization']
+
+Section 6: Step 3 — Preview / Order Summary (#optimization)
+6.1 Summary Labels (Read-only)
+Preview FieldLabel XPathShipping Details Header//div[@id='optimization']//label[contains(@class,'shippingdetailsdiv-hedding') and normalize-space()='Shipping Details']Add. Line 1//div[@id='optimization']//label[normalize-space()='Add. Line 1 :']Add. Line 2//div[@id='optimization']//label[normalize-space()='Add. Line 2 :']Country//div[@id='optimization']//label[normalize-space()='Country :']Area//div[@id='optimization']//label[normalize-space()='Area :']City//div[@id='optimization']//label[normalize-space()='City :']Postal Code//div[@id='optimization']//label[normalize-space()='Postal Code :']Billing Contact Name//div[@id='optimization']//label[normalize-space()='Billing Contact Name :']Email Address//div[@id='optimization']//label[normalize-space()='Email Address :']Primary Phone//div[@id='optimization']//label[normalize-space()='Primary Phone :']Secondary Phone//div[@id='optimization']//label[normalize-space()='Secondary Phone :']Order Details Header//div[@id='optimization']//label[contains(@class,'shippingdetailsdiv-hedding') and normalize-space()='Order Details']Account Name//div[@id='optimization']//label[normalize-space()='Account Name :']SIM Type//div[@id='optimization']//label[normalize-space()='SIM Type :']SIM Category//div[@id='optimization']//label[normalize-space()='SIM Category :']SIM Product Type//div[@id='optimization']//label[normalize-space()='SIM Product Type :']Device Plan//div[@id='optimization']//label[normalize-space()='Device Plan :']SIM State//div[@id='optimization']//label[normalize-space()='SIM State :']Quantity//div[@id='optimization']//label[normalize-space()='Quantity :']SIM Replacement Order//div[@id='optimization']//label[normalize-space()='SIM Replacement Order :']
+6.2 Terms & Conditions Checkbox
+ElementXPathTerms & Conditions Checkbox//input[@id='termsAndConditions' and @type='checkbox']"Agree to our Terms and Conditions" Text//span[contains(@class,'agree-terms-condition')]
+6.3 Step 3 Action Buttons
+ElementXPathPrevious Button (→ Shipping Details)//div[@id='optimization']//a[@href='#strategy' and contains(@class,'btn-custom-color-black')]Submit Button//div[@id='optimization']//a[contains(@class,'btn-custom-color') and normalize-space()='Submit']Submit (by href)//div[@id='optimization']//a[@href='javascript:void(0);' and normalize-space()='Submit']Close Button (→ Live Order)//div[@id='optimization']//a[contains(@class,'btn-cancel-color') and @href='/LiveOrder']
+
+Section 7: Terms & Conditions Modal (#termsConditionsPopup)
+ElementXPathModal Container//div[@id='termsConditionsPopup']Modal Title//div[@id='termsConditionsPopup']//h4[contains(@class,'modal-title')]Modal Body Text//div[@id='termsConditionsPopup']//div[contains(@class,'modal-body')]Continue Button//button[@id='prceedBtnGeneralAPN']Continue Button (by text)//div[@id='termsConditionsPopup']//button[normalize-space()='Continue']Cancel Button//div[@id='termsConditionsPopup']//button[contains(@class,'btn-cancel-color') and normalize-space()='Cancel']
+
+Robot Framework Automation File
+robot*** Settings ***
+Library           SeleniumLibrary
+*** Variables ***
+# URL
+${CREATE_SIM_ORDER_URL}              https://192.168.1.26:7874/CreateSIMOrder
+# --- Breadcrumb ---
+${BREADCRUMB_LIVE_ORDER}             //ul[contains(@class,'breadcrumb')]//a[@href='/LiveOrder']
+${BREADCRUMB_CREATE}                 //ul[contains(@class,'breadcrumb')]//li[normalize-space()='Create']
+# --- Page Tabs ---
+${TAB_LIVE_ORDER}                    //ul[@id='pageHeading']//a[@href='/LiveOrder']
+${TAB_ORDER_HISTORY}                 //ul[@id='pageHeading']//a[@href='/OrderHistory']
+# --- Wizard Steps ---
+${WIZARD_STEP1_LI}                   //li[@id='order']
+${WIZARD_STEP1_LINK}                 //a[@id='orderDetails']
+${WIZARD_STEP2_LI}                   //li[@id='shipping']
+${WIZARD_STEP2_LINK}                 //a[@id='shippingDetails']
+${WIZARD_STEP3_LI}                   //li[@id='preview']
+${WIZARD_STEP3_LINK}                 //a[@id='previewDetails']
+# --- Step 1: Order Details ---
+${STEP1_SECTION}                     //div[@id='discover']
+${SIM_REPLACEMENT_LABEL}             //div[@id='discover']//label[contains(@class,'control-label') and normalize-space()='SIM Replacement Order']
+${SIM_REPLACEMENT_YES}               //div[@id='discover']//input[@name='isBlank' and @value='true']
+${SIM_REPLACEMENT_NO}                //div[@id='discover']//input[@name='isBlank' and @value='false']
+${ACCOUNT_NAME_INPUT}                //input[@name='accountSelected']
+${ACCOUNT_TREEVIEW_SEARCH}           //input[contains(@class,'search-textbox') and contains(@class,'inputtree')]
+${ACCOUNT_TREEVIEW}                  //div[@id='discover']//div[contains(@class,'k-widget k-treeview')]
+${SIM_CATEGORY_CONTAINER}            //div[@data-testid='orderSimCategory' and contains(@class,'select')]
+${SIM_CATEGORY_BTN}                  //div[@data-testid='orderSimCategory']//div[contains(@class,'selectBtn')]
+${SIM_TYPE_SELECT}                   //select[@name='simType']
+${SIM_TYPE_ESIM}                     //select[@name='simType']/option[@value='5']
+${SIM_TYPE_PHYSICAL}                 //select[@name='simType']/option[@value='6']
+${SIM_PRODUCT_TYPE_CONTAINER}        //div[@data-testid='productCatalog' and contains(@class,'select')]
+${SIM_PRODUCT_TYPE_BTN}              //div[@data-testid='productCatalog']//div[contains(@class,'selectBtn')]
+${QUANTITY_INPUT}                    //input[@name='quantity' and @type='number']
+${ACTIVATION_AUTO}                   //input[@name='activationOption' and @value='autoActivation']
+${ACTIVATION_MANUAL}                 //input[@name='activationOption' and @value='nonAutoActivation']
+${SIM_STATE_CONTAINER}               //div[@data-testid='simState' and contains(@class,'select')]
+${SIM_STATE_BTN}                     //div[@data-testid='simState']//div[contains(@class,'selectBtn')]
+${BTN_STEP1_NEXT}                    //div[@id='discover']//a[@href='#strategy']
+# --- Step 2: Shipping Details ---
+${STEP2_SECTION}                     //div[@id='strategy']
+${ADDRESS_LINE1}                     //input[@name='addressLine1']
+${ADDRESS_LINE2}                     //input[@name='addressLine2']
+${COUNTRY_CONTAINER}                 //div[@data-testid='countryname' and contains(@class,'select')]
+${COUNTRY_BTN}                       //div[@data-testid='countryname']//div[contains(@class,'selectBtn')]
+${AREA_INPUT}                        //input[@name='state']
+${CITY_INPUT}                        //input[@name='city']
+${POSTAL_CODE_INPUT}                 //input[@name='pinCode' and @type='number']
+${BILLING_CONTACT_NAME}              //input[@name='billingContactName']
+${EMAIL_ADDRESS}                     //input[@name='emailAddress']
+${PRIMARY_PHONE}                     //input[@name='primaryPhone' and @type='number']
+${SECONDARY_PHONE}                   //input[@name='secondaryPhone' and @type='number']
+${BTN_STEP2_PREV}                    //div[@id='strategy']//a[@href='#discover']
+${BTN_STEP2_NEXT}                    //div[@id='strategy']//a[@href='#optimization']
+# --- Step 3: Preview ---
+${STEP3_SECTION}                     //div[@id='optimization']
+${TERMS_CHECKBOX}                    //input[@id='termsAndConditions' and @type='checkbox']
+${BTN_STEP3_PREV}                    //div[@id='optimization']//a[@href='#strategy']
+${BTN_SUBMIT}                        //div[@id='optimization']//a[normalize-space()='Submit']
+${BTN_CLOSE}                         //div[@id='optimization']//a[@href='/LiveOrder']
+# --- Terms & Conditions Modal ---
+${MODAL_TC}                          //div[@id='termsConditionsPopup']
+${MODAL_TC_TITLE}                    //div[@id='termsConditionsPopup']//h4[contains(@class,'modal-title')]
+${MODAL_TC_CONTINUE}                 //button[@id='prceedBtnGeneralAPN']
+${MODAL_TC_CANCEL}                   //div[@id='termsConditionsPopup']//button[contains(@class,'btn-cancel-color')]
+*** Keywords ***
+Navigate To Create SIM Order
+    Go To    ${CREATE_SIM_ORDER_URL}
+    Wait Until Element Is Visible    ${STEP1_SECTION}    timeout=15s
+Fill Order Details
+    [Arguments]    ${account}    ${sim_category}    ${sim_type}    ${product_type}    ${quantity}    ${sim_state}    ${activation}=autoActivation    ${is_blank}=false
+    # SIM Replacement Order
+    Click Element    //div[@id='discover']//input[@name='isBlank' and @value='${is_blank}']
+    # Account Name
+    Input Text    ${ACCOUNT_NAME_INPUT}    ${account}
+    Wait Until Element Is Visible    //div[contains(@class,'k-treeview')]//span[normalize-space()='${account}']    timeout=5s
+    Click Element    //div[contains(@class,'k-treeview')]//span[normalize-space()='${account}']
+    # SIM Category
+    Click Element    ${SIM_CATEGORY_BTN}
+    Wait Until Element Is Visible    //div[@data-testid='orderSimCategory' and @class='option' and normalize-space()='${sim_category}']    timeout=5s
+    Click Element    //div[@data-testid='orderSimCategory' and @class='option' and normalize-space()='${sim_category}']
+    # SIM Type
+    Select From List By Value    ${SIM_TYPE_SELECT}    ${sim_type}
+    # SIM Product Type
+    Click Element    ${SIM_PRODUCT_TYPE_BTN}
+    Wait Until Element Is Visible    //div[@data-testid='productCatalog' and @class='option' and normalize-space()='${product_type}']    timeout=5s
+    Click Element    //div[@data-testid='productCatalog' and @class='option' and normalize-space()='${product_type}']
+    # Quantity
+    Input Text    ${QUANTITY_INPUT}    ${quantity}
+    # Activation
+    Click Element    //input[@name='activationOption' and @value='${activation}']
+    # SIM State
+    Click Element    ${SIM_STATE_BTN}
+    Wait Until Element Is Visible    //div[@data-testid='simState' and @class='option' and normalize-space()='${sim_state}']    timeout=5s
+    Click Element    //div[@data-testid='simState' and @class='option' and normalize-space()='${sim_state}']
+Go To Shipping Details
+    Click Element    ${BTN_STEP1_NEXT}
+    Wait Until Element Is Visible    ${ADDRESS_LINE1}    timeout=10s
+Fill Shipping Details
+    [Arguments]    ${addr1}    ${addr2}    ${country}    ${area}    ${city}    ${postal}    ${billing_name}    ${email}    ${primary_phone}    ${secondary_phone}
+    Input Text    ${ADDRESS_LINE1}    ${addr1}
+    Input Text    ${ADDRESS_LINE2}    ${addr2}
+    Click Element    ${COUNTRY_BTN}
+    Wait Until Element Is Visible    //div[@data-testid='countryname' and @class='option' and normalize-space()='${country}']    timeout=5s
+    Click Element    //div[@data-testid='countryname' and @class='option' and normalize-space()='${country}']
+    Input Text    ${AREA_INPUT}    ${area}
+    Input Text    ${CITY_INPUT}    ${city}
+    Input Text    ${POSTAL_CODE_INPUT}    ${postal}
+    Input Text    ${BILLING_CONTACT_NAME}    ${billing_name}
+    Input Text    ${EMAIL_ADDRESS}    ${email}
+    Input Text    ${PRIMARY_PHONE}    ${primary_phone}
+    Input Text    ${SECONDARY_PHONE}    ${secondary_phone}
+Go To Preview
+    Click Element    ${BTN_STEP2_NEXT}
+    Wait Until Element Is Visible    ${TERMS_CHECKBOX}    timeout=10s
+Accept Terms And Submit
+    Select Checkbox    ${TERMS_CHECKBOX}
+    Click Element    ${BTN_SUBMIT}
+    Wait Until Element Is Visible    ${MODAL_TC}    timeout=5s
+    Click Element    ${MODAL_TC_CONTINUE}
+Close Create SIM Order
+    Click Element    ${BTN_CLOSE}
+Go Back To Order Details From Shipping
+    Click Element    ${BTN_STEP2_PREV}
+    Wait Until Element Is Visible    ${STEP1_SECTION}    timeout=10s
+Go Back To Shipping From Preview
+    Click Element    ${BTN_STEP3_PREV}
+    Wait Until Element Is Visible    ${ADDRESS_LINE1}    timeout=10s
+
+Key Notes for Robot Framework Automation
+
+3-Step Wizard — The form is organized into three tabs: Order Details (#discover), Shipping Details (#strategy), Preview (#optimization). Navigation is via anchor links (#strategy, #discover, #optimization).
+Account Name uses Kendo TreeView — Type in input[@name='accountSelected'] to filter, then click the desired item in .k-treeview. It also has a search input (.search-textbox.inputtree) and a checkbox for multi-select.
+SIM Category, SIM Product Type, SIM State — All are custom <div class="select"> dropdowns, NOT native <select>. Use the data-testid (orderSimCategory, productCatalog, simState) to locate the container, then click .selectBtn and select from .option divs.
+SIM Type is a native <select[@name='simType']> — Use Robot Framework Select From List By Value with values 5 (e-Sim) or 6 (Physical).
+Country is a custom dropdown — data-testid="countryname", name="country". Trigger: click .selectBtn, then pick from .option divs. Supports a search <input class="searchInput" placeholder="Search">.
+Activation Options are radio buttons — input[@name='activationOption'] with values autoActivation (default) and nonAutoActivation.
+SIM Replacement Order radio buttons — input[@name='isBlank'] with values true (Yes) and false (No, default).
+Terms & Conditions modal (#termsConditionsPopup) — Opens when clicking Submit. Contains Continue (#prceedBtnGeneralAPN) and Cancel buttons. The #termsAndConditions checkbox must be checked before Submit becomes active.
+All form fields share a UUID-based ID (dafed924-05b5-4352-a87c-585665bb1344) — This is the same UUID reused across all inputs. Always use name attribute or context-based XPath (e.g., //div[@id='discover']//input[@name='...']) to distinguish fields.
+Close button on Preview — <a href="/LiveOrder"> navigates directly back to Live Order list.
+
+
+
+
+The current page is still Create SIM Order (https://192.168.1.26:7874/CreateSIMOrder), now with Step 2 (Shipping Details) active. This is the same 3-step wizard covered previously — but I've now extracted additional structural details including section <h4> headings, the showTreeView container, preview section CSS classes, and new SIM State option values. Here is the complete, enhanced standalone XPath reference covering all three steps:
+Create SIM Order — Complete XPath Reference (All 3 Steps)
+URL: https://192.168.1.26:7874/CreateSIMOrder
+Section 1: Global Header
+ElementXPathSite Logo / Home//a[@href='/ManageDevices']Global Search Input//input[@id='txtLimit']Global Search Type//select[contains(@class,'search-box-dropdown')]Notifications Bell//a[@id='dropdownbell']Language Selector//li[@id='header-notification']//a[contains(@class,'dropdown-toggle')]User Settings//li[@id='userSetting']//a[contains(@class,'dropdown-toggle')]Change Password//a[@href='/ChangePassword']Log Out//a[normalize-space()='Log Out']Orders Sidebar Icon (active)//a[@id='orders']
+
+Section 2: Breadcrumb & Page Tabs
+ElementXPathBreadcrumb Container//ul[contains(@class,'breadcrumb breadcrumb-page')]Breadcrumb — Live Order//ul[contains(@class,'breadcrumb')]//a[@href='/LiveOrder']Breadcrumb — Create//ul[contains(@class,'breadcrumb')]//li[normalize-space()='Create']Page Tab — Live Order//ul[@id='pageHeading']//a[@href='/LiveOrder']Page Tab — Order History//ul[@id='pageHeading']//a[@href='/OrderHistory']
+
+Section 3: Wizard Step Tab Navigator
+ElementXPathWizard Container//section[@id='process-tab']Step 1 Tab <li>//li[@id='order']Step 1 Link — Order Details//a[@id='orderDetails']Step 1 Link (by href)//a[@href='#discover' and @id='orderDetails']Step 2 Tab <li>//li[@id='shipping']Step 2 Link — Shipping Details//a[@id='shippingDetails']Step 2 Link (by href)//a[@href='#strategy' and @id='shippingDetails']Step 3 Tab <li>//li[@id='preview']Step 3 Link — Preview//a[@id='previewDetails']Step 3 Link (by href)//a[@href='#optimization' and @id='previewDetails']Active Step (CSS class active)//section[@id='process-tab']//li[contains(@class,'active')]Step 1 Tab Pane//div[@id='discover']Step 2 Tab Pane//div[@id='strategy']Step 3 Tab Pane//div[@id='optimization']Active Tab Pane//div[contains(@class,'tab-pane active')]
+
+Section 4: Step 1 — Order Details (#discover)
+Section Header
+ElementXPath"Order Details" H4 Heading//div[@id='discover']//h4[normalize-space()='Order Details']
+4.1 SIM Replacement Order (Required — Radio)
+ElementXPathLabel//div[@id='discover']//label[contains(@class,'control-label') and normalize-space()='SIM Replacement Order']Radio — Yes//div[@id='discover']//input[@name='isBlank' and @value='true']Radio — No (default)//div[@id='discover']//input[@name='isBlank' and @value='false']"Yes" Label Text//div[@id='discover']//label[contains(@class,'gc-radio-btn-label')]//span[normalize-space()='Yes']"No" Label Text//div[@id='discover']//label[contains(@class,'gc-radio-btn-label')]//span[normalize-space()='No']
+4.2 Account Name (Required — Text + Kendo TreeView)
+ElementXPathLabel//div[@id='discover']//label[contains(@class,'control-label') and normalize-space()='Account Name']Account Text Input//input[@name='accountSelected']Account Input (by placeholder)//input[@placeholder='Select Account']TreeView Search Input//input[contains(@class,'search-textbox') and contains(@class,'inputtree') and @placeholder='Enter Search Text']TreeView Show Container//div[@id='showTreeView-accountSelected']Kendo TreeView//div[@id='discover']//div[contains(@class,'k-widget k-treeview')]TreeView Item — KSA_OPCO//div[contains(@class,'k-treeview')]//span[normalize-space()='KSA_OPCO']TreeView Item (any, by text)//div[contains(@class,'k-treeview')]//li[contains(@class,'k-item')]//span[normalize-space()='ACCOUNT_NAME']TreeView Select-All Checkbox//input[@id='86239a45-e1f6-468d-b1e0-2a5d78902c93' and contains(@class,'k-checkbox')]
+4.3 SIM Category (Required — Custom Dropdown)
+ElementXPathLabel//div[@id='discover']//label[contains(@class,'control-label') and normalize-space()='SIM Category']Dropdown Container//div[@data-testid='orderSimCategory' and contains(@class,'select')]Select Button (trigger)//div[@data-testid='orderSimCategory']//div[contains(@class,'selectBtn')]Search Input (inside dropdown)//div[@data-testid='orderSimCategory']/parent::div//input[@class='searchInput']Option (by text)//div[@data-testid='orderSimCategory' and @class='option' and normalize-space()='OPTION_TEXT']
+4.4 SIM Type (Required — Native <select>)
+ElementXPathLabel//div[@id='discover']//label[contains(@class,'control-label') and normalize-space()='SIM Type']Select//select[@name='simType']Select (by data-testid)//select[@data-testid='simType']Option — Select (default)//select[@name='simType']/option[@value='']Option — e-Sim//select[@name='simType']/option[@value='5']Option — Physical//select[@name='simType']/option[@value='6']
+4.5 SIM Product Type (Required — Custom Dropdown)
+ElementXPathLabel//div[@id='discover']//label[contains(@class,'control-label') and normalize-space()='SIM Product Type']Dropdown Container//div[@data-testid='productCatalog' and contains(@class,'select')]Select Button//div[@data-testid='productCatalog']//div[contains(@class,'selectBtn')]Option (by text)//div[@data-testid='productCatalog' and @class='option' and normalize-space()='OPTION_TEXT']
+4.6 Quantity (Required — Number Input)
+ElementXPathLabel//div[@id='discover']//label[contains(@class,'control-label') and normalize-space()='Quantity']Input//input[@name='quantity' and @type='number']
+4.7 Activation Type (Radio)
+ElementXPathRadio — Auto Activation (default)//input[@name='activationOption' and @value='autoActivation']Radio — Manual Activation//input[@name='activationOption' and @value='nonAutoActivation']"Auto Activation" Label//label[contains(@class,'gc-radio-btn-label')]//span[normalize-space()='Auto Activation']"Manual Activation" Label//label[contains(@class,'gc-radio-btn-label')]//span[normalize-space()='Manual Activation']
+4.8 SIM State (Required — Custom Dropdown)
+ElementXPathLabel//div[@id='discover']//label[contains(@class,'control-label') and normalize-space()='SIM State']Dropdown Container//div[@data-testid='simState' and contains(@class,'select')]Select Button//div[@data-testid='simState']//div[contains(@class,'selectBtn')]Search Input//div[@data-testid='simState']/parent::div//input[@class='searchInput']Option — TestActive (value 1)//div[@data-testid='simState' and @class='option' and @value='1']Option — Activated (value 2)//div[@data-testid='simState' and @class='option' and @value='2']
+4.9 Step 1 Navigation Button
+ElementXPathNext Button (→ Shipping)//div[@id='discover']//a[@href='#strategy' and contains(@class,'btn-custom-color')]
+
+Section 5: Step 2 — Shipping Details (#strategy)
+Section Headers
+ElementXPath"Shipping Details" H4//div[@id='strategy']//h4[normalize-space()='Shipping Details']"Other Details" H4//div[@id='strategy']//h4[normalize-space()='Other Details']
+5.1 Shipping Address Fields (Required)
+FieldXPathAddress Line 1 Label//div[@id='strategy']//label[contains(@class,'control-label') and normalize-space()='Address Line 1']Address Line 1 Input//input[@name='addressLine1']Address Line 2 Label//div[@id='strategy']//label[contains(@class,'control-label') and normalize-space()='Address Line 2']Address Line 2 Input//input[@name='addressLine2']Country Label//div[@id='strategy']//label[contains(@class,'control-label') and normalize-space()='Country']Country Dropdown Container//div[@data-testid='countryname' and contains(@class,'select')]Country Select Button//div[@data-testid='countryname']//div[contains(@class,'selectBtn')]Country Search Input//div[@data-testid='countryname']/parent::div//input[@class='searchInput']Country Option (by name)//div[@data-testid='countryname' and @class='option' and normalize-space()='COUNTRY_NAME']Area Label//div[@id='strategy']//label[contains(@class,'control-label') and normalize-space()='Area']Area Input//input[@name='state']City Label//div[@id='strategy']//label[contains(@class,'control-label') and normalize-space()='City']City Input//input[@name='city']Postal Code Label//div[@id='strategy']//label[contains(@class,'control-label') and normalize-space()='Postal Code']Postal Code Input//input[@name='pinCode' and @type='number']
+5.2 Other Details Fields (Required)
+FieldXPathBilling Contact Name Label//div[@id='strategy']//label[contains(@class,'control-label') and normalize-space()='Billing Contact Name']Billing Contact Name Input//input[@name='billingContactName']Email Address Label//div[@id='strategy']//label[contains(@class,'control-label') and normalize-space()='Email Address']Email Address Input//input[@name='emailAddress']Primary Phone Label//div[@id='strategy']//label[contains(@class,'control-label') and normalize-space()='Primary Phone']Primary Phone Input//input[@name='primaryPhone' and @type='number']Secondary Phone Label//div[@id='strategy']//label[contains(@class,'control-label') and normalize-space()='Secondary Phone']Secondary Phone Input//input[@name='secondaryPhone' and @type='number']
+5.3 Step 2 Navigation Buttons
+ElementXPathPrevious Button (→ Order Details)//div[@id='strategy']//a[@href='#discover']Next Button (→ Preview)//div[@id='strategy']//a[@href='#optimization']
+
+Section 6: Step 3 — Preview / Order Summary (#optimization)
+6.1 Summary Section Headers
+ElementXPath"Order Summary" H4//div[@id='optimization']//h4[normalize-space()='Order Summary']Shipping Details Section Header//div[@id='optimization']//label[contains(@class,'shippingdetailsdiv-hedding') and normalize-space()='Shipping Details']Order Details Section Header//div[@id='optimization']//label[contains(@class,'shippingdetailsdiv-hedding') and normalize-space()='Order Details']Shipping Details Container//div[@id='optimization']//div[contains(@class,'shippingdetailsdiv')]Shipping Details Inner//div[@id='optimization']//div[contains(@class,'shippingdetailsdivmain')]Order Details Container//div[@id='optimization']//div[contains(@class,'shippingdetailsdivoderdtilas')]
+6.2 Shipping Summary Read-only Labels
+Field LabelXPathAdd. Line 1//div[@id='optimization']//div[contains(@class,'shippingdetailsdivmain')]//label[normalize-space()='Add. Line 1 :']Add. Line 1 Value//div[@id='optimization']//div[contains(@class,'shippingdetailsdivmain')]//label[normalize-space()='Add. Line 1 :']/following-sibling::label[1]Add. Line 2//div[@id='optimization']//div[contains(@class,'shippingdetailsdivmain')]//label[normalize-space()='Add. Line 2 :']Country//div[@id='optimization']//div[contains(@class,'shippingdetailsdivmain')]//label[contains(normalize-space(),'Country :')]Area//div[@id='optimization']//div[contains(@class,'shippingdetailsdivmain')]//label[normalize-space()='Area :']City//div[@id='optimization']//div[contains(@class,'shippingdetailsdivmain')]//label[normalize-space()='City :']Postal Code//div[@id='optimization']//div[contains(@class,'shippingdetailsdivmain')]//label[normalize-space()='Postal Code :']Billing Contact Name//div[@id='optimization']//div[contains(@class,'shippingdetailsdivmain')]//label[normalize-space()='Billing Contact Name :']Email Address//div[@id='optimization']//div[contains(@class,'shippingdetailsdivmain')]//label[normalize-space()='Email Address :']Primary Phone//div[@id='optimization']//div[contains(@class,'shippingdetailsdivmain')]//label[normalize-space()='Primary Phone :']Secondary Phone//div[@id='optimization']//div[contains(@class,'shippingdetailsdivmain')]//label[normalize-space()='Secondary Phone :']
+6.3 Order Details Summary Read-only Labels
+Field LabelXPathAccount Name//div[@id='optimization']//div[contains(@class,'shippingdetailsdivoderdtilas')]//label[normalize-space()='Account Name :']Account Name Value//div[@id='optimization']//div[contains(@class,'shippingdetailsdivoderdtilas')]//label[normalize-space()='Account Name :']/following-sibling::label[1]SIM Type//div[@id='optimization']//div[contains(@class,'shippingdetailsdivoderdtilas')]//label[normalize-space()='SIM Type :']SIM Category//div[@id='optimization']//div[contains(@class,'shippingdetailsdivoderdtilas')]//label[normalize-space()='SIM Category :']SIM Product Type//div[@id='optimization']//div[contains(@class,'shippingdetailsdivoderdtilas')]//label[normalize-space()='SIM Product Type :']Device Plan//div[@id='optimization']//div[contains(@class,'shippingdetailsdivoderdtilas')]//label[normalize-space()='Device Plan :']SIM State//div[@id='optimization']//div[contains(@class,'shippingdetailsdivoderdtilas')]//label[normalize-space()='SIM State :']Quantity//div[@id='optimization']//div[contains(@class,'shippingdetailsdivoderdtilas')]//label[normalize-space()='Quantity :']SIM Replacement Order//div[@id='optimization']//div[contains(@class,'shippingdetailsdivoderdtilas')]//label[normalize-space()='SIM Replacement Order :']
+6.4 Terms & Conditions
+ElementXPathT&C Checkbox//input[@id='termsAndConditions' and @type='checkbox']"Agree to our Terms and Conditions" Text//span[contains(@class,'agree-terms-condition')]T&C Section Container//div[contains(@class,'form-group checkboxpart')]
+6.5 Step 3 Buttons
+ElementXPathPrevious Button (→ Shipping)//div[@id='optimization']//a[@href='#strategy' and contains(@class,'btn-custom-color-black')]Submit Button//div[@id='optimization']//a[contains(@class,'btn-custom-color') and normalize-space()='Submit']Close Button (→ Live Order)//div[@id='optimization']//a[@href='/LiveOrder' and contains(@class,'btn-cancel-color')]
+
+Section 7: Terms & Conditions Modal (#termsConditionsPopup)
+ElementXPathModal Container//div[@id='termsConditionsPopup']Modal Title//div[@id='termsConditionsPopup']//h4[contains(@class,'modal-title')]Modal Body//div[@id='termsConditionsPopup']//div[contains(@class,'modal-body')]T&C Checkbox (inside modal)//div[@id='termsConditionsPopup']//input[@id='termsAndConditions']Continue Button//button[@id='prceedBtnGeneralAPN']Cancel Button//div[@id='termsConditionsPopup']//button[contains(@class,'btn-cancel-color') and normalize-space()='Cancel']
+
+Robot Framework Automation File
+robot*** Settings ***
+Library           SeleniumLibrary
+*** Variables ***
+${CREATE_SIM_ORDER_URL}              https://192.168.1.26:7874/CreateSIMOrder
+# ── Breadcrumb ─────────────────────────────────────────────────────────────
+${BC_LIVE_ORDER}                     //ul[contains(@class,'breadcrumb')]//a[@href='/LiveOrder']
+${BC_CREATE}                         //ul[contains(@class,'breadcrumb')]//li[normalize-space()='Create']
+# ── Page Tabs ──────────────────────────────────────────────────────────────
+${TAB_LIVE_ORDER}                    //ul[@id='pageHeading']//a[@href='/LiveOrder']
+${TAB_ORDER_HISTORY}                 //ul[@id='pageHeading']//a[@href='/OrderHistory']
+# ── Wizard Steps ───────────────────────────────────────────────────────────
+${WIZARD_CONTAINER}                  //section[@id='process-tab']
+${WIZARD_STEP1_LI}                   //li[@id='order']
+${WIZARD_STEP1_LINK}                 //a[@id='orderDetails']
+${WIZARD_STEP2_LI}                   //li[@id='shipping']
+${WIZARD_STEP2_LINK}                 //a[@id='shippingDetails']
+${WIZARD_STEP3_LI}                   //li[@id='preview']
+${WIZARD_STEP3_LINK}                 //a[@id='previewDetails']
+${STEP1_PANE}                        //div[@id='discover']
+${STEP2_PANE}                        //div[@id='strategy']
+${STEP3_PANE}                        //div[@id='optimization']
+# ── Step 1: Order Details ──────────────────────────────────────────────────
+${STEP1_HEADING}                     //div[@id='discover']//h4[normalize-space()='Order Details']
+${RADIO_SIM_REPLACEMENT_YES}         //div[@id='discover']//input[@name='isBlank' and @value='true']
+${RADIO_SIM_REPLACEMENT_NO}          //div[@id='discover']//input[@name='isBlank' and @value='false']
+${ACCOUNT_INPUT}                     //input[@name='accountSelected']
+${ACCOUNT_TREEVIEW_SEARCH}           //input[contains(@class,'search-textbox') and contains(@class,'inputtree')]
+${ACCOUNT_TREEVIEW}                  //div[@id='discover']//div[contains(@class,'k-widget k-treeview')]
+${ACCOUNT_TREEVIEW_SHOW}             //div[@id='showTreeView-accountSelected']
+${SIM_CATEGORY_CONTAINER}            //div[@data-testid='orderSimCategory' and contains(@class,'select')]
+${SIM_CATEGORY_BTN}                  //div[@data-testid='orderSimCategory']//div[contains(@class,'selectBtn')]
+${SIM_TYPE_SELECT}                   //select[@name='simType']
+${SIM_TYPE_ESIM}                     //select[@name='simType']/option[@value='5']
+${SIM_TYPE_PHYSICAL}                 //select[@name='simType']/option[@value='6']
+${SIM_PRODUCT_TYPE_CONTAINER}        //div[@data-testid='productCatalog' and contains(@class,'select')]
+${SIM_PRODUCT_TYPE_BTN}              //div[@data-testid='productCatalog']//div[contains(@class,'selectBtn')]
+${QUANTITY_INPUT}                    //input[@name='quantity' and @type='number']
+${RADIO_AUTO_ACTIVATION}             //input[@name='activationOption' and @value='autoActivation']
+${RADIO_MANUAL_ACTIVATION}           //input[@name='activationOption' and @value='nonAutoActivation']
+${SIM_STATE_CONTAINER}               //div[@data-testid='simState' and contains(@class,'select')]
+${SIM_STATE_BTN}                     //div[@data-testid='simState']//div[contains(@class,'selectBtn')]
+${SIM_STATE_OPT_TESTACTIVE}          //div[@data-testid='simState' and @class='option' and @value='1']
+${SIM_STATE_OPT_ACTIVATED}           //div[@data-testid='simState' and @class='option' and @value='2']
+${BTN_STEP1_NEXT}                    //div[@id='discover']//a[@href='#strategy']
+# ── Step 2: Shipping Details ───────────────────────────────────────────────
+${STEP2_HEADING_SHIPPING}            //div[@id='strategy']//h4[normalize-space()='Shipping Details']
+${STEP2_HEADING_OTHER}               //div[@id='strategy']//h4[normalize-space()='Other Details']
+${ADDRESS_LINE1}                     //input[@name='addressLine1']
+${ADDRESS_LINE2}                     //input[@name='addressLine2']
+${COUNTRY_CONTAINER}                 //div[@data-testid='countryname' and contains(@class,'select')]
+${COUNTRY_BTN}                       //div[@data-testid='countryname']//div[contains(@class,'selectBtn')]
+${COUNTRY_SEARCH}                    //div[@data-testid='countryname']/parent::div//input[@class='searchInput']
+${AREA_INPUT}                        //input[@name='state']
+${CITY_INPUT}                        //input[@name='city']
+${POSTAL_CODE_INPUT}                 //input[@name='pinCode' and @type='number']
+${BILLING_CONTACT_NAME}              //input[@name='billingContactName']
+${EMAIL_ADDRESS}                     //input[@name='emailAddress']
+${PRIMARY_PHONE}                     //input[@name='primaryPhone' and @type='number']
+${SECONDARY_PHONE}                   //input[@name='secondaryPhone' and @type='number']
+${BTN_STEP2_PREV}                    //div[@id='strategy']//a[@href='#discover']
+${BTN_STEP2_NEXT}                    //div[@id='strategy']//a[@href='#optimization']
+# ── Step 3: Preview ────────────────────────────────────────────────────────
+${STEP3_HEADING}                     //div[@id='optimization']//h4[normalize-space()='Order Summary']
+${PREVIEW_SHIPPING_SECTION}          //div[@id='optimization']//div[contains(@class,'shippingdetailsdiv')]
+${PREVIEW_SHIPPING_INNER}            //div[@id='optimization']//div[contains(@class,'shippingdetailsdivmain')]
+${PREVIEW_ORDER_SECTION}             //div[@id='optimization']//div[contains(@class,'shippingdetailsdivoderdtilas')]
+${PREVIEW_ADDR1_VALUE}               //div[@id='optimization']//div[contains(@class,'shippingdetailsdivmain')]//label[normalize-space()='Add. Line 1 :']/following-sibling::label[1]
+${PREVIEW_COUNTRY_VALUE}             //div[@id='optimization']//div[contains(@class,'shippingdetailsdivmain')]//label[contains(normalize-space(),'Country :')]/following-sibling::label[1]
+${PREVIEW_ACCOUNT_VALUE}             //div[@id='optimization']//div[contains(@class,'shippingdetailsdivoderdtilas')]//label[normalize-space()='Account Name :']/following-sibling::label[1]
+${PREVIEW_SIM_TYPE_VALUE}            //div[@id='optimization']//div[contains(@class,'shippingdetailsdivoderdtilas')]//label[normalize-space()='SIM Type :']/following-sibling::label[1]
+${PREVIEW_SIM_CATEGORY_VALUE}        //div[@id='optimization']//div[contains(@class,'shippingdetailsdivoderdtilas')]//label[normalize-space()='SIM Category :']/following-sibling::label[1]
+${PREVIEW_SIM_PRODUCT_VALUE}         //div[@id='optimization']//div[contains(@class,'shippingdetailsdivoderdtilas')]//label[normalize-space()='SIM Product Type :']/following-sibling::label[1]
+${PREVIEW_QUANTITY_VALUE}            //div[@id='optimization']//div[contains(@class,'shippingdetailsdivoderdtilas')]//label[normalize-space()='Quantity :']/following-sibling::label[1]
+${TERMS_CHECKBOX}                    //input[@id='termsAndConditions' and @type='checkbox']
+${BTN_STEP3_PREV}                    //div[@id='optimization']//a[@href='#strategy']
+${BTN_SUBMIT}                        //div[@id='optimization']//a[normalize-space()='Submit']
+${BTN_CLOSE}                         //div[@id='optimization']//a[@href='/LiveOrder']
+# ── Terms & Conditions Modal ───────────────────────────────────────────────
+${MODAL_TC}                          //div[@id='termsConditionsPopup']
+${MODAL_TC_TITLE}                    //div[@id='termsConditionsPopup']//h4[contains(@class,'modal-title')]
+${MODAL_TC_CONTINUE}                 //button[@id='prceedBtnGeneralAPN']
+${MODAL_TC_CANCEL}                   //div[@id='termsConditionsPopup']//button[contains(@class,'btn-cancel-color')]
+*** Keywords ***
+Navigate To Create SIM Order
+    Go To    ${CREATE_SIM_ORDER_URL}
+    Wait Until Element Is Visible    ${STEP1_PANE}    timeout=15s
+# ── Step 1 Keywords ────────────────────────────────────────────────────────
+Set SIM Replacement Order
+    [Arguments]    ${value}=false
+    Click Element    //div[@id='discover']//input[@name='isBlank' and @value='${value}']
+Select Account From TreeView
+    [Arguments]    ${account_name}
+    Input Text    ${ACCOUNT_INPUT}    ${account_name}
+    Wait Until Element Is Visible    //div[contains(@class,'k-treeview')]//span[normalize-space()='${account_name}']    timeout=5s
+    Click Element    //div[contains(@class,'k-treeview')]//span[normalize-space()='${account_name}']
+Select SIM Category
+    [Arguments]    ${category}
+    Click Element    ${SIM_CATEGORY_BTN}
+    Wait Until Element Is Visible    //div[@data-testid='orderSimCategory' and @class='option' and normalize-space()='${category}']    timeout=5s
+    Click Element    //div[@data-testid='orderSimCategory' and @class='option' and normalize-space()='${category}']
+Select SIM Type
+    [Arguments]    ${sim_type_value}
+    Select From List By Value    ${SIM_TYPE_SELECT}    ${sim_type_value}
+Select SIM Product Type
+    [Arguments]    ${product_type}
+    Click Element    ${SIM_PRODUCT_TYPE_BTN}
+    Wait Until Element Is Visible    //div[@data-testid='productCatalog' and @class='option' and normalize-space()='${product_type}']    timeout=5s
+    Click Element    //div[@data-testid='productCatalog' and @class='option' and normalize-space()='${product_type}']
+Enter Quantity
+    [Arguments]    ${qty}
+    Triple Click    ${QUANTITY_INPUT}
+    Input Text    ${QUANTITY_INPUT}    ${qty}
+Set Activation Type
+    [Arguments]    ${type}=autoActivation
+    Click Element    //input[@name='activationOption' and @value='${type}']
+Select SIM State
+    [Arguments]    ${state_value}
+    Click Element    ${SIM_STATE_BTN}
+    Wait Until Element Is Visible    //div[@data-testid='simState' and @class='option' and @value='${state_value}']    timeout=5s
+    Click Element    //div[@data-testid='simState' and @class='option' and @value='${state_value}']
+Go To Shipping Details
+    Click Element    ${BTN_STEP1_NEXT}
+    Wait Until Element Is Visible    ${ADDRESS_LINE1}    timeout=10s
+# ── Step 2 Keywords ────────────────────────────────────────────────────────
+Fill Shipping Address
+    [Arguments]    ${addr1}    ${addr2}    ${country}    ${area}    ${city}    ${postal}
+    Input Text    ${ADDRESS_LINE1}    ${addr1}
+    Input Text    ${ADDRESS_LINE2}    ${addr2}
+    Click Element    ${COUNTRY_BTN}
+    Wait Until Element Is Visible    //div[@data-testid='countryname' and @class='option' and normalize-space()='${country}']    timeout=5s
+    Click Element    //div[@data-testid='countryname' and @class='option' and normalize-space()='${country}']
+    Input Text    ${AREA_INPUT}    ${area}
+    Input Text    ${CITY_INPUT}    ${city}
+    Input Text    ${POSTAL_CODE_INPUT}    ${postal}
+Fill Other Details
+    [Arguments]    ${billing_name}    ${email}    ${primary_phone}    ${secondary_phone}
+    Input Text    ${BILLING_CONTACT_NAME}    ${billing_name}
+    Input Text    ${EMAIL_ADDRESS}          ${email}
+    Input Text    ${PRIMARY_PHONE}          ${primary_phone}
+    Input Text    ${SECONDARY_PHONE}        ${secondary_phone}
+Go To Preview
+    Click Element    ${BTN_STEP2_NEXT}
+    Wait Until Element Is Visible    ${TERMS_CHECKBOX}    timeout=10s
+Go Back To Order Details
+    Click Element    ${BTN_STEP2_PREV}
+    Wait Until Element Is Visible    ${ACCOUNT_INPUT}    timeout=10s
+# ── Step 3 Keywords ────────────────────────────────────────────────────────
+Verify Preview Field
+    [Arguments]    ${field_xpath}    ${expected_value}
+    ${actual}=    Get Text    ${field_xpath}
+    Should Be Equal    ${actual}    ${expected_value}
+Accept Terms And Submit
+    Select Checkbox    ${TERMS_CHECKBOX}
+    Click Element    ${BTN_SUBMIT}
+    Wait Until Element Is Visible    ${MODAL_TC}    timeout=5s
+    Click Element    ${MODAL_TC_CONTINUE}
+Cancel From Preview Modal
+    Click Element    ${MODAL_TC_CANCEL}
+Go Back To Shipping Details
+    Click Element    ${BTN_STEP3_PREV}
+    Wait Until Element Is Visible    ${ADDRESS_LINE1}    timeout=10s
+Close Create SIM Order
+    Click Element    ${BTN_CLOSE}
+    Wait Until Element Is Visible    //div[@id='simOrderGrid']    timeout=10s
+
+Key Notes
+
+Step 2 has two sub-sections: "Shipping Details" (Address Line 1, 2, Country, Area, City, Postal Code) and "Other Details" (Billing Contact Name, Email, Primary/Secondary Phone) — both identified by <h4> elements with class tab-headding.
+SIM State values confirmed: value="1" = TestActive, value="2" = Activated.
+All form input IDs are the same UUID (dafed924-05b5-4352-a87c-585665bb1344) — always target by name attribute within the correct tab pane (#discover, #strategy).
+Account TreeView — The #showTreeView-accountSelected div has class tree-display-none by default; it becomes visible after typing in the account input field.
+Preview value labels use following-sibling::label[1] pattern to get the dynamic value next to each static field label.
+T&C checkbox appears both in #optimization tab and inside #termsConditionsPopup modal — use //input[@id='termsAndConditions'] to target either; use modal-scoped XPath when the modal is open.
+Country dropdown (data-testid="countryname", name="country") uses the same custom .select/.selectBtn/.option pattern as SIM Category, SIM Product Type, and SIM State.
+
+
+
+
+The page is Create SIM Order — Step 3: Preview/Order Summary (https://192.168.1.26:7874/CreateSIMOrder, active tab pane: #optimization). Below is the complete, standalone XPath reference for the entire Create SIM Order page, with special depth on the Preview step's unique card/table layout.
+Create SIM Order — Step 3: Preview (Order Summary) — Complete XPath Reference
+URL: https://192.168.1.26:7874/CreateSIMOrder
+Active Tab Pane: #optimization (Step 3 — Preview)
+Section 1: Global Header
+ElementXPathSite Logo / Home//a[@href='/ManageDevices']Global Search Input//input[@id='txtLimit']Global Search Type//select[contains(@class,'search-box-dropdown')]Notifications Bell//a[@id='dropdownbell']Language Selector//li[@id='header-notification']//a[contains(@class,'dropdown-toggle')]User Settings//li[@id='userSetting']//a[contains(@class,'dropdown-toggle')]Change Password//a[@href='/ChangePassword']Log Out//a[normalize-space()='Log Out']
+
+Section 2: Left Sidebar Navigation
+ElementXPathDevices//a[@id='devices-menu-icon']Dashboard//a[@id='dashboard-icon']Rate Plan//a[@id='rate-plan-menu-icon']Service//a[@id='service-menu-icon']Report//a[@id='Report-icon']Billing//a[@id='billing-menu-icon']Admin//a[@id='admin-menu-icon']Application Logging//a[@id='appliction-logging']Rule Engine//a[@id='rule-engine-menu-icon']Alert Centre//a[@id='active-menu-icon']Orders (active)//a[@id='orders' and contains(@class,'selected')]Download Center//a[@id='download-center-icon']Ticketing//a[@id='Ticketing-icon']
+
+Section 3: Page Tab Navigation & Breadcrumb
+ElementXPathBreadcrumb Container//ul[contains(@class,'breadcrumb breadcrumb-page')]Breadcrumb — Live Order//ul[contains(@class,'breadcrumb')]//a[@href='/LiveOrder']Breadcrumb — Create//ul[contains(@class,'breadcrumb')]//li[normalize-space()='Create']Page Tab — Live Order (active)//ul[@id='pageHeading']//a[@href='/LiveOrder' and contains(@class,'selected')]Page Tab — Order History//ul[@id='pageHeading']//a[@href='/OrderHistory']
+
+Section 4: Wizard Step Navigator
+ElementXPathWizard Container <section>//section[@id='process-tab']Wizard <ul> (nav tabs)//section[@id='process-tab']//ul[contains(@class,'nav-tabs')]Step 1 — Order Details <li>//li[@id='order']Step 1 Link//a[@id='orderDetails' and @href='#discover']Step 1 Icon//a[@id='orderDetails']//i[contains(@class,'Primary_details')]Step 1 Label//a[@id='orderDetails']//p[normalize-space()='ORDER DETAILS']Step 2 — Shipping Details <li>//li[@id='shipping']Step 2 Link//a[@id='shippingDetails' and @href='#strategy']Step 2 Icon//a[@id='shippingDetails']//i[contains(@class,'contact_details')]Step 2 Label//a[@id='shippingDetails']//p[normalize-space()='SHIPPING DETAILS']Step 3 — Preview <li> (active)//li[@id='preview']Step 3 Link//a[@id='previewDetails' and @href='#optimization']Step 3 Icon//a[@id='previewDetails']//i[contains(@class,'other_details')]Step 3 Label//a[@id='previewDetails']//p[normalize-space()='PREVIEW']Active Step (any with class active)//section[@id='process-tab']//li[contains(@class,'active')]Tab Pane — Order Details//div[@id='discover']Tab Pane — Shipping Details//div[@id='strategy']Tab Pane — Preview (current, active)//div[@id='optimization' and contains(@class,'active')]
+
+Section 5: Preview — Order Summary (#optimization)
+5.1 Page Structure & Container Classes
+ElementXPathOuter Design Content//div[@id='optimization']//div[contains(@class,'design-process-content')]Profile Page Row//div[@id='optimization']//div[contains(@class,'row profile-page')]"Order Summary" H4 Heading//div[@id='optimization']//h4[normalize-space()='Order Summary']Padding Left Div (main container)//div[@id='optimization']//div[contains(@class,'padding-leftdiv')]HR Divider Line//div[@id='optimization']//hr[contains(@class,'hr_line')]Bottom Buttons Container//div[@id='optimization']//div[contains(@class,'bottom-button-tab-line')]
+
+5.2 Shipping Details Summary Card
+ElementXPathShipping Details Card Container//div[@id='optimization']//div[contains(@class,'shippingdetailsdiv')]"Shipping Details" Label Header//div[@id='optimization']//label[contains(@class,'shippingdetailsdiv-hedding') and normalize-space()='Shipping Details']Shipping Fields Inner Container//div[@id='optimization']//div[contains(@class,'shippingdetailsdivmain')]
+Shipping Field Label/Value XPaths
+FieldKey Label XPathValue Label XPathAdd. Line 1//div[contains(@class,'shippingdetailsdivmain')]//div[label[normalize-space()='Add. Line 1 :']]//label[1]//div[contains(@class,'shippingdetailsdivmain')]//div[label[normalize-space()='Add. Line 1 :']]//label[2]Add. Line 2//div[contains(@class,'shippingdetailsdivmain')]//div[label[normalize-space()='Add. Line 2 :']]//label[1]//div[contains(@class,'shippingdetailsdivmain')]//div[label[normalize-space()='Add. Line 2 :']]//label[2]Country//div[contains(@class,'shippingdetailsdivmain')]//div[label[contains(normalize-space(),'Country :')]]//label[1]//div[contains(@class,'shippingdetailsdivmain')]//div[label[contains(normalize-space(),'Country :')]]//label[2]Area//div[contains(@class,'shippingdetailsdivmain')]//div[label[normalize-space()='Area :']]//label[1]//div[contains(@class,'shippingdetailsdivmain')]//div[label[normalize-space()='Area :']]//label[2]City//div[contains(@class,'shippingdetailsdivmain')]//div[label[normalize-space()='City :']]//label[1]//div[contains(@class,'shippingdetailsdivmain')]//div[label[normalize-space()='City :']]//label[2]Postal Code//div[contains(@class,'shippingdetailsdivmain')]//div[label[normalize-space()='Postal Code :']]//label[1]//div[contains(@class,'shippingdetailsdivmain')]//div[label[normalize-space()='Postal Code :']]//label[2]Billing Contact Name//div[contains(@class,'shippingdetailsdivmain')]//div[label[normalize-space()='Billing Contact Name :']]//label[1]//div[contains(@class,'shippingdetailsdivmain')]//div[label[normalize-space()='Billing Contact Name :']]//label[2]Email Address//div[contains(@class,'shippingdetailsdivmain')]//div[label[normalize-space()='Email Address :']]//label[1]//div[contains(@class,'shippingdetailsdivmain')]//div[label[normalize-space()='Email Address :']]//label[2]Primary Phone//div[contains(@class,'shippingdetailsdivmain')]//div[label[normalize-space()='Primary Phone :']]//label[1]//div[contains(@class,'shippingdetailsdivmain')]//div[label[normalize-space()='Primary Phone :']]//label[2]Secondary Phone//div[contains(@class,'shippingdetailsdivmain')]//div[label[normalize-space()='Secondary Phone :']]//label[1]//div[contains(@class,'shippingdetailsdivmain')]//div[label[normalize-space()='Secondary Phone :']]//label[2]
+
+5.3 Order Details Summary Card (Gradient)
+ElementXPathOrder Details Card Container//div[@id='optimization']//div[contains(@class,'shippingdetailsdivoderdtilas')]"Order Details" Label Header//div[@id='optimization']//label[contains(@class,'shippingdetailsdiv-hedding') and normalize-space()='Order Details']Order Details Inner Container//div[@id='optimization']//div[contains(@class,'shippingdetailsdivoderdtilasiner')]Order Details Left Pane//div[@id='optimization']//div[contains(@class,'left-shippingdetailsdivoderdtilasiner')]
+Order Field Label/Value XPaths
+FieldKey Label XPathValue Label XPathAccount Name//div[contains(@class,'left-shippingdetailsdivoderdtilasiner')]//div[label[normalize-space()='Account Name :']]//label[1]//div[contains(@class,'left-shippingdetailsdivoderdtilasiner')]//div[label[normalize-space()='Account Name :']]//label[2]SIM Type//div[contains(@class,'left-shippingdetailsdivoderdtilasiner')]//div[label[normalize-space()='SIM Type :']]//label[1]//div[contains(@class,'left-shippingdetailsdivoderdtilasiner')]//div[label[normalize-space()='SIM Type :']]//label[2]SIM Category//div[contains(@class,'left-shippingdetailsdivoderdtilasiner')]//div[label[normalize-space()='SIM Category :']]//label[1]//div[contains(@class,'left-shippingdetailsdivoderdtilasiner')]//div[label[normalize-space()='SIM Category :']]//label[2]SIM Product Type//div[contains(@class,'left-shippingdetailsdivoderdtilasiner')]//div[label[normalize-space()='SIM Product Type :']]//label[1]//div[contains(@class,'left-shippingdetailsdivoderdtilasiner')]//div[label[normalize-space()='SIM Product Type :']]//label[2]Device Plan//div[contains(@class,'left-shippingdetailsdivoderdtilasiner')]//div[label[normalize-space()='Device Plan :']]//label[1]//div[contains(@class,'left-shippingdetailsdivoderdtilasiner')]//div[label[normalize-space()='Device Plan :']]//label[2]SIM State//div[contains(@class,'left-shippingdetailsdivoderdtilasiner')]//div[label[normalize-space()='SIM State :']]//label[1]//div[contains(@class,'left-shippingdetailsdivoderdtilasiner')]//div[label[normalize-space()='SIM State :']]//label[2]Quantity//div[contains(@class,'left-shippingdetailsdivoderdtilasiner')]//div[label[normalize-space()='Quantity :']]//label[1]//div[contains(@class,'left-shippingdetailsdivoderdtilasiner')]//div[label[normalize-space()='Quantity :']]//label[2]SIM Replacement Order//div[contains(@class,'left-shippingdetailsdivoderdtilasiner')]//div[label[normalize-space()='SIM Replacement Order :']]//label[1]//div[contains(@class,'left-shippingdetailsdivoderdtilasiner')]//div[label[normalize-space()='SIM Replacement Order :']]//label[2]
+
+5.4 Terms & Conditions Checkbox Row
+ElementXPathT&C Row Container//div[@id='optimization']//div[contains(@class,'row') and not(contains(@class,'profile-page'))]Terms Main Div//div[@id='optimization']//div[contains(@class,'trmsmaindiv')]T&C Checkbox Container//div[@id='optimization']//div[contains(@class,'form-group checkboxpart')]T&C Checkbox//input[@id='termsAndConditions' and @type='checkbox']"Agree to our Terms and Conditions" Span//span[contains(@class,'agree-terms-condition')]
+
+5.5 Bottom Action Buttons
+ElementXPathBottom Buttons Container//div[@id='optimization']//div[contains(@class,'bottom-button-tab-line')]Previous Button (→ Shipping Details)//div[@id='optimization']//div[contains(@class,'bottom-button-tab-line')]//a[@href='#strategy']Previous (by class)//div[@id='optimization']//a[contains(@class,'btn-custom-color-black') and normalize-space()='Previous']Submit Button//div[@id='optimization']//div[contains(@class,'bottom-button-tab-line')]//a[normalize-space()='Submit']Submit (by href)//div[@id='optimization']//a[@href='javascript:void(0);' and normalize-space()='Submit']Submit (by class)//div[@id='optimization']//a[contains(@class,'btn-custom-color') and contains(@class,'cursor-pointer') and normalize-space()='Submit']Close Button (→ Live Order)//div[@id='optimization']//a[@href='/LiveOrder' and contains(@class,'btn-cancel-color')]Close (by text)//div[@id='optimization']//a[normalize-space()='Close' and @href='/LiveOrder']
+
+Section 6: Terms & Conditions Modal (#termsConditionsPopup)
+ElementXPathModal Container//div[@id='termsConditionsPopup']Modal Title//div[@id='termsConditionsPopup']//h4[contains(@class,'modal-title')]Modal Body//div[@id='termsConditionsPopup']//div[contains(@class,'modal-body')]T&C Checkbox (inside modal)//div[@id='termsConditionsPopup']//input[@id='termsAndConditions' and @type='checkbox']"Agree to our Terms" Text//div[@id='termsConditionsPopup']//span[contains(@class,'agree-terms-condition')]Continue Button//button[@id='prceedBtnGeneralAPN']Continue (by text)//div[@id='termsConditionsPopup']//button[normalize-space()='Continue']Cancel Button//div[@id='termsConditionsPopup']//button[contains(@class,'btn-cancel-color') and normalize-space()='Cancel']Modal Close X//div[@id='termsConditionsPopup']//button[contains(@class,'close')]
+
+Robot Framework Automation File
+robot*** Settings ***
+Library           SeleniumLibrary
+*** Variables ***
+${CREATE_SIM_ORDER_URL}               https://192.168.1.26:7874/CreateSIMOrder
+# ── Wizard Steps ───────────────────────────────────────────────────────────
+${WIZARD_STEP1_LI}                    //li[@id='order']
+${WIZARD_STEP1_LINK}                  //a[@id='orderDetails']
+${WIZARD_STEP2_LI}                    //li[@id='shipping']
+${WIZARD_STEP2_LINK}                  //a[@id='shippingDetails']
+${WIZARD_STEP3_LI}                    //li[@id='preview']
+${WIZARD_STEP3_LINK}                  //a[@id='previewDetails']
+${STEP1_PANE}                         //div[@id='discover']
+${STEP2_PANE}                         //div[@id='strategy']
+${STEP3_PANE}                         //div[@id='optimization' and contains(@class,'active')]
+# ── Step 3 — Preview Structure ─────────────────────────────────────────────
+${PREVIEW_HEADING}                    //div[@id='optimization']//h4[normalize-space()='Order Summary']
+${PREVIEW_CONTENT}                    //div[@id='optimization']//div[contains(@class,'design-process-content')]
+${PREVIEW_PROFILE_ROW}                //div[@id='optimization']//div[contains(@class,'row profile-page')]
+# ── Shipping Details Card ───────────────────────────────────────────────────
+${SHIPPING_CARD}                      //div[@id='optimization']//div[contains(@class,'shippingdetailsdiv')]
+${SHIPPING_CARD_HEADER}               //div[@id='optimization']//label[contains(@class,'shippingdetailsdiv-hedding') and normalize-space()='Shipping Details']
+${SHIPPING_INNER}                     //div[@id='optimization']//div[contains(@class,'shippingdetailsdivmain')]
+${SHIPPING_ADDR1_KEY}                 //div[contains(@class,'shippingdetailsdivmain')]//div[label[normalize-space()='Add. Line 1 :']]//label[1]
+${SHIPPING_ADDR1_VALUE}               //div[contains(@class,'shippingdetailsdivmain')]//div[label[normalize-space()='Add. Line 1 :']]//label[2]
+${SHIPPING_ADDR2_VALUE}               //div[contains(@class,'shippingdetailsdivmain')]//div[label[normalize-space()='Add. Line 2 :']]//label[2]
+${SHIPPING_COUNTRY_VALUE}             //div[contains(@class,'shippingdetailsdivmain')]//div[label[contains(normalize-space(),'Country :')]]//label[2]
+${SHIPPING_AREA_VALUE}                //div[contains(@class,'shippingdetailsdivmain')]//div[label[normalize-space()='Area :']]//label[2]
+${SHIPPING_CITY_VALUE}                //div[contains(@class,'shippingdetailsdivmain')]//div[label[normalize-space()='City :']]//label[2]
+${SHIPPING_POSTAL_VALUE}              //div[contains(@class,'shippingdetailsdivmain')]//div[label[normalize-space()='Postal Code :']]//label[2]
+${SHIPPING_BILLING_NAME_VALUE}        //div[contains(@class,'shippingdetailsdivmain')]//div[label[normalize-space()='Billing Contact Name :']]//label[2]
+${SHIPPING_EMAIL_VALUE}               //div[contains(@class,'shippingdetailsdivmain')]//div[label[normalize-space()='Email Address :']]//label[2]
+${SHIPPING_PRIMARY_PHONE_VALUE}       //div[contains(@class,'shippingdetailsdivmain')]//div[label[normalize-space()='Primary Phone :']]//label[2]
+${SHIPPING_SECONDARY_PHONE_VALUE}     //div[contains(@class,'shippingdetailsdivmain')]//div[label[normalize-space()='Secondary Phone :']]//label[2]
+# ── Order Details Card (Gradient) ──────────────────────────────────────────
+${ORDER_CARD}                         //div[@id='optimization']//div[contains(@class,'shippingdetailsdivoderdtilas')]
+${ORDER_CARD_HEADER}                  //div[@id='optimization']//label[contains(@class,'shippingdetailsdiv-hedding') and normalize-space()='Order Details']
+${ORDER_INNER}                        //div[@id='optimization']//div[contains(@class,'shippingdetailsdivoderdtilasiner')]
+${ORDER_LEFT_PANE}                    //div[@id='optimization']//div[contains(@class,'left-shippingdetailsdivoderdtilasiner')]
+${ORDER_ACCOUNT_VALUE}                //div[contains(@class,'left-shippingdetailsdivoderdtilasiner')]//div[label[normalize-space()='Account Name :']]//label[2]
+${ORDER_SIM_TYPE_VALUE}               //div[contains(@class,'left-shippingdetailsdivoderdtilasiner')]//div[label[normalize-space()='SIM Type :']]//label[2]
+${ORDER_SIM_CATEGORY_VALUE}           //div[contains(@class,'left-shippingdetailsdivoderdtilasiner')]//div[label[normalize-space()='SIM Category :']]//label[2]
+${ORDER_SIM_PRODUCT_VALUE}            //div[contains(@class,'left-shippingdetailsdivoderdtilasiner')]//div[label[normalize-space()='SIM Product Type :']]//label[2]
+${ORDER_DEVICE_PLAN_VALUE}            //div[contains(@class,'left-shippingdetailsdivoderdtilasiner')]//div[label[normalize-space()='Device Plan :']]//label[2]
+${ORDER_SIM_STATE_VALUE}              //div[contains(@class,'left-shippingdetailsdivoderdtilasiner')]//div[label[normalize-space()='SIM State :']]//label[2]
+${ORDER_QUANTITY_VALUE}               //div[contains(@class,'left-shippingdetailsdivoderdtilasiner')]//div[label[normalize-space()='Quantity :']]//label[2]
+${ORDER_SIM_REPLACEMENT_VALUE}        //div[contains(@class,'left-shippingdetailsdivoderdtilasiner')]//div[label[normalize-space()='SIM Replacement Order :']]//label[2]
+# ── Terms & Conditions ─────────────────────────────────────────────────────
+${TC_ROW}                             //div[@id='optimization']//div[contains(@class,'row') and not(contains(@class,'profile-page'))]
+${TC_CHECKBOX_SECTION}                //div[@id='optimization']//div[contains(@class,'form-group checkboxpart')]
+${TC_CHECKBOX}                        //input[@id='termsAndConditions' and @type='checkbox']
+${TC_AGREE_TEXT}                      //span[contains(@class,'agree-terms-condition')]
+# ── Bottom Buttons ──────────────────────────────────────────────────────────
+${BTN_PREV_SHIPPING}                  //div[@id='optimization']//div[contains(@class,'bottom-button-tab-line')]//a[@href='#strategy']
+${BTN_SUBMIT}                         //div[@id='optimization']//a[normalize-space()='Submit' and @href='javascript:void(0);']
+${BTN_CLOSE}                          //div[@id='optimization']//a[@href='/LiveOrder' and normalize-space()='Close']
+${HR_DIVIDER}                         //div[@id='optimization']//hr[contains(@class,'hr_line')]
+# ── Terms & Conditions Modal ───────────────────────────────────────────────
+${MODAL_TC}                           //div[@id='termsConditionsPopup']
+${MODAL_TC_TITLE}                     //div[@id='termsConditionsPopup']//h4[contains(@class,'modal-title')]
+${MODAL_TC_BODY}                      //div[@id='termsConditionsPopup']//div[contains(@class,'modal-body')]
+${MODAL_TC_CHECKBOX}                  //div[@id='termsConditionsPopup']//input[@id='termsAndConditions']
+${MODAL_TC_CONTINUE}                  //button[@id='prceedBtnGeneralAPN']
+${MODAL_TC_CANCEL}                    //div[@id='termsConditionsPopup']//button[contains(@class,'btn-cancel-color')]
+*** Keywords ***
+Navigate To Create SIM Order Preview
+    Go To    ${CREATE_SIM_ORDER_URL}
+    Wait Until Element Is Visible    ${STEP3_PANE}    timeout=15s
+Verify Preview Is Active
+    Element Should Be Visible    ${PREVIEW_HEADING}
+    Element Should Have Class    //li[@id='preview']    active
+# ── Shipping Verification ─────────────────────────────────────────────────
+Verify Shipping Summary Field
+    [Arguments]    ${field_name}    ${expected_value}
+    ${xpath}=    Set Variable    //div[contains(@class,'shippingdetailsdivmain')]//div[label[normalize-space()='${field_name}']]//label[2]
+    ${actual}=    Get Text    ${xpath}
+    Should Be Equal    ${actual}    ${expected_value}
+Verify All Shipping Fields
+    [Arguments]    ${addr1}    ${addr2}    ${country}    ${area}    ${city}    ${postal}    ${billing}    ${email}    ${primary}    ${secondary}
+    Verify Shipping Summary Field    Add. Line 1 :    ${addr1}
+    Verify Shipping Summary Field    Add. Line 2 :    ${addr2}
+    Verify Shipping Summary Field    Country :        ${country}
+    Verify Shipping Summary Field    Area :           ${area}
+    Verify Shipping Summary Field    City :           ${city}
+    Verify Shipping Summary Field    Postal Code :    ${postal}
+    Verify Shipping Summary Field    Billing Contact Name :    ${billing}
+    Verify Shipping Summary Field    Email Address :  ${email}
+    Verify Shipping Summary Field    Primary Phone :  ${primary}
+    Verify Shipping Summary Field    Secondary Phone : ${secondary}
+# ── Order Details Verification ────────────────────────────────────────────
+Verify Order Summary Field
+    [Arguments]    ${field_name}    ${expected_value}
+    ${xpath}=    Set Variable    //div[contains(@class,'left-shippingdetailsdivoderdtilasiner')]//div[label[normalize-space()='${field_name}']]//label[2]
+    ${actual}=    Get Text    ${xpath}
+    Should Be Equal    ${actual}    ${expected_value}
+Verify All Order Details
+    [Arguments]    ${account}    ${sim_type}    ${sim_cat}    ${product_type}    ${device_plan}    ${sim_state}    ${qty}    ${sim_replacement}
+    Verify Order Summary Field    Account Name :          ${account}
+    Verify Order Summary Field    SIM Type :              ${sim_type}
+    Verify Order Summary Field    SIM Category :          ${sim_cat}
+    Verify Order Summary Field    SIM Product Type :      ${product_type}
+    Verify Order Summary Field    Device Plan :           ${device_plan}
+    Verify Order Summary Field    SIM State :             ${sim_state}
+    Verify Order Summary Field    Quantity :              ${qty}
+    Verify Order Summary Field    SIM Replacement Order : ${sim_replacement}
+Get Order Summary Field Value
+    [Arguments]    ${field_name}
+    ${value}=    Get Text    //div[contains(@class,'left-shippingdetailsdivoderdtilasiner')]//div[label[normalize-space()='${field_name}']]//label[2]
+    [Return]    ${value}
+Get Shipping Summary Field Value
+    [Arguments]    ${field_name}
+    ${value}=    Get Text    //div[contains(@class,'shippingdetailsdivmain')]//div[label[normalize-space()='${field_name}']]//label[2]
+    [Return]    ${value}
+# ── Submit Flow ───────────────────────────────────────────────────────────
+Submit Order With Terms
+    Select Checkbox    ${TC_CHECKBOX}
+    Click Element    ${BTN_SUBMIT}
+    Wait Until Element Is Visible    ${MODAL_TC}    timeout=5s
+    Click Element    ${MODAL_TC_CONTINUE}
+    Wait Until Element Is Not Visible    ${MODAL_TC}    timeout=10s
+Cancel Submit From Modal
+    Wait Until Element Is Visible    ${MODAL_TC}    timeout=5s
+    Click Element    ${MODAL_TC_CANCEL}
+Go Back To Shipping From Preview
+    Click Element    ${BTN_PREV_SHIPPING}
+    Wait Until Element Is Visible    //input[@name='addressLine1']    timeout=10s
+Close Create SIM Order
+    Click Element    ${BTN_CLOSE}
+    Wait Until Element Is Visible    //div[@id='simOrderGrid']    timeout=10s
+
+Key Notes for Robot Framework Automation
+
+Preview Layout has two distinct card containers:
+
+Shipping Details Card — white/light background, class: shippingdetailsdiv → inner fields in shippingdetailsdivmain
+Order Details Card — gradient (purple→cyan) background, class: shippingdetailsdivoderdtilas → inner fields in shippingdetailsdivoderdtilasiner → left-shippingdetailsdivoderdtilasiner
+
+
+All field values are read-only <label> elements — no editable inputs on the preview page. Use Get Text to verify values.
+Value labels are the second <label> sibling in each field <div>. Use //label[2] (following-sibling pattern) to get the dynamic value.
+Terms & Conditions checkbox (#termsAndConditions) appears in two places: directly in the #optimization pane (.checkboxpart div), and inside the #termsConditionsPopup modal. Both share the same id. The checkbox in the pane is typically hidden; the modal version is what gets interacted with after clicking Submit.
+Submit button triggers the #termsConditionsPopup modal to appear. Order is: click Submit → modal appears → check T&C checkbox in modal → click Continue.
+All 3 wizard steps have class="active" when on step 3 (the wizard marks all previously-visited steps active). Verify current step by checking #optimization has class active (//div[@id='optimization' and contains(@class,'active')]).
+Buttons are <a> elements (not <button>): Previous uses href="#strategy", Submit uses href="javascript:void(0);", Close uses href="/LiveOrder".

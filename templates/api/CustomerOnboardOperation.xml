@@ -1,0 +1,25 @@
+<!-- Reference template for createOnboardCustomer SOAP. Actual request is built dynamically in api_keywords. -->
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:web="http://webservice.airlinq.com/">
+  <soapenv:Header>
+    <web:orderNumber>REPLACE_ORDER_NUMBER</web:orderNumber>
+    <web:taskID>REPLACE_TASK_ID</web:taskID>
+  </soapenv:Header>
+  <soapenv:Body>
+    <web:createOnboardCustomer>
+      <businessUnitName>REPLACE_BUSINESS_UNIT_NAME</businessUnitName>
+      <customer>
+        <unifiedID>REPLACE_UNIFIED_ID</unifiedID>
+        <customerReferenceNumber>REPLACE_CUSTOMER_REFERENCE_NUMBER</customerReferenceNumber>
+        <customerSegmentCode>REPLACE_CUSTOMER_SEGMENT_CODE</customerSegmentCode>
+        <customerType>REPLACE_CUSTOMER_TYPE</customerType>
+        <billHierarchyFlag>REPLACE_BILL_HIERARCHY_FLAG</billHierarchyFlag>
+        <companyName>REPLACE_COMPANY_NAME</companyName>
+        <customerName><firstName>REPLACE_FIRST_NAME</firstName><lastName>REPLACE_LAST_NAME</lastName></customerName>
+        <partyIdentification><identificationTypeCode>REPLACE_IDENTIFICATION_TYPE_CODE</identificationTypeCode><identityNumber>REPLACE_IDENTITY_NUMBER</identityNumber></partyIdentification>
+        <primaryPhoneNumber>REPLACE_PRIMARY_PHONE_NUMBER</primaryPhoneNumber>
+        <customerAddress><country>REPLACE_CUSTOMER_COUNTRY</country><addressLine1>REPLACE_CUSTOMER_ADDRESS_LINE1</addressLine1></customerAddress>
+        <billingAccount><billingAccountName>REPLACE_BILLING_ACCOUNT_NAME</billingAccountName><billingAccountNumber>REPLACE_BILLING_ACCOUNT_NUMBER</billingAccountNumber></billingAccount>
+      </customer>
+    </web:createOnboardCustomer>
+  </soapenv:Body>
+</soapenv:Envelope>

@@ -4,27 +4,41 @@ Library    SeleniumLibrary
 *** Keywords ***
 Open Test Browser
     [Documentation]    Opens browser with the configured settings. Handles SSL warnings for HTTPS IP addresses.
+    ...                Supports: chrome, headlesschrome, firefox, edge.
     [Arguments]    ${url}    ${browser}
-    ${chrome_options}=    Evaluate    sys.modules['selenium.webdriver'].ChromeOptions()    sys
-    Call Method    ${chrome_options}    add_argument    --ignore-certificate-errors
-    Call Method    ${chrome_options}    add_argument    --allow-insecure-localhost
-    Call Method    ${chrome_options}    add_argument    --start-maximized
-    Evaluate    $chrome_options.set_capability('acceptInsecureCerts', True)
     IF    '${browser}' == 'headlesschrome'
-        Call Method    ${chrome_options}    add_argument    --headless=new
-        Call Method    ${chrome_options}    add_argument    --window-size=1920,1080
+        ${chrome_options}=    Evaluate    sys.modules['selenium.webdriver'].ChromeOptions()    sys
+        # SSL / certificate bypass
+        Call Method    ${chrome_options}    add_argument    --ignore-certificate-errors
+        Call Method    ${chrome_options}    add_argument    --allow-insecure-localhost
+        Call Method    ${chrome_options}    add_argument    --allow-running-insecure-content
+        Evaluate    $chrome_options.set_capability('acceptInsecureCerts', True)
+        # Headless-specific — must NOT use --start-maximized in headless mode
+        # Use Evaluate for args containing "=" to avoid RF named-argument parsing
+        Evaluate    $chrome_options.add_argument('--headless=new')
+        Evaluate    $chrome_options.add_argument('--window-size=1920,1080')
+        Call Method    ${chrome_options}    add_argument    --disable-gpu
+        Call Method    ${chrome_options}    add_argument    --no-sandbox
+        Call Method    ${chrome_options}    add_argument    --disable-dev-shm-usage
+        Call Method    ${chrome_options}    add_argument    --disable-extensions
+        Call Method    ${chrome_options}    add_argument    --disable-infobars
+        Evaluate    $chrome_options.add_argument('--remote-debugging-port=0')
         Create Webdriver    Chrome    options=${chrome_options}
+        Go To    ${url}
     ELSE IF    '${browser}' == 'chrome'
+        ${chrome_options}=    Evaluate    sys.modules['selenium.webdriver'].ChromeOptions()    sys
+        Call Method    ${chrome_options}    add_argument    --ignore-certificate-errors
+        Call Method    ${chrome_options}    add_argument    --allow-insecure-localhost
+        Call Method    ${chrome_options}    add_argument    --start-maximized
+        Evaluate    $chrome_options.set_capability('acceptInsecureCerts', True)
         Create Webdriver    Chrome    options=${chrome_options}
+        Go To    ${url}
     ELSE IF    '${browser}' == 'firefox'
         Open Browser    ${url}    ${browser}
     ELSE IF    '${browser}' == 'edge'
         Open Browser    ${url}    ${browser}
     ELSE
         Open Browser    ${url}    ${browser}
-    END
-    IF    '${browser}' == 'chrome' or '${browser}' == 'headlesschrome'
-        Go To    ${url}
     END
     Set Selenium Implicit Wait    ${IMPLICIT_WAIT}
     Set Selenium Timeout    ${PAGE_LOAD_TIMEOUT}
@@ -55,27 +69,29 @@ Navigate To URL With Clean Session
 Input Text Into Field
     [Documentation]    Waits for element and enters text.
     [Arguments]    ${locator}    ${text}
-    Wait Until Element Is Visible    ${locator}    timeout=10s
+    Wait Until Element Is Visible    ${locator}    timeout=30s
     Input Text    ${locator}    ${text}
 
 Clear And Input Text Into Field
     [Documentation]    Clears a field and enters new text.
     [Arguments]    ${locator}    ${text}
-    Wait Until Element Is Visible    ${locator}    timeout=10s
+    Wait Until Element Is Visible    ${locator}    timeout=30s
     Clear Element Text    ${locator}
     Input Text    ${locator}    ${text}
 
 Click Element Safely
-    [Documentation]    Waits for element to be clickable and clicks it.
+    [Documentation]    Waits for loading overlay to disappear, then clicks element.
     [Arguments]    ${locator}
-    Wait Until Element Is Visible    ${locator}    timeout=10s
-    Wait Until Element Is Enabled    ${locator}    timeout=10s
+    Wait For Loading Overlay To Disappear
+    Wait Until Element Is Visible    ${locator}    timeout=30s
+    Wait Until Element Is Enabled    ${locator}    timeout=30s
     Click Element    ${locator}
 
 Click Element Via JS
-    [Documentation]    Clicks an element using JavaScript (bypasses overlay issues).
+    [Documentation]    Waits for loading overlay, then clicks via JavaScript (bypasses overlay issues).
     [Arguments]    ${locator}
-    Wait Until Element Is Visible    ${locator}    timeout=10s
+    Wait For Loading Overlay To Disappear
+    Wait Until Element Is Visible    ${locator}    timeout=30s
     ${element}=    Get WebElement    ${locator}
     Execute Javascript    arguments[0].click();    ARGUMENTS    ${element}
 
@@ -120,11 +136,38 @@ Capture Screenshot And Close Browser
     Run Keyword If Test Failed    Capture Page Screenshot
     Close All Browsers
 
+Handle Test Teardown
+    [Documentation]    Captures screenshot on failure only. Does NOT close the browser
+    ...                so that the suite-level session is preserved for the next test.
+    Run Keyword If Test Failed    Capture Page Screenshot
+
 Wait For Page Load
     [Documentation]    Waits for the page to fully load (React rendering complete).
     ...                Retries up to 3 times for transient network issues.
     Wait Until Keyword Succeeds    3x    2s    Wait For Document Ready
+    Wait For Loading Overlay To Disappear
+
+Wait For App Loading To Complete
+    [Documentation]    Alias for Wait For Page Load. Waits until document is ready and loading overlay gone.
+    ...                Accepts optional timeout argument for backward compatibility.
+    [Arguments]    ${timeout}=60s
+    Wait Until Keyword Succeeds    3x    2s    Wait For Document Ready
+    Wait For Loading Overlay To Disappear
 
 Wait For Document Ready
     [Documentation]    Checks that document.readyState is complete.
     Wait For Condition    return document.readyState === 'complete'    timeout=30s
+
+Wait For Loading Overlay To Disappear
+    [Documentation]    Waits until the body.loading-indicator overlay is gone.
+    ...                The CMP app adds class "loading-indicator" to <body> during API calls.
+    ...                If the indicator is stuck for > 25s, force-removes it via JS and warns.
+    ${cleared}=    Run Keyword And Return Status
+    ...    Wait For Condition
+    ...    return !document.body.classList.contains('loading-indicator')
+    ...    timeout=25s
+    IF    not ${cleared}
+        Log    Loading overlay stuck for 25s — force-removing via JS.    level=WARN
+        Execute Javascript    document.body.classList.remove('loading-indicator');
+        Sleep    1s
+    END

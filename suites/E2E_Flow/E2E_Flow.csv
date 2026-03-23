@@ -1,0 +1,19 @@
+testcaseid,testcasename,taglist,tasklist,variables,isdatadriven,datafile,isactive
+STEP_01,Onboard EC And BU Account Via API,e2e|step-1|api|onboard,STEP_01,,false,,true
+STEP_01B,Verify Onboarded Account On UI,e2e|step-1|validation|onboard,STEP_01B,,false,,true
+STEP_02,Create APN For Onboarded Account,e2e|step-2|apn,STEP_02,,false,,true
+STEP_03,Create CSR Journey For Onboarded Account,e2e|step-3|csr-journey,STEP_03,,false,,true
+STEP_04,Create SIM Range With 10 ICCID IMSI,e2e|step-4|sim-range,STEP_04,,false,,true
+STEP_05,Create And Assign SIM Product Type,e2e|step-5|product-type,STEP_05,,false,,true
+STEP_06,Create SIM Order,e2e|step-6|sim-order,STEP_06,,false,,true
+STEP_07,Capture Order ID From Live Order Grid,e2e|step-7|order-processing|capture,STEP_07,,false,,true
+STEP_08,Fetch EC And BU Account IDs From Database,e2e|step-8|order-processing|database,STEP_08,,false,,true
+STEP_09,Run Create Order Script On Server,e2e|step-9|order-processing|ssh,STEP_09,,false,,true
+STEP_10,Validate Order Status New To In Progress,e2e|step-10|order-processing|validation,STEP_10,,false,,true
+STEP_11,Generate And Upload Response Files To Server,e2e|step-11|order-processing|files,STEP_11,,false,,true
+STEP_12,Run Read Order Script On Server,e2e|step-12|order-processing|ssh,STEP_12,,false,,true
+STEP_13,Validate Order Status In Progress To Completed,e2e|step-13|order-processing|validation,STEP_13,,false,,true
+STEP_14,Validate SIMs In Warm State On Manage Devices,e2e|step-14|manage-devices|validation,STEP_14,,false,,true
+STEP_15,Update Order Status To Approved Via SOAP API,e2e|step-15|api|soap,STEP_15,,false,,true
+STEP_16,Activate 5 SIMs And Capture IMSIs,e2e|step-16|device-state-change|activation,STEP_16,,false,,true
+STEP_17,Generate Invoice And Download CSV,e2e|step-17|invoice|billing,STEP_17,,false,,true

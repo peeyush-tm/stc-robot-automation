@@ -1,0 +1,27 @@
+testcaseid,testcasename,taglist,tasklist,variables,isdatadriven,datafile,isactive
+TC_SRM_001,Create MSISDN SIM Range Happy Path,smoke|regression|positive|sim_range|msisdn,TC_SRM_001,,false,,true
+TC_SRM_002,Verify MSISDN Tab Selection Shows Grid,smoke|regression|positive|sim_range|msisdn,TC_SRM_002,,false,,true
+TC_SRM_003,Verify Create MSISDN SIM Range Page Elements Visible,smoke|regression|positive|sim_range|msisdn,TC_SRM_003,,false,,true
+TC_SRM_004,Verify Assets Type Is Hidden For MSISDN Flow,regression|positive|sim_range|msisdn,TC_SRM_004,,false,,true
+TC_SRM_005,Verify Pool Count Auto Calculated After Adding MSISDN Range,regression|positive|sim_range|msisdn,TC_SRM_005,,false,,true
+TC_SRM_006,Verify Pool Count Is Zero Before Adding MSISDN Range,regression|positive|sim_range|msisdn,TC_SRM_006,,false,,true
+TC_SRM_007,Verify Pool Count Field Is Disabled,regression|positive|sim_range|msisdn,TC_SRM_007,,false,,true
+TC_SRM_008,Verify MSISDN Range Grid Shows Entry After Adding,regression|positive|sim_range|msisdn,TC_SRM_008,,false,,true
+TC_SRM_009,Verify Cancel Button Redirects To SIM Range List,regression|positive|sim_range|msisdn|navigation,TC_SRM_009,,false,,true
+TC_SRM_010,Verify SIM Category Selection For MSISDN,regression|positive|sim_range|msisdn,TC_SRM_010,,false,,true
+TC_SRM_011,Submit Disabled When Pool Name Empty,regression|negative|sim_range|msisdn,TC_SRM_011,,false,,true
+TC_SRM_012,Submit Disabled When Account Not Selected,regression|negative|sim_range|msisdn,TC_SRM_012,,false,,true
+TC_SRM_013,Submit Disabled When Description Empty,regression|negative|sim_range|msisdn,TC_SRM_013,,false,,true
+TC_SRM_014,Submit Disabled When No MSISDN Range Added,regression|negative|sim_range|msisdn,TC_SRM_014,,false,,true
+TC_SRM_015,MSISDN From Greater Than To Should Show Error,regression|negative|sim_range|msisdn|boundary,TC_SRM_015,,false,,true
+TC_SRM_016,MSISDN From Below 10 Digits Keeps Popup Submit Disabled,regression|negative|sim_range|msisdn|boundary,TC_SRM_016,,false,,true
+TC_SRM_017,MSISDN To Below 10 Digits Keeps Popup Submit Disabled,regression|negative|sim_range|msisdn|boundary,TC_SRM_017,,false,,true
+TC_SRM_018,Overlapping MSISDN Range Should Show Error,regression|negative|sim_range|msisdn|boundary,TC_SRM_018,,false,,true
+TC_SRM_019,MSISDN Input Exceeding 15 Digits Gets Truncated,regression|negative|sim_range|msisdn|boundary,TC_SRM_019,,false,,true
+TC_SRM_020,Close MSISDN Popup Without Submitting Clears Fields,regression|negative|sim_range|msisdn,TC_SRM_020,,false,,true
+TC_SRM_021,SQL Injection In Pool Name Should Be Rejected,regression|negative|security|sim_range|msisdn,TC_SRM_021,,false,,true
+TC_SRM_022,Special Characters In Pool Name Should Be Rejected,regression|negative|security|sim_range|msisdn,TC_SRM_022,,false,,true
+TC_SRM_023,Pool Name Exceeding Max Length Should Be Rejected,regression|negative|sim_range|msisdn|boundary,TC_SRM_023,,false,,true
+TC_SRM_024,Description Exceeding Max Length Should Be Rejected,regression|negative|sim_range|msisdn|boundary,TC_SRM_024,,false,,true
+TC_SRM_025,Direct Access To Create MSISDN SIM Range Without Login,regression|negative|security|sim_range|msisdn|navigation,TC_SRM_025,,false,,true
+TC_SRM_026,Direct Access To SIM Range MSISDN Tab Without Login,regression|negative|security|sim_range|msisdn|navigation,TC_SRM_026,,false,,true

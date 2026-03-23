@@ -1,0 +1,24 @@
+[OOF]
+NoId = "GCT"
+OofFileType = "DspRsp"
+OrdReqInfo = "a"
+OrderDate = "230226"
+OrderId = "REPLACE_ORDER_ID"
+OrderCustomerId = "120326_096"
+OrderBatchCount = 1
+ServiceType = "POSTPAID"
+ServiceSubType.1 = "GCT"
+ServiceSubType.2 = "BUSINESS M2M NP"
+ServiceSubType.3 = "NORMAL"
+ServiceSubType.4 = "EBU VIRTUAL TEST"
+AlgorithmType = "3G Milenage"
+[OOF.1]
+OrderBatchCardCount = 1
+[OOF.1.1]
+GsmIccid = 899660110010024513
+GsmImsi = 420011010024513
+GsmEncCHV1 = 0000
+GsmEncCHV2 = 6366
+GsmEncUCHV1 = 07229045
+GsmEncUCHV2 = 70451703
+[OOF.END]

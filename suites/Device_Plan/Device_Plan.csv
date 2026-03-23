@@ -1,0 +1,12 @@
+testcaseid,testcasename,taglist,tasklist,variables,isdatadriven,datafile,isactive
+TC_CDP_001,Verify Manage Devices Grid And Action Bar,smoke|regression|positive|device_plan,TC_CDP_001,,false,,true
+TC_CDP_002,Change Device Plan On Activated SIM,smoke|regression|positive|device_plan|activated,TC_CDP_002,,false,,true
+TC_CDP_003,Change Device Plan On TestActive SIM,regression|positive|device_plan|testactive,TC_CDP_003,,false,,true
+TC_CDP_004,Change Device Plan On Suspended SIM,regression|positive|device_plan|suspended,TC_CDP_004,,false,,true
+TC_CDP_005,Verify Change Device Plan Popup Opens,regression|positive|device_plan|activated,TC_CDP_005,,false,,true
+TC_CDP_006,Close Popup Without Submitting Should Not Change Plan,regression|positive|device_plan,TC_CDP_006,,false,,true
+TC_CDP_007,Change Device Plan On Terminate SIM Should Be Blocked,regression|negative|device_plan|terminate,TC_CDP_007,,false,,true
+TC_CDP_008,No Device Selected Should Not Allow Action,regression|negative|device_plan,TC_CDP_008,,false,,true
+TC_CDP_009,Proceed Without Selecting Reason Should Be Blocked,regression|negative|device_plan,TC_CDP_009,,false,,true
+TC_CDP_010,No Plan Selected Should Not Open Popup,regression|negative|device_plan,TC_CDP_010,,false,,true
+TC_CDP_011,Direct Access To ManageDevices Without Login,regression|negative|security|device_plan|navigation,TC_CDP_011,,false,,true

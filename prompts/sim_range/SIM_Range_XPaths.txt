@@ -1,0 +1,185 @@
+Here is the complete XPath reference for the SIM Range page, organized by section and ready for Robot Framework:
+🔷 ROBOT FRAMEWORK — XPath Reference: SIM Range Page
+URL: https://192.168.1.26:7874/SIMRange
+1. HEADER / GLOBAL NAVIGATION
+ElementXPathHeader container//header[@id="header"]Search type dropdown (ICCID/IMSI/MSISDN)//select[contains(@class,"search-box-dropdown")]Search Device input//input[@id="txtLimit"]Language dropdown//li[@id="header-notification"]Notification bell//a[@id="dropdownbell"]User settings//li[@id="userSetting"]Sidebar collapse button//*[@id="sidebar-collapse"]
+
+2. TOP SUB-NAVIGATION (Admin Tabs)
+ElementXPathSub-nav tab container//div[contains(@class,"gc-page-top-links")]Tab: User//ul[@id="pageHeading"]//a[@href="/ManageUser"]Tab: Api User//ul[@id="pageHeading"]//a[@href="/ManageApiUser"]Tab: Account//ul[@id="pageHeading"]//a[@href="/ManageAccount"]Tab: Role & Access//ul[@id="pageHeading"]//a[@href="/ManageRole"]Tab: WL Account//ul[@id="pageHeading"]//a[@href="/WLBLTemplate"]Tab: Upload Logo//ul[@id="pageHeading"]//a[@href="/UploadLogo"]Tab: SIM Range (active)//ul[@id="pageHeading"]//a[@href="/SIMRange"]Tab: SIM Product Type//ul[@id="pageHeading"]//a[@href="/ProductType"]Tab: SMSA Configuration Panel//ul[@id="pageHeading"]//a[@href="/smsaconfigurationpanel"]Tab: Manage Label//ul[@id="pageHeading"]//a[@href="/ManageLabel"]Tab: CSR Journey//ul[@id="pageHeading"]//a[@href="/CSRJourney"]Tab: CSR Journey Penalties//ul[@id="pageHeading"]//a[@href="/CSRJourneyPenaltiesAdjustments"]Tab: Notification Template//ul[@id="pageHeading"]//a[@href="/NotificationTemplate"]Tab: LBS Restriction//ul[@id="pageHeading"]//a[@href="/LBSZone"]Tab: Device Plan Requests//ul[@id="pageHeading"]//a[@href="/DevicePlanRequests"]
+
+3. SIM RANGE PAGE TABS (ICCID/IMSI & MSISDN)
+ElementXPathTab nav container//ul[@id="tabHeading"]ICCID/IMSI tab (active)//ul[@id="tabHeading"]//li[contains(@class,"active")]//aICCID/IMSI tab link//ul[@id="tabHeading"]//a[@href="#iccid_imsi"]MSISDN tab link//ul[@id="tabHeading"]//a[@href="#msisdn"]ICCID/IMSI tab pane//*[@id="iccid_imsi"]MSISDN tab pane//*[@id="msisdn"]Tab control container//*[@id="tabControl"]
+
+4. SEARCH & ACTION TOOLBAR
+ElementXPathSearch toolbar container//div[contains(@class,"wrapper-header-right-bar")]Search input group//div[contains(@class,"input-group") and contains(@class,"input-width-300")]Search text input//input[@name="searchValue"] or //input[@placeholder="Enter Search Text"]Search button (magnifier icon)//a[@id="searchButton"]Search info icon//i[contains(@class,"fa-info-circle")]Search info tooltip text//i[contains(@class,"fa-info-circle") and @title] → title: "Search is applicable for 'Batch Number, Pool Name, ICCID and IMSI' columns"Create SIM Range button//a[contains(@class,"btn-custom-color") and normalize-space()="Create SIM Range"]Download CSV button//a[@id="export"] or //a[@title="Download CSV"]Download CSV (ICCID/IMSI tab)(//a[@id="downloadDevicesCSV"])[1]Download CSV (MSISDN tab)(//a[@id="downloadDevicesCSV"])[2]
+
+5. SIM RANGE KENDO GRID (#ManageSIMRangeGrid)
+5a. Grid Container & Structure
+ElementXPathGrid container//*[@id="ManageSIMRangeGrid"]Grid header//*[@id="ManageSIMRangeGrid"]//div[contains(@class,"k-grid-header")]Grid header table//*[@id="ManageSIMRangeGrid"]//div[contains(@class,"k-grid-header")]//tableGrid content area//*[@id="ManageSIMRangeGrid"]//div[contains(@class,"k-grid-content")]Grid body table//*[@id="ManageSIMRangeGrid"]//div[contains(@class,"k-grid-content")]//tableGrid tbody//*[@id="ManageSIMRangeGrid"]//div[contains(@class,"k-grid-content")]//tbody
+5b. Column Headers (by ID — most stable)
+ColumnXPath by IDXPath by textBATCH NUMBER//th[@id="2cab0d61-3fea-4c62-80a9-0af62e53d840"]//*[@id="ManageSIMRangeGrid"]//th[normalize-space()="BATCH NUMBER"]ACCOUNT//th[@id="7ce2c8c4-cb41-4471-abad-6f545ba936cf"]//*[@id="ManageSIMRangeGrid"]//th[normalize-space()="ACCOUNT"]POOL NAME//th[@id="f5afa068-9287-4eb7-ad1f-4a294b96b1e5"]//*[@id="ManageSIMRangeGrid"]//th[normalize-space()="POOL NAME"]ICCID//th[@id="e2e9d112-a384-4ff2-9c0e-e3769ca6cc91"]//*[@id="ManageSIMRangeGrid"]//th[normalize-space()="ICCID"]IMSI//th[@id="8de33d4f-5ff1-4fd0-bb1a-dd4136d3fe5c"]//*[@id="ManageSIMRangeGrid"]//th[normalize-space()="IMSI"]ENDS WITH//th[@id="ca341183-7d29-4ba1-b7a7-4fb81568aea5"]//*[@id="ManageSIMRangeGrid"]//th[normalize-space()="Ends With"]MSISDN//th[@id="49ac106d-5fed-461e-aaa7-ec679071846e"]//*[@id="ManageSIMRangeGrid"]//th[normalize-space()="MSISDN"]STATUS//th[@id="de72e5d6-4c05-4696-bb0d-e255d41f8104"]//*[@id="ManageSIMRangeGrid"]//th[normalize-space()="STATUS"]ALLOCATED TO//th[@id="ade02ea0-5f4b-4738-84a0-5b94b0e3323d"]//*[@id="ManageSIMRangeGrid"]//th[normalize-space()="ALLOCATED TO"]DESCRIPTION//th[@id="59e984e6-d33d-4c73-b4cd-751a32b6deed"]//*[@id="ManageSIMRangeGrid"]//th[normalize-space()="DESCRIPTION"]
+5c. Column Filter Icons
+ColumnFilter Icon XPathBATCH NUMBER filter//th[@id="2cab0d61-3fea-4c62-80a9-0af62e53d840"]//a[contains(@class,"k-grid-filter")]ACCOUNT filter//th[@id="7ce2c8c4-cb41-4471-abad-6f545ba936cf"]//a[contains(@class,"k-grid-filter")]POOL NAME filter//th[@id="f5afa068-9287-4eb7-ad1f-4a294b96b1e5"]//a[contains(@class,"k-grid-filter")]ICCID filter//th[@id="e2e9d112-a384-4ff2-9c0e-e3769ca6cc91"]//a[contains(@class,"k-grid-filter")]IMSI filter//th[@id="8de33d4f-5ff1-4fd0-bb1a-dd4136d3fe5c"]//a[contains(@class,"k-grid-filter")]ENDS WITH filter//th[@id="ca341183-7d29-4ba1-b7a7-4fb81568aea5"]//a[contains(@class,"k-grid-filter")]ALLOCATED TO filter//th[@id="ade02ea0-5f4b-4738-84a0-5b94b0e3323d"]//a[contains(@class,"k-grid-filter")]DESCRIPTION filter//th[@id="59e984e6-d33d-4c73-b4cd-751a32b6deed"]//a[contains(@class,"k-grid-filter")]Any filter icon (generic)//*[@id="ManageSIMRangeGrid"]//a[contains(@class,"k-grid-filter")]
+5d. Grid Data Rows
+ElementXPathAll data rows//*[@id="ManageSIMRangeGrid"]//tbody/trFirst row//*[@id="ManageSIMRangeGrid"]//tbody/tr[1]Second row (alternate style)//*[@id="ManageSIMRangeGrid"]//tbody/tr[contains(@class,"k-alt")]Nth row (replace N)//*[@id="ManageSIMRangeGrid"]//tbody/tr[N]Row by Batch Number value//*[@id="ManageSIMRangeGrid"]//tbody/tr[td[1][normalize-space()="BATCH_VALUE"]]Row by Pool Name value//*[@id="ManageSIMRangeGrid"]//tbody/tr[td[3][normalize-space()="POOL_VALUE"]]Row by Status value//*[@id="ManageSIMRangeGrid"]//tbody/tr[td[8][normalize-space()="ALLOCATED"]]
+5e. Grid Row Cell Access (by column position)
+CellXPathRow 1 – Batch Number cell//*[@id="ManageSIMRangeGrid"]//tbody/tr[1]/td[1]Row 1 – Account cell//*[@id="ManageSIMRangeGrid"]//tbody/tr[1]/td[2]Row 1 – Pool Name cell//*[@id="ManageSIMRangeGrid"]//tbody/tr[1]/td[3]Row 1 – ICCID cell//*[@id="ManageSIMRangeGrid"]//tbody/tr[1]/td[4]Row 1 – IMSI cell//*[@id="ManageSIMRangeGrid"]//tbody/tr[1]/td[5]Row 1 – Ends With cell//*[@id="ManageSIMRangeGrid"]//tbody/tr[1]/td[6]Row 1 – MSISDN cell//*[@id="ManageSIMRangeGrid"]//tbody/tr[1]/td[7]Row 1 – Status cell//*[@id="ManageSIMRangeGrid"]//tbody/tr[1]/td[8]Row 1 – Allocated To cell//*[@id="ManageSIMRangeGrid"]//tbody/tr[1]/td[9]Row 1 – Description cell//*[@id="ManageSIMRangeGrid"]//tbody/tr[1]/td[10]
+
+6. GRID PAGINATION
+ElementXPathPager container//*[@id="ManageSIMRangeGrid"]//div[contains(@class,"k-pager-wrap")]First page button//*[@id="ManageSIMRangeGrid"]//a[contains(@class,"k-pager-first")]Previous page button//*[@id="ManageSIMRangeGrid"]//a[contains(@class,"k-pager-nav") and not(contains(@class,"first")) and not(contains(@class,"last"))][1]Next page button//*[@id="ManageSIMRangeGrid"]//a[contains(@class,"k-pager-nav") and not(contains(@class,"first")) and not(contains(@class,"last"))][2]Last page button//*[@id="ManageSIMRangeGrid"]//a[contains(@class,"k-pager-last")]Page number input//*[@id="ManageSIMRangeGrid"]//input[contains(@class,"k-textbox")]"Page X of Y" info//*[@id="ManageSIMRangeGrid"]//span[contains(@class,"k-pager-input")]Items per page selector//*[@id="ManageSIMRangeGrid"]//div[contains(@class,"k-pager-wrap")]//selectItems info label ("1-20 of N items")//*[@id="ManageSIMRangeGrid"]//span[contains(@class,"k-pager-info")]
+
+7. COMPLETE ROBOT FRAMEWORK VARIABLES & KEYWORDS FILE
+robot*** Settings ***
+Library    SeleniumLibrary
+*** Variables ***
+${BASE_URL}                     https://192.168.1.26:7874
+${SIM_RANGE_URL}                ${BASE_URL}/SIMRange
+# ============================
+# TOP SUB-NAVIGATION TABS
+# ============================
+${TAB_USER}                     xpath=//ul[@id="pageHeading"]//a[@href="/ManageUser"]
+${TAB_API_USER}                 xpath=//ul[@id="pageHeading"]//a[@href="/ManageApiUser"]
+${TAB_ACCOUNT}                  xpath=//ul[@id="pageHeading"]//a[@href="/ManageAccount"]
+${TAB_ROLE_ACCESS}              xpath=//ul[@id="pageHeading"]//a[@href="/ManageRole"]
+${TAB_WL_ACCOUNT}               xpath=//ul[@id="pageHeading"]//a[@href="/WLBLTemplate"]
+${TAB_UPLOAD_LOGO}              xpath=//ul[@id="pageHeading"]//a[@href="/UploadLogo"]
+${TAB_SIM_RANGE}                xpath=//ul[@id="pageHeading"]//a[@href="/SIMRange"]
+${TAB_SIM_PRODUCT_TYPE}         xpath=//ul[@id="pageHeading"]//a[@href="/ProductType"]
+${TAB_SMSA_CONFIG}              xpath=//ul[@id="pageHeading"]//a[@href="/smsaconfigurationpanel"]
+${TAB_MANAGE_LABEL}             xpath=//ul[@id="pageHeading"]//a[@href="/ManageLabel"]
+${TAB_CSR_JOURNEY}              xpath=//ul[@id="pageHeading"]//a[@href="/CSRJourney"]
+${TAB_CSR_PENALTIES}            xpath=//ul[@id="pageHeading"]//a[@href="/CSRJourneyPenaltiesAdjustments"]
+${TAB_NOTIFICATION_TEMPLATE}    xpath=//ul[@id="pageHeading"]//a[@href="/NotificationTemplate"]
+${TAB_LBS_RESTRICTION}          xpath=//ul[@id="pageHeading"]//a[@href="/LBSZone"]
+${TAB_DEVICE_PLAN_REQUESTS}     xpath=//ul[@id="pageHeading"]//a[@href="/DevicePlanRequests"]
+# ============================
+# SIM RANGE PAGE TABS
+# ============================
+${TAB_ICCID_IMSI}               xpath=//ul[@id="tabHeading"]//a[@href="#iccid_imsi"]
+${TAB_MSISDN}                   xpath=//ul[@id="tabHeading"]//a[@href="#msisdn"]
+${TAB_ICCID_IMSI_ACTIVE}        xpath=//ul[@id="tabHeading"]//li[contains(@class,"active")]//a
+${TAB_PANE_ICCID_IMSI}          xpath=//*[@id="iccid_imsi"]
+${TAB_PANE_MSISDN}              xpath=//*[@id="msisdn"]
+# ============================
+# SEARCH & ACTION TOOLBAR
+# ============================
+${SEARCH_INPUT}                 xpath=//input[@name="searchValue"]
+${SEARCH_INPUT_BY_PH}           xpath=//input[@placeholder="Enter Search Text"]
+${SEARCH_BTN}                   xpath=//a[@id="searchButton"]
+${SEARCH_INFO_ICON}             xpath=//i[contains(@class,"fa-info-circle")]
+${BTN_CREATE_SIM_RANGE}         xpath=//a[contains(@class,"btn-custom-color") and normalize-space()="Create SIM Range"]
+${BTN_DOWNLOAD_CSV}             xpath=//a[@id="export"]
+${BTN_DOWNLOAD_CSV_ICCID}       xpath=(//a[@id="downloadDevicesCSV"])[1]
+${BTN_DOWNLOAD_CSV_MSISDN}      xpath=(//a[@id="downloadDevicesCSV"])[2]
+# ============================
+# GRID COLUMN HEADERS (by ID)
+# ============================
+${COL_BATCH_NUMBER}             xpath=//th[@id="2cab0d61-3fea-4c62-80a9-0af62e53d840"]
+${COL_ACCOUNT}                  xpath=//th[@id="7ce2c8c4-cb41-4471-abad-6f545ba936cf"]
+${COL_POOL_NAME}                xpath=//th[@id="f5afa068-9287-4eb7-ad1f-4a294b96b1e5"]
+${COL_ICCID}                    xpath=//th[@id="e2e9d112-a384-4ff2-9c0e-e3769ca6cc91"]
+${COL_IMSI}                     xpath=//th[@id="8de33d4f-5ff1-4fd0-bb1a-dd4136d3fe5c"]
+${COL_ENDS_WITH}                xpath=//th[@id="ca341183-7d29-4ba1-b7a7-4fb81568aea5"]
+${COL_MSISDN}                   xpath=//th[@id="49ac106d-5fed-461e-aaa7-ec679071846e"]
+${COL_STATUS}                   xpath=//th[@id="de72e5d6-4c05-4696-bb0d-e255d41f8104"]
+${COL_ALLOCATED_TO}             xpath=//th[@id="ade02ea0-5f4b-4738-84a0-5b94b0e3323d"]
+${COL_DESCRIPTION}              xpath=//th[@id="59e984e6-d33d-4c73-b4cd-751a32b6deed"]
+# ============================
+# COLUMN FILTER ICONS
+# ============================
+${FILTER_BATCH_NUMBER}          xpath=//th[@id="2cab0d61-3fea-4c62-80a9-0af62e53d840"]//a[contains(@class,"k-grid-filter")]
+${FILTER_ACCOUNT}               xpath=//th[@id="7ce2c8c4-cb41-4471-abad-6f545ba936cf"]//a[contains(@class,"k-grid-filter")]
+${FILTER_POOL_NAME}             xpath=//th[@id="f5afa068-9287-4eb7-ad1f-4a294b96b1e5"]//a[contains(@class,"k-grid-filter")]
+${FILTER_ICCID}                 xpath=//th[@id="e2e9d112-a384-4ff2-9c0e-e3769ca6cc91"]//a[contains(@class,"k-grid-filter")]
+${FILTER_IMSI}                  xpath=//th[@id="8de33d4f-5ff1-4fd0-bb1a-dd4136d3fe5c"]//a[contains(@class,"k-grid-filter")]
+${FILTER_ENDS_WITH}             xpath=//th[@id="ca341183-7d29-4ba1-b7a7-4fb81568aea5"]//a[contains(@class,"k-grid-filter")]
+${FILTER_ALLOCATED_TO}          xpath=//th[@id="ade02ea0-5f4b-4738-84a0-5b94b0e3323d"]//a[contains(@class,"k-grid-filter")]
+${FILTER_DESCRIPTION}           xpath=//th[@id="59e984e6-d33d-4c73-b4cd-751a32b6deed"]//a[contains(@class,"k-grid-filter")]
+# ============================
+# GRID DATA ROWS
+# ============================
+${GRID_ALL_ROWS}                xpath=//*[@id="ManageSIMRangeGrid"]//tbody/tr
+${GRID_FIRST_ROW}               xpath=//*[@id="ManageSIMRangeGrid"]//tbody/tr[1]
+${GRID_FIRST_ROW_BATCH_NUM}     xpath=//*[@id="ManageSIMRangeGrid"]//tbody/tr[1]/td[1]
+${GRID_FIRST_ROW_ACCOUNT}       xpath=//*[@id="ManageSIMRangeGrid"]//tbody/tr[1]/td[2]
+${GRID_FIRST_ROW_POOL_NAME}     xpath=//*[@id="ManageSIMRangeGrid"]//tbody/tr[1]/td[3]
+${GRID_FIRST_ROW_ICCID}         xpath=//*[@id="ManageSIMRangeGrid"]//tbody/tr[1]/td[4]
+${GRID_FIRST_ROW_IMSI}          xpath=//*[@id="ManageSIMRangeGrid"]//tbody/tr[1]/td[5]
+${GRID_FIRST_ROW_ENDS_WITH}     xpath=//*[@id="ManageSIMRangeGrid"]//tbody/tr[1]/td[6]
+${GRID_FIRST_ROW_MSISDN}        xpath=//*[@id="ManageSIMRangeGrid"]//tbody/tr[1]/td[7]
+${GRID_FIRST_ROW_STATUS}        xpath=//*[@id="ManageSIMRangeGrid"]//tbody/tr[1]/td[8]
+${GRID_FIRST_ROW_ALLOC_TO}      xpath=//*[@id="ManageSIMRangeGrid"]//tbody/tr[1]/td[9]
+${GRID_FIRST_ROW_DESCRIPTION}   xpath=//*[@id="ManageSIMRangeGrid"]//tbody/tr[1]/td[10]
+# ============================
+# PAGINATION
+# ============================
+${PAGER_CONTAINER}              xpath=//*[@id="ManageSIMRangeGrid"]//div[contains(@class,"k-pager-wrap")]
+${PAGER_FIRST_PAGE}             xpath=//*[@id="ManageSIMRangeGrid"]//a[contains(@class,"k-pager-first")]
+${PAGER_PREV_PAGE}              xpath=//*[@id="ManageSIMRangeGrid"]//a[contains(@class,"k-pager-nav") and not(contains(@class,"first")) and not(contains(@class,"last"))][1]
+${PAGER_NEXT_PAGE}              xpath=//*[@id="ManageSIMRangeGrid"]//a[contains(@class,"k-pager-nav") and not(contains(@class,"first")) and not(contains(@class,"last"))][2]
+${PAGER_LAST_PAGE}              xpath=//*[@id="ManageSIMRangeGrid"]//a[contains(@class,"k-pager-last")]
+${PAGER_PAGE_INPUT}             xpath=//*[@id="ManageSIMRangeGrid"]//input[contains(@class,"k-textbox")]
+${PAGER_PAGE_INFO}              xpath=//*[@id="ManageSIMRangeGrid"]//span[contains(@class,"k-pager-input")]
+${PAGER_SIZE_SELECT}            xpath=//*[@id="ManageSIMRangeGrid"]//div[contains(@class,"k-pager-wrap")]//select
+${PAGER_ITEMS_INFO}             xpath=//*[@id="ManageSIMRangeGrid"]//span[contains(@class,"k-pager-info")]
+*** Keywords ***
+Navigate To SIM Range
+    Navigate To    ${SIM_RANGE_URL}
+    Wait Until Element Is Visible    ${GRID_FIRST_ROW}
+Switch To ICCID/IMSI Tab
+    Click Element    ${TAB_ICCID_IMSI}
+    Wait Until Element Is Visible    ${TAB_PANE_ICCID_IMSI}
+Switch To MSISDN Tab
+    Click Element    ${TAB_MSISDN}
+    Wait Until Element Is Visible    ${TAB_PANE_MSISDN}
+Search SIM Range
+    [Arguments]    ${search_text}
+    Clear Element Text    ${SEARCH_INPUT}
+    Input Text             ${SEARCH_INPUT}    ${search_text}
+    Click Element          ${SEARCH_BTN}
+Click Create SIM Range
+    Click Element    ${BTN_CREATE_SIM_RANGE}
+Download CSV Report
+    Click Element    ${BTN_DOWNLOAD_CSV}
+Get Row Count
+    ${rows}=    Get Element Count    ${GRID_ALL_ROWS}
+    [Return]    ${rows}
+Get Cell Value
+    [Arguments]    ${row}    ${col}
+    ${value}=    Get Text    xpath=//*[@id="ManageSIMRangeGrid"]//tbody/tr[${row}]/td[${col}]
+    [Return]     ${value}
+Filter Column By
+    [Arguments]    ${column_filter_xpath}
+    Click Element    ${column_filter_xpath}
+Go To Next Page
+    Click Element    ${PAGER_NEXT_PAGE}
+Go To Page Number
+    [Arguments]    ${page_num}
+    Triple Click Element    ${PAGER_PAGE_INPUT}
+    Input Text               ${PAGER_PAGE_INPUT}    ${page_num}
+    Press Keys               ${PAGER_PAGE_INPUT}    ENTER
+Select Page Size
+    [Arguments]    ${size}    # 20, 40, 60, 80, or 100
+    Select From List By Value    ${PAGER_SIZE_SELECT}    ${size}
+Verify Row Contains Status
+    [Arguments]    ${row}    ${expected_status}
+    ${status}=    Get Text    xpath=//*[@id="ManageSIMRangeGrid"]//tbody/tr[${row}]/td[8]
+    Should Be Equal    ${status}    ${expected_status}
+Find Row By Batch Number
+    [Arguments]    ${batch_number}
+    [Return]    xpath=//*[@id="ManageSIMRangeGrid"]//tbody/tr[td[1][normalize-space()="${batch_number}"]]
+Find Row By Pool Name
+    [Arguments]    ${pool_name}
+    [Return]    xpath=//*[@id="ManageSIMRangeGrid"]//tbody/tr[td[3][normalize-space()="${pool_name}"]]
+
+
+Key Notes:
+
+Column Header IDs (UUIDs like 2cab0d61-...) are the most stable selectors for Kendo UI grids. However, if they regenerate on refresh, fall back to //th[normalize-space()="COLUMN_NAME"] within the grid.
+The Search is only applicable for Batch Number, Pool Name, ICCID, and IMSI columns (per the info icon tooltip).
+STATUS and MSISDN columns do not have filter icons.
+The Create SIM Range button is an <a> tag (not a <button>) with no href — it likely triggers a JavaScript navigation event.
+Page size options are: 20, 40, 60, 80, 100.
+The grid has 7671 items across 384 pages (with page size 20).
+There are two #downloadDevicesCSV elements — one for each tab (ICCID/IMSI and MSISDN). Use index [1] and [2] to differentiate.
+
