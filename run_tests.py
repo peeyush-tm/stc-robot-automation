@@ -743,25 +743,40 @@ def main():
 
         outputs = run_suites(suites, report_folder, args)
 
-    # ── Post-run: collect stray artifacts, combined report & PDF ────
+    # ── Post-run: each stage is wrapped so one failure doesn't block others ──
     collect_stray_artifacts(report_folder)
-    merge_reports(outputs, report_folder)
+
+    try:
+        merge_reports(outputs, report_folder)
+    except Exception as exc:
+        print(f"  WARNING: Report merge failed: {exc}")
+
     collect_stray_artifacts(report_folder)  # catch anything rebot may have created
-    generate_pdf_report(report_folder, args)
+
+    try:
+        generate_pdf_report(report_folder, args)
+    except Exception as exc:
+        print(f"  WARNING: PDF generation failed: {exc}")
 
     # ── Bug reports: generate for any failures ────────────────────
-    env_url = _resolve_env_url(args.env)
-    bugs_dir = os.path.join(ROOT_DIR, "bugs")
-    generate_bug_reports(report_folder, bugs_dir=bugs_dir, env_url=env_url)
+    try:
+        env_url = _resolve_env_url(args.env)
+        bugs_dir = os.path.join(ROOT_DIR, "bugs")
+        generate_bug_reports(report_folder, bugs_dir=bugs_dir, env_url=env_url)
+    except Exception as exc:
+        print(f"  WARNING: Bug report generation failed: {exc}")
 
     # ── Email report (when --email flag is used) ─────────────────
     if getattr(args, "email", False):
-        summary = parse_output_xml(report_folder)
-        if summary:
-            print(f"\n  Sending email report...")
-            send_email(summary)
-        else:
-            print("  WARNING: No output.xml found — skipping email notification.")
+        try:
+            summary = parse_output_xml(report_folder)
+            if summary:
+                print(f"\n  Sending email report...")
+                send_email(summary)
+            else:
+                print("  WARNING: No output.xml found — skipping email notification.")
+        except Exception as exc:
+            print(f"  WARNING: Email sending failed: {exc}")
 
     print_summary(report_folder)
 

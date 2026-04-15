@@ -49,14 +49,20 @@ def load_env():
 
 
 def parse_output_xml(output_dir):
-    """Parse output.xml and return a test summary dict, or None on failure."""
+    """Parse output.xml and return a test summary dict, or None on failure.
+    Falls back to merging individual output_*.xml files if combined is missing."""
+    import glob as _glob
     # Try combined_output.xml first (multi-suite runs), then output.xml
     output_xml = os.path.join(output_dir, "combined_output.xml")
     if not os.path.exists(output_xml):
         output_xml = os.path.join(output_dir, "output.xml")
 
+    # Fallback: parse all individual output_*.xml files and aggregate totals
     if not os.path.exists(output_xml):
-        return None
+        individual = sorted(_glob.glob(os.path.join(output_dir, "output_*.xml")))
+        if not individual:
+            return None
+        return _parse_multiple_xmls(individual, output_dir)
 
     try:
         tree = ET.parse(output_xml)
@@ -155,6 +161,58 @@ def parse_output_xml(output_dir):
         "suite_name": suite_name,
         "start_time": start_display or datetime.now().strftime("%I:%M %p, %b %d, %Y"),
         "duration": duration or "00:00:00",
+        "overall_status": overall_status,
+    }
+
+
+def _parse_multiple_xmls(xml_files, output_dir):
+    """Aggregate results from individual output_*.xml files when combined is missing."""
+    total = passed = failed = 0
+    failed_tests = []
+    suite_names = []
+
+    for xf in xml_files:
+        try:
+            tree = ET.parse(xf)
+        except ET.ParseError:
+            continue
+        root = tree.getroot()
+        suite = root.find("suite")
+        if suite is not None:
+            suite_names.append(suite.get("name", ""))
+        for test in root.iter("test"):
+            status_elem = test.find("status")
+            if status_elem is None:
+                continue
+            total += 1
+            if status_elem.get("status") == "PASS":
+                passed += 1
+            else:
+                failed += 1
+                failed_tests.append({
+                    "name": test.get("name", "Unknown"),
+                    "message": (status_elem.text or "").strip()[:200],
+                })
+
+    if total == 0:
+        return None
+
+    skipped = total - passed - failed
+    overall_status = "FAILED" if failed > 0 else "PASSED"
+    suite_name = ", ".join(s for s in suite_names[:3] if s)
+    if len(suite_names) > 3:
+        suite_name += f" + {len(suite_names) - 3} more"
+
+    return {
+        "total": total,
+        "passed": passed,
+        "failed": failed,
+        "skipped": skipped,
+        "failed_tests": failed_tests,
+        "output_dir": output_dir,
+        "suite_name": suite_name or "STC Tests",
+        "start_time": datetime.now().strftime("%I:%M %p, %b %d, %Y"),
+        "duration": "00:00:00",
         "overall_status": overall_status,
     }
 

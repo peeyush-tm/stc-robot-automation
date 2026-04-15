@@ -47,7 +47,14 @@ def generate_bug_reports(output_dir, bugs_dir=None, env_url=""):
     elif os.path.exists(single):
         xml_files = [single]
     else:
-        xml_files = sorted(glob.glob(os.path.join(output_dir, "output_*.xml")))
+        # Fallback to individual XMLs — validate each to skip corrupt ones
+        import xml.etree.ElementTree as _ET
+        for xf in sorted(glob.glob(os.path.join(output_dir, "output_*.xml"))):
+            try:
+                _ET.parse(xf)
+                xml_files.append(xf)
+            except _ET.ParseError:
+                print(f"  WARNING: Skipping corrupt XML: {os.path.basename(xf)}")
 
     if not xml_files:
         print("\nNo output.xml found — skipping bug report generation.")
