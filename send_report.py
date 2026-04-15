@@ -432,41 +432,6 @@ def build_email_body(summary):
     return html
 
 
-# ─── Report ZIP ────────────────────────────────────────────────
-
-
-def _create_report_zip(output_dir):
-    """Create a ZIP of the report folder (excluding large raw XMLs to keep size down).
-    Returns the path to the ZIP file, or None on failure."""
-    import zipfile
-    if not os.path.isdir(output_dir):
-        return None
-
-    folder_name = os.path.basename(output_dir)
-    zip_path = os.path.join(os.path.dirname(output_dir), f"{folder_name}.zip")
-
-    # Skip raw XML files (large) — the HTML reports and PDF are sufficient
-    SKIP_EXTENSIONS = {".xml"}
-    SKIP_PREFIXES = {"output_", "combined_output"}
-
-    try:
-        with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
-            for dirpath, dirnames, filenames in os.walk(output_dir):
-                for fn in filenames:
-                    ext = os.path.splitext(fn)[1].lower()
-                    # Skip large raw XMLs but keep everything else (HTML, PDF, PNG, CSV, JSON)
-                    if ext in SKIP_EXTENSIONS and any(fn.startswith(p) for p in SKIP_PREFIXES):
-                        continue
-                    full_path = os.path.join(dirpath, fn)
-                    arcname = os.path.join(folder_name, os.path.relpath(full_path, output_dir))
-                    zf.write(full_path, arcname)
-        print(f"  Report ZIP created: {zip_path}")
-        return zip_path
-    except Exception as exc:
-        print(f"  WARNING: Could not create report ZIP: {exc}")
-        return None
-
-
 # ─── Email Sender ──────────────────────────────────────────────
 
 
@@ -527,25 +492,6 @@ def send_email(summary):
                 )
                 msg.attach(part)
             break
-
-    # Attach complete report folder as ZIP
-    zip_path = _create_report_zip(summary["output_dir"])
-    if zip_path and os.path.exists(zip_path):
-        zip_size_mb = os.path.getsize(zip_path) / (1024 * 1024)
-        # Gmail attachment limit is 25MB — only attach if under limit
-        if zip_size_mb <= 24:
-            with open(zip_path, "rb") as fh:
-                part = MIMEBase("application", "octet-stream")
-                part.set_payload(fh.read())
-                encoders.encode_base64(part)
-                part.add_header(
-                    "Content-Disposition", "attachment",
-                    filename=os.path.basename(zip_path)
-                )
-                msg.attach(part)
-            print(f"  Report ZIP attached: {os.path.basename(zip_path)} ({zip_size_mb:.1f} MB)")
-        else:
-            print(f"  Report ZIP too large for email ({zip_size_mb:.1f} MB > 24 MB limit) — skipped.")
 
     # Try configured SMTP first
     if smtp_user and smtp_pass:
