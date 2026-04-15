@@ -42,11 +42,20 @@ Navigate To Page
     [Documentation]    Navigates to the given URL path and waits for:
     ...                1) document ready + body loading overlay gone
     ...                2) grid-level k-loading-mask gone (if present)
-    ...                Verifies the browser actually landed on the expected URL.
+    ...                Recovers from browser crash by restarting and re-logging in.
     [Arguments]    ${url_path}
     ${base}=    Evaluate    '${BASE_URL}'.rstrip('/')
     ${full_url}=    Set Variable    ${base}${url_path}
-    Go To    ${full_url}
+    ${nav_ok}=    Run Keyword And Return Status    Go To    ${full_url}
+    IF    not ${nav_ok}
+        Log    Go To ${full_url} failed — browser may have crashed. Restarting.    level=WARN
+        Run Keyword And Ignore Error    Close All Browsers
+        Force Kill Chrome Processes
+        Open Test Browser    ${BASE_URL}    ${BROWSER}
+        Login With Credentials    ${VALID_USERNAME}    ${VALID_PASSWORD}
+        Verify Login Success
+        Go To    ${full_url}
+    END
     Wait For App Loading To Complete    timeout=${SANITY_PAGE_LOAD_WAIT}
     # Also wait for grid-level spinner to clear (API response may arrive after document ready)
     Set Selenium Implicit Wait    0s
@@ -337,6 +346,7 @@ Capture Sanity Evidence
 Capture Test End Screenshot
     [Documentation]    Teardown keyword. ONLY captures screenshot on FAIL (PASS already has one from
     ...                Capture Sanity Evidence). Writes FAIL row to sanity_report.csv on failure.
+    ...                Wrapped in error handling so a dead browser does not cascade-fail remaining tests.
     [Arguments]    ${page_name}
     IF    '${TEST STATUS}' == 'FAIL'
         ${loc_status}    ${current_url}=    Run Keyword And Ignore Error    Get Location
@@ -345,7 +355,7 @@ Capture Test End Screenshot
         ${screenshot_file}=    Set Variable    FAIL_${safe_name}.png
         ${dir_set}=    Run Keyword And Return Status    Should Not Be Empty    ${SANITY_REPORT_DIR}
         IF    ${dir_set}
-            Capture Page Screenshot    ${SANITY_REPORT_DIR}${/}${screenshot_file}
+            Run Keyword And Ignore Error    Capture Page Screenshot    ${SANITY_REPORT_DIR}${/}${screenshot_file}
             ${counter}=    Evaluate    ${SANITY_TC_COUNTER} + 1
             Set Suite Variable    ${SANITY_TC_COUNTER}    ${counter}
             ${tc_id}=    Evaluate    f"TC_SANITY_{${counter}:03d}"

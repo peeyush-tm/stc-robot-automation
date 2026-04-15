@@ -12,6 +12,7 @@ Variables   ../variables/sanity_variables.py
 
 Suite Setup       Run Keywords    Load Environment Config From Json    ${ENV}    AND    Login For Sanity Suite
 Suite Teardown    Close All Browsers
+Test Setup        Ensure Session Is Active
 Test Teardown     Capture Test End Screenshot    ${TEST NAME}
 
 *** Test Cases ***
