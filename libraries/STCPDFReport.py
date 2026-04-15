@@ -694,6 +694,7 @@ def _build_module_section(styles: dict, module: str, tests: list, report_folder:
 
 def _build_test_card(styles: dict, test: dict, report_folder: str = "") -> list:
     """Flowables for a single test case."""
+    from xml.sax.saxutils import escape as _esc
     elems: list = []
     status      = test["status"]
     s_color     = _status_color(status)
@@ -702,8 +703,8 @@ def _build_test_card(styles: dict, test: dict, report_folder: str = "") -> list:
     display     = test["display_name"] or test["name"]
     duration    = _ms_to_str(test["elapsed_ms"])
     tags        = "  ·  ".join(test["tags"]) if test["tags"] else "—"
-    doc_text    = test["doc"] or ""
-    msg_text    = test["message"] or ""
+    doc_text    = _esc(test["doc"] or "")
+    msg_text    = _esc(test["message"] or "")
 
     # ── TC header row ────────────────────────────────────────────────────────
     id_w   = 2.2 * cm
