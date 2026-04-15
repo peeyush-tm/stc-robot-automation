@@ -316,7 +316,7 @@ def build_email_body(summary):
             </tr>
             <tr>
                 <td class="meta-key">Browser Testing</td>
-                <td class="meta-val">Chrome / Windows</td>
+                <td class="meta-val">Linux, Headless Chrome 108</td>
             </tr>
             <tr>
                 <td class="meta-key">Report Path</td>
