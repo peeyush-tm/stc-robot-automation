@@ -16,7 +16,7 @@
   "BASE_URL": "https://192.168.1.26:7874/",
   "VALID_USERNAME": "ksa_opco",
   "VALID_PASSWORD": "Admin@123",
-  "BROWSER": "chrome",
+  "BROWSER": "headlesschrome",
   "IMPLICIT_WAIT": "3",
   "PAGE_LOAD_TIMEOUT": "30",
   "DB_HOST": "192.168.1.122",
