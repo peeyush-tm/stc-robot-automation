@@ -11,7 +11,7 @@ Variables   ../variables/rule_engine_variables.py
 
 Suite Setup       Run Keywords    Load Environment Config From Json    ${ENV}    AND    Suite Login Setup    ${BASE_URL}    ${BROWSER}    AND    Cleanup Automation Rules
 Suite Teardown    Close All Browsers
-Test Setup        Ensure Session Is Active
+Test Setup        Run Keywords    Ensure Session Is Active    AND    Proactive Browser Restart If Needed    interval=10
 Test Teardown     Handle Test Teardown
 
 

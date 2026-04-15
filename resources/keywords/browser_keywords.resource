@@ -187,13 +187,24 @@ Close Test Browser
     Close All Browsers
 
 Force Kill Chrome Processes
-    [Documentation]    OS-level force-kill of all chrome.exe and chromedriver.exe processes.
+    [Documentation]    OS-level force-kill of all chrome/chromedriver processes.
+    ...                Works on both Windows (taskkill) and Linux (pkill).
     ...                Call this after ``Close All Browsers`` when Chrome may have OOM-crashed and left
     ...                zombie processes — a dead WebDriver session cannot be cleaned by Selenium alone.
-    Run Keyword And Ignore Error
-    ...    Evaluate    __import__('subprocess').call(['taskkill','/F','/IM','chrome.exe','/T'],stdout=open(os.devnull,'w'),stderr=open(os.devnull,'w'))    os
-    Run Keyword And Ignore Error
-    ...    Evaluate    __import__('subprocess').call(['taskkill','/F','/IM','chromedriver.exe','/T'],stdout=open(os.devnull,'w'),stderr=open(os.devnull,'w'))    os
+    ${is_windows}=    Evaluate    __import__('platform').system() == 'Windows'
+    IF    ${is_windows}
+        Run Keyword And Ignore Error
+        ...    Evaluate    __import__('subprocess').call(['taskkill','/F','/IM','chrome.exe','/T'],stdout=open(os.devnull,'w'),stderr=open(os.devnull,'w'))    os
+        Run Keyword And Ignore Error
+        ...    Evaluate    __import__('subprocess').call(['taskkill','/F','/IM','chromedriver.exe','/T'],stdout=open(os.devnull,'w'),stderr=open(os.devnull,'w'))    os
+    ELSE
+        Run Keyword And Ignore Error
+        ...    Evaluate    __import__('subprocess').call(['pkill','-9','-f','chromedriver'],stdout=open(os.devnull,'w'),stderr=open(os.devnull,'w'))    os
+        Run Keyword And Ignore Error
+        ...    Evaluate    __import__('subprocess').call(['pkill','-9','-f','headless_shell'],stdout=open(os.devnull,'w'),stderr=open(os.devnull,'w'))    os
+        Run Keyword And Ignore Error
+        ...    Evaluate    __import__('subprocess').call(['pkill','-9','-f','chrome'],stdout=open(os.devnull,'w'),stderr=open(os.devnull,'w'))    os
+    END
     Sleep    1.5s
 
 Navigate To URL
@@ -352,3 +363,21 @@ Brief UI Settle
 Brief UI Settle Long
     [Documentation]    Slightly longer settle (modals, grid reflow). Prefer over Sleep 3s where no explicit condition exists.
     Sleep    0.9s
+
+Proactive Browser Restart If Needed
+    [Documentation]    Proactively restarts Chrome every N tests to prevent memory buildup crashes.
+    ...                Tracks test count via suite variable. Call from Test Setup of heavy suites.
+    ...                Default interval is 10 tests.
+    [Arguments]    ${interval}=10
+    ${counter}=    Get Variable Value    ${_PROACTIVE_RESTART_COUNTER}    ${0}
+    ${counter}=    Evaluate    ${counter} + 1
+    Set Suite Variable    ${_PROACTIVE_RESTART_COUNTER}    ${counter}
+    ${needs_restart}=    Evaluate    ${counter} > 1 and ${counter} % ${interval} == 0
+    IF    ${needs_restart}
+        Log    Proactive browser restart (test #${counter}, interval=${interval}) to prevent Chrome memory crash.    level=WARN
+        Run Keyword And Ignore Error    Close All Browsers
+        Force Kill Chrome Processes
+        Open Test Browser    ${BASE_URL}    ${BROWSER}
+        Login With Credentials    ${VALID_USERNAME}    ${VALID_PASSWORD}
+        Verify Login Success
+    END
