@@ -1,101 +1,127 @@
 # STC Automation — All Modules and Test Cases Reference
 
-**Source:** `tasks.csv` (project root)  
-**Last updated:** From current tasks.csv  
-**Total test cases:** 445 (in tasks.csv execution order)
+**Source:** `tasks.csv` (project root) + standalone test suites  
+**Last updated:** 2026-04-15  
+**Total test cases:** 500+ across 25 test suites
 
-This document lists all test modules and their test case IDs/names as defined in `tasks.csv`. Use it for AI prompts, traceability, and run filters.
+This document lists all test modules, their test case IDs/names, and the prompt documentation available for each. Use it for AI prompts, traceability, and run filters.
 
 ---
 
 ## Module Summary
 
-| # | Module | Suite File | Test Count | Type |
-|---|--------|------------|------------|------|
-| 1 | Login | tests/login_tests.robot | 16 | positive, negative |
-| 2 | APN | tests/apn_tests.robot | 22 | positive, negative |
-| 3 | SIM Range | tests/sim_range_tests.robot | 21 | positive, negative |
-| 4 | SIM Order | tests/sim_order_tests.robot | 21 | positive, negative |
-| 5 | SIM Range MSISDN | tests/sim_range_msisdn_tests.robot | 26 | positive, negative |
-| 6 | IP Pool | tests/ip_pool_tests.robot | 17 | positive, negative |
-| 7 | IP Whitelist | tests/ip_whitelist_tests.robot | 20 | positive, negative |
-| 8 | Device State | tests/device_state_tests.robot | 16 | positive, negative |
-| 9 | Device Plan | tests/device_plan_tests.robot | 11 | positive, negative |
-| 10 | Account Onboard | tests/onboard_customer_api_tests.robot | 38 | positive, negative, edge-case |
-| 11 | Cost Center | tests/cost_center_tests.robot | 25 | positive, negative |
-| 12 | CSR Journey | tests/csr_journey_tests.robot | 56 | positive, negative, edge-case |
-| 13 | SIM Product Type | tests/product_type_tests.robot | 18 | positive, negative, edge-case |
-| 14 | E2E Flow | tests/e2e_flow.robot | 17 | steps (STEP_01 … STEP_17) |
-| 15 | E2E Flow With Usage | tests/e2e_flow_with_usage.robot | 20 | steps + Step 16a, 16b |
-| 16 | Rule Engine | tests/rule_engine_tests.robot | 37 | positive, negative |
-| 17 | Role Management | tests/role_management_tests.robot | 32 | positive, negative, edge-case |
-| 18 | User Management | tests/user_management_tests.robot | 45 | positive, negative, edge-case |
+| # | Module | Suite File | TCs | Prompt File |
+|---|--------|------------|-----|-------------|
+| 1 | Login | tests/login_tests.robot | 12 | prompts/login/Login.md |
+| 2 | Sanity | tests/sanity_tests.robot | 48 | prompts/sanity/Sanity.md |
+| 3 | Onboard Customer API | tests/onboard_customer_api_tests.robot | 40 | prompts/account_onboard/Account_Onboard.md |
+| 4 | APN | tests/apn_tests.robot | 22 | prompts/apn/APN.md |
+| 5 | SIM Range | tests/sim_range_tests.robot | 21 | prompts/sim_range/SIM_Range.md |
+| 6 | SIM Range MSISDN | tests/sim_range_msisdn_tests.robot | 26 | prompts/sim_range_msisdn/SIM_Range_MSISDN.md |
+| 7 | SIM Order | tests/sim_order_tests.robot | 21 | prompts/sim_order/SIM_Order.md |
+| 8 | IP Pool | tests/ip_pool_tests.robot | 17 | prompts/ip_pool/IP_Pool.md |
+| 9 | IP Whitelist | tests/ip_whitelist_tests.robot | 20 | prompts/ip_whitelist/IP_Whitelist.md |
+| 10 | Device State | tests/device_state_tests.robot | 16 | prompts/device_state/Device_State.md |
+| 11 | Device Plan | tests/device_plan_tests.robot | 11 | prompts/device_plan/Device_Plan.md |
+| 12 | Cost Center | tests/cost_center_tests.robot | 26 | prompts/cost_center/Cost_Center.md |
+| 13 | CSR Journey | tests/csr_journey_tests.robot | 56 | prompts/csr_journey/CSR_Journey.md |
+| 14 | Product Type | tests/product_type_tests.robot | 18 | prompts/sim_product_type/SIM_Product_Type.md |
+| 15 | Rule Engine | tests/rule_engine_tests.robot | 28 | prompts/rule_engine/Rule_Engine.md |
+| 16 | Role Management | tests/role_management_tests.robot | 33 | prompts/role_management/Role_Management.md |
+| 17 | User Management | tests/user_management_tests.robot | 45 | prompts/user_management/User_Management.md |
+| 18 | Label | tests/label_tests.robot | 28 | prompts/label/Label.md |
+| 19 | Report | tests/report_tests.robot | 14 | prompts/report/Report.md |
+| 20 | SIM Movement | tests/sim_movement_tests.robot | 6 | prompts/sim_movement/SIM_Movement.md |
+| 21 | SIM Replacement | tests/sim_replacement_tests.robot | 8 | prompts/sim_replacement/SIM_Replacement.md |
+| 22 | PAYG Data Usage | tests/payg_data_usage_tests.robot | 40+ | prompts/payg_data_usage/PAYG_Data_Usage.md |
+| 23 | E2E Flow A | tests/e2e_flow.robot | 17 | prompts/e2e_flow/E2E_Flow.md |
+| 24 | E2E Flow B | tests/e2e_flow_with_usage.robot | 20 | prompts/e2e_flow_with_usage/E2E_Flow_With_Usage.md |
+| 25 | Role/User CRUD | tests/role_user_crud_tests.robot | 4 | (inline, tested via --with-crud) |
+| — | Order Processing | (shared keywords) | — | prompts/order_processing/Order_Processing.md |
 
 ---
 
-## Run Commands (from run_tests.py)
+## Run Commands
 
 ```bash
 # All suites in tasks.csv order
-python run_tests.py
+python run_tests.py --env qe
 
-# By module name (from tasks.csv)
-python run_tests.py --suite Login
-python run_tests.py --suite APN
-python run_tests.py --suite "SIM Range"
-python run_tests.py --suite "SIM Range MSISDN"
-python run_tests.py --suite "SIM Order"
-python run_tests.py --suite "IP Pool"
-python run_tests.py --suite "IP Whitelist"
-python run_tests.py --suite "Device State"
-python run_tests.py --suite "Device Plan"
-python run_tests.py --suite "Account Onboard"
-python run_tests.py --suite "Cost Center"
-python run_tests.py --suite "CSR Journey"
-python run_tests.py --suite "SIM Product Type"
-python run_tests.py --suite "E2E Flow"
-python run_tests.py --suite "E2E Flow With Usage"
-python run_tests.py --suite "Rule Engine"
-python run_tests.py --suite "Role Management"
-python run_tests.py --suite "User Management"
+# By module name
+python run_tests.py --suite "Login" --env qe
+python run_tests.py --suite "APN" --env qe
+python run_tests.py --suite "SIM Range" --env qe
+python run_tests.py --suite "SIM Range MSISDN" --env qe
+python run_tests.py --suite "SIM Order" --env qe
+python run_tests.py --suite "IP Pool" --env qe
+python run_tests.py --suite "IP Whitelist" --env qe
+python run_tests.py --suite "Device State" --env qe
+python run_tests.py --suite "Device Plan" --env qe
+python run_tests.py --suite "Cost Center" --env qe
+python run_tests.py --suite "CSR Journey" --env qe
+python run_tests.py --suite "SIM Product Type" --env qe
+python run_tests.py --suite "Rule Engine" --env qe
+python run_tests.py --suite "Role Management" --env qe
+python run_tests.py --suite "User Management" --env qe
+python run_tests.py --suite "Label" --env qe
+python run_tests.py --suite "Report" --env qe
 
-# E2E flows (bypass tasks.csv)
-python run_tests.py --e2e
-python run_tests.py --e2e-with-usage
-python run_tests.py --e2e-with-usage --browser headlesschrome
+# Standalone suites (run by file)
+python run_tests.py tests/sim_movement_tests.robot --env qe
+python run_tests.py tests/sim_replacement_tests.robot --env qe
+python run_tests.py tests/payg_data_usage_tests.robot --env qe
+
+# E2E flows
+python run_tests.py --e2e --env qe
+python run_tests.py --e2e-with-usage --env qe
+python run_tests.py --e2e --with-crud --env qe
+
+# Sanity
+python run_tests.py --sanity --env qe
+python run_tests.py --sanity --env qe --parallel 4
+
+# By tag
+python run_tests.py --include smoke --env qe
+python run_tests.py --suite "APN" --env qe --include regression
+
+# With email report
+python run_tests.py --suite "Login" --env qe --email
+
+# Headless
+python run_tests.py --e2e --env qe --browser headlesschrome
 ```
 
 ---
 
-## Full Test Case List (tasks.csv)
+## Full Test Case ID Ranges
 
-The authoritative list is `tasks.csv` with columns: **order, module, suite_file, test_case_id, test_case_name, type, tags**.
+- **Login:** TC_LOGIN_001 … TC_LOGIN_016
+- **Sanity:** TC_SANITY_001 … TC_SANITY_048
+- **Onboard Customer API:** TC_ONBOARD_001 … TC_ONBOARD_040
+- **APN:** TC_APN_001 … TC_APN_022
+- **SIM Range:** TC_SR_001 … TC_SR_021
+- **SIM Order:** TC_SO_001 … TC_SO_021
+- **SIM Range MSISDN:** TC_SRM_001 … TC_SRM_026
+- **IP Pool:** TC_IPP_001 … TC_IPP_017
+- **IP Whitelist:** TC_WL_001 … TC_WL_020
+- **Device State:** TC_DSC_001 … TC_DSC_016
+- **Device Plan:** TC_CDP_001 … TC_CDP_011
+- **Cost Center:** TC_CC_001 … TC_CC_026
+- **CSR Journey:** TC_CSRJ_001 … TC_CSRJ_055, TC_CSRJ_004_Delete
+- **SIM Product Type:** TC_PT_001 … TC_PT_018
+- **E2E Flow A:** STEP_01 … STEP_17
+- **E2E Flow B:** STEP_01 … STEP_16, STEP_16A, STEP_16B, STEP_17
+- **Rule Engine:** TC_RE_001 … TC_RE_023
+- **Role Management:** TC_ROLE_001 … TC_ROLE_033
+- **User Management:** TC_USER_001 … TC_USER_045
+- **Label:** TC_LBL_001 … TC_LBL_028
+- **Report:** TC_015_001 … TC_015_007, TC_015_NEG_01 … TC_015_NEG_06
+- **SIM Movement:** TC_SM_002, TC_SM_003, TC_SM_005, TC_SM_009, TC_SM_012, TC_SM_013
+- **SIM Replacement:** TC_SIMRPL_01, TC_SIMRPL_03 … TC_SIMRPL_07
+- **PAYG Data Usage:** TC_PAYG_SIM_01 … TC_PAYG_SIM_20, TC_PAYG_POOL_01 … TC_PAYG_POOL_20, TC_PAYG_SHARED_01+
+- **Role/User CRUD:** TC_CRUD_001 … TC_CRUD_004
 
-- **Login:** TC_LOGIN_001 … TC_LOGIN_016  
-- **APN:** TC_APN_001 … TC_APN_022  
-- **SIM Range:** TC_SR_001 … TC_SR_021  
-- **SIM Order:** TC_SO_001 … TC_SO_021  
-- **SIM Range MSISDN:** TC_SRM_001 … TC_SRM_026  
-- **IP Pool:** TC_IPP_001 … TC_IPP_017  
-- **IP Whitelist:** TC_WL_001 … TC_WL_020  
-- **Device State:** TC_DSC_001 … TC_DSC_016  
-- **Device Plan:** TC_CDP_001 … TC_CDP_011  
-- **Account Onboard:** TC_ONBOARD_001 … TC_ONBOARD_040  
-- **Cost Center:** TC_CC_001 … TC_CC_026  
-- **CSR Journey:** TC_CSRJ_001 … TC_CSRJ_055, TC_CSRJ_004_Delete  
-- **SIM Product Type:** TC_PT_001 … TC_PT_18, TC_PT_13, TC_PT_14, TC_PT_15, TC_PT_16, TC_PT_17  
-- **E2E Flow:** STEP_01, STEP_01B, STEP_02 … STEP_17  
-- **E2E Flow With Usage:** STEP_01 … STEP_16, STEP_16A, STEP_16B, STEP_17  
-- **Rule Engine:** TC_RE_001 … TC_RE_023  
-- **Role Management:** TC_ROLE_001 … TC_ROLE_033  
-- **User Management:** TC_USER_001 … TC_USER_045  
-
-For exact names and tags, open `tasks.csv` or use:
-
-```bash
-python run_tests.py --test "TC_LOGIN_001*"
-python run_tests.py --include smoke
-```
+For exact names and tags, open `tasks.csv` or the individual test `.robot` files.
 
 ---
 
@@ -103,17 +129,55 @@ python run_tests.py --include smoke
 
 | Folder / File | Description |
 |---------------|-------------|
-| prompts/ALL_MODULES_AND_TESTCASES.md | This file — modules and test case reference |
-| prompts/login/TC_001_Login_Navigate_RF.md | Login & Navigate specification |
-| prompts/apn/TC_007_Create_APN_RF.md | APN module specification |
-| prompts/sim_range/TC_004_Create_SIM_Range_RF.md | SIM Range ICCID/IMSI |
-| prompts/sim_range/TC_012_Create_SIM_Range_MSISDN_RF.md | SIM Range MSISDN |
-| prompts/sim_order/TC_003_Create_SIM_Order_RF.md | SIM Order specification |
-| prompts/ip_pool/TC_008_Create_IP_Pool_RF.md | IP Pool specification |
-| prompts/ip_whitelist/TC_010_Create_IP_Whitelisting_RF.md | IP Whitelisting specification |
-| prompts/device_state/TC_002_Device_State_Change_RF.md | Device State Change specification |
-| prompts/device_plan/TC_014_Change_Device_Plan_RF.md | Change Device Plan specification |
-| prompts/cost_center/TC_013_Create_Cost_Center_RF.md | Cost Center specification |
-| prompts/csr_journey/TC_005_Create_CSR_Journey_RF 1.md | CSR Journey specification |
-| prompts/sim_product_type/TC_006_Create_SIM_Product_Type_RF 1.md | SIM Product Type specification |
-| prompts/e2e_flow/E2E_Flow.md | E2E Flow A & B (with usage) specification |
+| prompts/ALL_MODULES_AND_TESTCASES.md | This file — master module and test case reference |
+| prompts/login/Login.md | Login module specification |
+| prompts/login/TC_001_Login_Navigate_RF.md | Login & Navigate detailed spec |
+| prompts/sanity/Sanity.md | Sanity suite — 48 page-load checks |
+| prompts/account_onboard/Account_Onboard.md | SOAP API customer onboarding spec |
+| prompts/apn/APN.md | APN module specification |
+| prompts/apn/TC_007_Create_APN_RF.md | APN detailed spec |
+| prompts/sim_range/SIM_Range.md | SIM Range ICCID/IMSI spec |
+| prompts/sim_range/TC_004_Create_SIM_Range_RF.md | SIM Range detailed spec |
+| prompts/sim_range/TC_012_Create_SIM_Range_MSISDN_RF.md | SIM Range MSISDN detailed spec |
+| prompts/sim_range_msisdn/SIM_Range_MSISDN.md | SIM Range MSISDN module spec |
+| prompts/sim_order/SIM_Order.md | SIM Order module spec |
+| prompts/sim_order/TC_003_Create_SIM_Order_RF.md | SIM Order detailed spec |
+| prompts/ip_pool/IP_Pool.md | IP Pool module spec |
+| prompts/ip_pool/TC_008_Create_IP_Pool_RF.md | IP Pool detailed spec |
+| prompts/ip_whitelist/IP_Whitelist.md | IP Whitelisting module spec |
+| prompts/ip_whitelist/TC_010_Create_IP_Whitelisting_RF.md | IP Whitelist detailed spec |
+| prompts/device_state/Device_State.md | Device State Change module spec |
+| prompts/device_state/TC_002_Device_State_Change_RF.md | Device State detailed spec |
+| prompts/device_plan/Device_Plan.md | Device Plan module spec |
+| prompts/device_plan/TC_014_Change_Device_Plan_RF.md | Device Plan detailed spec |
+| prompts/cost_center/Cost_Center.md | Cost Center module spec |
+| prompts/cost_center/TC_013_Create_Cost_Center_RF.md | Cost Center detailed spec |
+| prompts/csr_journey/CSR_Journey.md | CSR Journey module spec |
+| prompts/csr_journey/TC_005_Create_CSR_Journey_RF 1.md | CSR Journey detailed spec |
+| prompts/sim_product_type/SIM_Product_Type.md | SIM Product Type module spec |
+| prompts/sim_product_type/TC_006_Create_SIM_Product_Type_RF 1.md | Product Type detailed spec |
+| prompts/e2e_flow/E2E_Flow.md | E2E Flow A specification (17 steps) |
+| prompts/e2e_flow_with_usage/E2E_Flow_With_Usage.md | E2E Flow B specification (20 steps) |
+| prompts/rule_engine/Rule_Engine.md | Rule Engine module spec (4-tab wizard) |
+| prompts/role_management/Role_Management.md | Role Management module spec |
+| prompts/user_management/User_Management.md | User Management module spec |
+| prompts/label/Label.md | Label module spec (CRUD + tag assignment) |
+| prompts/report/Report.md | Report module spec (create/download/email) |
+| prompts/sim_movement/SIM_Movement.md | SIM Movement module spec |
+| prompts/sim_replacement/SIM_Replacement.md | SIM Replacement module spec |
+| prompts/payg_data_usage/PAYG_Data_Usage.md | PAYG Data Usage multi-scenario spec |
+| prompts/order_processing/Order_Processing.md | Order Processing shared keywords spec |
+
+---
+
+## Bug Reports & Email
+
+```bash
+# Bug reports auto-generate after every run with failures
+# Email report
+python run_tests.py --suite "Login" --env qe --email
+
+# Jira bug logger
+python jira_bug_logger.py --all
+python jira_bug_logger.py --list
+```

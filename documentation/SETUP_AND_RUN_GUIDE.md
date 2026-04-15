@@ -644,3 +644,82 @@ ping 10.121.77.114      # Invoice server
 ```bash
 pip install robotframework-pabot
 ```
+
+---
+
+## 11. Bug Reports, Email Notifications & Jira Integration
+
+### Automatic Bug Reports
+
+Bug reports are automatically generated after every test run when failures are detected. Each failed test gets its own folder under `bugs/` containing:
+- A structured `.txt` bug report with title, environment, description, steps, expected/actual results
+- A `screenshot/` subfolder with relevant screenshots
+
+```bash
+# Bug reports generate automatically after every run — no extra flag needed
+python run_tests.py --suite "Login" --env qe
+
+# Standalone generation for a past run
+python bug_reporter.py reports/2026-04-15_10-30-00
+```
+
+Bug folder format: `bugs/Bug_<N>_<DDMonYY>_<HHMMSS>/`
+
+### Email Reports
+
+Send professional HTML email reports with:
+- Circular progress indicator (donut chart)
+- Pass/fail/skip counts with percentages
+- Execution metadata (start time, duration, environment)
+- Table of failed tests with error messages
+- Attached `combined_report.html` and PDF report
+
+```bash
+# Via run_tests.py (add --email flag)
+python run_tests.py --suite "Login" --env qe --email
+python run_tests.py --e2e --env qe --email
+
+# Standalone for a past run
+python send_report.py reports/2026-04-15_10-30-00
+```
+
+### Jira Bug Logger
+
+Push generated bug reports to Jira with structured descriptions and screenshots attached.
+
+```bash
+python jira_bug_logger.py              # Interactive — pick which bugs to log
+python jira_bug_logger.py --all        # Push ALL unlogged bugs
+python jira_bug_logger.py --list       # List all bugs and their Jira status
+python jira_bug_logger.py Bug_1_15Apr26_134003  # Push specific bug
+```
+
+### Email & Jira Configuration
+
+1. Copy `.env.example` to `.env` in the project root
+2. Fill in your values:
+
+```ini
+# ── Email (Gmail SMTP) ──────────────────────────
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-gmail-app-password
+EMAIL_FROM=your-email@gmail.com
+EMAIL_TO=recipient1@airlinq.com,recipient2@airlinq.com
+
+# ── Display Settings ────────────────────────────
+CLIENT=STC
+ENV=QE
+
+# ── Jira ────────────────────────────────────────
+JIRA_BASE_URL=https://airlinq-global.atlassian.net
+JIRA_EMAIL=your-email@airlinq.com
+JIRA_API_TOKEN=your-jira-api-token
+JIRA_PROJECT_KEY=STC
+JIRA_ISSUE_TYPE=Bug
+```
+
+**Gmail App Password:** Go to myaccount.google.com > Security > 2-Step Verification > App Passwords. Create a new app password and use it as `SMTP_PASS`.
+
+**Jira API Token:** Go to https://id.atlassian.com/manage-profile/security/api-tokens and create a new token.
