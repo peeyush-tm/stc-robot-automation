@@ -388,6 +388,49 @@ def collect_stray_artifacts(report_folder):
         print(f"  Collected {collected} stray artifact(s) into report folder.")
 
 
+def organize_report_folder(report_folder):
+    """Move stray screenshots, debug logs, and probe files into their module subfolders.
+
+    - selenium-screenshot-*.png at root → _stray_screenshots/ subfolder
+    - debug-*.log → _debug/ subfolder
+    - *_dom_probe_*.json → matching module folder (e.g. Ip_Pool/) or _debug/
+    - billing/*.csv → kept as-is (E2E invoice artifacts)
+    """
+    if not os.path.isdir(report_folder):
+        return
+
+    moved = 0
+
+    # ── Move stray screenshots into _stray_screenshots/ ──────────────
+    stray_pngs = glob.glob(os.path.join(report_folder, "selenium-screenshot-*.png"))
+    if stray_pngs:
+        stray_dir = os.path.join(report_folder, "_stray_screenshots")
+        os.makedirs(stray_dir, exist_ok=True)
+        for png in stray_pngs:
+            try:
+                shutil.move(png, os.path.join(stray_dir, os.path.basename(png)))
+                moved += 1
+            except Exception:
+                pass
+
+    # ── Move debug logs into _debug/ ─────────────────────────────────
+    debug_files = glob.glob(os.path.join(report_folder, "debug-*.log"))
+    probe_files = glob.glob(os.path.join(report_folder, "*_dom_probe_*.json"))
+    misc_files = debug_files + probe_files
+    if misc_files:
+        debug_dir = os.path.join(report_folder, "_debug")
+        os.makedirs(debug_dir, exist_ok=True)
+        for f in misc_files:
+            try:
+                shutil.move(f, os.path.join(debug_dir, os.path.basename(f)))
+                moved += 1
+            except Exception:
+                pass
+
+    if moved:
+        print(f"  Organized {moved} stray file(s) into subfolders.")
+
+
 def merge_reports(outputs, report_folder):
     if not outputs:
         print("\nNo outputs to merge.")
@@ -752,6 +795,7 @@ def main():
         print(f"  WARNING: Report merge failed: {exc}")
 
     collect_stray_artifacts(report_folder)  # catch anything rebot may have created
+    organize_report_folder(report_folder)
 
     try:
         generate_pdf_report(report_folder, args)
