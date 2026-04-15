@@ -393,6 +393,22 @@ def merge_reports(outputs, report_folder):
         print("\nNo outputs to merge.")
         return
 
+    # Validate each XML before merging — skip corrupt/truncated files
+    import xml.etree.ElementTree as ET
+    valid_outputs = []
+    for xml_path in outputs:
+        if not os.path.exists(xml_path):
+            continue
+        try:
+            ET.parse(xml_path)
+            valid_outputs.append(xml_path)
+        except ET.ParseError:
+            print(f"  WARNING: Skipping corrupt XML: {os.path.basename(xml_path)}")
+
+    if not valid_outputs:
+        print("\nNo valid outputs to merge.")
+        return
+
     dst_output = os.path.join(report_folder, "combined_output.xml")
     dst_log = os.path.join(report_folder, "combined_log.html")
     dst_report = os.path.join(report_folder, "combined_report.html")
@@ -402,9 +418,13 @@ def merge_reports(outputs, report_folder):
         "--output", dst_output,
         "--log", dst_log,
         "--report", dst_report,
-    ] + outputs
+    ] + valid_outputs
 
-    print(f"\n  Generating combined report from {len(outputs)} output(s)...")
+    skipped = len(outputs) - len(valid_outputs)
+    msg = f"\n  Generating combined report from {len(valid_outputs)} output(s)..."
+    if skipped:
+        msg += f" ({skipped} corrupt XML(s) skipped)"
+    print(msg)
     result = subprocess.run(cmd, cwd=ROOT_DIR)
     if result.returncode not in (0, 1):
         print(f"  WARNING: rebot exited with code {result.returncode}")
