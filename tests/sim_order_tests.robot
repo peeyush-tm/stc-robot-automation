@@ -230,7 +230,7 @@ TC_SO_009
 
 TC_SO_010
     Login And Navigate To Create SIM Order
-    Set SIM Replacement Order    false
+    Set SIM Replacement Order    ${FALSE}
     Select SIM Category
     Select SIM Type
     Select SIM Product Type
@@ -242,7 +242,7 @@ TC_SO_010
 
 TC_SO_011
     Login And Navigate To Create SIM Order
-    Set SIM Replacement Order    false
+    Set SIM Replacement Order    ${FALSE}
     Select Account From TreeView
     Select SIM Category
     Select SIM Product Type

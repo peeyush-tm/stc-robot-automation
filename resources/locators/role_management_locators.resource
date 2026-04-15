@@ -73,15 +73,18 @@ ${LOC_POPUP_SAVE_BTN}              xpath=//div[contains(@class,'modal') and cont
 # ── Form Buttons (MD: Locator Reference → Submit/Update) ────────────
 # Submit: <a href="javascript:void(0);" class="btn btn-custom-color cursor-pointer pull-right m-r-10 width-75">Submit</a>
 ${LOC_BTN_SUBMIT_ROLE}             xpath=//a[contains(@class,'btn-custom-color') and normalize-space()='Submit'] | //a[contains(text(),'Submit') and contains(@class,'btn')] | //button[contains(text(),'Submit')]
-# Close: <a class="btn btn-cancel-color pull-right width-75 m-r-10" href="/ManageRole">Close</a>
-${LOC_BTN_CLOSE_ROLE}              xpath=//a[contains(@class,'btn-cancel-color') and normalize-space()='Close'] | //a[contains(text(),'Close') and @href='/ManageRole'] | //button[contains(text(),'Close')]
+# Close: often <input type="button" class="btn-cancel-color" value="Close"> (see Label module); legacy <a> still supported
+${LOC_BTN_CLOSE_ROLE}              xpath=//input[@type='button' and contains(@class,'btn-cancel-color') and @value='Close'] | //input[@type='submit' and contains(@class,'btn-cancel-color') and @value='Close'] | //a[contains(@class,'btn-cancel-color') and normalize-space()='Close'] | //a[contains(text(),'Close') and contains(@href,'ManageRole')] | //button[normalize-space()='Close'] | //a[normalize-space()='Close'] | //button[contains(normalize-space(.),'Close')]
 
 # ── Search Input on List Page (MD: Locator Reference → Name: searchValue) ──
 ${LOC_ROLE_SEARCH_INPUT}           xpath=//input[@name='searchValue'] | //input[@placeholder='Enter Search Text']
 
-# ── Delete Button in Grid Row — icon with title="Delete" ──────────────
-# Template: //tr[.//td[contains(text(),'ROLENAME')]]//i[@title='Delete']
-${LOC_DELETE_ROLE_TEMPLATE}        //tr[.//td[contains(text(),'PLACEHOLDER')]]//i[@title='Delete']
+# Optional filter inside Account TreeView panel (Kendo / SIM Order pattern)
+${LOC_ROLE_ACCOUNT_TREE_SEARCH}    xpath=//div[contains(@id,'showTreeView')]//input[contains(@class,'search-textbox') or contains(@class,'inputtree')] | //div[contains(@class,'account-tree-dropdown')]//input[contains(@class,'search-textbox') or contains(@class,'inputtree')]
+
+# ── Delete Button in Grid Row — Kendo icon link, FA trash, or title Delete/delete ──
+# Template: row contains PLACEHOLDER in a td; action column may be <a class="k-grid-Delete"> or <i title="Delete">
+${LOC_DELETE_ROLE_TEMPLATE}        //tr[.//td[contains(.,'PLACEHOLDER')]]//*[contains(@class,'k-grid-Delete') or contains(@class,'k-delete') or contains(@class,'fa-trash')][1] | //tr[.//td[contains(.,'PLACEHOLDER')]]//*[@title='Delete' or @title='delete' or contains(translate(@title,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'delete')][1]
 
 # ── Confirmation Dialog (MD: TC-ROLE-002 Step 4, Locator Reference → Yes/Confirm) ──
 ${LOC_DELETE_CONFIRM_DIALOG}       xpath=//div[contains(@class,'confirm-modal')] | //div[contains(@class,'modal') and contains(@class,'show')]

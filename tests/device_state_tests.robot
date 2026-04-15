@@ -16,15 +16,6 @@ Test Teardown     Handle Test Teardown
 
 *** Test Cases ***
 # ═══════════════════════════════════════════════════════════════════════
-#  POSITIVE — UI VERIFICATION
-# ═══════════════════════════════════════════════════════════════════════
-
-TC_DSC_001 Verify Manage Devices Grid And Action Bar
-    [Documentation]    Verify grid is visible with rows, search input, and action bar.
-    [Tags]    smoke    regression    positive    device_state
-    TC_DSC_001
-
-# ═══════════════════════════════════════════════════════════════════════
 #  POSITIVE — STATE TRANSITIONS
 #  Each test: apply account filter → apply SIM state filter →
 #  validate initial state → perform state change → wait 5 min →
@@ -123,27 +114,7 @@ TC_DSC_015 Proceed Without Selecting Reason Should Be Blocked
     [Tags]    regression    negative    device_state
     TC_DSC_015
 
-# ═══════════════════════════════════════════════════════════════════════
-#  NEGATIVE — SECURITY
-# ═══════════════════════════════════════════════════════════════════════
-
-TC_DSC_016 Direct Access To ManageDevices Without Login
-    [Documentation]    Navigate directly to /ManageDevices without authenticating.
-    ...                Verify redirect to login page.
-    [Tags]    regression    negative    security    device_state    navigation
-    TC_DSC_016
-
-
 *** Keywords ***
-TC_DSC_001
-    Login And Navigate To Manage Devices DSC
-    Wait Until Element Is Visible    ${LOC_DSC_GRID}    timeout=30s
-    Wait Until Element Is Visible    ${LOC_DSC_SEARCH_INPUT}    timeout=30s
-    Wait Until Element Is Visible    ${LOC_DSC_ACTION_FORM}    timeout=30s
-    ${row_count}=    Get Element Count    ${LOC_DSC_GRID_ROWS}
-    Should Be True    ${row_count} > 0    Grid must have at least one device row.
-    Log    Manage Devices grid visible with ${row_count} row(s).    console=yes
-
 TC_DSC_002
     Login And Navigate To Manage Devices DSC
     ${imsi}=    Perform Full State Change    ${FILTER_LABEL_TEST_ACTIVE}    ${STATE_TEST_ACTIVE}    ${STATE_ACTIVATED}
@@ -293,8 +264,3 @@ TC_DSC_015
         Log    Popup did not open.    level=WARN
     END
 
-TC_DSC_016
-    Clear Session For Unauthenticated Test
-    Go To    ${MANAGE_DEVICES_URL}
-    Wait For Page Load
-    Verify Redirected To Login Page

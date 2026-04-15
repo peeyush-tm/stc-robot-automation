@@ -2,7 +2,7 @@
 
 Automated UI and API test suite for the **STC CMP (Connectivity Management Platform)** built with **Robot Framework** and **SeleniumLibrary**, covering end-to-end order lifecycles, CRUD operations on all CMP modules, and API-level subscriber onboarding.
 
-- **Total Test Cases:** 445+ (ordered in `tasks.csv`)
+- **Total Test Cases:** 459+ (ordered in `tasks.csv`)
 - **Application:** STC CMP Web Application (React SPA)
 - **Framework:** Robot Framework + SeleniumLibrary + DatabaseLibrary + SSHLibrary + RequestsLibrary
 - **Language:** Python 3.9+
@@ -48,6 +48,7 @@ stc-automation/
 │   ├── sim_range/SIM_Range.md         # AI prompt for SIM Range module
 │   ├── sim_range_msisdn/SIM_Range_MSISDN.md
 │   ├── sim_order/SIM_Order.md
+│   ├── sim_movement/SIM_Movement.md
 │   ├── ip_pool/IP_Pool.md
 │   ├── ip_whitelist/IP_Whitelist.md
 │   ├── device_state/Device_State.md
@@ -150,6 +151,7 @@ stc-automation/
 │   ├── report_tests.robot             # Reports module
 │   ├── e2e_flow.robot                 # E2E Flow A — 17 steps (no usage)
 │   ├── e2e_flow_with_usage.robot      # E2E Flow B — 20 steps (with usage)
+│   ├── sim_movement_tests.robot       # SIM Movement (14 TCs)
 │   └── sanity_tests.robot             # Sanity / smoke checks
 │
 ├── variables/
@@ -169,6 +171,7 @@ stc-automation/
 │   ├── product_type_variables.py
 │   ├── order_processing_variables.py  # E2E variables (EC, BU, order IDs, invoice)
 │   ├── usage_variables.py
+│   ├── sim_movement_variables.py      # SIM Movement (EC/BU names, ICCID, batch job names)
 │   ├── rule_engine_variables.py
 │   ├── role_management_variables.py
 │   ├── user_management_variables.py
@@ -265,6 +268,7 @@ python run_tests.py --suite "Rule Engine"
 python run_tests.py --suite "Role Management"
 python run_tests.py --suite "User Management"
 python run_tests.py --suite "Account Onboard"
+python run_tests.py --suite "SIM Movement"
 python run_tests.py --suite Report
 
 # ── Specific suite file ──────────────────────────────────────────────────────
@@ -668,8 +672,10 @@ Several CMP UI components require special handling:
 | 17 | Role Management | `role_management_tests.robot` | 32 | role-management, permissions |
 | 18 | User Management | `user_management_tests.robot` | 45 | user-management, validation |
 | 19 | Reports | `report_tests.robot` | — | reports, download, create |
-| 20 | Sanity | `sanity_tests.robot` | — | sanity, smoke |
-| | **Total** | | **445+** | |
+| 20 | SIM Movement | `sim_movement_tests.robot` | 14 | sim-movement, smoke, regression, batch-job, notes, audit-trail |
+| 21 | Reports | `report_tests.robot` | — | reports, download, create |
+| 22 | Sanity | `sanity_tests.robot` | — | sanity, smoke |
+| | **Total** | | **459+** | |
 
 ---
 
@@ -766,6 +772,11 @@ python run_tests.py --e2e --test "Step 16*" --test "Step 17*" \
 | `onboard` | Account onboarding (API) |
 | `e2e` | End-to-end flow tests |
 | `usage` | OCS usage injection tests (Flow B) |
+| `sim-movement` | SIM Movement module |
+| `batch-job` | Batch job (Set Operation Status / Response Handler) tests |
+| `notes` | SIM Notes tab verification |
+| `audit-trail` | Audit Trail verification tests |
+| `business-unit` | Business Unit account tests |
 | `role-management` | Role Management module |
 | `user-management` | User Management module |
 | `sanity` | Sanity / smoke page checks |
@@ -842,5 +853,8 @@ pip install -r requirements.txt
 | Rule Engine | `/RuleEngine` → `/CreateRuleEngine` |
 | Role Management | `/RoleAndAccess` |
 | User Management | `/ManageUser` |
+| SIM Movement | `/ManageDevices` (Select Action → SIM Movement) |
+| Audit Trail | `/ManageAudit` |
+| Batch Job Log | `/BatchJobLog` |
 | Reports | `/Report` → `/CreateReports` |
 | Account Onboard | SOAP API (no UI) |

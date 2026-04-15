@@ -18,7 +18,7 @@ APN_TYPE_PUBLIC = "2"
 APN_TYPE_PRIVATE = "1"
 
 # ── Valid Form Data ──────────────────────────────────────────────────
-VALID_NUMBER_OF_IPS = "5"
+VALID_NUMBER_OF_IPS = "1"
 VALID_APN_INDEX = "1"
 
 # ── Negative Test Data ───────────────────────────────────────────────

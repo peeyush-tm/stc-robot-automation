@@ -2,6 +2,9 @@ import random
 import string
 import time
 
+from _config_defaults import config_scalar
+from _shared_seed import resolved_any
+
 
 def _random_string(length=6):
     return "".join(random.choices(string.ascii_lowercase + string.digits, k=length))
@@ -21,9 +24,17 @@ RM_TIMEOUT = "30s"
 MANAGE_ROLE_PATH = "/ManageRole"
 CREATE_ROLE_PATH = "/CreateRole"
 
-# ── Account TreeView hierarchy (same as Create User) ─────────────────
-RM_EC_ACCOUNT_NAME = "AQ_AUTO_EC_20260319165618"
-RM_BU_ACCOUNT_NAME = "AQ_AUTO_BU_20260319165618"
+# ── Account TreeView: env → seed (onboard, PAYG, E2E flows) → MD example defaults ─
+_RM_EC_KEYS = ("onboard_ec_name", "payg_ec_name", "e2e_ec_name", "e2e_usage_ec_name")
+_RM_BU_KEYS = ("onboard_bu_name", "payg_bu_name", "e2e_bu_name", "e2e_usage_bu_name")
+RM_EC_ACCOUNT_NAME = resolved_any(
+    _RM_EC_KEYS, "STC_RM_EC_ACCOUNT_NAME", config_scalar("DEFAULT_EC_ACCOUNT", "SANJ_1002")
+)
+RM_BU_ACCOUNT_NAME = resolved_any(
+    _RM_BU_KEYS,
+    "STC_RM_BU_ACCOUNT_NAME",
+    config_scalar("DEFAULT_BU_ACCOUNT", "billingAccountSANJ_1003"),
+)
 
 # ── Test Data (MD: Test Data table) ──────────────────────────────────
 # Role Name: max 250 chars, must be unique

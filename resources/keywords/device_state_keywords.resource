@@ -1,6 +1,7 @@
 *** Settings ***
 Library     SeleniumLibrary
 Library     Collections
+Variables   ../../variables/device_state_variables.py
 Resource    browser_keywords.resource
 Resource    login_keywords.resource
 Resource    ../locators/device_state_locators.resource
@@ -12,8 +13,12 @@ Resource    ../locators/login_locators.resource
 # ═══════════════════════════════════════════════════════════════════════
 Login And Navigate To Manage Devices DSC
     [Documentation]    Ensures session is active, then navigates to /ManageDevices via direct URL.
+    ...                Runs GC before navigation to reclaim V8 heap from previous tests.
+    Request Page Garbage Collection Best Effort
     Ensure Session Is Active
     Navigate To Module Page    ${MANAGE_DEVICES_URL}
+    Inject Grid Oom Patch Into Current Page
+    Request Page Garbage Collection Best Effort
     Wait Until Element Is Visible    ${LOC_DSC_GRID}    timeout=30s
     Wait Until Element Is Visible    ${LOC_DSC_GRID_ROWS}    timeout=30s
 
@@ -21,11 +26,16 @@ Login And Navigate To Manage Devices DSC
 #  GRID COLUMN HELPERS (JavaScript-based for reliability)
 # ═══════════════════════════════════════════════════════════════════════
 Get Column Index By Header Text
-    [Documentation]    Returns the 0-based column index whose header contains the given text.
+    [Documentation]    Returns the 0-based column index whose header **contains** the given text (substring match,
+    ...                **case-insensitive**) so **ICCID** / **BUSINESS UNIT NAME** / **Account** all resolve reliably.
     [Arguments]    ${header_text}
     ${index}=    Execute Javascript
     ...    var ths = document.querySelectorAll('#gridData table thead th');
-    ...    for(var i=0; i<ths.length; i++){ if(ths[i].textContent.trim().indexOf(arguments[0])>=0) return i; }
+    ...    var needle=(arguments[0]||'').toString().trim().toLowerCase();
+    ...    for(var i=0; i<ths.length; i++){
+    ...      var t=(ths[i].textContent||'').trim().toLowerCase();
+    ...      if(t.indexOf(needle)>=0) return i;
+    ...    }
     ...    return -1;
     ...    ARGUMENTS    ${header_text}
     Should Not Be Equal As Integers    ${index}    -1
@@ -45,69 +55,267 @@ Get Cell Value By Row And Column
 # ═══════════════════════════════════════════════════════════════════════
 #  FILTER / SEARCH
 # ═══════════════════════════════════════════════════════════════════════
-Open Filter Popup
-    [Documentation]    Opens the Filters popup modal if not already open.
-    Wait Until Element Is Visible    ${LOC_DSC_FILTER_SEARCH}    timeout=15s
-    Click Element Via JS    ${LOC_DSC_FILTER_SEARCH}
-    Sleep    2s
-    Wait For Loading Overlay To Disappear
+Wait For Filter Popup Internal Spinner Gone
+    [Documentation]    Waits until the in-modal loading mask inside ``#filterPopup`` is gone (not the body overlay).
+    [Arguments]    ${timeout}=8s
+    Run Keyword And Ignore Error
+    ...    Wait For Condition
+    ...    return !document.querySelector('#filterPopup .k-loading-mask')
+    ...    timeout=${timeout}
+    Brief UI Settle Short
+
+Expand Account Filter Section In Filter Popup
+    [Documentation]    After the filters popup opens: if ``#accountInput`` inside ``#filterPopup`` is not usable yet,
+    ...                wait for the Account row xpath, **JS-click** to expand, wait until the input is visible.
     Wait Until Element Is Visible    ${LOC_DSC_FILTER_POPUP}    timeout=15s
+    Wait For Filter Popup Internal Spinner Gone    timeout=12s
+    ${already}=    Execute Javascript
+    ...    var p=document.getElementById('filterPopup');
+    ...    if(!p) return false;
+    ...    var inp=p.querySelector('#accountInput');
+    ...    if(!inp) return false;
+    ...    var st=window.getComputedStyle(inp);
+    ...    var r=inp.getBoundingClientRect();
+    ...    return r.width>1&&r.height>1&&st.display!=='none'&&st.visibility!=='hidden'&&st.opacity!=='0';
+    IF    ${already}
+        RETURN
+    END
+    @{_expand}=    Create List
+    ...    ${LOC_DSC_FILTER_ACCOUNT_K_LINK}
+    ...    ${LOC_DSC_FILTER_ACCOUNT_PANEL_LI}
+    ...    ${LOC_DSC_FILTER_ACCOUNT_SPAN_CONTAINS}
+    ...    ${LOC_DSC_FILTER_ACCOUNT_SPAN_ICASE}
+    ...    ${LOC_DSC_FILTER_ACCOUNT_HEADER}
+    FOR    ${_loc}    IN    @{_expand}
+        ${_vis}=    Run Keyword And Return Status
+        ...    Wait Until Element Is Visible    ${_loc}    timeout=8s
+        IF    not ${_vis}
+            Continue For Loop
+        END
+        Scroll To Element Via JS    ${_loc}
+        Click Element Via JS    ${_loc}
+        Wait For Filter Popup Internal Spinner Gone    timeout=10s
+        ${_inp_ok}=    Run Keyword And Return Status
+        ...    Wait Until Element Is Visible    ${LOC_DSC_ACCOUNT_INPUT_IN_POPUP}    timeout=10s
+        Exit For Loop If    ${_inp_ok}
+    END
+    Wait Until Element Is Visible    ${LOC_DSC_ACCOUNT_INPUT_IN_POPUP}    timeout=25s
+
+Open Filter Popup
+    [Documentation]    Clicks the **Filters** toolbar icon (``filter-search-trigger``) via JS; waits until ``#filterPopup``
+    ...                is visible and the in-modal spinner has cleared.
+    Request Page Garbage Collection Best Effort
+    Wait Until Element Is Visible    ${LOC_DSC_FILTER_SEARCH}    timeout=15s
+    Inject Grid Oom Patch Into Current Page
+    Click Element Via JS    ${LOC_DSC_FILTER_SEARCH}
+    IF    ${DSC_ACCOUNT_FILTER_OOM_SAFE}
+        Brief UI Settle Short
+    ELSE
+        Wait For Loading Overlay To Disappear
+    END
+    Wait Until Element Is Visible    ${LOC_DSC_FILTER_POPUP}    timeout=15s
+    Wait For Filter Popup Internal Spinner Gone    timeout=12s
+    Brief UI Settle Short
 
 Close Filter Popup
-    [Documentation]    Closes the filter popup if it is still open.
+    [Documentation]    Closes the filter popup. Tries data-dismiss button, then .close class, then
+    ...                any button with 'close'/'apply' text. After close waits for both body overlay
+    ...                and Kendo grid loading mask so the grid is fully refreshed before proceeding.
     ${popup_still_open}=    Run Keyword And Return Status
     ...    Wait Until Element Is Visible    ${LOC_DSC_FILTER_POPUP}    timeout=3s
     IF    ${popup_still_open}
         Execute Javascript
         ...    var btn = document.querySelector('#filterPopup button[data-dismiss="modal"]');
-        ...    if(btn) btn.click();
-        Sleep    2s
+        ...    if (!btn) btn = document.querySelector('#filterPopup .close, #filterPopup button[aria-label="Close"], #filterPopup button[aria-label="close"]');
+        ...    if (!btn) {
+        ...      var btns = document.querySelectorAll('#filterPopup button');
+        ...      for (var i = 0; i < btns.length; i++) {
+        ...        var t = (btns[i].textContent || btns[i].value || '').trim().toLowerCase();
+        ...        if (t === 'close' || t === 'apply' || t === '×' || t === 'x') { btn = btns[i]; break; }
+        ...      }
+        ...    }
+        ...    if (btn) btn.click();
+        Sleep    1s
         Wait For Loading Overlay To Disappear
+        ${_kendo_mask}=    Run Keyword And Return Status
+        ...    Wait Until Element Is Visible    xpath=//*[contains(@class,'k-loading-mask')]    timeout=5s
+        IF    ${_kendo_mask}
+            Wait Until Element Is Not Visible    xpath=//*[contains(@class,'k-loading-mask')]    timeout=45s
+            Wait For Loading Overlay To Disappear
+        END
     END
 
-Apply Account Filter
-    [Documentation]    In the filter popup, expands Account panel, types account name,
-    ...                presses Enter to search, waits for results, then clicks exact match.
+Click Account Filter Row By Exact Name In Popup
+    [Documentation]    Clicks the Account **suggestion row** whose text equals ``account_name`` (like the row under the input
+    ...                in the Filters sidebar). Collects candidates from ``#accountFilter``, ``.k-list`` / listbox nodes under
+    ...                ``#filterPopup``, the widget sibling of ``#accountInput``, and **visible** ``.k-animation-container``
+    ...                popups on ``body`` (Kendo often portals the dropdown outside ``#accountFilter``). Exact match, then
+    ...                case-insensitive. Retries via ``Wait Until Keyword Succeeds`` while results load.
     [Arguments]    ${account_name}
-    # Expand the Account panel via JS (may not be in viewport)
-    Execute Javascript
-    ...    var popup = document.getElementById('filterPopup');
-    ...    var spans = popup.querySelectorAll('span.k-link.k-header');
-    ...    for(var i=0; i<spans.length; i++){
-    ...      if(spans[i].textContent.trim() === 'Account'){ spans[i].click(); break; }
+    ${match_found}=    Execute Javascript
+    ...    return (function(wantRaw){
+    ...    var MAX_NODES=600;
+    ...    function norm(s){
+    ...      s=(s||'').toString().replace(/\\r|\\n|\\t/g,' ');
+    ...      while(s.indexOf('  ')>=0) s=s.split('  ').join(' ');
+    ...      return s.trim();
     ...    }
-    Sleep    2s
+    ...    function isVisible(el){
+    ...      if(!el) return false;
+    ...      var r=el.getBoundingClientRect();
+    ...      if(r.width<1||r.height<1) return false;
+    ...      var st=window.getComputedStyle(el);
+    ...      if(st.visibility==='hidden'||st.display==='none'||parseFloat(st.opacity||'1')===0) return false;
+    ...      return true;
+    ...    }
+    ...    function clickRow(el){
+    ...      var c=el.querySelector('span.k-item, .k-item, span.k-link, a, button')||el;
+    ...      c.click();
+    ...      return true;
+    ...    }
+    ...    function addAll(pool, nl){
+    ...      var i;
+    ...      for(i=0;i<nl.length&&pool.length<MAX_NODES;i++) pool.push(nl[i]);
+    ...    }
+    ...    var pool=[];
+    ...    var fp=document.getElementById('filterPopup');
+    ...    var af=document.getElementById('accountFilter');
+    ...    if(af) addAll(pool, af.querySelectorAll('li, [role=treeitem], [role=option], .k-item'));
+    ...    if(fp){
+    ...      addAll(pool, fp.querySelectorAll('.k-list li, .k-list .k-item, ul[role=listbox] li, [role=listbox] [role=option], .k-popup li, .k-popup .k-item'));
+    ...      var inp=fp.querySelector('#accountInput');
+    ...      if(inp){
+    ...        var w=inp.closest('.k-widget, .k-autocomplete, .k-textbox')||inp.parentElement;
+    ...        if(w&&w.nextElementSibling) addAll(pool, w.nextElementSibling.querySelectorAll('li, .k-item, [role=option]'));
+    ...      }
+    ...    }
+    ...    var acn=document.querySelectorAll('body .k-animation-container');
+    ...    var ai, cont;
+    ...    for(ai=0;ai<acn.length;ai++){
+    ...      cont=acn[ai];
+    ...      var stc=window.getComputedStyle(cont);
+    ...      if(stc.display==='none') continue;
+    ...      addAll(pool, cont.querySelectorAll('.k-list li, .k-list .k-item, [role=option]'));
+    ...    }
+    ...    var want=norm(wantRaw);
+    ...    var wL=want.toLowerCase();
+    ...    var j, el, t;
+    ...    for(j=0;j<pool.length;j++){
+    ...      el=pool[j];
+    ...      if(!isVisible(el)) continue;
+    ...      t=norm(el.textContent);
+    ...      if(t===want) return clickRow(el);
+    ...    }
+    ...    for(j=0;j<pool.length;j++){
+    ...      el=pool[j];
+    ...      if(!isVisible(el)) continue;
+    ...      t=norm(el.textContent);
+    ...      if(t.toLowerCase()===wL) return clickRow(el);
+    ...    }
+    ...    return false;
+    ...    })(arguments[0]);
+    ...    ARGUMENTS    ${account_name}
+    Should Be True    ${match_found}    Account "${account_name}" suggestion row not visible/clickable yet.
+
+Apply Account Filter
+    [Documentation]    Call after ``Open Filter Popup``: expand Account (JS) → type ``account_name`` in popup input → Enter
+    ...                → wait spinners/overlays → pick list row equal to name (JS ``click``) → wait loading. Caller closes popup.
+    [Arguments]    ${account_name}
+    Request Page Garbage Collection Best Effort
+    Expand Account Filter Section In Filter Popup
+    Wait For Filter Popup Internal Spinner Gone    timeout=12s
     Wait For Loading Overlay To Disappear
-    # Scroll input into view and focus via JS
-    Execute Javascript
-    ...    var el = document.getElementById('accountInput');
-    ...    el.scrollIntoView({block:'center'});
-    Sleep    1s
-    Click Element Via JS    ${LOC_DSC_ACCOUNT_INPUT}
-    Sleep    1s
-    # Clear any existing text and type the account name
-    Clear Element Text    ${LOC_DSC_ACCOUNT_INPUT}
-    Input Text    ${LOC_DSC_ACCOUNT_INPUT}    ${account_name}
-    Sleep    1s
-    # Press Enter to trigger the search
-    Press Keys    ${LOC_DSC_ACCOUNT_INPUT}    ENTER
-    Sleep    5s
+    Scroll To Element Via JS    ${LOC_DSC_ACCOUNT_INPUT_IN_POPUP}
+    Wait Until Element Is Visible    ${LOC_DSC_ACCOUNT_INPUT_IN_POPUP}    timeout=20s
+    Clear Element Text    ${LOC_DSC_ACCOUNT_INPUT_IN_POPUP}
+    Input Text    ${LOC_DSC_ACCOUNT_INPUT_IN_POPUP}    ${account_name}
+    Press Keys    ${LOC_DSC_ACCOUNT_INPUT_IN_POPUP}    ENTER
+    Wait For Filter Popup Internal Spinner Gone    timeout=15s
     Wait For Loading Overlay To Disappear
-    # Click the exact matching li item
+    Brief UI Settle Short
+    Wait Until Keyword Succeeds    60s    1s    Click Account Filter Row By Exact Name In Popup    ${account_name}
+    Wait For Filter Popup Internal Spinner Gone    timeout=20s
+    ${mask}=    Run Keyword And Return Status    Wait Until Element Is Visible    xpath=//*[contains(@class,'k-loading-mask')]    timeout=3s
+    IF    ${mask}
+        Wait Until Element Is Not Visible    xpath=//*[contains(@class,'k-loading-mask')]    timeout=45s
+        Wait For Loading Overlay To Disappear
+    END
+    Log    Applied account filter: ${account_name}    console=yes
+
+Click Account Filter List Item Exact Device Plan Style
+    [Documentation]    Clicks ``#accountFilter li`` whose normalized text equals ``account_name`` — same as
+    ...                ``Apply DP Account Filter`` in ``device_plan_keywords``. Use inside ``Wait Until Keyword Succeeds``
+    ...                while the list fills after Enter.
+    [Arguments]    ${account_name}
     ${match_found}=    Execute Javascript
     ...    var ul = document.getElementById('accountFilter');
     ...    if(!ul) return false;
     ...    var items = ul.querySelectorAll('li');
-    ...    for(var i=0; i<items.length; i++){
-    ...      if(items[i].textContent.trim() === arguments[0]){ items[i].click(); return true; }
+    ...    var want = (arguments[0]||'').toString().trim();
+    ...    var wL = want.toLowerCase();
+    ...    var i, t;
+    ...    for(i=0; i<items.length; i++){
+    ...      t = (items[i].textContent||'').replace(/\\s+/g,' ').trim();
+    ...      if(t===want){ items[i].click(); return true; }
+    ...    }
+    ...    for(i=0; i<items.length; i++){
+    ...      t = (items[i].textContent||'').replace(/\\s+/g,' ').trim();
+    ...      if(t.toLowerCase()===wL){ items[i].click(); return true; }
     ...    }
     ...    return false;
     ...    ARGUMENTS    ${account_name}
-    Should Be True    ${match_found}
-    ...    Account "${account_name}" not found in filter panel after search.
-    Sleep    3s
+    Should Be True    ${match_found}    Account "${account_name}" not in #accountFilter li list yet.
+
+Apply Account Filter Device Plan Style
+    [Documentation]    Filter modal on Manage Devices / Blank SIM: same sequence as Device Plan ``Apply DP Account Filter`` —
+    ...                JS expand **Account** ``span.k-link.k-header``, ``Click Element Via JS`` on ``#filterPopup`` scoped
+    ...                ``#accountInput``, type, Enter, then ``#accountFilter li`` click (exact, then case-insensitive).
+    ...                **SIM Replacement** uses this path so account selection matches the working Device Plan module.
+    [Arguments]    ${account_name}
+    Request Page Garbage Collection Best Effort
+    Wait Until Element Is Visible    ${LOC_DSC_FILTER_POPUP}    timeout=15s
+    Wait For Filter Popup Internal Spinner Gone    timeout=12s
+    # Click Account section header; retry up to 3 times if accountInput does not become
+    # visible (can happen on 2nd+ filter apply in same popup — accordion re-collapses).
+    ${_input_ready}=    Set Variable    ${FALSE}
+    FOR    ${_attempt}    IN RANGE    3
+        Execute Javascript
+        ...    var popup = document.getElementById('filterPopup');
+        ...    if(!popup) return;
+        ...    var spans = popup.querySelectorAll('span.k-link.k-header');
+        ...    for(var i=0; i<spans.length; i++){
+        ...      if(spans[i].textContent.trim() === 'Account'){ spans[i].click(); break; }
+        ...    }
+        Wait For Filter Popup Internal Spinner Gone    timeout=8s
+        Wait For Loading Overlay To Disappear
+        Brief UI Settle Short
+        Scroll To Element Via JS    ${LOC_DSC_ACCOUNT_INPUT_IN_POPUP}
+        ${_input_ready}=    Run Keyword And Return Status
+        ...    Wait Until Element Is Visible    ${LOC_DSC_ACCOUNT_INPUT_IN_POPUP}    timeout=6s
+        IF    ${_input_ready}    BREAK
+        Log    Account filter input not visible on attempt ${_attempt + 1} — retrying header click.    console=yes
+        Sleep    1s
+    END
+    Should Be True    ${_input_ready}
+    ...    msg=Account filter input (#accountInput inside #filterPopup) not visible after 3 expand attempts.
+    Click Element Via JS    ${LOC_DSC_ACCOUNT_INPUT_IN_POPUP}
+    Brief UI Settle Short
+    Clear Element Text    ${LOC_DSC_ACCOUNT_INPUT_IN_POPUP}
+    Input Text    ${LOC_DSC_ACCOUNT_INPUT_IN_POPUP}    ${account_name}
+    Brief UI Settle Short
+    Press Keys    ${LOC_DSC_ACCOUNT_INPUT_IN_POPUP}    ENTER
+    Wait For Filter Popup Internal Spinner Gone    timeout=15s
     Wait For Loading Overlay To Disappear
-    Log    Applied account filter: ${account_name}    console=yes
+    Brief UI Settle Short
+    Wait Until Keyword Succeeds    45s    1s    Click Account Filter List Item Exact Device Plan Style    ${account_name}
+    Wait For Filter Popup Internal Spinner Gone    timeout=20s
+    ${mask}=    Run Keyword And Return Status    Wait Until Element Is Visible    xpath=//*[contains(@class,'k-loading-mask')]    timeout=3s
+    IF    ${mask}
+        Wait Until Element Is Not Visible    xpath=//*[contains(@class,'k-loading-mask')]    timeout=45s
+        Wait For Loading Overlay To Disappear
+    END
+    Brief UI Settle Short
+    Log    Applied account filter (Device Plan style): ${account_name}    console=yes
 
 Apply SIM State Filter
     [Documentation]    In the already-open filter popup, expands SIM State panel
@@ -120,7 +328,7 @@ Apply SIM State Filter
     ...    for(var i=0; i<spans.length; i++){
     ...      if(spans[i].textContent.trim() === 'SIM State'){ spans[i].click(); break; }
     ...    }
-    Sleep    2s
+    Sleep    1s
     # Click the target state option
     ${option_clicked}=    Execute Javascript
     ...    var ul = document.getElementById('simStateFilter');
@@ -133,7 +341,7 @@ Apply SIM State Filter
     ...    ARGUMENTS    ${filter_label}
     Should Be True    ${option_clicked}
     ...    SIM State "${filter_label}" not found in filter panel.
-    Sleep    3s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
     Log    Applied SIM State filter: ${filter_label}    console=yes
 
@@ -145,11 +353,13 @@ Filter Grid By Account And State
     [Arguments]    ${account_name}    ${filter_label}    ${grid_state}=${EMPTY}
     ${effective_state}=    Set Variable If    '${grid_state}' != ''    ${grid_state}    ${filter_label}
     Reset Grid To Default View
-    Sleep    2s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
     Wait Until Element Is Visible    ${LOC_DSC_GRID_ROWS}    timeout=30s
+    Request Page Garbage Collection Best Effort
+    Inject Grid Oom Patch Into Current Page
     Open Filter Popup
-    Apply Account Filter    ${account_name}
+    Apply Account Filter Device Plan Style    ${account_name}
     Apply SIM State Filter    ${filter_label}
     Close Filter Popup
     Wait Until Element Is Visible    ${LOC_DSC_GRID_ROWS}    timeout=30s
@@ -179,14 +389,14 @@ Reset Grid To Default View
     ...    Wait Until Element Is Visible    ${LOC_DSC_RESET_ALL_FILTER}    timeout=3s
     IF    ${reset_visible}
         Click Element Via JS    ${LOC_DSC_RESET_ALL_FILTER}
-        Sleep    2s
+        Sleep    1s
         Wait For Loading Overlay To Disappear
     END
     ${close_visible}=    Run Keyword And Return Status
     ...    Wait Until Element Is Visible    ${LOC_DSC_SEARCH_CLOSE}    timeout=3s
     IF    ${close_visible}
         Click Element Via JS    ${LOC_DSC_SEARCH_CLOSE}
-        Sleep    2s
+        Sleep    1s
         Wait For Loading Overlay To Disappear
     END
     ${normal_btn}=    Run Keyword And Return Status
@@ -212,7 +422,7 @@ Search Device By IMSI
     ...    var el = arguments[0]; el.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', keyCode: 13, bubbles: true}));
     ...    el.dispatchEvent(new KeyboardEvent('keyup', {key: 'Enter', keyCode: 13, bubbles: true}));
     ...    ARGUMENTS    ${element}
-    Sleep    3s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -245,7 +455,7 @@ Select Change State Action
     Execute Javascript
     ...    arguments[0].dispatchEvent(new Event('change', {bubbles: true}));
     ...    ARGUMENTS    ${element}
-    Sleep    2s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
     Wait Until Element Is Visible    ${LOC_DSC_CHANGE_STATE_SEC}    timeout=30s
     Wait Until Element Is Visible    ${LOC_DSC_STATE_DROP}    timeout=30s
@@ -255,7 +465,7 @@ Select Target State And Submit
     ...                Submit button to trigger the popup. Uses JS fallback if label not found.
     [Arguments]    ${target_state}
     Wait Until Element Is Enabled    ${LOC_DSC_STATE_DROP}    timeout=30s
-    Sleep    2s
+    Sleep    1s
     ${available_options}=    Execute Javascript
     ...    var sel = document.querySelector('[name="changeSelectedValue"]');
     ...    if(!sel) return 'DROPDOWN_NOT_FOUND';
@@ -287,12 +497,12 @@ Select Target State And Submit
     Execute Javascript
     ...    arguments[0].dispatchEvent(new Event('change', {bubbles: true}));
     ...    ARGUMENTS    ${element}
-    Sleep    2s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
     Wait Until Element Is Visible    ${LOC_DSC_STATE_SUBMIT_BTN}    timeout=15s
     Wait Until Element Is Enabled    ${LOC_DSC_STATE_SUBMIT_BTN}    timeout=15s
     Click Element Via JS    ${LOC_DSC_STATE_SUBMIT_BTN}
-    Sleep    3s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -311,7 +521,7 @@ Select Service Plan In Popup
     IF    not ${option_ok}
         Select Option By Index Via JS    ${LOC_DSC_SVC_PLAN_DROP}    1
     END
-    Sleep    2s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
 
 Select Device Plan In Popup
@@ -323,7 +533,7 @@ Select Device Plan In Popup
     IF    not ${option_ok}
         Select Option By Index Via JS    ${LOC_DSC_DEV_PLAN_DROP}    1
     END
-    Sleep    2s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
 
 Select Reason In Popup
@@ -342,7 +552,7 @@ Click Proceed Button
     Wait Until Element Is Visible    ${LOC_DSC_PROCEED_BTN}    timeout=30s
     Wait Until Element Is Enabled    ${LOC_DSC_PROCEED_BTN}    timeout=30s
     Click Element Via JS    ${LOC_DSC_PROCEED_BTN}
-    Sleep    3s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
 
 Close Popup Without Submitting
@@ -359,7 +569,7 @@ Fill Popup And Submit
     ...                Service Plan, Device Plan, and Reason are each checked independently.
     [Arguments]    ${from_state}    ${to_state}
     Wait For Popup To Open
-    Sleep    2s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
     ${svc_visible}=    Run Keyword And Return Status
     ...    Wait Until Element Is Visible    ${LOC_DSC_SVC_PLAN_DROP}    timeout=5s
@@ -418,7 +628,7 @@ Verify State Change Success And Wait
     IF    not ${popup_gone}
         ${close_ok}=    Run Keyword And Return Status
         ...    Click Element Via JS    ${LOC_DSC_POPUP_X_BTN}
-        Sleep    2s
+        Sleep    1s
     END
     Log    Waiting 5 minutes for async state change to process...    console=yes
     Sleep    300s
@@ -429,7 +639,7 @@ Verify Device State After Change
     ...                that the SIM State column shows the expected new state.
     [Arguments]    ${imsi}    ${expected_state}
     Reset Grid To Default View
-    Sleep    2s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
     Search Device By IMSI    ${imsi}
     Wait Until Element Is Visible    ${LOC_DSC_GRID_ROWS}    timeout=30s
@@ -454,10 +664,10 @@ Attempt Invalid Transition And Verify Blocked
     Execute Javascript
     ...    arguments[0].dispatchEvent(new Event('change', {bubbles: true}));
     ...    ARGUMENTS    ${element}
-    Sleep    2s
+    Sleep    1s
     ${submit_ok}=    Run Keyword And Return Status
     ...    Click Element Via JS    ${LOC_DSC_STATE_SUBMIT_BTN}
-    Sleep    3s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
     ${error_toast}=    Run Keyword And Return Status
     ...    Wait Until Element Is Visible    ${LOC_DSC_TOAST_ERROR}    timeout=10s
@@ -468,3 +678,4 @@ Attempt Invalid Transition And Verify Blocked
     Should Be True    ${error_toast} or ${popup_gone} or ${alert}
     ...    Expected error toast, popup dismissal, or alert for invalid transition.
     Log    Invalid transition "${target_state}" correctly blocked.    console=yes
+

@@ -17,7 +17,7 @@ Login For Sanity Suite
     ...                that folder is used directly (all RF output already goes there).
     ...                Otherwise a new STC_Sanity_Automation/<timestamp>/ folder is created.
     ${dir_passed}=    Run Keyword And Return Status
-    ...    Variable Should Not Be Empty    ${SANITY_REPORT_DIR}
+    ...    Should Not Be Empty    ${SANITY_REPORT_DIR}
     IF    not ${dir_passed}
         ${timestamp}=    Evaluate    __import__('datetime').datetime.now().strftime('%Y%m%d_%H%M%S')
         ${sanity_dir}=    Set Variable    ${EXECDIR}${/}reports${/}${timestamp}_sanity
@@ -30,19 +30,7 @@ Login For Sanity Suite
     Set Suite Variable    ${SANITY_TC_COUNTER}    ${0}
     Log    Sanity output folder: ${SANITY_REPORT_DIR}
     Open Browser And Navigate    ${BASE_URL}    ${BROWSER}
-    Wait For App Loading To Complete
-    Wait Until Element Is Visible    ${LOC_LOGIN_ROOT}            timeout=15s
-    Wait Until Element Is Visible    ${LOC_LOGIN_USERNAME_INPUT}  timeout=10s
-    Wait Until Element Is Visible    ${LOC_LOGIN_PASSWORD_INPUT}  timeout=10s
-    Wait Until Element Is Visible    ${LOC_LOGIN_CAPTCHA_INPUT}   timeout=10s
-    Enter Username    ${VALID_USERNAME}
-    Enter Password    ${VALID_PASSWORD}
-    Wait Until Element Is Visible    ${LOC_LOGIN_CAPTCHA_IMAGE}   timeout=20s
-    Sleep    2s
-    ${captcha_value}=    Fetch Captcha Value
-    Enter Captcha    ${captcha_value}
-    Click Login Button
-    Wait For App Loading To Complete
+    Login With Credentials    ${VALID_USERNAME}    ${VALID_PASSWORD}
     Wait Until Element Is Visible    ${LOC_MD_GRID_DATA}          timeout=45s
     Wait Until Element Is Visible    ${LOC_POST_LOGIN_LANDMARK}   timeout=30s
     Log    Sanity Suite: Login successful.
@@ -108,22 +96,31 @@ Verify No Page Errors
 Verify Grid Loaded
     [Documentation]    Verifies grid container visible, at least one column header rendered,
     ...                loading spinner gone. FAILS if no grid found within timeout.
+    ...                Accepts Kendo k-grid, HTML table, or ARIA role=grid (e.g. some Ticketing UIs).
     ${kendo}=    Run Keyword And Return Status
-    ...    Wait Until Element Is Visible    ${LOC_GRID_CONTAINER}    15s
+    ...    Wait Until Element Is Visible    ${LOC_GRID_CONTAINER}    ${SANITY_TIMEOUT}
     IF    not ${kendo}
         ${any_table}=    Run Keyword And Return Status
-        ...    Wait Until Element Is Visible    xpath=//table    15s
+        ...    Wait Until Element Is Visible    xpath=//table    ${SANITY_TIMEOUT}
         IF    not ${any_table}
-            Fail    FAIL: No grid container (k-grid or table) found — page content did not load.
+            ${aria_grid}=    Run Keyword And Return Status
+            ...    Wait Until Element Is Visible    xpath=//*[@role='grid']    ${SANITY_TIMEOUT}
+            IF    not ${aria_grid}
+                Fail    FAIL: No grid container (k-grid, table, or role=grid) found — page content did not load.
+            END
         END
     END
     ${header}=    Run Keyword And Return Status
-    ...    Wait Until Element Is Visible    ${LOC_GRID_COLUMN_HEADER}    15s
+    ...    Wait Until Element Is Visible    ${LOC_GRID_COLUMN_HEADER}    ${SANITY_TIMEOUT}
     IF    not ${header}
         ${th}=    Run Keyword And Return Status
-        ...    Wait Until Element Is Visible    xpath=//th    10s
+        ...    Wait Until Element Is Visible    xpath=//th    ${SANITY_TIMEOUT}
         IF    not ${th}
-            Fail    FAIL: Grid found but no column headers rendered — data table incomplete.
+            ${colheader}=    Run Keyword And Return Status
+            ...    Wait Until Element Is Visible    xpath=//*[@role='columnheader']    15s
+            IF    not ${colheader}
+                Fail    FAIL: Grid found but no column headers rendered — data table incomplete.
+            END
         END
     END
     # Spinner must be gone — if still spinning after timeout the page is stuck
@@ -346,7 +343,7 @@ Capture Test End Screenshot
         ${url}=    Set Variable If    '${loc_status}' == 'PASS'    ${current_url}    unknown
         ${safe_name}=    Evaluate    '${page_name}'.replace(' ', '_').replace('/', '_')
         ${screenshot_file}=    Set Variable    FAIL_${safe_name}.png
-        ${dir_set}=    Run Keyword And Return Status    Variable Should Not Be Empty    ${SANITY_REPORT_DIR}
+        ${dir_set}=    Run Keyword And Return Status    Should Not Be Empty    ${SANITY_REPORT_DIR}
         IF    ${dir_set}
             Capture Page Screenshot    ${SANITY_REPORT_DIR}${/}${screenshot_file}
             ${counter}=    Evaluate    ${SANITY_TC_COUNTER} + 1
@@ -391,14 +388,19 @@ Capture Sanity Evidence No Grid
 Verify Page With Grid
     [Documentation]    Full sanity check for a page that has a grid:
     ...                navigate → URL verified → no errors → sub-tab active →
-    ...                grid loaded → grid has data → pagination → no grid error → screenshot.
-    [Arguments]    ${url_path}    ${href}    ${tab_text}=${EMPTY}    ${page_name}=${EMPTY}
+    ...                grid loaded → grid has data (optional) → pagination → no grid error → screenshot.
+    ...                Set require_data=${False} for log/history pages that may have no rows in some environments.
+    [Arguments]    ${url_path}    ${href}    ${tab_text}=${EMPTY}    ${page_name}=${EMPTY}    ${require_data}=${True}
     Navigate To Page    ${url_path}
     Verify Expected URL    ${url_path}
     Verify No Page Errors
     Verify Sub Tab Active    ${href}    ${tab_text}
     Verify Grid Loaded
-    Verify Grid Has Data
+    IF    ${require_data}
+        Verify Grid Has Data
+    ELSE
+        Log    Skipping data-row assertion — log/history page may have no rows in this environment.    level=WARN
+    END
     Verify Pagination Visible
     Verify No Grid Error
     ${name}=    Set Variable If    '${page_name}' != '${EMPTY}'    ${page_name}    ${url_path}

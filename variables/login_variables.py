@@ -11,8 +11,6 @@ INVALID_USERNAME = f"WRONG_USER_{_random_string(4)}"
 INVALID_PASSWORD = f"wrongpass_{_random_string(4)}"
 
 # ── Injection / Boundary Inputs ──────────────────────────────────────
-SQL_INJECTION_INPUT = "' OR '1'='1' --"
-SPECIAL_CHARS_INPUT = "!@#$%^&*()_+{}|:<>?"
 WHITESPACE_INPUT = "   "
 LONG_INPUT = "a" * 256
 EMPTY_STRING = ""

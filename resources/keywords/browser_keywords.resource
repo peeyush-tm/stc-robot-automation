@@ -1,51 +1,195 @@
 *** Settings ***
 Library    SeleniumLibrary
+Library    ../../libraries/GridOOM.py
 
 *** Keywords ***
+Go To Url With Connection Retries
+    [Documentation]    Navigates with retries for transient ``net::ERR_CONNECTION_TIMED_OUT`` / network blips.
+    ...                If all attempts fail, fails with a hint to check VPN, BASE_URL in config, and server reachability.
+    [Arguments]    ${url}    ${attempts}=3    ${pause_between}=5s
+    FOR    ${i}    IN RANGE    ${attempts}
+        ${ok}=    Run Keyword And Return Status    Go To    ${url}
+        IF    ${ok}
+            RETURN
+        END
+        ${n}=    Evaluate    int(${i}) + 1
+        Log    Initial navigation to ${url} failed (attempt ${n} of ${attempts}). Retrying after ${pause_between}...    level=WARN
+        Sleep    ${pause_between}
+    END
+    Fail
+    ...    Could not load ${url} after ${attempts} attempts. Common causes: net::ERR_CONNECTION_TIMED_OUT (VPN off, corporate firewall, wrong BASE_URL in config/<ENV>.json), or QE/server unreachable. Ping or open the URL in a browser from this machine to verify.
+
+Install Global Page Size Limiter
+    [Documentation]    Uses Chrome DevTools Protocol (CDP) ``Page.addScriptToEvaluateOnNewDocument`` to inject
+    ...                mitigations BEFORE page JS: (1) append ``pageSize=50`` on matching grid API URLs when no
+    ...                ``pageSize``/``search`` is present; (2) wrap ``JSON.parse`` and cap OData/Kendo/DataTables
+    ...                style totals (incl. ``@odata.count``, ``recordsTotal``) to 10000; (3) rewrite XHR/fetch
+    ...                JSON bodies; (4) ``Proxy`` on ``Array`` so ``new Array(n)`` with ``n`` > 100000 becomes
+    ...                length 100000 (safety net if totals still slip through).
+    ...                Kendo often uses ``addEventListener("readystatechange")`` (not ``onreadystatechange``), so
+    ...                URL-only injection is not enough for ``V8 javascript OOM (invalid array length)``.
+    ...                Called once per ``Open Test Browser``; survives navigations. Apply Account Filter URLs with
+    ...                ``search=`` are left unchanged on the request side. Script body: ``libraries/GridOOM.py``.
+    ${_script}=    Get Grid Oom Patch Script
+    ${_params}=    Create Dictionary    source=${_script}
+    ${_sel}=    Get Library Instance    SeleniumLibrary
+    TRY
+        # Must use $_sel / $_params — $sel/$params do not exist and Evaluate fails silently into EXCEPT (no OOM fix).
+        Evaluate    $_sel.driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", $_params)
+        Log    Global grid OOM mitigations installed via CDP (pageSize=50, total caps, JSON.parse + XHR/fetch + Array clamp).    level=INFO
+    EXCEPT    AS    ${_cdp_err}
+        Log    CDP page-script injection failed (${_cdp_err}) — OOM mitigations not active.    level=WARN
+    END
+
+Inject Grid Oom Patch Into Current Page
+    [Documentation]    Evaluates the same IIFE as CDP ``Install Global Page Size Limiter`` on the **already loaded**
+    ...                document. Idempotent (``__stcGridOomPatchV2``). Use before filter clicks if CDP missed or
+    ...                for SPA navigations that reuse one document without a full reload.
+    ${js}=    Get Grid Oom Patch Script
+    Run Keyword And Ignore Error    Execute Javascript    ${js}
+
 Open Test Browser
     [Documentation]    Opens browser with the configured settings. Handles SSL warnings for HTTPS IP addresses.
     ...                Supports: chrome, headlesschrome, firefox, edge.
+    ...                After creating the WebDriver, installs a global CDP page-size limiter (50 rows per API
+    ...                call) that prevents Kendo Grid's ``new Array(totalCount)`` from causing
+    ...                ``V8 javascript OOM (invalid array length)`` on heavy Manage Devices / SIM pages.
     [Arguments]    ${url}    ${browser}
     IF    '${browser}' == 'headlesschrome'
         ${chrome_options}=    Evaluate    sys.modules['selenium.webdriver'].ChromeOptions()    sys
+        ${hlw}=    Evaluate    __import__('os').environ.get('STC_CHROME_HEADLESS_WINDOW_SIZE','1680,945')
+        ${blk}=    Evaluate    __import__('os').environ.get('STC_CHROME_BLOCK_IMAGES','0')
         # SSL / certificate bypass
         Call Method    ${chrome_options}    add_argument    --ignore-certificate-errors
         Call Method    ${chrome_options}    add_argument    --allow-insecure-localhost
         Call Method    ${chrome_options}    add_argument    --allow-running-insecure-content
         Evaluate    $chrome_options.set_capability('acceptInsecureCerts', True)
-        # Headless-specific — must NOT use --start-maximized in headless mode
-        # Use Evaluate for args containing "=" to avoid RF named-argument parsing
         Evaluate    $chrome_options.add_argument('--headless=new')
-        Evaluate    $chrome_options.add_argument('--window-size=1920,1080')
+        ${hws}=    Catenate    SEPARATOR=    --window-size=    ${hlw}
+        Evaluate    $chrome_options.add_argument("""${hws}""")
         Call Method    ${chrome_options}    add_argument    --disable-gpu
+        Call Method    ${chrome_options}    add_argument    --disable-gpu-compositing
         Call Method    ${chrome_options}    add_argument    --no-sandbox
         Call Method    ${chrome_options}    add_argument    --disable-dev-shm-usage
         Call Method    ${chrome_options}    add_argument    --disable-extensions
         Call Method    ${chrome_options}    add_argument    --disable-infobars
+        Call Method    ${chrome_options}    add_argument    --disable-background-networking
+        IF    '${blk}' == '1'
+            Evaluate    $chrome_options.add_experimental_option('prefs', {'profile.default_content_setting_values': {'images': 2}})
+            Log    STC_CHROME_BLOCK_IMAGES=1: blocking images to reduce headless Chrome memory.    level=INFO
+        END
+        Evaluate    $chrome_options.add_argument('--disk-cache-size=1')
         Evaluate    $chrome_options.add_argument('--remote-debugging-port=0')
+        Evaluate    $chrome_options.add_argument('--js-flags=--max-old-space-size=4096 --max-semi-space-size=256 --expose-gc --gc-interval=1000')
+        Evaluate    $chrome_options.add_argument('--disable-features=BackForwardCache,Translate,IsolateOrigins,site-per-process,AudioServiceOutOfProcess')
+        Evaluate    $chrome_options.add_argument('--disable-default-apps')
+        Evaluate    $chrome_options.add_argument('--aggressive-cache-discard')
+        Evaluate    $chrome_options.add_argument('--disable-notifications')
+        Evaluate    $chrome_options.add_argument('--disable-background-timer-throttling')
+        Evaluate    $chrome_options.add_argument('--disable-renderer-backgrounding')
+        Evaluate    $chrome_options.add_argument('--disable-backgrounding-occluded-windows')
+        Evaluate    $chrome_options.add_argument('--disable-sync')
+        Evaluate    $chrome_options.add_argument('--disable-breakpad')
+        Call Method    ${chrome_options}    add_argument    --mute-audio
         Create Webdriver    Chrome    options=${chrome_options}
-        Go To    ${url}
+        Set Selenium Implicit Wait    ${IMPLICIT_WAIT}s
+        Set Selenium Timeout    ${PAGE_LOAD_TIMEOUT}s
+        Install Global Page Size Limiter
+        Go To Url With Connection Retries    ${url}
+        Inject Grid Oom Patch Into Current Page
     ELSE IF    '${browser}' == 'chrome'
         ${chrome_options}=    Evaluate    sys.modules['selenium.webdriver'].ChromeOptions()    sys
+        ${hw}=    Evaluate    __import__('os').environ.get('STC_CHROME_HEADED_WINDOW_SIZE','1680,945')
+        ${wmax}=    Evaluate    __import__('os').environ.get('STC_CHROME_HEADED_MAXIMIZED','0')
+        ${blk}=    Evaluate    __import__('os').environ.get('STC_CHROME_BLOCK_IMAGES','0')
         Call Method    ${chrome_options}    add_argument    --ignore-certificate-errors
         Call Method    ${chrome_options}    add_argument    --allow-insecure-localhost
+        Call Method    ${chrome_options}    add_argument    --disable-extensions
+        Call Method    ${chrome_options}    add_argument    --disable-dev-shm-usage
+        Call Method    ${chrome_options}    add_argument    --disable-background-networking
+        Call Method    ${chrome_options}    add_argument    --disable-gpu
+        Call Method    ${chrome_options}    add_argument    --disable-gpu-compositing
+        Call Method    ${chrome_options}    add_argument    --no-sandbox
+        Call Method    ${chrome_options}    add_argument    --mute-audio
+        Call Method    ${chrome_options}    add_argument    --no-first-run
+        Call Method    ${chrome_options}    add_argument    --disable-infobars
         Call Method    ${chrome_options}    add_argument    --start-maximized
+        IF    '${blk}' == '1'
+            Evaluate    $chrome_options.add_experimental_option('prefs', {'profile.default_content_setting_values': {'images': 2}})
+            Log    STC_CHROME_BLOCK_IMAGES=1: blocking images to reduce headed Chrome memory.    level=INFO
+        END
+        Evaluate    $chrome_options.add_argument('--disk-cache-size=1')
+        Evaluate    $chrome_options.add_argument('--remote-debugging-port=0')
+        Evaluate    $chrome_options.add_argument('--js-flags=--max-old-space-size=4096 --max-semi-space-size=256 --expose-gc --gc-interval=1000')
+        Evaluate    $chrome_options.add_argument('--disable-features=BackForwardCache,Translate,IsolateOrigins,site-per-process,AudioServiceOutOfProcess')
+        Evaluate    $chrome_options.add_argument('--disable-default-apps')
+        Evaluate    $chrome_options.add_argument('--aggressive-cache-discard')
+        Evaluate    $chrome_options.add_argument('--disable-notifications')
+        Evaluate    $chrome_options.add_argument('--disable-background-timer-throttling')
+        Evaluate    $chrome_options.add_argument('--disable-renderer-backgrounding')
+        Evaluate    $chrome_options.add_argument('--disable-backgrounding-occluded-windows')
+        Evaluate    $chrome_options.add_argument('--disable-sync')
+        Evaluate    $chrome_options.add_argument('--disable-breakpad')
         Evaluate    $chrome_options.set_capability('acceptInsecureCerts', True)
         Create Webdriver    Chrome    options=${chrome_options}
-        Go To    ${url}
+        Set Selenium Implicit Wait    ${IMPLICIT_WAIT}s
+        Set Selenium Timeout    ${PAGE_LOAD_TIMEOUT}s
+        Maximize Browser Window
+        Install Global Page Size Limiter
+        Go To Url With Connection Retries    ${url}
+        Inject Grid Oom Patch Into Current Page
     ELSE IF    '${browser}' == 'firefox'
-        Open Browser    ${url}    ${browser}
+        Open Browser    about:blank    ${browser}
+        Set Selenium Implicit Wait    ${IMPLICIT_WAIT}s
+        Set Selenium Timeout    ${PAGE_LOAD_TIMEOUT}s
+        Go To Url With Connection Retries    ${url}
     ELSE IF    '${browser}' == 'edge'
-        Open Browser    ${url}    ${browser}
+        Open Browser    about:blank    ${browser}
+        Set Selenium Implicit Wait    ${IMPLICIT_WAIT}s
+        Set Selenium Timeout    ${PAGE_LOAD_TIMEOUT}s
+        Go To Url With Connection Retries    ${url}
     ELSE
-        Open Browser    ${url}    ${browser}
+        Open Browser    about:blank    ${browser}
+        Set Selenium Implicit Wait    ${IMPLICIT_WAIT}s
+        Set Selenium Timeout    ${PAGE_LOAD_TIMEOUT}s
+        Go To Url With Connection Retries    ${url}
     END
-    Set Selenium Implicit Wait    ${IMPLICIT_WAIT}
-    Set Selenium Timeout    ${PAGE_LOAD_TIMEOUT}
+
+Request Page Garbage Collection Best Effort
+    [Documentation]    Runs V8 ``gc()`` in the page when Chrome was started with ``--expose-gc`` (see ``Open Test Browser``).
+    ...                Helps after large Kendo grids / SPA navigations. No-op if ``gc`` is unavailable; failures ignored.
+    Run Keyword And Ignore Error
+    ...    Execute Javascript    try{if(typeof gc==='function'){gc();}}catch(e){}
+
+Page Is Chrome OOM Crash
+    [Documentation]    Returns ``${True}`` only for **real** Chrome crash / error-tab signals — not generic SPA DOM.
+    ...                Previously ``#main-frame-error`` / ``.interstitial-wrapper`` matched normal CMP pages and caused
+    ...                ``Navigate To Module Page`` to **restart Chrome on every navigation** (many windows per test).
+    ...                Now: ``chrome-error://`` URL, or **Aw, Snap** UI, or Chrome-style **Out of Memory** error line.
+    ...                If JS is unreachable (process dead), returns ``${True}``.
+    ${js_ok}=    Run Keyword And Return Status
+    ...    Execute Javascript    return true
+    IF    not ${js_ok}
+        Log    Chrome JS execution failed — process likely crashed.    level=WARN
+        RETURN    ${True}
+    END
+    ${oom}=    Execute Javascript
+    ...    return (function(){var h='';try{h=(window.location&&window.location.href)||'';}catch(e){return true;}var hl=h.toLowerCase();if(hl.indexOf('chrome-error')>=0)return true;var t='';try{t=((document.body&&document.body.innerText)||'').toLowerCase();}catch(e2){return false;}if(t.indexOf('aw, snap')>=0)return true;if(t.indexOf('out of memory')>=0&&t.indexOf('error code')>=0)return true;return false;})()
+    RETURN    ${oom}
 
 Close Test Browser
     [Documentation]    Closes all browser instances.
     Close All Browsers
+
+Force Kill Chrome Processes
+    [Documentation]    OS-level force-kill of all chrome.exe and chromedriver.exe processes.
+    ...                Call this after ``Close All Browsers`` when Chrome may have OOM-crashed and left
+    ...                zombie processes — a dead WebDriver session cannot be cleaned by Selenium alone.
+    Run Keyword And Ignore Error
+    ...    Evaluate    __import__('subprocess').call(['taskkill','/F','/IM','chrome.exe','/T'],stdout=open(os.devnull,'w'),stderr=open(os.devnull,'w'))    os
+    Run Keyword And Ignore Error
+    ...    Evaluate    __import__('subprocess').call(['taskkill','/F','/IM','chromedriver.exe','/T'],stdout=open(os.devnull,'w'),stderr=open(os.devnull,'w'))    os
+    Sleep    1.5s
 
 Navigate To URL
     [Documentation]    Navigates to the given URL and waits for page load.
@@ -118,7 +262,10 @@ Select Option By Index Via JS
     ...    ARGUMENTS    ${element}
 
 Capture Step Screenshot
-    [Documentation]    Takes a screenshot with a descriptive name.
+    [Documentation]    Takes a named screenshot at a specific step.
+    ...                Name format: descriptive label (no .png extension needed).
+    ...                The STCReportListener renames the file to {TC_ID}_step_NN_{name}.png
+    ...                and moves it into the module subfolder automatically.
     [Arguments]    ${step_name}
     Capture Page Screenshot    ${step_name}.png
 
@@ -132,26 +279,33 @@ Open Browser And Navigate
     Open Test Browser    ${url}    ${browser}
 
 Capture Screenshot And Close Browser
-    [Documentation]    Captures screenshot on failure, then closes the browser.
+    [Documentation]    Captures screenshot on both pass and failure, then closes the browser.
+    ...                Do **not** use as Suite Teardown — ``Run Keyword If Test Failed/Passed`` are only
+    ...                valid in test teardown; use ``Close All Browsers`` for suite teardown instead.
     Run Keyword If Test Failed    Capture Page Screenshot
+    Run Keyword If Test Passed    Capture Page Screenshot
     Close All Browsers
 
 Handle Test Teardown
-    [Documentation]    Captures screenshot on failure only. Does NOT close the browser
-    ...                so that the suite-level session is preserved for the next test.
+    [Documentation]    Captures screenshot on both pass and failure.
+    ...                Does NOT close the browser so the suite-level session is
+    ...                preserved for subsequent tests.
+    ...                Screenshots are renamed and moved to the module subfolder
+    ...                by STCReportListener: {TC_ID}_step_NN_PASS.png / _FAIL.png
     Run Keyword If Test Failed    Capture Page Screenshot
+    Run Keyword If Test Passed    Capture Page Screenshot
 
 Wait For Page Load
     [Documentation]    Waits for the page to fully load (React rendering complete).
     ...                Retries up to 3 times for transient network issues.
-    Wait Until Keyword Succeeds    3x    2s    Wait For Document Ready
+    Wait Until Keyword Succeeds    3x    1s    Wait For Document Ready
     Wait For Loading Overlay To Disappear
 
 Wait For App Loading To Complete
     [Documentation]    Alias for Wait For Page Load. Waits until document is ready and loading overlay gone.
     ...                Accepts optional timeout argument for backward compatibility.
     [Arguments]    ${timeout}=60s
-    Wait Until Keyword Succeeds    3x    2s    Wait For Document Ready
+    Wait Until Keyword Succeeds    3x    1s    Wait For Document Ready
     Wait For Loading Overlay To Disappear
 
 Wait For Document Ready
@@ -161,13 +315,35 @@ Wait For Document Ready
 Wait For Loading Overlay To Disappear
     [Documentation]    Waits until the body.loading-indicator overlay is gone.
     ...                The CMP app adds class "loading-indicator" to <body> during API calls.
-    ...                If the indicator is stuck for > 25s, force-removes it via JS and warns.
+    ...                Some builds also use a ``#loading-indicator`` div that intercepts clicks (e.g. CSR react-select).
+    ...                If the indicator is stuck for > 10s, force-removes it via JS and warns (to avoid long stalls).
     ${cleared}=    Run Keyword And Return Status
     ...    Wait For Condition
     ...    return !document.body.classList.contains('loading-indicator')
-    ...    timeout=25s
+    ...    timeout=10s
     IF    not ${cleared}
-        Log    Loading overlay stuck for 25s — force-removing via JS.    level=WARN
+        Log    Loading overlay stuck for 10s — force-removing via JS.    level=WARN
         Execute Javascript    document.body.classList.remove('loading-indicator');
-        Sleep    1s
+        Brief UI Settle Short
     END
+    ${div_clear}=    Run Keyword And Return Status
+    ...    Wait For Condition
+    ...    return (function(){ var el = document.getElementById('loading-indicator'); if (!el) return true; var st = window.getComputedStyle(el); if (st.display === 'none' || st.visibility === 'hidden') return true; if (parseFloat(st.opacity || '1') < 0.05) return true; return el.offsetParent === null; })()
+    ...    timeout=20s
+    IF    not ${div_clear}
+        Log    loading-indicator div still blocking UI after 20s — disabling pointer-events via JS.    level=WARN
+        Execute Javascript    (function(){ var el=document.getElementById('loading-indicator'); if(el){ el.style.pointerEvents='none'; el.style.display='none'; } })();
+        Brief UI Settle Short
+    END
+
+Brief UI Settle Short
+    [Documentation]    Tiny pause after DOM updates (~200ms). Prefer over Sleep 1s when overlay already cleared.
+    Sleep    0.22s
+
+Brief UI Settle
+    [Documentation]    Short pause for Kendo/UI repaint after spinner gone. Prefer over Sleep 1s–2s.
+    Sleep    0.45s
+
+Brief UI Settle Long
+    [Documentation]    Slightly longer settle (modals, grid reflow). Prefer over Sleep 3s where no explicit condition exists.
+    Sleep    0.9s

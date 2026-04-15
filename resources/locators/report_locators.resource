@@ -1,5 +1,10 @@
 *** Variables ***
 # ── Navigation — Reports sidebar and Create button ───────────────────
+# Left menu: CMP uses id=Report-icon (href may be # or router — do not rely on href alone).
+${LOC_NAV_REPORTS_SIDEBAR}         id=Report-icon
+# Sub-tab on some flows (same href guard as legacy anchor — excludes /CreateReports).
+${LOC_TAB_REPORT}                  xpath=//ul[@id='pageHeading']//a[contains(@href,'/Report') and not(contains(@href,'Create'))]
+# Legacy href-based sidebar link (often absent in SPA); prefer LOC_NAV_REPORTS_SIDEBAR + Navigate To Reports Page.
 ${LOC_NAV_REPORTS}                 xpath=//a[contains(@href,'/Report') and not(contains(@href,'Create'))]
 ${LOC_BTN_CREATE_REPORT}           xpath=//a[contains(@class,'btn-custom-color') and contains(@href,'/CreateReports')]
 

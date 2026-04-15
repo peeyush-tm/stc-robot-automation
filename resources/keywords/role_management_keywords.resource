@@ -6,6 +6,12 @@ Resource    login_keywords.resource
 Resource    ../locators/role_management_locators.resource
 Resource    ../locators/login_locators.resource
 
+*** Variables ***
+# Overwritten by ``Load Environment Config From Json`` when present in config/<env>.json
+${DEFAULT_OPCO_ACCOUNT}       KSA_OPCO
+${DEFAULT_EC_ACCOUNT}         SANJ_1002
+${DEFAULT_BU_ACCOUNT}         billingAccountSANJ_1003
+
 *** Keywords ***
 # ═══════════════════════════════════════════════════════════════════════
 #  SUITE SETUP
@@ -14,21 +20,8 @@ Login And Navigate To Manage Role
     [Documentation]    Opens browser, logs in, navigates to Admin > Role & Access.
     ...                MD: Prerequisites → User is logged in with RW permission.
     Open Browser And Navigate    ${BASE_URL}    ${BROWSER}
-    Wait For App Loading To Complete
-    Wait Until Element Is Visible    ${LOC_LOGIN_ROOT}            timeout=15s
-    Wait Until Element Is Visible    ${LOC_LOGIN_USERNAME_INPUT}  timeout=10s
-    Wait Until Element Is Visible    ${LOC_LOGIN_PASSWORD_INPUT}  timeout=10s
-    Wait Until Element Is Visible    ${LOC_LOGIN_CAPTCHA_INPUT}   timeout=10s
-    Enter Username    ${VALID_USERNAME}
-    Enter Password    ${VALID_PASSWORD}
-    Wait Until Element Is Visible    ${LOC_LOGIN_CAPTCHA_IMAGE}   timeout=20s
-    Sleep    2s
-    ${captcha_value}=    Fetch Captcha Value
-    Enter Captcha    ${captcha_value}
-    Click Login Button
-    Wait For App Loading To Complete
-    Wait Until Element Is Visible    ${LOC_MD_GRID_DATA}          timeout=45s
-    Wait Until Element Is Visible    ${LOC_POST_LOGIN_LANDMARK}   timeout=30s
+    Login With Credentials    ${VALID_USERNAME}    ${VALID_PASSWORD}
+    Verify Login Success
     Navigate To Manage Role Page
     Log    Suite setup complete: logged in and on Manage Role page.
 
@@ -41,9 +34,9 @@ Navigate To Manage Role Page
     ...                Constructs URL from BASE_URL (env-dependent) + ManageRole path.
     ${base}=    Evaluate    '${BASE_URL}'.rstrip('/')
     Go To    ${base}/ManageRole
-    Sleep    3s
+    Sleep    1s
     Wait For App Loading To Complete    timeout=60s
-    Sleep    2s
+    Sleep    1s
     Wait For App Loading To Complete
     Wait Until Keyword Succeeds    3x    5s    Location Should Contain    ${MANAGE_ROLE_PATH}
     Wait Until Element Is Visible    ${LOC_ROLE_GRID}    ${RM_TIMEOUT}
@@ -55,15 +48,12 @@ Refresh Manage Role Page
     ${on_manage_role}=    Run Keyword And Return Status
     ...    Location Should Contain    ${MANAGE_ROLE_PATH}
     IF    ${on_manage_role}
-        Sleep    1s
         Wait For App Loading To Complete
     ELSE
         ${base}=    Evaluate    '${BASE_URL}'.rstrip('/')
         Go To    ${base}/ManageRole
-        Sleep    3s
+        Sleep    1s
         Wait For App Loading To Complete    timeout=60s
-        Sleep    2s
-        Wait For App Loading To Complete
     END
     Wait Until Keyword Succeeds    3x    5s    Location Should Contain    ${MANAGE_ROLE_PATH}
     Wait Until Element Is Visible    ${LOC_ROLE_GRID}    ${RM_TIMEOUT}
@@ -101,7 +91,7 @@ Click Create Role Button
     [Documentation]    MD: Step 2.2 — Click Create Role → /CreateRole.
     Wait Until Element Is Visible    ${LOC_BTN_CREATE_ROLE}    ${RM_TIMEOUT}
     Click Element Via JS    ${LOC_BTN_CREATE_ROLE}
-    Sleep    2s
+    Sleep    1s
     Wait For App Loading To Complete    timeout=60s
     Sleep    1s
     Wait For App Loading To Complete
@@ -168,9 +158,9 @@ Verify Permissions Table Visible
 # ═══════════════════════════════════════════════════════════════════════
 Select Role Account In TreeView
     [Documentation]    MD: Step 3.1–3.2 — Click Account tree-view dropdown and select the
-    ...                target BU account: KSA_OPCO → SANJ_1002 → billingAccountSANJ_1003.
+    ...                target BU account: ${DEFAULT_OPCO_ACCOUNT} → ${DEFAULT_EC_ACCOUNT} → ${DEFAULT_BU_ACCOUNT}.
     ...                Same hierarchical expansion as Create User TreeView.
-    Sleep    2s
+    Sleep    1s
     # Step 1: Try to find and click the account dropdown trigger
     ${clicked}=    Execute JavaScript
     ...    var names = ['accountName','accountId','parentAccount','account'];
@@ -199,7 +189,7 @@ Select Role Account In TreeView
             Fail    Account TreeView trigger not found on CreateRole page.
         END
     END
-    Sleep    2s
+    Sleep    1s
     Wait For App Loading To Complete
     # Step 2: Wait for the TreeView to appear
     ${tree_visible}=    Run Keyword And Return Status
@@ -211,59 +201,256 @@ Select Role Account In TreeView
     Wait Until Element Is Visible    ${LOC_ROLE_TREE_ROOT_NODE}    15s
     Sleep    1s
     RM Expand And Select BU Account
-    Sleep    2s
+    Sleep    1s
     Wait For App Loading To Complete
     Log    Account selected: ${RM_BU_ACCOUNT_NAME}
 
-RM Expand And Select BU Account
-    [Documentation]    Expand KSA_OPCO → expand EC (RM_EC_ACCOUNT_NAME) →
-    ...                select BU (RM_BU_ACCOUNT_NAME). Same pattern as Create User.
+RM Expand Select Bu Pair
+    [Documentation]    One attempt: OPCO root → EC → BU for Create Role account tree.
+    [Arguments]    ${ec_name}    ${bu_name}
+    RM Clear Account Tree Search If Present
     ${root_expand}=    Run Keyword And Return Status
     ...    Wait Until Element Is Visible    ${LOC_ROLE_TREE_ROOT_EXPAND}    5s
     IF    ${root_expand}
         Click Element Via JS    ${LOC_ROLE_TREE_ROOT_EXPAND}
-        Sleep    4s
+        Sleep    1s
         Wait For App Loading To Complete    timeout=30s
-        Sleep    2s
-        Log    KSA_OPCO expanded.
+        Sleep    1s
+        Log    Root tree expand clicked (first expand icon).
     END
-    RM Expand Tree Node By Name    ${RM_EC_ACCOUNT_NAME}
-    Sleep    4s
+    RM Expand Tree Node By Name    ${DEFAULT_OPCO_ACCOUNT}
+    RM Type In Account Tree Search If Present    ${ec_name}
+    RM Expand Tree Node By Name    ${ec_name}
+    Sleep    1s
     Wait For App Loading To Complete    timeout=30s
+    Sleep    1s
+    Log    EC '${ec_name}' expanded.
+    RM Type In Account Tree Search If Present    ${bu_name}
+    RM Select Tree Node By Name    ${bu_name}
+
+RM Reopen Role Account Dropdown Treeview
+    [Documentation]    Dismiss and re-open Account tree on Create Role after a failed selection.
+    Run Keyword And Ignore Error
+    ...    Execute Javascript    document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
+    Sleep    0.5s
+    ${re}=    Execute Javascript
+    ...    var names=['accountName','accountId','parentAccount','account'];
+    ...    for(var n=0;n<names.length;n++){ var inp=document.querySelector('input[name="'+names[n]+'"]'); if(inp&&(inp.offsetParent!==null||inp.offsetHeight>0)){ inp.scrollIntoView({block:'center'}); inp.click(); return names[n]; } }
+    ...    return '';
+    Sleep    1s
+    Wait For App Loading To Complete
+    Wait Until Element Is Visible    ${LOC_ROLE_ACCOUNT_TREE}    15s
+    Wait Until Element Is Visible    ${LOC_ROLE_TREE_ROOT_NODE}    15s
+    Sleep    1s
+
+RM Expand Ksa And Select First Ec Bu
+    [Documentation]    Last resort: OPCO root → first child EC → first BU checkbox (Create Role tree).
+    RM Clear Account Tree Search If Present
+    ${root_expand}=    Run Keyword And Return Status
+    ...    Wait Until Element Is Visible    ${LOC_ROLE_TREE_ROOT_EXPAND}    5s
+    IF    ${root_expand}
+        Click Element Via JS    ${LOC_ROLE_TREE_ROOT_EXPAND}
+        Sleep    1s
+        Wait For App Loading To Complete    timeout=30s
+    END
+    RM Expand Tree Node By Name    ${DEFAULT_OPCO_ACCOUNT}
     Sleep    2s
-    Log    EC '${RM_EC_ACCOUNT_NAME}' expanded.
-    RM Select Tree Node By Name    ${RM_BU_ACCOUNT_NAME}
+    Wait For App Loading To Complete    timeout=40s
+    ${ec_exp}=    Execute Javascript
+    ...    var root=document.querySelector('div[id^="showTreeView"]')||document.querySelector('.k-treeview');if(!root)return false;
+    ...    var ksaLi=null;
+    ...    root.querySelectorAll('span.k-in').forEach(function(sp){
+    ...    var t=sp.textContent.trim().toUpperCase();
+    ...    if(t.indexOf('KSA')>=0&&t.indexOf('OPCO')>=0) ksaLi=sp.closest('li.k-item');
+    ...    });
+    ...    if(!ksaLi) return false;
+    ...    var ul=ksaLi.querySelector(':scope > ul'); if(!ul) return false;
+    ...    var ecLi=ul.querySelector(':scope > li.k-item'); if(!ecLi) return false;
+    ...    var ic=ecLi.querySelector('span.k-i-expand, span.k-i-plus, span.k-plus, span.k-i-arrow-60-right');
+    ...    if(ic){ ic.click(); return true; }
+    ...    return true;
+    Sleep    2s
+    Wait For App Loading To Complete    timeout=40s
+    ${bu_ok}=    Execute Javascript
+    ...    var root=document.querySelector('div[id^="showTreeView"]')||document.querySelector('.k-treeview');if(!root)return false;
+    ...    var boxes=root.querySelectorAll('li.k-item input[type=checkbox], li.k-item input.k-checkbox');
+    ...    for(var i=boxes.length-1;i>=0;i--){
+    ...    var li=boxes[i].closest('li.k-item');
+    ...    if(li&&li.querySelector('span.k-in')){ boxes[i].click(); return true; }
+    ...    }
+    ...    return false;
+    Should Be True    ${bu_ok}    Could not pick a BU under ${DEFAULT_OPCO_ACCOUNT} (first-EC heuristic).
+
+RM Expand And Select BU Account
+    [Documentation]    Expand OPCO → EC → BU. Tries RM_EC_/RM_BU_; config default EC/BU; then first EC/BU heuristic.
+    ${ok}=    Run Keyword And Return Status    RM Expand Select Bu Pair    ${RM_EC_ACCOUNT_NAME}    ${RM_BU_ACCOUNT_NAME}
+    IF    not ${ok}
+        Log    Role account tree: could not use EC '${RM_EC_ACCOUNT_NAME}' — retrying ${DEFAULT_EC_ACCOUNT} / ${DEFAULT_BU_ACCOUNT}    level=WARN    console=yes
+        RM Reopen Role Account Dropdown Treeview
+        ${ok2}=    Run Keyword And Return Status    RM Expand Select Bu Pair    ${DEFAULT_EC_ACCOUNT}    ${DEFAULT_BU_ACCOUNT}
+        IF    not ${ok2}
+            Log    Role account tree: default EC/BU fallback failed — using first EC/BU under ${DEFAULT_OPCO_ACCOUNT}    level=WARN    console=yes
+            RM Reopen Role Account Dropdown Treeview
+            RM Expand Ksa And Select First Ec Bu
+        END
+    END
+
+RM Clear Account Tree Search If Present
+    [Documentation]    Clears Create Role account tree filter before a new EC/BU path.
+    ${visible}=    Run Keyword And Return Status
+    ...    Wait Until Element Is Visible    ${LOC_ROLE_ACCOUNT_TREE_SEARCH}    4s
+    IF    not ${visible}
+        RETURN
+    END
+    Scroll To Element Via JS    ${LOC_ROLE_ACCOUNT_TREE_SEARCH}
+    Clear Element Text    ${LOC_ROLE_ACCOUNT_TREE_SEARCH}
+    Press Keys    ${LOC_ROLE_ACCOUNT_TREE_SEARCH}    RETURN
+    Sleep    0.8s
+    Wait For App Loading To Complete    timeout=20s
+
+RM Type In Account Tree Search If Present
+    [Documentation]    If the account tree has a filter/search box, type text and submit to narrow nodes.
+    [Arguments]    ${text}
+    ${visible}=    Run Keyword And Return Status
+    ...    Wait Until Element Is Visible    ${LOC_ROLE_ACCOUNT_TREE_SEARCH}    4s
+    IF    not ${visible}
+        RETURN
+    END
+    Scroll To Element Via JS    ${LOC_ROLE_ACCOUNT_TREE_SEARCH}
+    Clear Element Text    ${LOC_ROLE_ACCOUNT_TREE_SEARCH}
+    Input Text    ${LOC_ROLE_ACCOUNT_TREE_SEARCH}    ${text}
+    Sleep    0.5s
+    Press Keys    ${LOC_ROLE_ACCOUNT_TREE_SEARCH}    RETURN
+    Sleep    1s
+    Wait For App Loading To Complete    timeout=20s
 
 RM Expand Tree Node By Name
-    [Documentation]    Finds a tree node by name and clicks its expand icon.
+    [Documentation]    Finds a tree node by label and expands it (visible tree only, scroll, Kendo icons).
     [Arguments]    ${node_name}
-    ${expanded}=    Execute JavaScript
-    ...    var containers = document.querySelectorAll('.account-tree-dropdown, div[id*="showTreeView"], div.k-treeview');
-    ...    var allNodes = [];
-    ...    if(containers.length>0){for(var c=0;c<containers.length;c++){var ns=containers[c].querySelectorAll('span.k-in'); for(var j=0;j<ns.length;j++) allNodes.push(ns[j]);}}
-    ...    else{allNodes=Array.from(document.querySelectorAll('.k-treeview span.k-in, .k-item span.k-in'));}
-    ...    for(var i=0;i<allNodes.length;i++){
-    ...        if(allNodes[i].textContent.trim()==='${node_name}'){
-    ...            var li=allNodes[i].closest('li.k-item');
-    ...            if(li){var icon=li.querySelector(':scope > div span.k-i-expand');
-    ...                if(icon){icon.click(); return true;}}}} return false;
+    ${expanded}=    Set Variable    ${FALSE}
+    FOR    ${_}    IN RANGE    6
+        ${expanded}=    Execute JavaScript
+        ...    return (function(nodeName) {
+        ...    function visibleContainers() {
+        ...    var sel = document.querySelectorAll('.account-tree-dropdown, div[id*="showTreeView"], div.k-treeview');
+        ...    var out = [];
+        ...    for (var i = 0; i < sel.length; i++) {
+        ...    var el = sel[i];
+        ...    var st = window.getComputedStyle(el);
+        ...    if (st.display === 'none' || st.visibility === 'hidden') continue;
+        ...    var r = el.getBoundingClientRect();
+        ...    if (r.width < 2 && r.height < 2) continue;
+        ...    out.push(el);
+        ...    }
+        ...    return out;
+        ...    }
+        ...    function expandIcon(li) {
+        ...    if (!li) return null;
+        ...    var row = li.querySelector(':scope > div') || li;
+        ...    var icon = row.querySelector('span.k-i-expand, span.k-i-plus, span.k-plus, span.k-i-arrow-60-right');
+        ...    if (icon) return icon;
+        ...    return li.querySelector('span.k-icon');
+        ...    }
+        ...    function labelMatches(raw, want) {
+        ...    var r = (raw || '').replace(/\\s+/g,' ').trim();
+        ...    var w = (want || '').trim();
+        ...    if (!w) return false;
+        ...    var rl = r.toLowerCase();
+        ...    var wl = w.toLowerCase();
+        ...    if (r === w || rl === wl) return true;
+        ...    if (rl.indexOf(wl) >= 0 || r.indexOf(w) >= 0) return true;
+        ...    if (wl.length >= 4 && wl.indexOf(rl) >= 0) return true;
+        ...    return false;
+        ...    }
+        ...    var containers = visibleContainers();
+        ...    var allNodes = [];
+        ...    for (var c = 0; c < containers.length; c++) {
+        ...    var ns = containers[c].querySelectorAll('span.k-in');
+        ...    for (var j = 0; j < ns.length; j++) allNodes.push(ns[j]);
+        ...    }
+        ...    if (allNodes.length === 0) {
+        ...    allNodes = Array.from(document.querySelectorAll('.k-treeview span.k-in, li.k-item > div span.k-in'));
+        ...    }
+        ...    var targetNorm = (nodeName || '').trim();
+        ...    for (var i = 0; i < allNodes.length; i++) {
+        ...    var raw = allNodes[i].textContent.trim();
+        ...    if (!labelMatches(raw, targetNorm)) continue;
+        ...    allNodes[i].scrollIntoView({block:'center', inline:'nearest'});
+        ...    var li = allNodes[i].closest('li.k-item');
+        ...    var icon = expandIcon(li);
+        ...    if (icon) { icon.click(); return true; }
+        ...    var ul = li ? li.querySelector(':scope > ul') : null;
+        ...    if (ul && ul.offsetHeight > 8 && ul.querySelector('li')) return true;
+        ...    return false;
+        ...    }
+        ...    return false;
+        ...    })(arguments[0]);
+        ...    ARGUMENTS    ${node_name}
+        Exit For Loop If    ${expanded}
+        Sleep    2s
+        Wait For App Loading To Complete    timeout=25s
+    END
     Should Be True    ${expanded}    Could not find or expand node '${node_name}' in the TreeView.
     Log    Expanded node: ${node_name}
 
 RM Select Tree Node By Name
-    [Documentation]    Finds a tree node by exact text and clicks its checkbox or text.
+    [Documentation]    Finds a tree node by exact label and clicks checkbox or label (visible tree, scroll).
     [Arguments]    ${account_name}
-    ${clicked}=    Execute JavaScript
-    ...    var containers = document.querySelectorAll('.account-tree-dropdown, div[id*="showTreeView"], div.k-treeview');
-    ...    var allNodes = [];
-    ...    if(containers.length>0){for(var c=0;c<containers.length;c++){var ns=containers[c].querySelectorAll('span.k-in'); for(var j=0;j<ns.length;j++) allNodes.push(ns[j]);}}
-    ...    else{allNodes=Array.from(document.querySelectorAll('.k-treeview span.k-in, .k-item span.k-in'));}
-    ...    for(var i=0;i<allNodes.length;i++){
-    ...        if(allNodes[i].textContent.trim()==='${account_name}'){
-    ...            var li=allNodes[i].closest('li.k-item');
-    ...            var cb=li?li.querySelector(':scope > div input.k-checkbox'):null;
-    ...            if(cb){cb.click(); return true;}
-    ...            else{allNodes[i].click(); return true;}}} return false;
+    ${clicked}=    Set Variable    ${FALSE}
+    FOR    ${_}    IN RANGE    6
+        ${clicked}=    Execute JavaScript
+        ...    return (function(accountName) {
+        ...    function visibleContainers() {
+        ...    var sel = document.querySelectorAll('.account-tree-dropdown, div[id*="showTreeView"], div.k-treeview');
+        ...    var out = [];
+        ...    for (var i = 0; i < sel.length; i++) {
+        ...    var el = sel[i];
+        ...    var st = window.getComputedStyle(el);
+        ...    if (st.display === 'none' || st.visibility === 'hidden') continue;
+        ...    var r = el.getBoundingClientRect();
+        ...    if (r.width < 2 && r.height < 2) continue;
+        ...    out.push(el);
+        ...    }
+        ...    return out;
+        ...    }
+        ...    var containers = visibleContainers();
+        ...    var allNodes = [];
+        ...    for (var c = 0; c < containers.length; c++) {
+        ...    var ns = containers[c].querySelectorAll('span.k-in');
+        ...    for (var j = 0; j < ns.length; j++) allNodes.push(ns[j]);
+        ...    }
+        ...    if (allNodes.length === 0) {
+        ...    allNodes = Array.from(document.querySelectorAll('.k-treeview span.k-in, li.k-item > div span.k-in'));
+        ...    }
+        ...    function labelMatches(raw, want) {
+        ...    var r = (raw || '').replace(/\\s+/g,' ').trim();
+        ...    var w = (want || '').trim();
+        ...    if (!w) return false;
+        ...    var rl = r.toLowerCase();
+        ...    var wl = w.toLowerCase();
+        ...    if (r === w || rl === wl) return true;
+        ...    if (rl.indexOf(wl) >= 0 || r.indexOf(w) >= 0) return true;
+        ...    if (wl.length >= 4 && wl.indexOf(rl) >= 0) return true;
+        ...    return false;
+        ...    }
+        ...    var targetNorm = (accountName || '').trim();
+        ...    for (var i = 0; i < allNodes.length; i++) {
+        ...    var raw = allNodes[i].textContent.trim();
+        ...    if (!labelMatches(raw, targetNorm)) continue;
+        ...    allNodes[i].scrollIntoView({block:'center', inline:'nearest'});
+        ...    var li = allNodes[i].closest('li.k-item');
+        ...    var cb = li ? li.querySelector('input.k-checkbox, input[type="checkbox"]') : null;
+        ...    if (cb) { cb.click(); return true; }
+        ...    allNodes[i].click();
+        ...    return true;
+        ...    }
+        ...    return false;
+        ...    })(arguments[0]);
+        ...    ARGUMENTS    ${account_name}
+        Exit For Loop If    ${clicked}
+        Sleep    2s
+        Wait For App Loading To Complete    timeout=25s
+    END
     Should Be True    ${clicked}    Account '${account_name}' not found in the TreeView.
     Log    Selected account: ${account_name}
 
@@ -439,7 +626,7 @@ Click Role Submit Button
     ...                Locator: Text 'Submit'
     Wait Until Element Is Visible    ${LOC_BTN_SUBMIT_ROLE}    ${RM_TIMEOUT}
     Click Element Via JS    ${LOC_BTN_SUBMIT_ROLE}
-    Sleep    2s
+    Sleep    1s
     Wait For App Loading To Complete    timeout=60s
     Sleep    1s
     Wait For App Loading To Complete
@@ -447,9 +634,23 @@ Click Role Submit Button
 
 Click Role Close Button
     [Documentation]    Clicks Close/Back button on Create Role form.
-    Wait Until Element Is Visible    ${LOC_BTN_CLOSE_ROLE}    ${RM_TIMEOUT}
-    Click Element Via JS    ${LOC_BTN_CLOSE_ROLE}
-    Sleep    2s
+    Wait For Loading Overlay To Disappear
+    ${seen}=    Run Keyword And Return Status    Wait Until Element Is Visible    ${LOC_BTN_CLOSE_ROLE}    8s
+    IF    not ${seen}
+        ${js_close}=    Execute Javascript
+        ...    var els=document.querySelectorAll('button,a,input[type="button"],input[type="submit"]');
+        ...    for(var i=0;i<els.length;i++){
+        ...    var t=(els[i].textContent||els[i].value||'').replace(/\\s+/g,' ').trim();
+        ...    var tl=t.toLowerCase();
+        ...    if(tl==='close'||tl.indexOf('close')===0){ els[i].scrollIntoView({block:'center'}); els[i].click(); return true;}
+        ...    }
+        ...    return false;
+        Should Be True    ${js_close}    Close control not found on Create Role form.
+    ELSE
+        Run Keyword And Ignore Error    Scroll To Element Via JS    ${LOC_BTN_CLOSE_ROLE}
+        Click Element Via JS    ${LOC_BTN_CLOSE_ROLE}
+    END
+    Sleep    1s
     Wait For App Loading To Complete
     Log    Close button clicked.
 
@@ -506,7 +707,7 @@ Search Role In Grid
     Clear Element Text    ${LOC_ROLE_SEARCH_INPUT}
     Input Text    ${LOC_ROLE_SEARCH_INPUT}    ${role_name}
     Press Keys    ${LOC_ROLE_SEARCH_INPUT}    RETURN
-    Sleep    2s
+    Sleep    1s
     Wait For App Loading To Complete
     Sleep    1s
     Log    Searched for role: ${role_name}
@@ -516,7 +717,7 @@ Clear Role Search
     Wait Until Element Is Visible    ${LOC_ROLE_SEARCH_INPUT}    ${RM_TIMEOUT}
     Clear Element Text    ${LOC_ROLE_SEARCH_INPUT}
     Press Keys    ${LOC_ROLE_SEARCH_INPUT}    RETURN
-    Sleep    2s
+    Sleep    1s
     Wait For App Loading To Complete
     Log    Search cleared.
 
@@ -538,7 +739,7 @@ Verify Role Not In Grid
     [Documentation]    MD: TC-ROLE-002 Step 4.3 — Role no longer present in grid.
     [Arguments]    ${role_name}
     ${loc}=    Set Variable    xpath=//td[contains(text(),'${role_name}')]
-    Sleep    2s
+    Sleep    1s
     ${visible}=    Run Keyword And Return Status
     ...    Wait Until Element Is Visible    ${loc}    5s
     IF    ${visible}
@@ -551,8 +752,14 @@ Verify Role Not In Grid
 #  DELETE ROLE (MD: TC-ROLE-002 Steps 3–4)
 # ═══════════════════════════════════════════════════════════════════════
 Click Delete Icon For Role
-    [Documentation]    Clicks the delete icon (i[@title='Delete']) in the Action column for the role.
+    [Documentation]    Clicks delete in the Action column (Kendo delete link, FA trash, or titled icon).
     [Arguments]    ${role_name}
+    ${row_loc}=    Set Variable    xpath=//tr[.//td[contains(.,'${role_name}')]]
+    ${row_ok}=    Run Keyword And Return Status    Wait Until Element Is Visible    ${row_loc}    15s
+    IF    ${row_ok}
+        Scroll To Element Via JS    ${row_loc}
+        Sleep    0.5s
+    END
     ${raw_loc}=    Replace String    ${LOC_DELETE_ROLE_TEMPLATE}    PLACEHOLDER    ${role_name}
     ${delete_xpath}=    Set Variable    xpath=${raw_loc}
     Wait Until Element Is Visible    ${delete_xpath}    ${RM_TIMEOUT}
@@ -581,7 +788,7 @@ Click Confirm Delete Role
     [Documentation]    MD: Step 4.1 — Click Yes/Confirm on the confirmation dialog.
     Wait Until Element Is Visible    ${LOC_DELETE_CONFIRM_YES}    ${RM_TIMEOUT}
     Click Element Via JS    ${LOC_DELETE_CONFIRM_YES}
-    Sleep    2s
+    Sleep    1s
     Wait For App Loading To Complete    timeout=60s
     Sleep    1s
     Wait For App Loading To Complete

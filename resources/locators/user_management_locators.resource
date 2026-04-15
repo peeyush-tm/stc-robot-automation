@@ -31,6 +31,9 @@ ${LOC_UM_ACCOUNT_ROOT_EXPAND}       xpath=(//div[contains(@id,'showTreeView')]//
 # Root node text (KSA_OPCO)
 ${LOC_UM_ACCOUNT_ROOT_NODE}         xpath=(//div[contains(@id,'showTreeView')]//span[contains(@class,'k-in')])[1] | (//div[contains(@class,'k-treeview')]//span[contains(@class,'k-in')])[1]
 
+# Optional filter inside Account TreeView panel
+${LOC_UM_ACCOUNT_TREE_SEARCH}       xpath=//div[contains(@id,'showTreeView')]//input[contains(@class,'search-textbox') or contains(@class,'inputtree')] | //div[contains(@class,'account-tree-dropdown')]//input[contains(@class,'search-textbox') or contains(@class,'inputtree')]
+
 # Username (MD: Step 7, name='userName', min 5, max 50)
 ${LOC_INPUT_USERNAME}             xpath=//input[@name='userName']
 
@@ -76,8 +79,8 @@ ${LOC_RADIO_LOCAL_TIME_NO}        xpath=//input[@name='localTime' and @value='fa
 # ── Form Buttons (MD: Buttons on Create User Form) ───────────────────
 # Submit: <a href="javascript:void(0);" class="btn btn-custom-color cursor-pointer width-75">Submit</a>
 ${LOC_BTN_SUBMIT}                 xpath=//a[contains(@class,'btn-custom-color') and normalize-space()='Submit'] | //a[contains(text(),'Submit') and contains(@class,'btn')] | //button[contains(text(),'Submit')]
-# Close: <a class="btn btn-cancel-color width-75" href="/ManageUser">Close</a>
-${LOC_BTN_CLOSE_FORM}             xpath=//a[contains(@class,'btn-cancel-color') and normalize-space()='Close'] | //a[contains(text(),'Close') and @href='/ManageUser'] | //button[contains(text(),'Close')]
+# Close: often <input type="button" class="btn-cancel-color" value="Close">; legacy <a href="/ManageUser"> still supported
+${LOC_BTN_CLOSE_FORM}             xpath=//input[@type='button' and contains(@class,'btn-cancel-color') and @value='Close'] | //input[@type='submit' and contains(@class,'btn-cancel-color') and @value='Close'] | //a[contains(@class,'btn-cancel-color') and normalize-space()='Close'] | //a[contains(text(),'Close') and contains(@href,'ManageUser')] | //button[normalize-space()='Close'] | //a[normalize-space()='Close'] | //button[contains(normalize-space(.),'Close')]
 
 # ── Validation Errors ────────────────────────────────────────────────
 ${LOC_VALIDATION_ERROR}           xpath=//*[contains(@class,'alert-danger')] | //*[contains(@class,'error-message')] | //*[contains(@class,'field-validation-error')]
@@ -86,9 +89,9 @@ ${LOC_TOAST_ERROR}                xpath=//*[contains(@class,'toast-error')] | //
 ${LOC_TOAST_MESSAGE}              xpath=//*[contains(@class,'toast-message')] | //*[contains(@class,'Toastify__toast-body')]
 
 # ── Delete User (MD: TC_002 Steps + Confirmation Dialog Reference) ───
-# Delete icon in Action column — icon with title="Delete User"
-# Template: //tr[td[contains(text(),'USERNAME')]]//i[@title='Delete User']
-${LOC_DELETE_ICON_TEMPLATE}       //tr[td[contains(text(),'PLACEHOLDER')]]//i[@title='Delete User']
+# Delete in Action column — Kendo grid delete link, FA trash, or title Delete User / delete
+# Template: row td contains PLACEHOLDER
+${LOC_DELETE_ICON_TEMPLATE}       //tr[.//td[contains(.,'PLACEHOLDER')]]//*[contains(@class,'k-grid-Delete') or contains(@class,'k-delete') or contains(@class,'fa-trash')][1] | //tr[.//td[contains(.,'PLACEHOLDER')]]//*[@title='Delete User' or @title='delete user' or contains(translate(@title,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'delete')][1]
 
 # Confirmation Dialog (MD: Confirmation Dialog Reference)
 ${LOC_DELETE_DIALOG}              xpath=//div[contains(@class,'confirm-modal')] | //div[contains(@class,'modal') and contains(@class,'show')]

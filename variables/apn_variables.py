@@ -2,6 +2,8 @@ import random
 import string
 import time
 
+from _shared_seed import env_default
+
 
 def _random_string(length=6):
     return "".join(random.choices(string.ascii_lowercase + string.digits, k=length))
@@ -17,9 +19,9 @@ CREATE_APN_PATH = "/CreateAPN"
 APN_TYPE_PRIVATE = "1"
 APN_TYPE_PUBLIC = "2"
 
-# ── Account & BU ────────────────────────────────────────────────────
-ACCOUNT_NAME = "SANJU"
-BU_NAME = "billingAccountSANJU"
+# ── Account & BU (env STC_APN_ACCOUNT_NAME / STC_APN_BU_NAME) ───────
+ACCOUNT_NAME = env_default("STC_APN_ACCOUNT_NAME", "SANJU")
+BU_NAME = env_default("STC_APN_BU_NAME", "billingAccountSANJU")
 
 # ── Valid Primary Details — Private APN ──────────────────────────────
 VALID_APN_ID = f"10{_TIMESTAMP}"

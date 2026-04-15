@@ -16,7 +16,7 @@ Variables   ../variables/product_type_variables.py
 Variables   ../variables/order_processing_variables.py
 Variables   ../variables/device_state_variables.py
 
-Suite Setup       E2E Suite Setup
+Suite Setup       Run Keywords    Load Environment Config From Json    ${ENV}    AND    E2E Suite Setup
 Suite Teardown    Close All Browsers
 Test Teardown     Run Keyword If Test Failed    Capture Page Screenshot
 
@@ -94,6 +94,8 @@ Step 3 Create CSR Journey For Onboarded Account
     [Documentation]    Creates a CSR Journey (order) for the EC/BU onboarded in Step 1.
     ...                Goes through the full wizard: tariff plan, APN, device plan, service plan,
     ...                additional services, summary, and save.
+    ...                Implementation: E2E Create CSR Journey → CSRJ Complete Create Wizard Save And Exit Like E2E
+    ...                (csr_journey_keywords.resource). Deeper CSR UI regression: tests/csr_journey_tests.robot TC_CSRJ_004.
     [Tags]    e2e    step-3    csr-journey
     STEP_03
 
@@ -219,6 +221,9 @@ STEP_01
     Delete All Sessions
     Set Suite Variable    ${E2E_EC_NAME}    ${data}[company_name]
     Set Suite Variable    ${E2E_BU_NAME}    ${data}[billing_account_name]
+    # Persist EC/BU names under flow-specific seed keys (e2e_flow without usage)
+    Write Seed Value    e2e_ec_name    ${E2E_EC_NAME}
+    Write Seed Value    e2e_bu_name    ${E2E_BU_NAME}
     Log    ===== ONBOARD SUCCESS =====    console=yes
     Log    EC Name : ${E2E_EC_NAME}    console=yes
     Log    BU Name : ${E2E_BU_NAME}    console=yes
@@ -312,10 +317,21 @@ STEP_16
     FOR    ${imsi}    IN    @{E2E_ACTIVATED_IMSIS}
         Log    Activated IMSI: ${imsi}    console=yes
     END
+    # Persist flow-specific IMSI/ICCID seed keys for Device State (e2e_flow without usage)
+    ${_imsi_count}=    Get Length    ${activated_imsis}
+    IF    ${_imsi_count} > 0
+        ${_first}=    Get From List    ${activated_imsis}    0
+        Write Seed Value    e2e_first_activated_imsi    ${_first}
+    END
+    IF    ${_imsi_count} > 1
+        ${_second}=    Get From List    ${activated_imsis}    1
+        Write Seed Value    e2e_second_activated_imsi    ${_second}
+    END
 
 STEP_17
-    Should Not Be Empty    ${E2E_BU_ID}    Step 8 must run first — BU ID is empty.
-    ${local_path}    ${filename}=    E2E Generate And Download Invoice    ${E2E_BU_ID}
+    ${bu_id_str}=    Convert To String    ${E2E_BU_ID}
+    Should Not Be Empty    ${bu_id_str}    Step 8 must run first — BU ID is empty.
+    ${local_path}    ${filename}=    E2E Generate And Download Invoice    ${bu_id_str}
     Set Suite Variable    ${E2E_INVOICE_PATH}    ${local_path}
     Log    Invoice downloaded: ${filename} → ${local_path}    console=yes
 

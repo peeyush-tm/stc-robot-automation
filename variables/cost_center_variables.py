@@ -1,6 +1,9 @@
 import random
 import string
 
+from _config_defaults import config_scalar
+from _shared_seed import resolved
+
 
 def _random_string(length=8):
     return "".join(random.choices(string.ascii_letters + string.digits, k=length))
@@ -14,8 +17,16 @@ CC_TIMEOUT = "30s"
 # ── Test Data: Create Cost Center Form ───────────────────────────────
 CC_ACCOUNT_NAME = f"AutoCC_{_random_string(8)}"
 CC_COMMENT = "Automation test cost center"
-CC_PARENT_ACCOUNT_NAME = "billingAccountSANJ_1003"
-CC_EC_ACCOUNT_NAME = "SANJ_1002"
+CC_PARENT_ACCOUNT_NAME = resolved(
+    "onboard_bu_name",
+    "STC_CC_PARENT_ACCOUNT_NAME",
+    config_scalar("DEFAULT_BU_ACCOUNT", "billingAccountSANJ_1003"),
+)
+CC_EC_ACCOUNT_NAME = resolved(
+    "onboard_ec_name",
+    "STC_CC_EC_ACCOUNT_NAME",
+    config_scalar("DEFAULT_EC_ACCOUNT", "SANJ_1002"),
+)
 
 # ── Boundary / Negative Test Data ────────────────────────────────────
 CC_LONG_ACCOUNT_NAME = "A" * 101

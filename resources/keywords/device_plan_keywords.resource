@@ -50,7 +50,7 @@ Open DP Filter Popup
     [Documentation]    Opens the Filters popup modal.
     Wait Until Element Is Visible    ${LOC_DP_FILTER_SEARCH}    timeout=15s
     Click Element Via JS    ${LOC_DP_FILTER_SEARCH}
-    Sleep    2s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
     Wait Until Element Is Visible    ${LOC_DP_FILTER_POPUP}    timeout=15s
 
@@ -62,7 +62,7 @@ Close DP Filter Popup
         Execute Javascript
         ...    var btn = document.querySelector('#filterPopup button[data-dismiss="modal"]');
         ...    if(btn) btn.click();
-        Sleep    2s
+        Sleep    1s
         Wait For Loading Overlay To Disappear
     END
 
@@ -75,7 +75,7 @@ Apply DP Account Filter
     ...    for(var i=0; i<spans.length; i++){
     ...      if(spans[i].textContent.trim() === 'Account'){ spans[i].click(); break; }
     ...    }
-    Sleep    2s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
     Execute Javascript
     ...    var el = document.getElementById('accountInput');
@@ -87,7 +87,7 @@ Apply DP Account Filter
     Input Text    ${LOC_DP_ACCOUNT_INPUT}    ${account_name}
     Sleep    1s
     Press Keys    ${LOC_DP_ACCOUNT_INPUT}    ENTER
-    Sleep    5s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
     ${match_found}=    Execute Javascript
     ...    var ul = document.getElementById('accountFilter');
@@ -100,7 +100,7 @@ Apply DP Account Filter
     ...    ARGUMENTS    ${account_name}
     Should Be True    ${match_found}
     ...    Account "${account_name}" not found in filter panel after search.
-    Sleep    3s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
     Log    Applied account filter: ${account_name}    console=yes
 
@@ -113,7 +113,7 @@ Apply DP SIM State Filter
     ...    for(var i=0; i<spans.length; i++){
     ...      if(spans[i].textContent.trim() === 'SIM State'){ spans[i].click(); break; }
     ...    }
-    Sleep    2s
+    Sleep    1s
     ${option_clicked}=    Execute Javascript
     ...    var ul = document.getElementById('simStateFilter');
     ...    if(!ul) return false;
@@ -125,7 +125,7 @@ Apply DP SIM State Filter
     ...    ARGUMENTS    ${filter_label}
     Should Be True    ${option_clicked}
     ...    SIM State "${filter_label}" not found in filter panel.
-    Sleep    3s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
     Log    Applied SIM State filter: ${filter_label}    console=yes
 
@@ -136,14 +136,14 @@ Filter DP Grid By Account And State
     [Arguments]    ${account_name}    ${filter_label}    ${grid_state}=${EMPTY}
     ${effective_state}=    Set Variable If    '${grid_state}' != ''    ${grid_state}    ${filter_label}
     Reset DP Grid To Default View
-    Sleep    2s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
     Wait Until Element Is Visible    ${LOC_DP_GRID_ROWS}    timeout=30s
     Open DP Filter Popup
     Apply DP Account Filter    ${account_name}
     Apply DP SIM State Filter    ${filter_label}
     Close DP Filter Popup
-    Sleep    3s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
     Wait Until Element Is Visible    ${LOC_DP_GRID_ROWS}    timeout=30s
     ${state_col}=    Get DP Column Index By Header Text    ${DP_STATE_COLUMN}
@@ -153,17 +153,17 @@ Filter DP Grid By Account And State
     IF    '${first_row_state}' != '${effective_state}'
         Log    Filter may not have been applied. Retrying filter...    level=WARN    console=yes
         Reset DP Grid To Default View
-        Sleep    3s
+        Sleep    1s
         Wait For Loading Overlay To Disappear
         Wait Until Element Is Visible    ${LOC_DP_GRID_ROWS}    timeout=30s
         Open DP Filter Popup
         Apply DP Account Filter    ${account_name}
-        Sleep    2s
+        Sleep    1s
         Apply DP SIM State Filter    ${filter_label}
-        Sleep    3s
+        Sleep    1s
         Wait For Loading Overlay To Disappear
         Close DP Filter Popup
-        Sleep    5s
+        Sleep    1s
         Wait For Loading Overlay To Disappear
         Wait Until Element Is Visible    ${LOC_DP_GRID_ROWS}    timeout=30s
         ${first_row_state_retry}=    Get DP Cell Value By Row And Column    1    ${state_col}
@@ -198,14 +198,14 @@ Reset DP Grid To Default View
     ...    Wait Until Element Is Visible    ${LOC_DP_RESET_ALL_FILTER}    timeout=3s
     IF    ${reset_visible}
         Click Element Via JS    ${LOC_DP_RESET_ALL_FILTER}
-        Sleep    2s
+        Sleep    1s
         Wait For Loading Overlay To Disappear
     END
     ${close_visible}=    Run Keyword And Return Status
     ...    Wait Until Element Is Visible    ${LOC_DP_SEARCH_CLOSE}    timeout=3s
     IF    ${close_visible}
         Click Element Via JS    ${LOC_DP_SEARCH_CLOSE}
-        Sleep    2s
+        Sleep    1s
         Wait For Loading Overlay To Disappear
     END
     ${normal_btn}=    Run Keyword And Return Status
@@ -228,7 +228,7 @@ Search DP Device By IMSI
     Input Text    ${LOC_DP_SEARCH_INPUT}    ${imsi}
     Sleep    1s
     Press Keys    ${LOC_DP_SEARCH_INPUT}    ENTER
-    Sleep    5s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
     ${row_count}=    Get Element Count    ${LOC_DP_GRID_ROWS}
     Log    IMSI search for "${imsi}" returned ${row_count} row(s).    console=yes
@@ -260,7 +260,7 @@ Select Change Device Plan Action
     Execute Javascript
     ...    arguments[0].dispatchEvent(new Event('change', {bubbles: true}));
     ...    ARGUMENTS    ${element}
-    Sleep    2s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
     Wait Until Element Is Visible    ${LOC_DP_CHANGE_STATE_SEC}    timeout=30s
     Wait Until Element Is Visible    ${LOC_DP_PLAN_DROP}    timeout=30s
@@ -316,54 +316,59 @@ Select Target Device Plan And Get Names
     Execute Javascript
     ...    arguments[0].dispatchEvent(new Event('change', {bubbles: true}));
     ...    ARGUMENTS    ${element}
-    Sleep    2s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
     # Click Submit Action button to trigger the popup
     Wait Until Element Is Visible    ${LOC_DP_SUBMIT_ACTION_BTN}    timeout=15s
     Wait Until Element Is Enabled    ${LOC_DP_SUBMIT_ACTION_BTN}    timeout=15s
     Click Element Via JS    ${LOC_DP_SUBMIT_ACTION_BTN}
-    Sleep    3s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
     RETURN    ${initial_plan}    ${target_plan}
 
 Select Target Device Plan By Preferred Name
-    [Documentation]    Looks for preferred_dp_name in the DP change dropdown first.
-    ...                If found, selects it as dp2. If not found (or preferred is empty),
-    ...                falls back to auto-picking the second available option.
+    [Documentation]    Reads the currently selected option as dp1 (the SIM's current plan).
+    ...                Then picks dp2 as:
+    ...                  1. preferred_dp_name — if provided AND found AND different from dp1.
+    ...                  2. Otherwise the first available option that is different from dp1.
+    ...                Guarantees dp2 != dp1 so the change is meaningful.
     ...                Returns dp1 (current plan) and dp2 (selected target plan).
     [Arguments]    ${preferred_dp_name}=${EMPTY}
     Wait Until Element Is Enabled    ${LOC_DP_PLAN_DROP}    timeout=30s
     ${plan_info}=    Execute Javascript
     ...    var sel = document.querySelector('select[name="changeSelectedValue"]');
     ...    if(!sel) return JSON.stringify({dp1:'', dp2:'', dp2_idx:-1, found:false});
+    ...    var dp1 = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text.trim() : '';
     ...    var options = [];
     ...    for(var i=0; i<sel.options.length; i++){
     ...      if(sel.options[i].value && sel.options[i].value !== '')
     ...        options.push({idx: i, text: sel.options[i].text.trim()});
     ...    }
-    ...    if(options.length === 0) return JSON.stringify({dp1:'', dp2:'', dp2_idx:-1, found:false});
-    ...    var dp1 = options[0].text;
-    ...    var pref = arguments[0] ? arguments[0].toLowerCase() : '';
+    ...    if(options.length === 0) return JSON.stringify({dp1:dp1, dp2:'', dp2_idx:-1, found:false});
+    ...    var pref = arguments[0] ? arguments[0].toLowerCase().trim() : '';
     ...    if(pref){
     ...      for(var j=0; j<options.length; j++){
-    ...        if(options[j].text.toLowerCase() === pref && options[j].text.toLowerCase() !== dp1.toLowerCase())
+    ...        if(options[j].text.toLowerCase().trim() === pref && options[j].text.trim().toLowerCase() !== dp1.toLowerCase())
     ...          return JSON.stringify({dp1:dp1, dp2:options[j].text, dp2_idx:options[j].idx, found:true});
     ...      }
     ...    }
-    ...    var dp2 = options.length > 1 ? options[1].text : options[0].text;
-    ...    var dp2_idx = options.length > 1 ? options[1].idx : options[0].idx;
-    ...    return JSON.stringify({dp1:dp1, dp2:dp2, dp2_idx:dp2_idx, found:false});
+    ...    for(var k=0; k<options.length; k++){
+    ...      if(options[k].text.trim().toLowerCase() !== dp1.toLowerCase())
+    ...        return JSON.stringify({dp1:dp1, dp2:options[k].text, dp2_idx:options[k].idx, found:false});
+    ...    }
+    ...    return JSON.stringify({dp1:dp1, dp2:'', dp2_idx:-1, found:false});
     ...    ARGUMENTS    ${preferred_dp_name}
     ${parsed}=    Evaluate    json.loads('''${plan_info}''')    json
     ${initial_plan}=    Set Variable    ${parsed}[dp1]
     ${target_plan}=    Set Variable    ${parsed}[dp2]
     ${target_idx}=    Set Variable    ${parsed}[dp2_idx]
     ${found}=    Set Variable    ${parsed}[found]
-    Should Not Be Empty    ${target_plan}    No device plans available in dropdown.
+    Should Not Be Empty    ${target_plan}
+    ...    No different device plan available. Current plan: "${initial_plan}". Cannot change to the same plan.
     IF    '${preferred_dp_name}' != '${EMPTY}' and not ${found}
-        Log    WARN: Preferred DP "${preferred_dp_name}" not found in dropdown — auto-picked "${target_plan}" instead.    level=WARN    console=yes
+        Log    WARN: Preferred DP "${preferred_dp_name}" not found or same as current — auto-picked "${target_plan}" instead.    level=WARN    console=yes
     ELSE IF    ${found}
-        Log    Preferred DP "${target_plan}" found and selected (DP1: "${initial_plan}").    console=yes
+        Log    Preferred DP "${target_plan}" found and selected (current: "${initial_plan}").    console=yes
     ELSE
         Log    Auto-picked DP: "${initial_plan}" → "${target_plan}" (idx ${target_idx}).    console=yes
     END
@@ -372,12 +377,12 @@ Select Target Device Plan By Preferred Name
     Execute Javascript
     ...    arguments[0].dispatchEvent(new Event('change', {bubbles: true}));
     ...    ARGUMENTS    ${element}
-    Sleep    2s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
     Wait Until Element Is Visible    ${LOC_DP_SUBMIT_ACTION_BTN}    timeout=15s
     Wait Until Element Is Enabled    ${LOC_DP_SUBMIT_ACTION_BTN}    timeout=15s
     Click Element Via JS    ${LOC_DP_SUBMIT_ACTION_BTN}
-    Sleep    3s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
     RETURN    ${initial_plan}    ${target_plan}
 
@@ -404,7 +409,7 @@ Click DP Proceed Button
     Wait Until Element Is Visible    ${LOC_DP_PROCEED_BTN}    timeout=30s
     Wait Until Element Is Enabled    ${LOC_DP_PROCEED_BTN}    timeout=30s
     Click Element Via JS    ${LOC_DP_PROCEED_BTN}
-    Sleep    3s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
 
 Close DP Popup Without Submitting
@@ -416,7 +421,7 @@ Close DP Popup Without Submitting
 Fill DP Popup And Submit
     [Documentation]    Fills the popup (Reason only for Device Plan action) and clicks Proceed.
     Wait For DP Popup To Open
-    Sleep    2s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
     Select DP Reason In Popup
     Click DP Proceed Button
@@ -456,7 +461,7 @@ Perform Full Device Plan Change For IMSI
     ...                plan change on that row. Preferred_dp: if set, explicitly selects that
     ...                plan (e.g. Step 18 bundle plan) via Select Target Device Plan By Preferred Name.
     ...                Falls back to auto-picking second option if preferred plan is not found.
-    ...                Returns imsi, dp1, dp2.
+    ...                Returns imsi, initial_dp_grid, dp2.
     [Arguments]    ${imsi}    ${preferred_dp}=${EMPTY}
     Search DP Device By IMSI    ${imsi}
     ${imsi_col}=    Get DP Column Index By Header Text    ${DP_IMSI_COLUMN}
@@ -467,15 +472,15 @@ Perform Full Device Plan Change For IMSI
     ...    Grid first row shows IMSI "${grid_imsi}" but expected "${imsi}" — search may not have filtered correctly.
     ${initial_dp_grid}=    Get DP Cell Value By Row And Column    1    ${dp_col}
     ${grid_state}=    Get DP Cell Value By Row And Column    1    ${state_col}
-    Log    IMSI: ${imsi}, State: ${grid_state}, Initial DP: ${initial_dp_grid}, Preferred DP: "${preferred_dp}"    console=yes
+    Log    IMSI: ${imsi}, State: ${grid_state}, Current DP (grid): ${initial_dp_grid}, Preferred DP: "${preferred_dp}"    console=yes
     Select DP Device By Row Index    0
     Select Change Device Plan Action
     ${dp1}=    Set Variable    ${EMPTY}
     ${dp2}=    Set Variable    ${EMPTY}
     ${dp1}    ${dp2}=    Select Target Device Plan By Preferred Name    ${preferred_dp}
-    Log    Changing Device Plan: "${dp1}" → "${dp2}"    console=yes
+    Log    Changing Device Plan: "${initial_dp_grid}" → "${dp2}" (dropdown current: "${dp1}")    console=yes
     Fill DP Popup And Submit
-    RETURN    ${imsi}    ${dp1}    ${dp2}
+    RETURN    ${imsi}    ${initial_dp_grid}    ${dp2}
 
 Perform Full Device Plan Change For Account
     [Documentation]    Same as Perform Full Device Plan Change but takes account name as argument.
@@ -494,15 +499,15 @@ Perform Full Device Plan Change For Account
     Should Be Equal As Strings    ${verified_state}    ${from_state}
     ...    Initial state mismatch: expected "${from_state}" but grid shows "${verified_state}".
     ${initial_dp_grid}=    Get DP Cell Value By Row And Column    ${actual_row}    ${dp_col}
-    Log    IMSI: ${imsi}, State: ${from_state}, Initial DP (grid): ${initial_dp_grid}, Preferred DP: "${preferred_dp}"    console=yes
+    Log    IMSI: ${imsi}, State: ${from_state}, Current DP (grid): ${initial_dp_grid}, Preferred DP: "${preferred_dp}"    console=yes
     Select DP Device By Row Index    ${row_idx}
     Select Change Device Plan Action
     ${dp1}=    Set Variable    ${EMPTY}
     ${dp2}=    Set Variable    ${EMPTY}
     ${dp1}    ${dp2}=    Select Target Device Plan By Preferred Name    ${preferred_dp}
-    Log    Changing Device Plan: "${dp1}" → "${dp2}"    console=yes
+    Log    Changing Device Plan: "${initial_dp_grid}" → "${dp2}" (dropdown current: "${dp1}")    console=yes
     Fill DP Popup And Submit
-    RETURN    ${imsi}    ${dp1}    ${dp2}
+    RETURN    ${imsi}    ${initial_dp_grid}    ${dp2}
 
 # ═══════════════════════════════════════════════════════════════════════
 #  POST-CHANGE VERIFICATION
@@ -523,7 +528,7 @@ Verify DP Change Success And Wait
     IF    not ${popup_gone}
         ${close_ok}=    Run Keyword And Return Status
         ...    Click Element Via JS    ${LOC_DP_POPUP_X_BTN}
-        Sleep    2s
+        Sleep    1s
     END
     Log    Waiting 6 minutes for async device plan change to process...    console=yes
     Sleep    360s
@@ -534,7 +539,7 @@ Verify Device Plan After Change
     ...                shows the expected new plan (DP2).
     [Arguments]    ${imsi}    ${expected_plan}
     Reset DP Grid To Default View
-    Sleep    2s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
     Search DP Device By IMSI    ${imsi}
     Wait Until Element Is Visible    ${LOC_DP_GRID_ROWS}    timeout=30s
@@ -548,7 +553,7 @@ Verify Device Plan Unchanged
     [Documentation]    Verifies that the Device Plan has NOT changed for the given IMSI.
     [Arguments]    ${imsi}    ${expected_plan}
     Reset DP Grid To Default View
-    Sleep    2s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
     Search DP Device By IMSI    ${imsi}
     Wait Until Element Is Visible    ${LOC_DP_GRID_ROWS}    timeout=30s

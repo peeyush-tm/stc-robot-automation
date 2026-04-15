@@ -109,6 +109,8 @@ Step 2 Create APN For Onboarded Account
 
 Step 3 Create CSR Journey For Onboarded Account
     [Documentation]    Creates a CSR Journey (order) for the EC/BU onboarded in Step 1.
+    ...                Wizard body: CSRJ Complete Create Wizard Save And Exit Like E2E (csr_journey_keywords.resource).
+    ...                Deeper CSR UI checks: tests/csr_journey_tests.robot TC_CSRJ_004.
     [Tags]    e2e    step-3    csr-journey
     STEP_03
 
@@ -256,6 +258,9 @@ STEP_01
     Delete All Sessions
     Set Suite Variable    ${E2E_EC_NAME}    ${data}[company_name]
     Set Suite Variable    ${E2E_BU_NAME}    ${data}[billing_account_name]
+    # Persist EC/BU names under flow-specific seed keys (e2e_flow_with_usage)
+    Write Seed Value    e2e_usage_ec_name    ${E2E_EC_NAME}
+    Write Seed Value    e2e_usage_bu_name    ${E2E_BU_NAME}
     Log    ===== ONBOARD SUCCESS =====    console=yes
     Log    EC Name : ${E2E_EC_NAME}    console=yes
     Log    BU Name : ${E2E_BU_NAME}    console=yes
@@ -350,6 +355,16 @@ STEP_16
     FOR    ${entry}    IN    @{E2E_IMSI_DATA}
         Log    IMSI: ${entry}[imsi] | MSISDN: ${entry}[msisdn]    console=yes
     END
+    # Persist flow-specific IMSI/ICCID seed keys for SIM Movement / Device Plan / SIM Replacement
+    ${_imsi_count}=    Get Length    ${activated_imsis}
+    IF    ${_imsi_count} > 0
+        ${_first}=    Get From List    ${activated_imsis}    0
+        Write Seed Value    e2e_usage_first_activated_imsi    ${_first}
+    END
+    IF    ${_imsi_count} > 1
+        ${_second}=    Get From List    ${activated_imsis}    1
+        Write Seed Value    e2e_usage_second_activated_imsi    ${_second}
+    END
 
 STEP_16A
     Populate IMSI Data If Needed
@@ -368,8 +383,9 @@ STEP_16B
     Log    Step 16b complete: All ${count} IMSIs usage verified in UI.    console=yes
 
 STEP_17
-    Should Not Be Empty    ${E2E_BU_ID}    Step 8 must run first — BU ID is empty.
-    ${local_path}    ${filename}=    E2E Generate And Download Invoice    ${E2E_BU_ID}
+    ${bu_id_str}=    Convert To String    ${E2E_BU_ID}
+    Should Not Be Empty    ${bu_id_str}    Step 8 must run first — BU ID is empty.
+    ${local_path}    ${filename}=    E2E Generate And Download Invoice    ${bu_id_str}
     Set Suite Variable    ${E2E_INVOICE_PATH}    ${local_path}
     Log    Invoice downloaded: ${filename} → ${local_path}    console=yes
 

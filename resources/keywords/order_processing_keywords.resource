@@ -23,11 +23,11 @@ Capture Order Number From Grid
     [Arguments]    ${account_name}
     Wait Until Element Is Visible    ${LOC_SO_GRID}    timeout=30s
     Wait For Loading Overlay To Disappear
-    Wait Until Element Is Visible    xpath=//div[@id='simOrderGrid']//table/tbody/tr    timeout=30s
-    Sleep    2s
+    Wait Until Element Is Visible    ${LOC_SO_GRID_FIRST_ROW}    timeout=30s
+    Sleep    1s
     Filter Grid By Account Column    ${account_name}
-    Wait Until Element Is Visible    xpath=//div[@id='simOrderGrid']//table/tbody/tr    timeout=30s
-    Sleep    2s
+    Wait Until Element Is Visible    ${LOC_SO_GRID_FIRST_ROW}    timeout=30s
+    Sleep    1s
     ${order_number}=    Read Order Number From First Row
     Should Not Be Empty    ${order_number}    No order found for account "${account_name}" after filtering.
     Log    Captured Order Number: "${order_number}" for account "${account_name}"    console=yes
@@ -42,7 +42,8 @@ Filter Grid By Account Column
     ...    if(!grid) return false;
     ...    var ths = grid.querySelectorAll('thead th');
     ...    for(var i=0; i<ths.length; i++){
-    ...        if(ths[i].textContent.trim().toLowerCase() === 'account'){
+    ...        var h = ths[i].textContent.trim().toLowerCase();
+    ...        if(h === 'account' || h.indexOf('account') >= 0){
     ...            var filterBtn = ths[i].querySelector('a.k-grid-filter, a.k-header-column-menu, .k-grid-filter-menu, [data-role="columnmenu"]');
     ...            if(!filterBtn) filterBtn = ths[i].querySelector('a[href*="filter"], a[class*="filter"], span[class*="filter"]');
     ...            if(filterBtn){ filterBtn.click(); return true; }
@@ -61,14 +62,15 @@ Filter Grid By Account Column
         ...    var grid = document.getElementById('simOrderGrid');
         ...    var ths = grid.querySelectorAll('thead th');
         ...    for(var i=0; i<ths.length; i++){
-        ...        if(ths[i].textContent.trim().toLowerCase() === 'account'){
+        ...        var h2 = ths[i].textContent.trim().toLowerCase();
+        ...        if(h2 === 'account' || h2.indexOf('account') >= 0){
         ...            var a = ths[i].querySelector('a');
         ...            if(a) a.click();
         ...            break;
         ...        }
         ...    }
     END
-    Sleep    2s
+    Sleep    1s
     # Type account name in the filter input
     ${filter_input}=    Set Variable    xpath=//div[contains(@class,'k-filter-menu') or contains(@class,'k-column-menu')]//input[@type='text']
     ${input_visible}=    Run Keyword And Return Status
@@ -93,7 +95,7 @@ Filter Grid By Account Column
         Input Text    ${LOC_SO_SEARCH_INPUT}    ${account_name}
         Click Element Via JS    ${LOC_SO_SEARCH_BTN}
     END
-    Sleep    5s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
     Log    Grid filtered by account: ${account_name}    console=yes
 
@@ -108,7 +110,7 @@ Read Order Number From First Row
     ...        var txt = ths[i].textContent.trim().toLowerCase();
     ...        if(txt.indexOf('order') >= 0 && txt.indexOf('number') >= 0){ orderCol = i; break; }
     ...    }
-    ...    var row = grid.querySelector('tbody tr');
+    ...    var row = grid.querySelector('tbody tr.k-master-row') || grid.querySelector('tr.k-master-row');
     ...    if(!row) return '';
     ...    var cells = row.querySelectorAll('td');
     ...    if(orderCol >= 0 && cells[orderCol]) return cells[orderCol].textContent.trim();
@@ -292,13 +294,16 @@ Cleanup Local Response Files
 Validate Order Status In Live Order Grid
     [Documentation]    Navigates to Live Order, waits for table to load,
     ...                searches order ID, waits 30s, then validates status.
-    [Arguments]    ${order_id}    ${expected_status}
-    Ensure Session Is Active
+    ...                Set ``trust_session=${TRUE}`` when the suite already holds a logged-in browser (no re-login / recovery).
+    [Arguments]    ${order_id}    ${expected_status}    ${trust_session}=${FALSE}
+    IF    not ${trust_session}
+        Ensure Session Is Active
+    END
     Go To    ${LIVE_ORDER_URL}
-    Sleep    3s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
     Wait Until Element Is Visible    ${LOC_SO_GRID}    timeout=30s
-    Wait Until Element Is Visible    xpath=//table/tbody/tr    timeout=30s
+    Wait Until Element Is Visible    ${LOC_SO_GRID_FIRST_ROW}    timeout=30s
     Wait Until Element Is Visible    ${LOC_SO_SEARCH_INPUT}    timeout=15s
     Clear Element Text    ${LOC_SO_SEARCH_INPUT}
     Input Text    ${LOC_SO_SEARCH_INPUT}    ${order_id}
@@ -316,13 +321,16 @@ Validate Order Status In Live Order Grid
 Validate Order Status In Order History
     [Documentation]    Navigates to Order History, waits for table to load,
     ...                searches order ID, waits 30s, then validates status.
-    [Arguments]    ${order_id}    ${expected_status}
-    Ensure Session Is Active
+    ...                Set ``trust_session=${TRUE}`` when the suite already holds a logged-in browser (no re-login / recovery).
+    [Arguments]    ${order_id}    ${expected_status}    ${trust_session}=${FALSE}
+    IF    not ${trust_session}
+        Ensure Session Is Active
+    END
     Go To    ${ORDER_HISTORY_URL}
-    Sleep    5s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
     Wait Until Element Is Visible    xpath=//div[contains(@class,'k-grid')]    timeout=30s
-    Wait Until Element Is Visible    xpath=//table/tbody/tr    timeout=30s
+    Wait Until Element Is Visible    xpath=//div[contains(@class,'k-grid')]//tbody/tr[contains(@class,'k-master-row')]    timeout=30s
     Wait Until Element Is Visible    ${LOC_SO_SEARCH_INPUT}    timeout=15s
     Clear Element Text    ${LOC_SO_SEARCH_INPUT}
     Input Text    ${LOC_SO_SEARCH_INPUT}    ${order_id}
@@ -357,7 +365,7 @@ Get Order Status From Grid
     ...            if(ths[j].textContent.trim().toLowerCase().indexOf('status') >= 0){ statusIdx = j; break; }
     ...        }
     ...    }
-    ...    var row = grid.querySelector('tbody tr');
+    ...    var row = grid.querySelector('tbody tr.k-master-row') || grid.querySelector('tr.k-master-row');
     ...    if(!row) return 'NO_ROWS';
     ...    var cells = row.querySelectorAll('td');
     ...    if(statusIdx >= 0 && cells[statusIdx]) return cells[statusIdx].textContent.trim();
@@ -371,36 +379,42 @@ Get Order Status From Grid
 #  STEP 14: MANAGE DEVICES — VALIDATE SIMs IN WARM STATE
 # ═══════════════════════════════════════════════════════════════════════
 Navigate To Manage Devices And Filter BU
-    [Documentation]    Navigates to Manage Devices, resets grid, applies BU account filter
-    ...                for Warm state, closes filter popup, and waits for grid to load.
+    [Documentation]    Navigates to Manage Devices and applies the **Account filter** using the
+    ...                same Device Plan / SIM Replacement **Device Plan style** account filter
+    ...                helper that is already working and OOM-safe.
+    ...                Retries once on transient OSError (socket/IO errors on Windows).
     [Arguments]    ${bu_name}
-    Ensure Session Is Active
-    Go To    ${MANAGE_DEVICES_URL_E2E}
-    Sleep    3s
-    Wait For Loading Overlay To Disappear
-    Wait Until Element Is Visible    ${LOC_DSC_GRID}    timeout=30s
-    Wait Until Element Is Visible    ${LOC_DSC_GRID_ROWS}    timeout=30s
-    Reset Grid To Default View
-    Sleep    2s
-    Wait For Loading Overlay To Disappear
-    Wait Until Element Is Visible    ${LOC_DSC_GRID_ROWS}    timeout=30s
-    Open Filter Popup
-    Apply Account Filter    ${bu_name}
-    Apply SIM State Filter    ${EXPECTED_WARM_STATE}
-    Close Filter Popup
-    Sleep    3s
-    Wait For Loading Overlay To Disappear
-    Wait Until Element Is Visible    ${LOC_DSC_GRID_ROWS}    timeout=30s
+    FOR    ${attempt}    IN RANGE    2
+        TRY
+            Ensure Session Is Active
+            Go To    ${MANAGE_DEVICES_URL_E2E}
+            Wait For Loading Overlay To Disappear
+            Wait Until Element Is Visible    ${LOC_DSC_GRID}        timeout=30s
+            Open Filter Popup
+            Apply Account Filter Device Plan Style    ${bu_name}
+            Close Filter Popup
+            Wait For Loading Overlay To Disappear
+            Wait Until Element Is Visible    ${LOC_DSC_GRID_ROWS}   timeout=30s
+            BREAK
+        EXCEPT    OSError*    type=GLOB    AS    ${err}
+            Log    Filter BU attempt ${attempt + 1} hit OSError: ${err}. Retrying...    console=yes    level=WARN
+            IF    ${attempt} >= 1
+                Fail    Navigate To Manage Devices And Filter BU failed after retry: ${err}
+            END
+            Sleep    3s
+        END
+    END
 
 Validate All SIMs In Warm State
     [Documentation]    After filtering, verifies every visible row has SIM State = Warm
-    ...                and the total row count is >= 10.
+    ...                and the total row count is >= min_count (default 10).
+    [Arguments]    ${min_count}=${10}
     ${state_col}=    Get Column Index By Header Text    ${STATE_COLUMN_HEADER}
     ${row_count}=    Execute Javascript
     ...    return document.querySelectorAll('#gridData table tbody tr.k-master-row').length;
     Log    Filtered grid row count: ${row_count}    console=yes
-    Should Be True    ${row_count} >= 10
-    ...    Expected >= 10 SIMs in Warm state, but found ${row_count}.
+    Should Be True    ${row_count} >= ${min_count}
+    ...    Expected >= ${min_count} SIMs in Warm state, but found ${row_count}.
     ${all_warm}=    Execute Javascript
     ...    var rows = document.querySelectorAll('#gridData table tbody tr.k-master-row');
     ...    var stateCol = arguments[0];
@@ -455,28 +469,31 @@ Call Update Order Status API
 Activate SIMs From InActive State
     [Documentation]    On Manage Devices: apply Account + InActive filter,
     ...                verify each row is truly InActive, click checkboxes for up to
-    ...                ${count} InActive SIMs, capture their IMSIs and MSISDNs,
+    ...                ${count} InActive SIMs, capture their IMSIs, MSISDNs and ICCIDs,
     ...                perform a single state change to Activated, wait 5 min.
-    ...                Returns two values:
+    ...                Returns three values:
     ...                  1) flat list of IMSI strings (backward compat)
     ...                  2) list of dicts [{imsi, msisdn}, ...] for usage flow
+    ...                  3) flat list of ICCID strings (for SIM Movement cross-run)
     [Arguments]    ${bu_name}    ${count}=${SIM_ACTIVATE_COUNT}
     Ensure Session Is Active
+    Request Page Garbage Collection Best Effort
     Go To    ${MANAGE_DEVICES_URL_E2E}
-    Sleep    3s
+    Inject Grid Oom Patch Into Current Page
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
     Wait Until Element Is Visible    ${LOC_DSC_GRID}    timeout=30s
     Wait Until Element Is Visible    ${LOC_DSC_GRID_ROWS}    timeout=30s
     Reset Grid To Default View
-    Sleep    2s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
     Wait Until Element Is Visible    ${LOC_DSC_GRID_ROWS}    timeout=30s
-    # --- 1. Apply Account + InActive state filter ---
+    # --- 1. Apply Account + InActive state filter (OOM-safe Device Plan style) ---
     Open Filter Popup
-    Apply Account Filter    ${bu_name}
+    Apply Account Filter Device Plan Style    ${bu_name}
     Apply SIM State Filter    ${EXPECTED_INACTIVE_STATE}
     Close Filter Popup
-    Sleep    3s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
     Wait Until Element Is Visible    ${LOC_DSC_GRID_ROWS}    timeout=30s
     Log    Filters applied: Account=${bu_name}, State=${EXPECTED_INACTIVE_STATE}    console=yes
@@ -485,11 +502,13 @@ Activate SIMs From InActive State
     ${imsi_col}=    Get Column Index By Header Text    ${IMSI_COLUMN_HEADER}
     ${state_col}=    Get Column Index By Header Text    ${STATE_COLUMN_HEADER}
     ${msisdn_col}=    Get Column Index By Header Text    ${MSISDN_COLUMN_HEADER}
+    ${iccid_col}=    Get Column Index By Header Text    ${ICCID_COLUMN_HEADER}
     ${total_rows}=    Execute Javascript
     ...    return document.querySelectorAll('#gridData table tbody tr.k-master-row').length;
     Log    Total visible rows after filter: ${total_rows}    console=yes
     @{activated_imsis}=    Create List
     @{imsi_data}=    Create List
+    @{activated_iccids}=    Create List
     ${selected}=    Set Variable    ${0}
     FOR    ${i}    IN RANGE    ${total_rows}
         IF    ${selected} >= ${count}    BREAK
@@ -497,12 +516,14 @@ Activate SIMs From InActive State
         ${actual_state}=    Get Cell Value By Row And Column    ${row_num}    ${state_col}
         ${imsi}=    Get Cell Value By Row And Column    ${row_num}    ${imsi_col}
         ${msisdn}=    Get Cell Value By Row And Column    ${row_num}    ${msisdn_col}
-        Log    Row ${row_num}: IMSI=${imsi}, MSISDN=${msisdn}, State=${actual_state}    console=yes
+        ${iccid}=    Get Cell Value By Row And Column    ${row_num}    ${iccid_col}
+        Log    Row ${row_num}: ICCID=${iccid}, IMSI=${imsi}, MSISDN=${msisdn}, State=${actual_state}    console=yes
         IF    "${actual_state}" == "${EXPECTED_INACTIVE_STATE}"
             Select Device By Row Index    ${i}
-            Log    Clicked checkbox for row ${row_num} (IMSI: ${imsi}, MSISDN: ${msisdn})    console=yes
+            Log    Clicked checkbox for row ${row_num} (ICCID: ${iccid}, IMSI: ${imsi}, MSISDN: ${msisdn})    console=yes
             Append To List    ${activated_imsis}    ${imsi}
-            ${entry}=    Create Dictionary    imsi=${imsi}    msisdn=${msisdn}
+            Append To List    ${activated_iccids}    ${iccid}
+            ${entry}=    Create Dictionary    imsi=${imsi}    msisdn=${msisdn}    iccid=${iccid}
             Append To List    ${imsi_data}    ${entry}
             ${selected}=    Evaluate    ${selected} + 1
         ELSE
@@ -516,7 +537,7 @@ Activate SIMs From InActive State
     FOR    ${entry}    IN    @{imsi_data}
         Log    IMSI: ${entry}[imsi] | MSISDN: ${entry}[msisdn]    console=yes
     END
-    Sleep    2s
+    Sleep    1s
     # --- 3. Perform activation in one go ---
     Select Change State Action
     Select Target State And Submit    ${EXPECTED_ACTIVATED_STATE}
@@ -533,13 +554,13 @@ Activate SIMs From InActive State
     ...    Wait Until Element Is Not Visible    ${LOC_DSC_POPUP}    timeout=15s
     IF    not ${popup_gone}
         Run Keyword And Ignore Error    Click Element Via JS    ${LOC_DSC_POPUP_X_BTN}
-        Sleep    2s
+        Sleep    1s
     END
     Capture Page Screenshot    e2e_step16_state_change_submitted.png
     Log    State change submitted for ${selected} SIMs. Waiting 5 minutes...    console=yes
     Sleep    300s
     Wait For Loading Overlay To Disappear
-    RETURN    ${activated_imsis}    ${imsi_data}
+    RETURN    ${activated_imsis}    ${imsi_data}    ${activated_iccids}
 
 Verify Activated SIMs
     [Documentation]    Verifies all IMSIs are Activated. If any IMSI is not yet Activated,
@@ -551,7 +572,7 @@ Verify Activated SIMs
         Log    ===== Verification attempt ${attempt_num}/5 =====    console=yes
         Ensure Session Is Active
         Go To    ${MANAGE_DEVICES_URL_E2E}
-        Sleep    3s
+        Sleep    1s
         Wait For Loading Overlay To Disappear
         Wait Until Element Is Visible    ${LOC_DSC_GRID}    timeout=30s
         Wait Until Element Is Visible    ${LOC_DSC_GRID_ROWS}    timeout=30s
@@ -560,10 +581,10 @@ Verify Activated SIMs
         @{pending_imsis}=    Create List
         FOR    ${imsi}    IN    @{imsi_list}
             Reset Grid To Default View
-            Sleep    2s
+            Sleep    1s
             Wait For Loading Overlay To Disappear
             Search Device By IMSI    ${imsi}
-            Sleep    3s
+            Sleep    1s
             Wait For Loading Overlay To Disappear
             Wait Until Element Is Visible    ${LOC_DSC_GRID_ROWS}    timeout=30s
             ${actual_state}=    Get Cell Value By Row And Column    1    ${state_col}

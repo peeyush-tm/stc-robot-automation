@@ -18,6 +18,11 @@ Usage:
     python run_tests.py --include smoke                             # by tag
     python run_tests.py --env staging --browser firefox             # overrides
 
+Re-run only tests that FAILED in a previous run (Robot --rerunfailed):
+    python run_tests.py tests/rule_engine_tests.robot --rerunfailed reports/2026-03-25_13-33-19/output_1_rule_engine_tests.xml
+    python run_tests.py --suite "Rule Engine" --rerunfailed reports/2026-03-25_13-33-19
+    # Directory: uses output_<n>_<suite_stem>.xml per suite, or combined_output.xml if present.
+
 E2E partial runs (skip earlier steps by passing variables):
     python run_tests.py --e2e --test "Step 16*" --test "Step 17*" ^
         --variable E2E_EC_NAME:AQ_AUTO_EC_11030048 ^
@@ -44,22 +49,41 @@ Variables needed when skipping steps:
 
 import argparse
 import csv
+import fnmatch
 import glob
+import json
 import os
 import shutil
 import subprocess
 import sys
 from datetime import datetime
 
+from bug_reporter import generate_bug_reports
+from send_report import parse_output_xml, send_email
+
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 TASKS_CSV = os.path.join(ROOT_DIR, "tasks.csv")
 REPORTS_DIR = os.path.join(ROOT_DIR, "reports")
+# RuleEngineTab2 / ReTriggerDebug append NDJSON here when set (so logs live with output.xml).
+DEBUG_SESSION_LOG_ENV = "STC_DEBUG_SESSION_LOG"
+DEBUG_SESSION_LOG_NAME = "debug-7a554c.log"
+# STCReportListener reads this env-var to locate the timestamped report folder.
+STC_REPORT_FOLDER_ENV = "STC_REPORT_FOLDER"
+# Path to the RF listener (registered via --listener on every robot/pabot call).
+LISTENER_PATH = os.path.join(ROOT_DIR, "libraries", "STCReportListener.py")
+
+
+def _child_env_with_debug_log(report_folder):
+    env = os.environ.copy()
+    env[DEBUG_SESSION_LOG_ENV] = os.path.join(report_folder, DEBUG_SESSION_LOG_NAME)
+    # Expose report folder so STCReportListener can find it inside the subprocess.
+    env[STC_REPORT_FOLDER_ENV] = report_folder
+    return env
 SEED_FILE       = os.path.join(ROOT_DIR, "variables", ".run_seed.json")
 E2E_SUITE       = os.path.join(ROOT_DIR, "tests", "e2e_flow.robot")
 E2E_USAGE_SUITE = os.path.join(ROOT_DIR, "tests", "e2e_flow_with_usage.robot")
 CRUD_SUITE      = os.path.join(ROOT_DIR, "tests", "role_user_crud_tests.robot")
 SANITY_SUITE    = os.path.join(ROOT_DIR, "tests", "sanity_tests.robot")
-FRAMEWORK_SUITE = os.path.join(ROOT_DIR, "bin", "STCFramework.robot")
 
 
 def clear_seed():
@@ -75,6 +99,59 @@ def create_report_folder(label=""):
     return folder
 
 
+def resolve_rerunfailed_xml(args, suite_index, suite_rel_path):
+    """
+    Resolve --rerunfailed to an absolute path for Robot's --rerunfailed.
+
+    - If args.rerunfailed is a file (.xml): use it for every suite (e.g. combined_output.xml).
+    - If it is a directory: prefer output_<index>_<stem>.xml, else any output_*_<stem>.xml,
+      else combined_output.xml in that folder.
+    """
+    if not getattr(args, "rerunfailed", None):
+        return None
+    raw = str(args.rerunfailed).strip()
+    if not raw:
+        return None
+    path = os.path.normpath(raw if os.path.isabs(raw) else os.path.join(ROOT_DIR, raw))
+    suite_rel_path = suite_rel_path.replace("\\", "/")
+    stem = os.path.splitext(os.path.basename(suite_rel_path))[0]
+
+    if os.path.isfile(path):
+        return os.path.abspath(path)
+
+    if os.path.isdir(path):
+        exact = os.path.join(path, f"output_{suite_index}_{stem}.xml")
+        if os.path.isfile(exact):
+            return os.path.abspath(exact)
+        candidates = sorted(glob.glob(os.path.join(path, f"output_*_{stem}.xml")))
+        if candidates:
+            return os.path.abspath(candidates[0])
+        combined = os.path.join(path, "combined_output.xml")
+        if os.path.isfile(combined):
+            return os.path.abspath(combined)
+
+    print(f"  WARNING: --rerunfailed could not resolve for suite {suite_rel_path}: {path}")
+    return None
+
+
+def resolve_rerunfailed_e2e(args):
+    """Previous E2E run stores output as output.xml in the report folder."""
+    if not getattr(args, "rerunfailed", None):
+        return None
+    raw = str(args.rerunfailed).strip()
+    if not raw:
+        return None
+    path = os.path.normpath(raw if os.path.isabs(raw) else os.path.join(ROOT_DIR, raw))
+    if os.path.isfile(path):
+        return os.path.abspath(path)
+    if os.path.isdir(path):
+        out = os.path.join(path, "output.xml")
+        if os.path.isfile(out):
+            return os.path.abspath(out)
+    print(f"  WARNING: --rerunfailed could not resolve E2E output: {path}")
+    return None
+
+
 def read_tasks():
     if not os.path.exists(TASKS_CSV):
         return []
@@ -83,13 +160,56 @@ def read_tasks():
         return [row for row in reader]
 
 
-def resolve_suites_from_tasks(tasks, suite_filter=None, api_only=False, ui_only=False):
+def suite_has_tag_matching_include(suite_rel_path, include_pattern):
+    """True if *suite_rel_path* has at least one ``[Tags]`` cell whose tags match *include_pattern*.
+
+    Uses glob rules like Robot's ``--include`` (case-insensitive). If parsing fails or the file is
+    not a local ``.robot`` suite, returns True so we still run (safe default). Skipping empty matches
+    avoids Robot exit 252 ("no tests matching tag") for unrelated suites (e.g. ``--include Login``).
+    """
+    if not include_pattern or not str(include_pattern).strip():
+        return True
+    pattern = str(include_pattern).strip()
+    if pattern == "*":
+        return True
+    path = os.path.join(ROOT_DIR, suite_rel_path.replace("/", os.sep))
+    if not path.endswith(".robot") or not os.path.isfile(path):
+        return True
+    pat = pattern.lower()
+
+    def tag_matches(tag):
+        t = tag.strip().lower()
+        if not t:
+            return False
+        return fnmatch.fnmatch(t, pat)
+
+    try:
+        with open(path, encoding="utf-8", errors="replace") as f:
+            for line in f:
+                stripped = line.strip()
+                if not stripped.startswith("[Tags]"):
+                    continue
+                rest = stripped[6:].strip()
+                if not rest:
+                    continue
+                for tag in rest.split():
+                    if tag_matches(tag):
+                        return True
+        return False
+    except OSError:
+        return True
+
+
+def resolve_suites_from_tasks(tasks, suite_filter=None, api_only=False, ui_only=False, skip_modules=None):
+    skip_set = {s.strip().lower() for s in (skip_modules or [])}
     seen = set()
     suites = []
     for row in tasks:
         suite_file = row.get("suite_file", "").strip()
         module = row.get("module", "").strip()
         if not suite_file:
+            continue
+        if module.lower() in skip_set:
             continue
         if suite_filter and module.lower() != suite_filter.lower():
             continue
@@ -113,6 +233,9 @@ def build_robot_command(suite_path, report_folder, index, args, is_api=False):
     cmd += ["--log", "NONE"]
     cmd += ["--report", "NONE"]
 
+    if os.path.isfile(LISTENER_PATH):
+        cmd += ["--listener", LISTENER_PATH]
+
     cmd += ["--variable", f"ENV:{args.env}"]
 
     if not is_api:
@@ -127,11 +250,19 @@ def build_robot_command(suite_path, report_folder, index, args, is_api=False):
     for t in args.test or []:
         cmd += ["--test", t]
 
+    for pat in getattr(args, "skip_test", None) or []:
+        cmd += ["--prerunmodifier",
+                f"{os.path.join(ROOT_DIR, 'libraries', 'SkipTestsByName.py')}:{pat}"]
+
     if args.exitonfailure:
         cmd += ["--exitonfailure"]
 
     for var in args.variable or []:
         cmd += ["--variable", var]
+
+    rf = resolve_rerunfailed_xml(args, index, suite_path)
+    if rf:
+        cmd += ["--rerunfailed", rf]
 
     cmd.append(os.path.join(ROOT_DIR, suite_path))
     return cmd
@@ -143,6 +274,10 @@ def build_e2e_command(report_folder, args, suite_path=None):
     cmd += ["--output", "output.xml"]
     cmd += ["--log", "NONE"]
     cmd += ["--report", "NONE"]
+
+    if os.path.isfile(LISTENER_PATH):
+        cmd += ["--listener", LISTENER_PATH]
+
     cmd += ["--variable", f"ENV:{args.env}"]
 
     if args.browser:
@@ -156,61 +291,14 @@ def build_e2e_command(report_folder, args, suite_path=None):
 
     for var in args.variable or []:
         cmd += ["--variable", var]
+
+    rf = resolve_rerunfailed_e2e(args)
+    if rf:
+        cmd += ["--rerunfailed", rf]
 
     cmd.append(suite_path or E2E_SUITE)
     return cmd
 
-
-def build_framework_command(report_folder, args):
-    """Build the robot command to run STCFramework.robot (CSV-driven framework mode)."""
-    cmd = [sys.executable, "-m", "robot"]
-    cmd += ["--outputdir", report_folder]
-    cmd += ["--output", "output_framework.xml"]
-    cmd += ["--log", "NONE"]
-    cmd += ["--report", "NONE"]
-
-    cmd += ["--variable", f"ENV:{args.env}"]
-    if args.browser:
-        cmd += ["--variable", f"BROWSER_OVERRIDE:{args.browser}"]
-    # --suite maps to SUITE_FILTER inside STCFramework.robot
-    if args.suite:
-        cmd += ["--variable", f"SUITE_FILTER:{args.suite}"]
-
-    if args.include:
-        cmd += ["--include", args.include]
-    if args.exclude:
-        cmd += ["--exclude", args.exclude]
-
-    for t in args.test or []:
-        cmd += ["--test", t]
-
-    if args.exitonfailure:
-        cmd += ["--exitonfailure"]
-
-    for var in args.variable or []:
-        cmd += ["--variable", var]
-
-    cmd.append(FRAMEWORK_SUITE)
-    return cmd
-
-
-def run_framework(report_folder, args):
-    """Run STCFramework.robot (CSV-driven) and return list of XML output paths."""
-    cmd = build_framework_command(report_folder, args)
-    suite_filter = f" [suite={args.suite}]" if args.suite else ""
-
-    print(f"\n{'='*60}")
-    print(f"  Running STCFramework.robot{suite_filter}")
-    print(f"{'='*60}")
-    print(f"  Command: {' '.join(cmd)}\n")
-
-    result = subprocess.run(cmd, cwd=ROOT_DIR)
-    output_path = os.path.join(report_folder, "output_framework.xml")
-    outputs = [output_path] if os.path.exists(output_path) else []
-
-    if result.returncode not in (0, 1):
-        print(f"  WARNING: STCFramework exited with code {result.returncode}")
-    return outputs
 
 
 def run_suites(suites, report_folder, args):
@@ -224,13 +312,18 @@ def run_suites(suites, report_folder, args):
         print(f"{'='*60}")
         print(f"  Command: {' '.join(cmd)}\n")
 
-        result = subprocess.run(cmd, cwd=ROOT_DIR)
+        result = subprocess.run(cmd, cwd=ROOT_DIR, env=_child_env_with_debug_log(report_folder))
         output_name = f"output_{idx}_{os.path.splitext(os.path.basename(suite_path))[0]}.xml"
         output_path = os.path.join(report_folder, output_name)
         if os.path.exists(output_path):
             outputs.append(output_path)
 
-        if result.returncode not in (0, 1):
+        if result.returncode == 252:
+            if args.include or args.test:
+                print("  INFO: No tests matched filters in this suite (Robot exit 252).")
+            else:
+                print(f"  WARNING: Suite exited with code {result.returncode}")
+        elif result.returncode not in (0, 1):
             print(f"  WARNING: Suite exited with code {result.returncode}")
 
     return outputs
@@ -246,7 +339,7 @@ def run_e2e(report_folder, args, suite_path=None):
     print(f"{'='*60}")
     print(f"  Command: {' '.join(cmd)}\n")
 
-    result = subprocess.run(cmd, cwd=ROOT_DIR)
+    result = subprocess.run(cmd, cwd=ROOT_DIR, env=_child_env_with_debug_log(report_folder))
     output_path = os.path.join(report_folder, "output.xml")
     outputs = [output_path] if os.path.exists(output_path) else []
 
@@ -319,6 +412,22 @@ def merge_reports(outputs, report_folder):
         print(f"  Combined report generated successfully.")
 
 
+def generate_pdf_report(report_folder, args):
+    """Generate execution_report.pdf via STCPDFReport after the run completes."""
+    try:
+        sys.path.insert(0, ROOT_DIR)
+        from libraries.STCPDFReport import generate_pdf  # noqa: PLC0415
+        env = (getattr(args, "env", None) or "dev").strip()
+        print(f"\n  Generating PDF execution report…")
+        pdf_path = generate_pdf(report_folder, env=env)
+        if pdf_path:
+            print(f"  PDF report : {pdf_path}")
+        else:
+            print("  WARNING: PDF generation returned no output (check STCPDFReport warnings above).")
+    except Exception as exc:
+        print(f"  WARNING: PDF generation failed: {exc}")
+
+
 def print_summary(report_folder):
     """Print a summary of all files saved in the report folder."""
     print(f"\n{'='*60}")
@@ -362,6 +471,10 @@ def print_summary(report_folder):
         for f in other_files:
             print(f"    - {f}")
 
+    dbg_log = os.path.join(report_folder, DEBUG_SESSION_LOG_NAME)
+    if os.path.isfile(dbg_log):
+        print(f"\n  Debug NDJSON (agent session 7a554c): {dbg_log}")
+
     total = len(xml_files) + len(html_files) + len(png_files) + len(other_files)
     print(f"\n  Total: {total} file(s)")
     print(f"{'='*60}\n")
@@ -399,14 +512,19 @@ def run_sanity(report_folder, args):
         cmd += ["--output", "output_sanity.xml"]
         cmd += ["--log", "NONE"]
         cmd += ["--report", "NONE"]
+        if os.path.isfile(LISTENER_PATH):
+            cmd += ["--listener", LISTENER_PATH]
         for v in base_vars:
             cmd += ["--variable", v]
         if args.test:
             for t in args.test:
                 cmd += ["--test", t]
+        rf = resolve_rerunfailed_xml(args, 1, "tests/sanity_tests.robot")
+        if rf:
+            cmd += ["--rerunfailed", rf]
         cmd.append(SANITY_SUITE)
         print(f"  Command: {' '.join(cmd)}\n")
-        result = subprocess.run(cmd, cwd=ROOT_DIR)
+        result = subprocess.run(cmd, cwd=ROOT_DIR, env=_child_env_with_debug_log(report_folder))
     else:
         # ── Sequential run via robot ───────────────────────────────────
         cmd = [sys.executable, "-m", "robot"]
@@ -414,6 +532,8 @@ def run_sanity(report_folder, args):
         cmd += ["--output", "output_sanity.xml"]
         cmd += ["--log", "NONE"]
         cmd += ["--report", "NONE"]
+        if os.path.isfile(LISTENER_PATH):
+            cmd += ["--listener", LISTENER_PATH]
         for v in base_vars:
             cmd += ["--variable", v]
         if args.test:
@@ -423,9 +543,12 @@ def run_sanity(report_folder, args):
             cmd += ["--include", args.include]
         if args.exitonfailure:
             cmd += ["--exitonfailure"]
+        rf = resolve_rerunfailed_xml(args, 1, "tests/sanity_tests.robot")
+        if rf:
+            cmd += ["--rerunfailed", rf]
         cmd.append(SANITY_SUITE)
         print(f"  Command: {' '.join(cmd)}\n")
-        result = subprocess.run(cmd, cwd=ROOT_DIR)
+        result = subprocess.run(cmd, cwd=ROOT_DIR, env=_child_env_with_debug_log(report_folder))
 
     output_path = os.path.join(report_folder, "output_sanity.xml")
     outputs = [output_path] if os.path.exists(output_path) else []
@@ -442,6 +565,10 @@ def main():
     parser.add_argument("--test", action="append", help="Test name filter (repeatable)")
     parser.add_argument("--include", default=None, help="Include tag")
     parser.add_argument("--exclude", default=None, help="Exclude tag")
+    parser.add_argument("--skip-suite", action="append", default=[], dest="skip_suite",
+                        help="Module name to skip entirely — no browser launch (repeatable)")
+    parser.add_argument("--skip-test", action="append", default=[], dest="skip_test",
+                        help="Test name pattern to skip, e.g. TC_LBL_014* (repeatable)")
     parser.add_argument("--suite", default=None, help="Suite name (resolved from tasks.csv)")
     parser.add_argument("--tasks", action="store_true", help="Run all from tasks.csv")
     parser.add_argument("--api", action="store_true", help="Run only API suites")
@@ -451,8 +578,6 @@ def main():
                         help="Run E2E Flow B with usage (tests/e2e_flow_with_usage.robot)")
     parser.add_argument("--with-crud", action="store_true", dest="with_crud",
                         help="After E2E, also run Role+User CRUD positive tests (tests/role_user_crud_tests.robot)")
-    parser.add_argument("--framework", action="store_true",
-                        help="Run via STCFramework.robot (CSV-driven framework mode)")
     parser.add_argument("--sanity", action="store_true",
                         help="Run Sanity suite (tests/sanity_tests.robot)")
     parser.add_argument("--parallel", type=int, default=1, metavar="N",
@@ -460,9 +585,25 @@ def main():
     parser.add_argument("--exitonfailure", action="store_true", help="Stop on first test failure")
     parser.add_argument("--variable", action="append", help="Override Robot variable (KEY:VALUE)")
     parser.add_argument("--outputdir", default=None, help="Override report output directory (e.g. reports/RUNNAME_timestamp)")
+    parser.add_argument("--keep-seed", action="store_true", dest="keep_seed",
+                        help="Do NOT clear .run_seed.json at the start of this run. "
+                             "Use this when running a dependent suite (e.g. SIM Movement) "
+                             "with data from the last E2E run.")
+    parser.add_argument(
+        "--rerunfailed",
+        metavar="PATH",
+        help="Robot --rerunfailed: PATH to a previous output .xml file, or a report folder "
+             "(uses output_<n>_<suite>.xml or combined_output.xml). Only failed tests run.",
+    )
+    parser.add_argument("--email", action="store_true",
+                        help="Send email report after test run completes")
     args = parser.parse_args()
 
-    clear_seed()
+    # So ``variables/_config_defaults.py`` matches ``-v ENV:`` when suites import Python variable files.
+    os.environ["STC_AUTOMATION_ENV"] = (args.env or "dev").strip().lower()
+
+    if not args.keep_seed:
+        clear_seed()
 
     # ── Determine run mode and report folder ─────────────────────────
     if args.outputdir:
@@ -470,10 +611,7 @@ def main():
         os.makedirs(report_folder, exist_ok=True)
     else:
         is_e2e = args.e2e or args.e2e_with_usage
-        if args.framework:
-            label = f"framework_{args.suite}" if args.suite else "framework"
-            report_folder = create_report_folder(label)
-        elif is_e2e:
+        if is_e2e:
             if args.e2e_with_usage:
                 label = "e2e_usage_headless" if args.browser == "headlesschrome" else "e2e_usage"
             else:
@@ -489,13 +627,13 @@ def main():
     print(f"  Environment : {args.env}")
     print(f"  Browser     : {args.browser or '(from config)'}")
     print(f"  Report Dir  : {report_folder}")
+    if args.keep_seed:
+        seed_exists = os.path.exists(SEED_FILE)
+        print(f"  Seed        : PRESERVED{' (.run_seed.json exists)' if seed_exists else ' (WARNING: .run_seed.json not found — E2E must run first)'}")
+    if getattr(args, "rerunfailed", None):
+        print(f"  Re-run      : FAILED ONLY (--rerunfailed {args.rerunfailed})")
 
-    if getattr(args, "framework", False):
-        suite_label = f" [{args.suite}]" if args.suite else " [all active suites]"
-        print(f"  Mode        : STCFramework (CSV-driven){suite_label}")
-        print(f"{'='*60}")
-        outputs = run_framework(report_folder, args)
-    elif getattr(args, "sanity", False):
+    if getattr(args, "sanity", False):
         print(f"  Mode        : Sanity Suite")
         if getattr(args, "parallel", 1) > 1:
             print(f"  Parallel    : {args.parallel} processes (pabot)")
@@ -529,7 +667,9 @@ def main():
                 crud_args_copy,
             )
             print(f"  Command: {' '.join(crud_cmd)}\n")
-            crud_result = subprocess.run(crud_cmd, cwd=ROOT_DIR)
+            crud_result = subprocess.run(
+                crud_cmd, cwd=ROOT_DIR, env=_child_env_with_debug_log(report_folder)
+            )
             crud_output_name = f"output_{len(outputs)+1}_role_user_crud_tests.xml"
             crud_output_path = os.path.join(report_folder, crud_output_name)
             if os.path.exists(crud_output_path):
@@ -546,11 +686,12 @@ def main():
                 suite_filter=args.suite,
                 api_only=args.api,
                 ui_only=args.ui,
+                skip_modules=args.skip_suite,
             )
         else:
             tasks = read_tasks()
             if tasks:
-                suites = resolve_suites_from_tasks(tasks)
+                suites = resolve_suites_from_tasks(tasks, skip_modules=args.skip_suite)
             else:
                 print("No tasks.csv found and no suites specified. Nothing to run.")
                 sys.exit(1)
@@ -558,6 +699,21 @@ def main():
         if not suites:
             print("No suites matched the given criteria.")
             sys.exit(1)
+
+        if args.include:
+            before = len(suites)
+            suites = [s for s in suites if suite_has_tag_matching_include(s, args.include)]
+            skipped = before - len(suites)
+            if skipped:
+                print(
+                    f"  Tag filter: skipping {skipped} suite(s) with no [Tags] matching "
+                    f"--include {args.include!r} (avoids Robot exit 252 on those files)."
+                )
+            if not suites:
+                print(
+                    f"No remaining suites contain tags matching --include {args.include!r}. Nothing to run."
+                )
+                sys.exit(1)
 
         print(f"  Mode        : Suite Runner")
         print(f"  Suites ({len(suites)}):")
@@ -567,11 +723,40 @@ def main():
 
         outputs = run_suites(suites, report_folder, args)
 
-    # ── Post-run: collect stray artifacts & generate combined report ─
+    # ── Post-run: collect stray artifacts, combined report & PDF ────
     collect_stray_artifacts(report_folder)
     merge_reports(outputs, report_folder)
     collect_stray_artifacts(report_folder)  # catch anything rebot may have created
+    generate_pdf_report(report_folder, args)
+
+    # ── Bug reports: generate for any failures ────────────────────
+    env_url = _resolve_env_url(args.env)
+    bugs_dir = os.path.join(ROOT_DIR, "bugs")
+    generate_bug_reports(report_folder, bugs_dir=bugs_dir, env_url=env_url)
+
+    # ── Email report (when --email flag is used) ─────────────────
+    if getattr(args, "email", False):
+        summary = parse_output_xml(report_folder)
+        if summary:
+            print(f"\n  Sending email report...")
+            send_email(summary)
+        else:
+            print("  WARNING: No output.xml found — skipping email notification.")
+
     print_summary(report_folder)
+
+
+def _resolve_env_url(env):
+    """Read BASE_URL from the environment config JSON file."""
+    config_path = os.path.join(ROOT_DIR, "config", f"{env}.json")
+    if not os.path.exists(config_path):
+        return ""
+    try:
+        with open(config_path, encoding="utf-8") as f:
+            config = json.load(f)
+        return config.get("BASE_URL", "")
+    except (json.JSONDecodeError, OSError):
+        return ""
 
 
 if __name__ == "__main__":

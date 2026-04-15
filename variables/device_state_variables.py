@@ -1,5 +1,28 @@
+import os
 import random
 import string
+
+from _config_defaults import config_scalar
+from _shared_seed import resolved
+
+
+def _env_truthy(name: str) -> bool:
+    return str(os.environ.get(name, "") or "").strip().lower() in ("1", "true", "yes")
+
+
+def _env_falsy(name: str) -> bool:
+    return str(os.environ.get(name, "") or "").strip().lower() in ("0", "false", "no")
+
+
+# Manage Devices account filter: **False = legacy** (Sleep + global overlay — stable for Device State, Order Proc, SIM Movement).
+# **True = OOM-safe** (popup-first, no global overlay mid-filter — SIM Replacement default via ``sim_replacement_variables``).
+# Force: ``STC_DSC_ACCOUNT_FILTER_OOM_SAFE=1`` or ``=0``.
+if _env_truthy("STC_DSC_ACCOUNT_FILTER_OOM_SAFE"):
+    DSC_ACCOUNT_FILTER_OOM_SAFE = True
+elif _env_falsy("STC_DSC_ACCOUNT_FILTER_OOM_SAFE"):
+    DSC_ACCOUNT_FILTER_OOM_SAFE = False
+else:
+    DSC_ACCOUNT_FILTER_OOM_SAFE = False
 
 # ── SIM State Values ─────────────────────────────────────────────────
 STATE_ACTIVATED = "Activated"
@@ -27,10 +50,14 @@ FILTER_LABEL_RETIRED = "Retired"
 STATE_COLUMN_HEADER = "SIM State"
 ICCID_COLUMN_HEADER = "ICCID"
 IMSI_COLUMN_HEADER = "IMSI"
+# Manage Devices grid — account / BU column (header match uses substring)
+ACCOUNT_COLUMN_HEADER = "Account"
+BUSINESS_UNIT_NAME_COLUMN_HEADER = "Business Unit Name"
 MSISDN_COLUMN_HEADER = "MSISDN"
 
-# Account used for all DSC tests — narrows grid to known devices
-DSC_ACCOUNT_NAME = "billingAccountDONTUSE_005"
+# Account from E2E Flow (without usage) seed — env STC_DSC_ACCOUNT_NAME or edit default
+DSC_ACCOUNT_NAME = resolved("e2e_bu_name", "STC_DSC_ACCOUNT_NAME",
+                            config_scalar("DEFAULT_BU_ACCOUNT", "billingAccountSANJ_1003"))
 
 # ── Transitions that require Service Plan + Device Plan ──────────────
 # All other transitions only require Reason.

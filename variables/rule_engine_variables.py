@@ -2,6 +2,9 @@ import random
 import string
 import time
 
+from _config_defaults import config_scalar
+from _shared_seed import resolved
+
 
 def _random_suffix():
     """6-char suffix from epoch + random chars for uniqueness."""
@@ -30,9 +33,11 @@ RE_APP_LEVEL_BU = "BU"
 RE_APP_LEVEL_CC = "CC"
 RE_APP_LEVEL_SIM = "SIM"
 
-# ── Tab 1 — Customer / BU Search Text (onboarded accounts) ──────────
-RE_CUSTOMER_SEARCH_TEXT = "SANJ_1002"
-RE_BU_SEARCH_TEXT = "billingAccountSANJ_1003"
+# ── Tab 1 — Customer / BU: seed → env var → config default ─
+RE_CUSTOMER_SEARCH_TEXT = resolved("e2e_usage_ec_name", "STC_RE_CUSTOMER_SEARCH_TEXT",
+                                   config_scalar("DEFAULT_EC_ACCOUNT", "SANJ_1002"))
+RE_BU_SEARCH_TEXT = resolved("e2e_usage_bu_name", "STC_RE_BU_SEARCH_TEXT",
+                              config_scalar("DEFAULT_BU_ACCOUNT", "billingAccountSANJ_1003"))
 
 # ── Tab 4 — Action Valid Data ────────────────────────────────────────
 RE_ALERT_EMAIL = "test@automation.com"
@@ -49,3 +54,7 @@ RE_SUCCESS_TOAST_TEXT = "Rule Added Successfully"
 
 # ── Misc ─────────────────────────────────────────────────────────────
 RE_RULE_NAME_MAX_LENGTH = 50
+
+# Matrix tests (Tab2 Rule Category index / Tab4 Action index): indices beyond API count skip.
+RE_RULE_CATEGORY_OPTION_CAP = 25
+RE_ACTION_OPTION_CAP = 8

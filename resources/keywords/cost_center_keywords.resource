@@ -10,21 +10,10 @@ Resource    ../locators/login_locators.resource
 #  LOGIN & NAVIGATION
 # ═══════════════════════════════════════════════════════════════════════
 Login For Cost Center
-    [Documentation]    Login and land on Manage Devices page.
+    [Documentation]    Login and land on Manage Devices page (shared login flow with credential verification).
     Go To    ${BASE_URL}
     Wait For App Loading To Complete
-    Wait Until Element Is Visible    ${LOC_LOGIN_ROOT}            timeout=15s
-    Wait Until Element Is Visible    ${LOC_LOGIN_USERNAME_INPUT}  timeout=10s
-    Wait Until Element Is Visible    ${LOC_LOGIN_PASSWORD_INPUT}  timeout=10s
-    Wait Until Element Is Visible    ${LOC_LOGIN_CAPTCHA_INPUT}   timeout=10s
-    Enter Username    ${VALID_USERNAME}
-    Enter Password    ${VALID_PASSWORD}
-    Wait Until Element Is Visible    ${LOC_LOGIN_CAPTCHA_IMAGE}   timeout=20s
-    Sleep    2s
-    ${captcha_value}=    Fetch Captcha Value
-    Enter Captcha    ${captcha_value}
-    Click Login Button
-    Wait For App Loading To Complete
+    Login With Credentials    ${VALID_USERNAME}    ${VALID_PASSWORD}
     Wait Until Element Is Visible    ${LOC_MD_GRID_DATA}          timeout=45s
     Wait Until Element Is Visible    ${LOC_MD_GRID_TBODY}         timeout=30s
     Wait Until Element Is Visible    ${LOC_POST_LOGIN_LANDMARK}   timeout=30s
@@ -38,7 +27,7 @@ Navigate To Manage Account
     Scroll To Element Via JS         ${LOC_CC_ADMIN_ICON}
     Wait Until Element Is Visible    ${LOC_CC_ADMIN_ICON}    ${CC_TIMEOUT}
     Click Element Via JS             ${LOC_CC_ADMIN_ICON}
-    Sleep    2s
+    Sleep    1s
     Wait For App Loading To Complete    timeout=60s
     Wait Until Keyword Succeeds    3x    5s    Location Should Contain    ManageUser
     Sleep    1s
@@ -48,11 +37,11 @@ Navigate To Manage Account
     Scroll To Element Via JS         ${LOC_NAV_ACCOUNT_TAB}
     Wait Until Element Is Visible    ${LOC_NAV_ACCOUNT_TAB}    ${CC_TIMEOUT}
     Click Element Via JS             ${LOC_NAV_ACCOUNT_TAB}
-    Sleep    2s
+    Sleep    1s
     Wait For App Loading To Complete    timeout=60s
     Wait Until Keyword Succeeds    3x    5s    Location Should Contain    ManageAccount
     Wait Until Element Is Visible    ${LOC_GRID_MANAGE_ACCOUNT}    ${CC_TIMEOUT}
-    Sleep    2s
+    Sleep    1s
     Wait For App Loading To Complete
     Log    ManageAccount page loaded; grid visible.
 
@@ -69,13 +58,17 @@ Login And Navigate To Manage Account Suite
     Navigate To Manage Account
 
 Refresh ManageAccount Page
-    [Documentation]    Test-level setup: navigates to ManageAccount URL and waits for grid to load.
-    ...                Used to reset the page state between tests without re-logging in.
-    Go To    ${MANAGE_ACCOUNT_URL}
-    Sleep    2s
-    Wait For App Loading To Complete    timeout=60s
+    [Documentation]    Test-level setup: ensures we are on ManageAccount page with grid loaded.
+    ...                Skips navigation if already on the correct page.
+    ${on_ma}=    Run Keyword And Return Status    Location Should Contain    ManageAccount
+    IF    ${on_ma}
+        Wait For App Loading To Complete
+    ELSE
+        Go To    ${MANAGE_ACCOUNT_URL}
+        Sleep    1s
+        Wait For App Loading To Complete    timeout=60s
+    END
     Wait Until Element Is Visible    ${LOC_GRID_MANAGE_ACCOUNT}    ${CC_TIMEOUT}
-    Sleep    1s
     Wait For App Loading To Complete
     Log    ManageAccount page refreshed and ready.
 
@@ -89,7 +82,7 @@ Verify Create Cost Center Button Visible
 
 Verify Create Cost Center Button Not Visible
     [Documentation]    Asserts the Create Cost Center button is NOT visible (no RW permission).
-    Sleep    2s
+    Sleep    1s
     Element Should Not Be Visible    ${LOC_BTN_CREATE_COST_CENTER}
     Log    Create Cost Center button is NOT visible (expected for non-RW users).
 
@@ -97,7 +90,7 @@ Open Create Cost Center Form
     [Documentation]    Clicks the Create Cost Center button and waits for the form to fully load.
     Wait Until Element Is Visible    ${LOC_BTN_CREATE_COST_CENTER}    ${CC_TIMEOUT}
     Click Element Via JS    ${LOC_BTN_CREATE_COST_CENTER}
-    Sleep    2s
+    Sleep    1s
     Wait For App Loading To Complete    timeout=60s
     Wait Until Location Contains    /CreateCostCenter    timeout=${CC_TIMEOUT}
     Wait Until Element Is Visible    ${LOC_INPUT_ACCOUNT_NAME}    ${CC_TIMEOUT}
@@ -116,14 +109,14 @@ Select Parent Account
     ...                children to load after each expansion, until the target is found.
     Wait Until Element Is Visible    ${LOC_DDL_PARENT_ACCOUNT}    ${CC_TIMEOUT}
     Click Element Via JS    ${LOC_DDL_PARENT_ACCOUNT}
-    Sleep    2s
+    Sleep    1s
     Wait For App Loading To Complete
     # Wait for the tree to become visible
     ${tree_visible}=    Run Keyword And Return Status
     ...    Wait Until Element Is Visible    ${LOC_PARENT_ACCOUNT_TREEVIEW}    10s
     IF    not ${tree_visible}
         Click Element    ${LOC_DDL_PARENT_ACCOUNT}
-        Sleep    2s
+        Sleep    1s
         Wait Until Element Is Visible    ${LOC_PARENT_ACCOUNT_TREEVIEW}    15s
     END
     # Wait for root node
@@ -131,7 +124,7 @@ Select Parent Account
     Sleep    1s
     # Expand KSA_OPCO → EC → select BU
     Expand And Select BU Account
-    Sleep    2s
+    Sleep    1s
     Wait For App Loading To Complete
     ${val}=    Get Value    ${LOC_DDL_PARENT_ACCOUNT}
     Log    Parent Account input value after selection: ${val}
@@ -145,16 +138,16 @@ Expand And Select BU Account
     ...    Wait Until Element Is Visible    ${LOC_PARENT_ACCOUNT_ROOT_EXPAND}    5s
     IF    ${root_expand}
         Click Element Via JS    ${LOC_PARENT_ACCOUNT_ROOT_EXPAND}
-        Sleep    4s
+        Sleep    1s
         Wait For App Loading To Complete    timeout=30s
-        Sleep    2s
+        Sleep    1s
         Log    KSA_OPCO expanded. EC accounts should now be visible.
     END
     # Step 2: Find EC account and expand it
     Expand Tree Node By Name    ${CC_EC_ACCOUNT_NAME}
-    Sleep    4s
+    Sleep    1s
     Wait For App Loading To Complete    timeout=30s
-    Sleep    2s
+    Sleep    1s
     Log    EC '${CC_EC_ACCOUNT_NAME}' expanded. BU accounts should now be visible.
     # Step 3: Find BU account and select it
     Select Tree Node By Name    ${CC_PARENT_ACCOUNT_NAME}
@@ -216,7 +209,7 @@ Click Submit Button
     Wait Until Element Is Visible    ${LOC_BTN_SUBMIT}    ${CC_TIMEOUT}
     Wait Until Element Is Enabled    ${LOC_BTN_SUBMIT}    ${CC_TIMEOUT}
     Click Element Via JS    ${LOC_BTN_SUBMIT}
-    Sleep    2s
+    Sleep    1s
     Wait For App Loading To Complete    timeout=60s
     Log    Submit button clicked.
 
@@ -224,7 +217,7 @@ Click Close Button
     [Documentation]    Clicks the Close button to discard form and go back to ManageAccount.
     Wait Until Element Is Visible    ${LOC_BTN_CLOSE}    ${CC_TIMEOUT}
     Click Element Via JS    ${LOC_BTN_CLOSE}
-    Sleep    2s
+    Sleep    1s
     Wait For App Loading To Complete    timeout=60s
     Log    Close button clicked.
 
@@ -246,7 +239,7 @@ Verify Redirect To Manage Account
     Wait Until Location Contains    /ManageAccount    timeout=15s
     Wait For App Loading To Complete    timeout=60s
     Wait Until Element Is Visible    ${LOC_GRID_MANAGE_ACCOUNT}    ${CC_TIMEOUT}
-    Sleep    2s
+    Sleep    1s
     Wait For App Loading To Complete
     Log    Redirected to ManageAccount — grid visible.
 
@@ -299,7 +292,7 @@ Expand Row Until Cost Center Tab Found
         ...    Wait Until Element Is Visible    ${expand_loc}    5s
         IF    not ${exists}    BREAK
         Click Element Via JS    ${expand_loc}
-        Sleep    2s
+        Sleep    1s
         Wait For App Loading To Complete
         ${tab_found}=    Run Keyword And Return Status
         ...    Wait Until Element Is Visible    ${LOC_TAB_COST_CENTER}    5s
@@ -319,7 +312,7 @@ Open Cost Center Tab In Billing Account
     ${found}=    Expand Row Until Cost Center Tab Found
     Should Be True    ${found}    No row with Cost Center tab found.
     Click Element Via JS    ${LOC_TAB_COST_CENTER}
-    Sleep    2s
+    Sleep    1s
     Wait For App Loading To Complete
     Wait Until Element Is Visible    ${LOC_GRID_COST_CENTER}    15s
     Log    Cost Center tab opened; CostCenterAccount grid visible.

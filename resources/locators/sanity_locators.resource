@@ -18,7 +18,8 @@ ${LOC_ERROR_ALERT_DANGER}        xpath=//*[contains(@class,'alert-danger')]
 ${LOC_ERROR_OVERLAY}             xpath=//*[contains(@class,'error-overlay')]
 ${LOC_ERROR_SOMETHING_WRONG}     xpath=//*[contains(text(),'Something went wrong')]
 ${LOC_ERROR_UNAUTHORIZED}        xpath=//*[contains(text(),'Unauthorized')]
-${LOC_ERROR_IN_GRID}             xpath=//div[contains(@class,'k-grid')]//*[contains(text(),'Error')]
+# Exclude thead so column titles like "Error Code" do not fail sanity; real fetch errors render in body rows/content.
+${LOC_ERROR_IN_GRID}             xpath=//div[contains(@class,'k-grid')]//*[contains(text(),'Error') and not(ancestor::thead)]
 
 # Search bar
 ${LOC_SEARCH_INPUT}              xpath=//input[@placeholder='Enter Search Text']

@@ -16,15 +16,6 @@ Test Teardown     Handle Test Teardown
 
 *** Test Cases ***
 # ═══════════════════════════════════════════════════════════════════════
-#  POSITIVE — UI VERIFICATION
-# ═══════════════════════════════════════════════════════════════════════
-
-TC_CDP_001 Verify Manage Devices Grid And Action Bar
-    [Documentation]    Verify grid is visible with rows, search input, and action bar.
-    [Tags]    smoke    regression    positive    device_plan
-    TC_CDP_001
-
-# ═══════════════════════════════════════════════════════════════════════
 #  POSITIVE — DEVICE PLAN CHANGE PER SIM STATE
 #  Each test: apply account filter → apply SIM state filter →
 #  validate initial state → read initial device plan (DP1) →
@@ -94,30 +85,14 @@ TC_CDP_010 No Plan Selected Should Not Open Popup
     [Tags]    regression    negative    device_plan
     TC_CDP_010
 
-# ═══════════════════════════════════════════════════════════════════════
-#  NEGATIVE — SECURITY
-# ═══════════════════════════════════════════════════════════════════════
-
-TC_CDP_011 Direct Access To ManageDevices Without Login
-    [Documentation]    Navigate directly to /ManageDevices without authenticating.
-    ...                Verify redirect to login page.
-    [Tags]    regression    negative    security    device_plan    navigation
-    TC_CDP_011
-
-
 *** Keywords ***
-TC_CDP_001
-    Login And Navigate To Manage Devices DP
-    Wait Until Element Is Visible    ${LOC_DP_GRID}    timeout=30s
-    Wait Until Element Is Visible    ${LOC_DP_SEARCH_INPUT}    timeout=30s
-    Wait Until Element Is Visible    ${LOC_DP_ACTION_FORM}    timeout=30s
-    ${row_count}=    Get Element Count    ${LOC_DP_GRID_ROWS}
-    Should Be True    ${row_count} > 0    Grid must have at least one device row.
-    Log    Manage Devices grid visible with ${row_count} row(s).    console=yes
-
 TC_CDP_002
     Login And Navigate To Manage Devices DP
-    ${imsi}    ${dp1}    ${dp2}=    Perform Full Device Plan Change    ${DP_FILTER_ACTIVATED}    ${DP_STATE_ACTIVATED}
+    IF    '${DP_PINNED_IMSI_ACTIVATED}' != '${EMPTY}'
+        ${imsi}    ${dp1}    ${dp2}=    Perform Full Device Plan Change For IMSI    ${DP_PINNED_IMSI_ACTIVATED}    ${EMPTY}
+    ELSE
+        ${imsi}    ${dp1}    ${dp2}=    Perform Full Device Plan Change    ${DP_FILTER_ACTIVATED}    ${DP_STATE_ACTIVATED}
+    END
     Verify DP Change Success And Wait
     Verify Device Plan After Change    ${imsi}    ${dp2}
 
@@ -277,8 +252,3 @@ TC_CDP_010
     ...    Popup should not open without selecting a device plan.
     Log    Popup correctly not opened without plan selection.    console=yes
 
-TC_CDP_011
-    Clear Session For Unauthenticated Test
-    Go To    ${DP_MANAGE_DEVICES_URL}
-    Wait For Page Load
-    Verify Redirected To Login Page

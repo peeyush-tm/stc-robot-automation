@@ -39,7 +39,8 @@ ${LOC_ADD_IMSI_BTN}               xpath=//button[contains(@title,'IMSI') and con
 ${LOC_ICCID_POPUP}                id=addRangePopup
 ${LOC_ICCID_FROM}                 xpath=//div[@id='addRangePopup']//input[@name='fromInput' and not(@disabled)]
 ${LOC_ICCID_TO}                   xpath=//div[@id='addRangePopup']//input[@name='toInput' and not(@disabled)]
-${LOC_ICCID_POPUP_SUBMIT}         xpath=//div[@id='addRangePopup']//button[contains(@class,'btn-custom-color') and not(@disabled)]
+# Submit must resolve even while disabled (React uses property); use Is Enabled before click.
+${LOC_ICCID_POPUP_SUBMIT}         xpath=//div[@id='addRangePopup']//button[contains(@class,'btn-custom-color')]
 ${LOC_ICCID_POPUP_CLOSE}          xpath=//div[@id='addRangePopup']//button[contains(@class,'btn-cancel-color')]
 
 # ── IMSI Range Popup (scoped to #addImsiRangePopup) ──────────────────

@@ -14,7 +14,7 @@ Navigate To IP Whitelisting Via Service
     IF    ${service_visible}
         Scroll To Element Via JS    ${LOC_WL_MENU_SERVICE}
         Click Element Via JS    ${LOC_WL_MENU_SERVICE}
-        Sleep    2s
+        Sleep    1s
     END
     Wait For Loading Overlay To Disappear
     Wait Until Element Is Visible    ${LOC_TAB_IP_WHITELISTING}    timeout=30s
@@ -33,7 +33,7 @@ Click Create Policy Button
     ...    Location Should Contain    ${CREATE_IP_WHITELIST_PATH}
     Wait For Loading Overlay To Disappear
     Wait Until Element Is Visible    ${LOC_WL_ADD_RULE_BTN}    timeout=30s
-    Sleep    2s
+    Sleep    1s
 
 Login And Navigate To Create IP Whitelisting
     [Documentation]    Ensures session is active, then navigates to Create IP Whitelisting via direct URL.
@@ -55,23 +55,52 @@ Select Customer From Dropdown
         ${found}=    Run Keyword And Return Status    Wait Until Element Is Visible    ${loc}    timeout=3s
         IF    ${found}
             Select From List By Index    ${loc}    ${customer_index}
-            Sleep    2s
+            Sleep    1s
             Wait For Loading Overlay To Disappear
             RETURN
         END
     END
-    # React Select: click dropdown control (data-testid or first select-like div outside dialog)
-    ${clicked}=    Run Keyword And Return Status    Wait Until Element Is Visible    ${LOC_WL_CUSTOMER_SELECT}    timeout=5s
-    IF    ${clicked}
-        Click Element    ${LOC_WL_CUSTOMER_SELECT}
+    # React Select: open via inner control (JS click), focus search input + SPACE so options/async list load, then option click
+    ${container}=    Run Keyword And Return Status    Wait Until Element Is Visible    ${LOC_WL_CUSTOMER_SELECT}    timeout=10s
+    IF    ${container}
+        Wait Until Element Is Visible    ${LOC_WL_CUSTOMER_REACT_CONTROL}    timeout=20s
+        Scroll To Element Via JS    ${LOC_WL_CUSTOMER_REACT_CONTROL}
+        Click Element Via JS    ${LOC_WL_CUSTOMER_REACT_CONTROL}
     ELSE
-        Wait Until Element Is Visible    xpath=//div[not(ancestor::div[@id='add-service-item-dialog']) and (contains(@class,'select__control') or contains(@class,'react-select__control'))]    timeout=15s
-        Click Element    xpath=//div[not(ancestor::div[@id='add-service-item-dialog']) and (contains(@class,'select__control') or contains(@class,'react-select__control'))][1]
+        Wait Until Element Is Visible    ${LOC_WL_CUSTOMER_FALLBACK_CONTROL}    timeout=15s
+        Scroll To Element Via JS    ${LOC_WL_CUSTOMER_FALLBACK_CONTROL}
+        Click Element Via JS    ${LOC_WL_CUSTOMER_FALLBACK_CONTROL}
     END
-    Sleep    2s
-    Wait Until Element Is Visible    ${LOC_WL_CUSTOMER_REACT_OPTION}    timeout=15s
-    Click Element    xpath=(//div[contains(@class,'react-select__menu') or contains(@class,'select__menu')]//div[contains(@class,'react-select__option') or contains(@class,'select__option')])[${customer_index}]
-    Sleep    2s
+    Sleep    0.5s
+    ${inp}=    Set Variable    ${FALSE}
+    IF    ${container}
+        ${inp}=    Run Keyword And Return Status    Wait Until Element Is Visible    ${LOC_WL_CUSTOMER_REACT_INPUT}    timeout=6s
+    END
+    IF    ${inp}
+        Click Element    ${LOC_WL_CUSTOMER_REACT_INPUT}
+        Run Keyword And Ignore Error    Press Keys    ${LOC_WL_CUSTOMER_REACT_INPUT}    SPACE
+        Sleep    0.8s
+    END
+    ${opt_xpath}=    Set Variable    xpath=(//div[contains(@class,'react-select__menu') or contains(@class,'select__menu')]//div[(contains(@class,'react-select__option') or contains(@class,'select__option')) and not(contains(@class,'react-select__option--is-disabled')) and not(contains(@class,'select__option--is-disabled'))])[${customer_index}]
+    ${picked}=    Run Keyword And Return Status    Wait Until Element Is Visible    ${opt_xpath}    timeout=22s
+    IF    not ${picked}
+        Run Keyword And Ignore Error    Execute Javascript    document.body.dispatchEvent(new KeyboardEvent('keydown', {key:'Escape', keyCode:27, bubbles:true}));
+        Sleep    0.5s
+        IF    ${container}
+            Click Element Via JS    ${LOC_WL_CUSTOMER_REACT_CONTROL}
+        ELSE
+            Click Element Via JS    ${LOC_WL_CUSTOMER_FALLBACK_CONTROL}
+        END
+        Sleep    0.5s
+        IF    ${inp}
+            Click Element    ${LOC_WL_CUSTOMER_REACT_INPUT}
+            Run Keyword And Ignore Error    Press Keys    ${LOC_WL_CUSTOMER_REACT_INPUT}    SPACE
+            Sleep    0.8s
+        END
+        Wait Until Element Is Visible    ${opt_xpath}    timeout=22s
+    END
+    Click Element Via JS    ${opt_xpath}
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
 
 Select Business Unit From Dropdown
@@ -79,7 +108,7 @@ Select Business Unit From Dropdown
     [Arguments]    ${bu_index}=1
     Wait Until Element Is Visible    ${LOC_WL_BU_SELECT}    timeout=30s
     Wait Until Element Is Enabled    ${LOC_WL_BU_SELECT}    timeout=30s
-    Sleep    2s
+    Sleep    1s
     ${option_count}=    Get Element Count    xpath=//select[@name='businessUnit']/option[not(@value='') and not(@value='0')]
     Should Be True    ${option_count} > 0    BU dropdown must have at least one option.
     Select From List By Index    ${LOC_WL_BU_SELECT}    ${bu_index}
@@ -113,7 +142,7 @@ Add Source Address IP Tag
     Click Element    ${LOC_WL_SOURCE_IP_INPUT}
     Input Text    ${LOC_WL_SOURCE_IP_INPUT}    ${ip_address}
     Press Keys    ${LOC_WL_SOURCE_IP_INPUT}    RETURN
-    Sleep    3s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
 
 Enter Destination Address
@@ -145,7 +174,7 @@ Submit Rule Dialog
     [Documentation]    Clicks Submit in the Rule dialog.
     Wait Until Element Is Visible    ${LOC_WL_RULE_DIALOG_SUBMIT}    timeout=15s
     Click Element Via JS    ${LOC_WL_RULE_DIALOG_SUBMIT}
-    Sleep    2s
+    Sleep    1s
     Wait Until Element Is Not Visible    ${LOC_WL_RULE_DIALOG}    timeout=15s
 
 Submit Rule Dialog Expecting Error
@@ -153,7 +182,7 @@ Submit Rule Dialog Expecting Error
     ...                Does NOT wait for dialog to close.
     Wait Until Element Is Visible    ${LOC_WL_RULE_DIALOG_SUBMIT}    timeout=15s
     Click Element Via JS    ${LOC_WL_RULE_DIALOG_SUBMIT}
-    Sleep    2s
+    Sleep    1s
 
 Close Rule Dialog Without Submitting
     [Documentation]    Clicks Close in the Rule dialog.
@@ -186,7 +215,7 @@ Submit IP Whitelisting Policy
     [Documentation]    Clicks the Create button (enabled after rules are added).
     Wait Until Element Is Enabled    ${LOC_WL_CREATE_BTN}    timeout=15s
     Click Element Via JS    ${LOC_WL_CREATE_BTN}
-    Sleep    3s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
 
 Click Close Button IP Whitelisting
@@ -223,7 +252,7 @@ Verify Rule Dialog Did Not Open
 
 Verify Rule Validation Error
     [Documentation]    Asserts error toast, alert-danger, or dialog still visible after invalid rule submit.
-    Sleep    2s
+    Sleep    1s
     ${toast}=    Run Keyword And Return Status
     ...    Wait Until Element Is Visible    ${LOC_WL_TOAST_ERROR}    timeout=5s
     ${alert}=    Run Keyword And Return Status

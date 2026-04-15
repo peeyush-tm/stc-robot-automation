@@ -2,6 +2,9 @@ import random
 import string
 import time
 
+from _config_defaults import config_scalar
+from _shared_seed import resolved_any
+
 
 def _random_string(length=6):
     return "".join(random.choices(string.ascii_lowercase + string.digits, k=length))
@@ -21,13 +24,27 @@ UM_TIMEOUT = "30s"
 MANAGE_USER_PATH = "/ManageUser"
 CREATE_USER_PATH = "/CreateUser"
 
-# ── Account TreeView selection ──────────────────────────────────────
-UM_EC_ACCOUNT_NAME = "AQ_AUTO_EC_20260319165618"
-UM_BU_ACCOUNT_NAME = "AQ_AUTO_BU_20260319165618"
+# ── Account TreeView: env → seed (onboard, PAYG, E2E) → MD example defaults ─
+_UM_EC_KEYS = ("onboard_ec_name", "payg_ec_name", "e2e_ec_name", "e2e_usage_ec_name")
+_UM_BU_KEYS = ("onboard_bu_name", "payg_bu_name", "e2e_bu_name", "e2e_usage_bu_name")
+UM_EC_ACCOUNT_NAME = resolved_any(
+    _UM_EC_KEYS, "STC_UM_EC_ACCOUNT_NAME", config_scalar("DEFAULT_EC_ACCOUNT", "SANJ_1002")
+)
+UM_BU_ACCOUNT_NAME = resolved_any(
+    _UM_BU_KEYS,
+    "STC_UM_BU_ACCOUNT_NAME",
+    config_scalar("DEFAULT_BU_ACCOUNT", "billingAccountSANJ_1003"),
+)
 
 # ── Dropdown selections ───────────────────────────────────────────
 UM_USER_CATEGORY = "NormalUser"
+# Role option text is env-specific (API value vs display label). Try in order.
 UM_ROLE_NAME = "BillingAccount_Admin"
+UM_ROLE_SELECTION_CANDIDATES = [
+    "BillingAccount_Admin",
+    "Billing Account Admin",
+    "Billing account admin",
+]
 UM_TIMEZONE_TEXT = "(GMT+03:00) Kuwait, Riyadh"
 UM_COUNTRY_TEXT = "Saudi Arabia"
 

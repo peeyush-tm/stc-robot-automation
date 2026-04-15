@@ -9,9 +9,12 @@ Library     ../libraries/ConfigLoader.py
 Variables   ../variables/login_variables.py
 Variables   ../variables/product_type_variables.py
 
-Suite Setup       Load Environment Config From Json    ${ENV}
-Test Setup        Open Browser And Navigate    ${BASE_URL}    ${BROWSER}
-Test Teardown     Capture Screenshot And Close Browser
+Suite Setup       Run Keywords    Load Environment Config From Json    ${ENV}
+...               AND    Open Browser And Navigate    ${BASE_URL}    ${BROWSER}
+...               AND    Login And Navigate To Product Type
+Test Setup        Go To Product Type Listing
+Test Teardown     Handle Test Teardown
+Suite Teardown    Close All Browsers
 
 
 *** Test Cases ***
@@ -135,10 +138,172 @@ TC_PT_18 Clear Search Should Reset Grid
     [Documentation]    After searching, click the clear/close button on search field.
     ...                Verify: grid resets and shows all product types.
     [Tags]    regression    edge-case    search
-    Login And Navigate To Product Type
     Wait Until Element Is Visible    ${LOC_PT_SEARCH_FIELD}    ${PT_TIMEOUT}
-    Input Text                       ${LOC_PT_SEARCH_FIELD}    Test
-    Click Element Safely             ${LOC_PT_SEARCH_BTN}
-    Wait Until Element Is Visible    ${LOC_PT_GRID_DATA}       ${PT_TIMEOUT}
-    Click Element Safely             ${LOC_PT_SEARCH_CLOSE}
-    Wait Until Element Is Visible    ${LOC_PT_GRID_DATA}       ${PT_TIMEOUT}
+    Input Text    ${LOC_PT_SEARCH_FIELD}    Test
+    Click Element Safely    ${LOC_PT_SEARCH_BTN}
+    Wait Until Element Is Visible    ${LOC_PT_GRID_DATA}    ${PT_TIMEOUT}
+    Scroll To Element Via JS    ${LOC_PT_SEARCH_CLOSE}
+    Click Element Via JS    ${LOC_PT_SEARCH_CLOSE}
+    Wait Until Element Is Visible    ${LOC_PT_GRID_DATA}    ${PT_TIMEOUT}
+
+
+*** Keywords ***
+PT Scroll Grid Right For Assign Icons
+    Execute Javascript
+    ...    var grid = document.querySelector('.k-grid-content'); if(grid) grid.scrollLeft = grid.scrollWidth;
+    Sleep    2s
+
+TC_PT_001
+    Open Create Product Type Form
+    Fill All Mandatory Fields With Defaults
+    Verify Sub Type 1 Is Pre Filled And Disabled
+    Fill Optional Fields
+    Click Submit Product Type
+    Verify Product Type Created Successfully
+
+TC_PT_002
+    PT Scroll Grid Right For Assign Icons
+    ${assign_ok}=    Run Keyword And Return Status    Click Assign Customer Icon On First Row
+    IF    not ${assign_ok}
+        Log    Assign icon click failed. Refreshing Product Type page and retrying...    console=yes
+        Go To    ${BASE_URL}ProductType
+        Sleep    5s
+        Wait For App Loading To Complete    timeout=60s
+        Wait Until Element Is Visible    ${LOC_PT_GRID_DATA}    timeout=30s
+        PT Scroll Grid Right For Assign Icons
+        Click Assign Customer Icon On First Row
+    END
+    Select First Enterprise Customer
+    Click Update EC Assignment
+    Verify EC Assignment Successful
+
+TC_PT_011
+    Verify Create Product Type Button Visible
+
+TC_PT_13
+    ${pt_name}=    Evaluate    'Auto PT ' + ''.join(random.choices(string.ascii_letters + string.digits, k=8))    modules=random,string
+    Open Create Product Type Form
+    Fill All Mandatory Fields    ${pt_name}    ${PT_SERVICE_TYPE_POSTPAID}
+    ...    ${PT_SUB_TYPE_2}    ${PT_SUB_TYPE_3_SIM}    ${PT_SUB_TYPE_4}
+    Fill Optional Fields
+    Click Submit Product Type
+    Verify Product Type Created Successfully
+    Wait Until Element Is Visible    ${LOC_PT_SEARCH_FIELD}    ${PT_TIMEOUT}
+    Clear Element Text    ${LOC_PT_SEARCH_FIELD}
+    Input Text    ${LOC_PT_SEARCH_FIELD}    ${pt_name}
+    Click Element Safely    ${LOC_PT_SEARCH_BTN}
+    Wait For App Loading To Complete
+    Wait Until Element Is Visible    ${LOC_PT_GRID_DATA}    ${PT_TIMEOUT}
+    PT Scroll Grid Right For Assign Icons
+    Click Assign Customer Icon On First Row
+    Click Close Assign Customer Popup
+    Wait Until Element Is Not Visible    ${LOC_ASSIGN_POPUP}    15s
+    Verify No Data After Expand
+
+TC_PT_003
+    Open Create Product Type Form
+    Enter Product Type Name    ${PT_NAME}
+    Select Service Type    ${PT_SERVICE_TYPE_POSTPAID}
+    Enter Service Sub Type 2    ${PT_SUB_TYPE_2}
+    Enter Service Sub Type 3    ${PT_SUB_TYPE_3_SIM}
+    Enter Service Sub Type 4    ${PT_SUB_TYPE_4}
+    Click Submit Product Type
+    Verify Still On Create Product Type Page
+
+TC_PT_004
+    Open Create Product Type Form
+    Select Account From Dropdown
+    Select Service Type    ${PT_SERVICE_TYPE_POSTPAID}
+    Enter Service Sub Type 2    ${PT_SUB_TYPE_2}
+    Enter Service Sub Type 3    ${PT_SUB_TYPE_3_SIM}
+    Enter Service Sub Type 4    ${PT_SUB_TYPE_4}
+    Click Submit Product Type
+    Verify Still On Create Product Type Page
+
+TC_PT_005
+    Open Create Product Type Form
+    Select Account From Dropdown
+    Enter Product Type Name    ${PT_NAME}
+    Enter Service Sub Type 2    ${PT_SUB_TYPE_2}
+    Enter Service Sub Type 3    ${PT_SUB_TYPE_3_SIM}
+    Enter Service Sub Type 4    ${PT_SUB_TYPE_4}
+    Click Submit Product Type
+    Verify Still On Create Product Type Page
+
+TC_PT_006
+    Open Create Product Type Form
+    Select Account From Dropdown
+    Enter Product Type Name    ${PT_NAME}
+    Select Service Type    ${PT_SERVICE_TYPE_POSTPAID}
+    Enter Service Sub Type 3    ${PT_SUB_TYPE_3_SIM}
+    Enter Service Sub Type 4    ${PT_SUB_TYPE_4}
+    Click Submit Product Type
+    Verify Still On Create Product Type Page
+
+TC_PT_007
+    Open Create Product Type Form
+    Select Account From Dropdown
+    Enter Product Type Name    ${PT_NAME}
+    Select Service Type    ${PT_SERVICE_TYPE_POSTPAID}
+    Enter Service Sub Type 2    ${PT_SUB_TYPE_2}
+    Enter Service Sub Type 4    ${PT_SUB_TYPE_4}
+    Click Submit Product Type
+    Verify Still On Create Product Type Page
+
+TC_PT_008
+    Open Create Product Type Form
+    Select Account From Dropdown
+    Enter Product Type Name    ${PT_NAME}
+    Select Service Type    ${PT_SERVICE_TYPE_POSTPAID}
+    Enter Service Sub Type 2    ${PT_SUB_TYPE_2}
+    Enter Service Sub Type 3    ${PT_SUB_TYPE_3_SIM}
+    Click Submit Product Type
+    Verify Still On Create Product Type Page
+
+TC_PT_009
+    Open Create Product Type Form
+    Select Account From Dropdown
+    Enter Product Type Name    ${PT_NAME}
+    Select Service Type    ${PT_SERVICE_TYPE_POSTPAID}
+    Enter Service Sub Type 2    ${PT_SUB_TYPE_2}
+    Enter Service Sub Type 3    ${PT_SUB_TYPE_3_ESIM}
+    Enter Service Sub Type 4    ${PT_SUB_TYPE_4}
+    Click Submit Product Type
+    Verify Still On Create Product Type Page
+
+TC_PT_010
+    Open Create Product Type Form
+    Fill All Mandatory Fields With Defaults
+    Verify Sub Type 1 Is Pre Filled And Disabled
+    Fill Optional Fields
+    Click Close Product Type Form
+    Verify Redirected To Product Type Listing
+    Page Should Not Contain    SIM Product Type Created Successfully
+
+TC_PT_012
+    PT Scroll Grid Right For Assign Icons
+    Click Assign Customer Icon On First Row
+    Click Update EC Assignment
+    Verify No EC Selected Toast Displayed
+    Verify Assign Popup Still Open
+
+TC_PT_17
+    Open Create Product Type Form
+    Fill All Mandatory Fields    ${DUPLICATE_PT_NAME}    ${PT_SERVICE_TYPE_POSTPAID}
+    ...    ${PT_SUB_TYPE_2}    ${PT_SUB_TYPE_3_SIM}    ${PT_SUB_TYPE_4}
+    Fill Optional Fields
+    Click Submit Product Type
+    Verify Duplicate Product Type Toast Displayed
+    Verify Still On Create Product Type Page
+
+TC_PT_14
+    Wait Until Element Is Visible    ${LOC_PT_EDIT_ICON}    ${PT_TIMEOUT}
+
+TC_PT_15
+    Verify Assign Customer Icon Visible
+
+TC_PT_16
+    Wait Until Element Is Visible    ${LOC_PT_SEARCH_FIELD}    ${PT_TIMEOUT}
+    Input Text    ${LOC_PT_SEARCH_FIELD}    Test
+    Click Element Safely    ${LOC_PT_SEARCH_BTN}
+    Wait Until Element Is Visible    ${LOC_PT_GRID_DATA}    ${PT_TIMEOUT}

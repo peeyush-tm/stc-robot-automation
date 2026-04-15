@@ -5,6 +5,10 @@ Resource    login_keywords.resource
 Resource    ../locators/sim_order_locators.resource
 Resource    ../locators/login_locators.resource
 
+*** Variables ***
+# Overwritten by ``Load Environment Config From Json`` when present in config/<env>.json
+${DEFAULT_OPCO_ACCOUNT}       KSA_OPCO
+
 *** Keywords ***
 # ═══════════════════════════════════════════════════════════════════════
 #  NAVIGATION — Sidebar → Live Order → Create SIM Order
@@ -15,7 +19,7 @@ Navigate To Live Order Via Sidebar
     Go To    ${LIVE_ORDER_URL}
     Wait For Page Load
     Wait For Loading Overlay To Disappear
-    Wait Until Element Is Visible    ${LOC_SO_GRID}    timeout=60s
+    Wait Until Element Is Visible    ${LOC_SO_GRID}    timeout=30s
     Log    Navigated to Live Order page.
 
 Click Create SIM Order Button
@@ -26,7 +30,7 @@ Click Create SIM Order Button
     ...    Wait Until Element Is Visible    ${LOC_SO_CREATE_ORDER_BTN}    timeout=30s
     IF    ${btn_visible}
         Click Element Via JS    ${LOC_SO_CREATE_ORDER_BTN}
-        Sleep    3s
+        Sleep    1s
     END
     ${on_create}=    Run Keyword And Return Status
     ...    Wait Until Keyword Succeeds    3x    3s    Location Should Contain    ${CREATE_SIM_ORDER_PATH}
@@ -37,7 +41,7 @@ Click Create SIM Order Button
     Wait For Loading Overlay To Disappear
     Wait Until Element Is Visible    ${LOC_SO_WIZARD_CONTAINER}    timeout=30s
     Wait Until Element Is Visible    ${LOC_SO_STEP1_PANE}    timeout=30s
-    Sleep    2s
+    Sleep    1s
     Log    Navigated to Create SIM Order wizard.
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -48,7 +52,7 @@ Login And Navigate To Live Order
     Ensure Session Is Active
     Navigate To Module Page    ${LIVE_ORDER_URL}
     Wait For Loading Overlay To Disappear
-    Wait Until Element Is Visible    ${LOC_SO_GRID}    timeout=60s
+    Wait Until Element Is Visible    ${LOC_SO_GRID}    timeout=30s
 
 Login And Navigate To Create SIM Order
     [Documentation]    Ensures session is active, then navigates to Create SIM Order via direct URL.
@@ -62,145 +66,226 @@ Login And Navigate To Create SIM Order
 #  STEP 1 — ORDER DETAILS (#discover)
 # ═══════════════════════════════════════════════════════════════════════
 Set SIM Replacement Order
-    [Documentation]    Sets the SIM Replacement Order radio button.
-    ...                Radio inputs are hidden; uses JS to set checked state and triggers change event.
-    [Arguments]    ${value}=false
+    [Documentation]    Sets SIM Replacement Order Yes/No. CMP uses custom-styled radios — click the **visible**
+    ...                ``.gc-custom-radio-btn-text`` (Yes/No), then sync hidden ``input[name=isBlank]`` if needed.
+    [Arguments]    ${value}=${FALSE}
     Wait Until Element Is Visible    ${LOC_SO_STEP1_PANE}    timeout=30s
     Wait For Loading Overlay To Disappear
-    # Try clicking the label first (visible element)
-    ${label_text}=    Set Variable If    '${value}' == 'true'    Yes    No
-    ${label_locator}=    Set Variable    xpath=//div[@id='discover']//label[contains(@class,'gc-radio-btn-label')]//span[normalize-space()='${label_text}']
-    ${label_visible}=    Run Keyword And Return Status
-    ...    Wait Until Element Is Visible    ${label_locator}    timeout=10s
-    IF    ${label_visible}
-        Click Element Via JS    ${label_locator}
-    ELSE
-        # Fallback: use JS to directly set the radio
-        Execute Javascript
-        ...    var radio = document.querySelector("div#discover input[name='isBlank'][value='${value}']");
-        ...    if(radio) { radio.checked = true; radio.dispatchEvent(new Event('change', {bubbles:true})); radio.dispatchEvent(new Event('click', {bubbles:true})); }
+    ${s}=    Convert To String    ${value}
+    ${want_yes}=    Evaluate    str('${s}').lower() in ('true','1','yes')
+    ${txt}=    Set Variable If    ${want_yes}    Yes    No
+    ${ui_span}=    Set Variable    xpath=//div[@id='discover']//span[contains(@class,'gc-custom-radio-btn-text')][normalize-space()='${txt}']
+    Wait Until Element Is Visible    ${ui_span}    timeout=10s
+    Scroll To Element Via JS    ${ui_span}
+    Click Element Via JS    ${ui_span}
+    Sleep    300ms
+    ${synced}=    Execute Javascript
+    ...    var d=document.getElementById('discover'); if(!d) return false;
+    ...    var want=arguments[0]===true||arguments[0]==='true'||String(arguments[0]).toLowerCase()==='true';
+    ...    var yes=d.querySelector("input[name='isBlank'][value='true']");
+    ...    var no=d.querySelector("input[name='isBlank'][value='false']");
+    ...    if(want&&yes&&!yes.checked){ yes.click(); }
+    ...    if(!want&&no&&!no.checked){ no.click(); }
+    ...    return want ? (yes&&yes.checked) : (no&&no.checked);
+    ...    ARGUMENTS    ${value}
+    IF    not ${synced}
+        Log    WARN: isBlank radio state may not match desired ${value} after UI click; continuing.    level=WARN
     END
-    Sleep    1s
+    Sleep    300ms
 
 Select Account From TreeView
-    [Documentation]    Selects the account in the Kendo TreeView by updating React component state.
-    ...                The TreeView uses a React controlled checkbox that cannot be toggled via
-    ...                standard Selenium clicks. This keyword walks the React fiber tree to find
-    ...                the component managing the TreeView, then sets its state and calls the
-    ...                parent onSelectionChange callback to trigger cascading data loads.
+    [Documentation]    Step 1 Account field: new UI uses custom dropdown ``data-testid=accountSelected``
+    ...                (options portaled under ``body``). Legacy UI uses ``input[name=accountSelected]`` + TreeView/React fiber.
     [Arguments]    ${account_name}=${VALID_ACCOUNT_NAME}
-    Wait Until Element Is Visible    ${LOC_SO_ACCOUNT_INPUT}    timeout=30s
+    Wait Until Element Is Visible    ${LOC_SO_STEP1_PANE}    timeout=30s
+    Wait For Loading Overlay To Disappear
+    ${new_ui}=    Run Keyword And Return Status
+    ...    Wait Until Element Is Visible    xpath=//div[@id='discover']//*[@data-testid='accountSelected']    timeout=25s
+    IF    ${new_ui}
+        Wait Until Keyword Succeeds    10x    2s
+        ...    Run Keywords
+        ...    Wait Until Element Is Visible    ${LOC_SO_ACCOUNT_BTN}    timeout=5s
+        ...    AND    Scroll To Element Via JS    ${LOC_SO_ACCOUNT_BTN}
+        ${by_name}=    Run Keyword And Return Status
+        ...    Select Custom Dropdown Option By Name    ${LOC_SO_ACCOUNT_BTN}    accountSelected    ${account_name}
+        IF    ${by_name}
+            Wait For Loading Overlay To Disappear
+            Sleep    1s
+            Log    Selected account (custom, exact name): ${account_name}
+            RETURN
+        END
+        Click Element Via JS    ${LOC_SO_ACCOUNT_BTN}
+        Sleep    1s
+        ${opts_visible}=    Run Keyword And Return Status
+        ...    Wait Until Element Is Visible    ${LOC_SO_ACCOUNT_OPTION_ANY}    timeout=30s
+        IF    not ${opts_visible}
+            Click Element Via JS    ${LOC_SO_ACCOUNT_BTN}
+            Sleep    1s
+            Wait Until Element Is Visible    ${LOC_SO_ACCOUNT_OPTION_ANY}    timeout=30s
+        END
+        ${search_ok}=    Run Keyword And Return Status
+        ...    Wait Until Element Is Visible    xpath=//body//div[@data-testid='accountSelected']//input[contains(@class,'searchInput')]    timeout=5s
+        IF    ${search_ok}
+            Clear Element Text    xpath=//body//div[@data-testid='accountSelected']//input[contains(@class,'searchInput')]
+            Input Text    xpath=//body//div[@data-testid='accountSelected']//input[contains(@class,'searchInput')]    ${account_name}
+            Sleep    1s
+        END
+        ${pick}=    Execute Javascript
+        ...    var want=arguments[0]||'';
+        ...    var opts=document.querySelectorAll("div[data-testid='accountSelected']");
+        ...    var best=null, first=null;
+        ...    for(var i=0;i<opts.length;i++){
+        ...      var c=(opts[i].className||'')+'';
+        ...      if(c.indexOf('option')<0) continue;
+        ...      if(!first) first=opts[i];
+        ...      var t=(opts[i].textContent||'').trim();
+        ...      if(!want) continue;
+        ...      if(t===want || t.indexOf(want)>=0){ best=opts[i]; break; }
+        ...    }
+        ...    var el=best||first;
+        ...    if(!el) return 'ERROR: no account option nodes in portal';
+        ...    try{ el.click(); }catch(e){ el.dispatchEvent(new MouseEvent('click',{bubbles:true})); }
+        ...    return 'OK: '+(el.textContent||'').trim();
+        ...    ARGUMENTS    ${account_name}
+        Log    Account custom portal pick: ${pick}    console=yes
+        Should Start With    ${pick}    OK:
+        ...    msg=Failed to pick account in custom dropdown: ${pick}
+        Wait For Loading Overlay To Disappear
+        Sleep    1s
+        Log    Selected account: ${account_name}
+        RETURN
+    END
+    Select Account Legacy TreeView Fiber    ${account_name}
+
+Select Account Legacy TreeView Fiber
+    [Documentation]    Legacy account TreeView: open ``input[name=accountSelected]`` and set React TreeView state.
+    [Arguments]    ${account_name}
+    Wait Until Element Is Visible    ${LOC_SO_ACCOUNT_INPUT}    timeout=25s
     Wait For Loading Overlay To Disappear
     Click Element    ${LOC_SO_ACCOUNT_INPUT}
-    Sleep    2s
+    Sleep    1s
     ${selected}=    Execute Javascript
-    ...    var input = document.querySelector("input[name='accountSelected']");
+    ...    var root = document.querySelector('#discover');
+    ...    if (!root) return 'ERROR: discover pane not found';
+    ...    function fiberKeyOf(el){
+    ...      if(!el) return null;
+    ...      return Object.keys(el).find(function(k){
+    ...        return k.indexOf('__reactFiber')===0 || k.indexOf('__reactInternalInstance')===0;
+    ...      }) || null;
+    ...    }
+    ...    function findTreeComponent(startFiber){
+    ...      var current=startFiber, component=null, onSelChange=null;
+    ...      while(current){
+    ...        if(current.stateNode && current.stateNode.state && current.stateNode.state.treeData){
+    ...          component=current.stateNode;
+    ...        }
+    ...        if(current.memoizedProps && current.memoizedProps.onSelectionChange && !onSelChange){
+    ...          onSelChange=current.memoizedProps.onSelectionChange;
+    ...        }
+    ...        current=current.return;
+    ...      }
+    ...      return {component:component, onSelChange:onSelChange};
+    ...    }
+    ...    var input = root.querySelector("input[name='accountSelected']");
     ...    if (!input) return 'ERROR: accountSelected input not found';
-    ...    var fiberKey = Object.keys(input).find(function(k) {
-    ...        return k.startsWith('__reactInternalInstance');
-    ...    });
-    ...    if (!fiberKey) return 'ERROR: No React fiber on input';
-    ...    var fiber = input[fiberKey];
-    ...    var current = fiber;
-    ...    var component = null;
-    ...    var onSelChange = null;
-    ...    while (current) {
-    ...        if (current.stateNode && current.stateNode.state
-    ...            && current.stateNode.state.treeData) {
-    ...            component = current.stateNode;
-    ...        }
-    ...        if (current.memoizedProps
-    ...            && current.memoizedProps.onSelectionChange && !onSelChange) {
-    ...            onSelChange = current.memoizedProps.onSelectionChange;
-    ...        }
-    ...        current = current.return;
-    ...    }
-    ...    if (!component) return 'ERROR: TreeView component not found in fiber tree';
+    ...    var k=fiberKeyOf(input);
+    ...    if(!k) return 'ERROR: No React fiber on account input';
+    ...    var found=findTreeComponent(input[k]);
+    ...    var component=found.component, onSelChange=found.onSelChange;
+    ...    if (!component) return 'ERROR: TreeView component not found in React tree';
     ...    var treeData = component.state.treeData;
+    ...    var want = arguments[0];
     ...    var target = null;
-    ...    for (var i = 0; i < treeData.length; i++) {
-    ...        if (treeData[i].text === '${account_name}'
-    ...            || treeData[i].label === '${account_name}') {
-    ...            target = treeData[i];
-    ...            break;
-    ...        }
+    ...    function walk(nodes){
+    ...      if(!nodes) return;
+    ...      for (var i = 0; i < nodes.length; i++) {
+    ...        var n=nodes[i];
+    ...        var txt=(n.text||n.label||'').trim();
+    ...        if (txt === want || txt.indexOf(want) >= 0){ target=n; return; }
+    ...        if (n.items && n.items.length) walk(n.items);
+    ...        if (target) return;
+    ...      }
     ...    }
-    ...    if (!target) return 'ERROR: Account "${account_name}" not found in treeData';
+    ...    walk(treeData);
+    ...    if (!target) return 'ERROR: Account not found in treeData';
     ...    var newState = Object.assign({}, component.state);
     ...    newState.check = Object.assign({}, newState.check, {
-    ...        ids: [target.organization_organization_id]
+    ...        ids: [target.organization_organization_id || target.id || target.value]
     ...    });
     ...    newState.selected = [target];
-    ...    newState.value = target.text;
+    ...    newState.value = target.text || target.label || want;
     ...    component.setState(newState);
     ...    if (onSelChange) {
-    ...        try { onSelChange([target]); } catch(e) { /* ignore callback errors */ }
+    ...        try { onSelChange([target]); } catch(e) { /* ignore */ }
     ...    }
-    ...    return 'OK: ' + target.text;
+    ...    return 'OK: ' + (target.text || target.label || '');
+    ...    ARGUMENTS    ${account_name}
     Log    Account selection result: ${selected}    console=yes
     Should Start With    ${selected}    OK:
     ...    msg=Failed to select account "${account_name}": ${selected}
-    Sleep    3s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
     Log    Selected account: ${account_name}
 
 Select BU Account From TreeView
-    [Documentation]    Opens the Account treeview dropdown, expands KSA_OPCO first,
+    [Documentation]    Opens the Account treeview dropdown, expands OPCO root (${DEFAULT_OPCO_ACCOUNT}) first,
     ...                then searches for EC, expands EC, searches for BU, and selects BU.
     [Arguments]    ${ec_name}    ${bu_name}
     Wait Until Element Is Visible    ${LOC_SO_ACCOUNT_INPUT}    timeout=30s
     Wait For Loading Overlay To Disappear
     # Step 1: Click the Account dropdown to open the treeview panel
     Click Element Via JS    ${LOC_SO_ACCOUNT_INPUT}
-    Sleep    3s
+    Sleep    1s
     ${tree_visible}=    Run Keyword And Return Status
     ...    Wait Until Element Is Visible    ${LOC_SO_ACCOUNT_TREEVIEW}    15s
     IF    not ${tree_visible}
         Execute Javascript
         ...    var inp = document.querySelector("input[name='accountSelected']");
         ...    if(inp) inp.click();
-        Sleep    3s
+        Sleep    1s
     END
     Log    Treeview panel opened.    console=yes
-    # Step 2: Expand KSA_OPCO (root node) — must expand first before EC is visible
-    ${opco_expand}=    Set Variable    xpath=//div[@id='discover']//span[contains(@class,'k-in') and contains(text(),'KSA_OPCO')]/parent::div/preceding-sibling::span[contains(@class,'k-icon')]
-    ${opco_alt}=    Set Variable    xpath=//div[@id='discover']//li[.//span[contains(text(),'KSA_OPCO')]]//span[contains(@class,'k-i-expand') or contains(@class,'k-i-arrow-60-right') or contains(@class,'k-icon')]
+    # Step 2: Expand OPCO root — must expand first before EC is visible
+    ${opco_expand}=    Set Variable    xpath=//div[@id='discover']//span[contains(@class,'k-in') and contains(text(),'${DEFAULT_OPCO_ACCOUNT}')]/parent::div/preceding-sibling::span[contains(@class,'k-icon')]
+    ${opco_alt}=    Set Variable    xpath=//div[@id='discover']//li[.//span[contains(text(),'${DEFAULT_OPCO_ACCOUNT}')]]//span[contains(@class,'k-i-expand') or contains(@class,'k-i-arrow-60-right') or contains(@class,'k-icon')]
     ${opco_ok}=    Run Keyword And Return Status
     ...    Wait Until Element Is Visible    ${opco_expand}    10s
     IF    ${opco_ok}
         Click Element Via JS    ${opco_expand}
-        Log    Clicked KSA_OPCO expand arrow (primary).    console=yes
+        Log    Clicked OPCO expand arrow (primary).    console=yes
     ELSE
         ${opco_alt_ok}=    Run Keyword And Return Status
         ...    Wait Until Element Is Visible    ${opco_alt}    5s
         IF    ${opco_alt_ok}
             Click Element Via JS    ${opco_alt}
-            Log    Clicked KSA_OPCO expand arrow (alt).    console=yes
+            Log    Clicked OPCO expand arrow (alt).    console=yes
         ELSE
-            # Last resort: JS click expand icon near KSA_OPCO
-            Execute Javascript
+            # Last resort: JS click expand icon near OPCO root label
+            ${opco_click_js}=    Catenate    SEPARATOR=\n
+            ...    var want = arguments[0];
             ...    var spans = document.querySelectorAll('#discover .k-in');
-            ...    for(var i=0; i<spans.length; i++){
-            ...        if(spans[i].textContent.indexOf('KSA_OPCO')>=0){
-            ...            var li = spans[i].closest('li');
-            ...            if(li){ var icon = li.querySelector('.k-icon'); if(icon) icon.click(); }
-            ...            break;
-            ...        }
+            ...    for (var i = 0; i < spans.length; i++) {
+            ...      if (spans[i].textContent.indexOf(want) >= 0) {
+            ...        var li = spans[i].closest('li');
+            ...        if (li) { var icon = li.querySelector('.k-icon'); if (icon) icon.click(); }
+            ...        break;
+            ...      }
             ...    }
-            Log    JS fallback: clicked KSA_OPCO expand.    console=yes
+            Execute Javascript    ${opco_click_js}    ${DEFAULT_OPCO_ACCOUNT}
+            Log    JS fallback: clicked OPCO expand.    console=yes
         END
     END
-    # Wait for child accounts to load after expanding KSA_OPCO
-    Sleep    5s
+    # Wait for child accounts to load after expanding OPCO root
+    Sleep    2s
     Wait For Loading Overlay To Disappear
     ${children_loaded}=    Run Keyword And Return Status
     ...    Wait Until Element Is Visible
-    ...    xpath=//div[@id='discover']//li[.//span[contains(text(),'KSA_OPCO')]]//ul//li    30s
+    ...    xpath=//div[@id='discover']//li[.//span[contains(text(),'${DEFAULT_OPCO_ACCOUNT}')]]//ul//li    30s
     IF    ${children_loaded}
-        Log    KSA_OPCO child accounts loaded.    console=yes
+        Log    OPCO child accounts loaded.    console=yes
     ELSE
         Log    Child accounts not yet visible — waiting longer...    console=yes
-        Sleep    10s
+        Sleep    5s
         Wait For Loading Overlay To Disappear
     END
     # Dump visible tree nodes for diagnostic
@@ -217,7 +302,7 @@ Select BU Account From TreeView
     IF    ${search_visible}
         Treeview Search Type    ${ec_name}
         Log    Typed EC "${ec_name}" in treeview search.    console=yes
-        Sleep    3s
+        Sleep    1s
     END
     # Step 4: Find and expand the EC node
     ${ec_node}=    Set Variable    xpath=//div[@id='discover']//span[contains(@class,'k-in') and contains(text(),'${ec_name}')]
@@ -236,7 +321,7 @@ Select BU Account From TreeView
         ...    }
         ...    ARGUMENTS    ${ec_name}
         Log    Expanded EC node "${ec_name}".    console=yes
-        Sleep    5s
+        Sleep    2s
         Wait For Loading Overlay To Disappear
         # Wait for BU child to appear under EC
         ${bu_children}=    Run Keyword And Return Status
@@ -246,17 +331,17 @@ Select BU Account From TreeView
             Log    EC child accounts (BU) loaded.    console=yes
         ELSE
             Log    BU children not yet visible — waiting longer...    console=yes
-            Sleep    10s
+            Sleep    5s
             Wait For Loading Overlay To Disappear
         END
     ELSE
-        Fail    EC "${ec_name}" not found in treeview after expanding KSA_OPCO and searching.
+        Fail    EC "${ec_name}" not found in treeview after expanding ${DEFAULT_OPCO_ACCOUNT} and searching.
     END
     # Step 5: Search for BU account
     IF    ${search_visible}
         Treeview Search Type    ${bu_name}
         Log    Typed BU "${bu_name}" in treeview search.    console=yes
-        Sleep    3s
+        Sleep    1s
     END
     # Step 6: Click/select the BU node — must click the CHECKBOX, not just the text
     ${bu_node}=    Set Variable    xpath=//div[@id='discover']//span[contains(@class,'k-in') and contains(text(),'${bu_name}')]
@@ -284,7 +369,7 @@ Select BU Account From TreeView
     ...    return 'NOT_FOUND';
     ...    ARGUMENTS    ${bu_name}
     Log    BU click result: ${checkbox_clicked}    console=yes
-    Sleep    3s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
     # Verify the selection registered
     ${selected_val}=    Execute Javascript
@@ -295,7 +380,7 @@ Select BU Account From TreeView
     IF    '${selected_val}' == '' or '${selected_val}' == 'EMPTY'
         Log    Checkbox click did not register. Trying Selenium click on BU node...    console=yes
         Click Element    ${bu_node}
-        Sleep    3s
+        Sleep    1s
         Wait For Loading Overlay To Disappear
         ${selected_val2}=    Execute Javascript
         ...    var inp = document.querySelector("input[name='accountSelected']");
@@ -342,7 +427,7 @@ Select BU Account From TreeView
         ...    return 'REACT_SELECTED: ' + target.text;
         ...    ARGUMENTS    ${bu_name}
         Log    React fiber result: ${react_result}    console=yes
-        Sleep    3s
+        Sleep    1s
         Wait For Loading Overlay To Disappear
     END
     # Final verification
@@ -353,7 +438,7 @@ Select BU Account From TreeView
     # Close dropdown by clicking outside
     Execute Javascript
     ...    var h = document.querySelector('#discover h4'); if(h) h.click();
-    Sleep    2s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
 
 Treeview Search Type
@@ -386,16 +471,16 @@ Select Custom Dropdown Option
     Wait For Loading Overlay To Disappear
     Scroll To Element Via JS    ${trigger_locator}
     Click Element Via JS    ${trigger_locator}
-    Sleep    2s
+    Sleep    1s
     ${first_option}=    Set Variable    xpath=//div[@data-testid='${data_testid}' and @class='option'][1]
     ${option_visible}=    Run Keyword And Return Status
     ...    Wait Until Element Is Visible    ${first_option}    timeout=10s
     IF    not ${option_visible}
         # Retry: click trigger again
         Click Element Via JS    ${trigger_locator}
-        Sleep    2s
+        Sleep    1s
         Click Element Via JS    ${trigger_locator}
-        Sleep    2s
+        Sleep    1s
         ${option_visible}=    Run Keyword And Return Status
         ...    Wait Until Element Is Visible    ${first_option}    timeout=10s
     END
@@ -422,8 +507,47 @@ Select Custom Dropdown Option
             END
         END
     END
-    Sleep    1s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
+
+Select Custom Dropdown Pick First Open Option
+    [Documentation]    Use when the custom dropdown list is **already open** (e.g. after a JS click on the control).
+    ...                Picks the first ``.option`` for ``data_testid``; prefers ``#discover``, then any visible option (portal).
+    [Arguments]    ${data_testid}
+    Wait For Loading Overlay To Disappear
+    ${first_option}=    Set Variable    xpath=(//div[@id='discover']//div[@data-testid='${data_testid}' and @class='option'])[1] | (//body//div[@data-testid='${data_testid}' and @class='option'])[1]
+    ${option_visible}=    Run Keyword And Return Status
+    ...    Wait Until Element Is Visible    ${first_option}    timeout=15s
+    IF    ${option_visible}
+        Click Element Via JS    ${first_option}
+    ELSE
+        ${any_option}=    Set Variable    xpath=(//div[@id='discover']//div[@data-testid='${data_testid}' and contains(@class,'option')])[1] | (//body//div[@data-testid='${data_testid}' and contains(@class,'option')])[1]
+        ${any_visible}=    Run Keyword And Return Status
+        ...    Wait Until Element Is Visible    ${any_option}    timeout=12s
+        IF    ${any_visible}
+            Click Element Via JS    ${any_option}
+        ELSE
+            Fail    No visible options for data-testid='${data_testid}' (dropdown closed, empty, or portal not matched).
+        END
+    END
+    Sleep    0.3s
+    Wait For Loading Overlay To Disappear
+
+SIM Order Click Sim Category Trigger Via JS
+    [Documentation]    Clicks the SIM Category control inside ``#discover`` when XPath locators miss (markup change).
+    ${ok}=    Execute Javascript
+    ...    return (function(){
+    ...    var d=document.getElementById('discover');
+    ...    if(!d) return false;
+    ...    var root=d.querySelector('[data-testid="orderSimCategory"]');
+    ...    if(!root) return false;
+    ...    var btn=root.querySelector('div[class*="selectBtn"],div[class*="SelectBtn"],button,[role="combobox"]');
+    ...    if(btn){ btn.click(); return true; }
+    ...    var fc=root.querySelector('div.form-control'); if(fc){ fc.click(); return true; }
+    ...    root.click();
+    ...    return true;
+    ...    })();
+    Should Be True    ${ok}    JS could not find/click [data-testid=orderSimCategory] under #discover.
 
 Select Custom Dropdown Option By Name
     [Documentation]    Selects a specific option from a custom dropdown by its visible text.
@@ -431,16 +555,34 @@ Select Custom Dropdown Option By Name
     Wait For Loading Overlay To Disappear
     Scroll To Element Via JS    ${trigger_locator}
     Click Element Via JS    ${trigger_locator}
-    Sleep    2s
+    Sleep    1s
     ${option_locator}=    Set Variable    xpath=//div[@data-testid='${data_testid}' and @class='option' and normalize-space()='${option_text}']
     Wait Until Element Is Visible    ${option_locator}    timeout=30s
     Click Element Via JS    ${option_locator}
-    Sleep    1s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
 
 Select SIM Category
-    [Documentation]    Selects the first available SIM Category from the custom dropdown.
-    Select Custom Dropdown Option    ${LOC_SO_SIM_CATEGORY_BTN}    orderSimCategory
+    [Documentation]    Selects the first available SIM Category. Waits for Step 1; if the trigger xpath is missing,
+    ...                logs ``#discover`` HTML (truncated) and opens the control via JS, then picks the first option.
+    Wait Until Element Is Visible    ${LOC_SO_STEP1_PANE}    timeout=30s
+    Wait For Loading Overlay To Disappear
+    ${vis}=    Run Keyword And Return Status
+    ...    Wait Until Element Is Visible    ${LOC_SO_SIM_CATEGORY_BTN}    timeout=40s
+    IF    ${vis}
+        Select Custom Dropdown Option    ${LOC_SO_SIM_CATEGORY_BTN}    orderSimCategory
+    ELSE
+        Log    SIM Category: XPath trigger not visible — logging #discover HTML (truncated) and using JS open.    level=WARN
+        ${snippet}=    Execute Javascript
+        ...    var d=document.getElementById('discover');
+        ...    if(!d) return 'NO_ELEMENT_ID_discover';
+        ...    var h=d.innerHTML; return h.length>32000 ? h.substring(0,32000)+'...[truncated]' : h;
+        Log    ${snippet}    level=WARN
+        SIM Order Click Sim Category Trigger Via JS
+        Sleep    1s
+        Wait For Loading Overlay To Disappear
+        Select Custom Dropdown Pick First Open Option    orderSimCategory
+    END
 
 Select SIM Type
     [Documentation]    Selects SIM Type from the native select element.
@@ -455,7 +597,7 @@ Select SIM Type
         ...    var sel = document.querySelector("select[name='simType']");
         ...    if(sel) { sel.value = '${sim_type_value}'; sel.dispatchEvent(new Event('change', {bubbles:true})); }
     END
-    Sleep    1s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
 
 Select SIM Product Type
@@ -496,14 +638,14 @@ Select SIM State
     Wait For Loading Overlay To Disappear
     Scroll To Element Via JS    ${LOC_SO_SIM_STATE_BTN}
     Click Element Via JS    ${LOC_SO_SIM_STATE_BTN}
-    Sleep    2s
+    Sleep    1s
     ${option}=    Set Variable    xpath=//div[@data-testid='simState' and @class='option' and @value='${state_value}']
     ${visible}=    Run Keyword And Return Status
     ...    Wait Until Element Is Visible    ${option}    timeout=10s
     IF    not ${visible}
         # Retry click
         Click Element Via JS    ${LOC_SO_SIM_STATE_BTN}
-        Sleep    2s
+        Sleep    1s
         ${visible}=    Run Keyword And Return Status
         ...    Wait Until Element Is Visible    ${option}    timeout=10s
     END
@@ -514,7 +656,7 @@ Select SIM State
         Wait Until Element Is Visible    ${first_opt}    timeout=30s
         Click Element Via JS    ${first_opt}
     END
-    Sleep    1s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
 
 Click Next To Shipping
@@ -522,31 +664,42 @@ Click Next To Shipping
     Wait For Loading Overlay To Disappear
     Scroll To Element Via JS    ${LOC_SO_BTN_STEP1_NEXT}
     Click Element Via JS    ${LOC_SO_BTN_STEP1_NEXT}
-    Sleep    2s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
     Wait Until Element Is Visible    ${LOC_SO_ADDRESS_LINE1}    timeout=30s
     Log    Advanced to Step 2 — Shipping Details.
 
 Fill Order Details Step 1
     [Documentation]    Fills all mandatory fields on the Order Details page.
-    ...                SIM Category and Product Type are attempted but won't fail the test
-    ...                if no options are available (depends on account configuration).
+    ...                For **normal** orders (``is_blank=false``): Account + SIM Category + SIM Type + SIM Product Type.
+    ...                For **SIM Replacement orders** (``is_blank=true``): UI shows **Account + SIM Product Type + Quantity**
+    ...                only — SIM Category (``orderSimCategory``) and SIM Type are **not rendered**, so they are skipped.
     [Arguments]    ${account}=${VALID_ACCOUNT_NAME}    ${quantity}=${VALID_QUANTITY}
     ...            ${activation}=${VALID_ACTIVATION_TYPE}    ${sim_state}=${VALID_SIM_STATE_VALUE}
-    ...            ${sim_type}=${VALID_SIM_TYPE_VALUE}    ${is_blank}=false
+    ...            ${sim_type}=${VALID_SIM_TYPE_VALUE}    ${is_blank}=${FALSE}
     Set SIM Replacement Order    ${is_blank}
     Select Account From TreeView    ${account}
-    Sleep    2s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
-    Select SIM Category
-    Select SIM Type    ${sim_type}
-    Sleep    2s
-    Wait For Loading Overlay To Disappear
-    Select SIM Product Type
-    Enter Quantity    ${quantity}
-    Set Activation Type    ${activation}
-    Select SIM State    ${sim_state}
-    Sleep    1s
+    # Account picker / React state can reset ``isBlank`` to No — re-apply before any field decisions.
+    Set SIM Replacement Order    ${is_blank}
+    Brief UI Settle Short
+    IF    ${is_blank}
+        # SIM Replacement = Yes → Step 1 shows Account + SIM Product Type + Quantity only.
+        Select SIM Product Type
+        Enter Quantity    ${quantity}
+    ELSE
+        # Normal order flow: SIM Category + SIM Type + SIM Product Type + Quantity + Activation + SIM State.
+        Select SIM Category
+        Select SIM Type    ${sim_type}
+        Sleep    1s
+        Wait For Loading Overlay To Disappear
+        Select SIM Product Type
+        Enter Quantity    ${quantity}
+        Set Activation Type    ${activation}
+        Select SIM State    ${sim_state}
+    END
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -565,8 +718,9 @@ Fill Address Fields
     Clear And Input Text Into Field    ${LOC_SO_POSTAL_CODE_INPUT}    ${postal}
 
 Select Country
-    [Documentation]    Selects a country from the custom Country dropdown.
-    Select Custom Dropdown Option    ${LOC_SO_COUNTRY_BTN}    countryname
+    [Documentation]    Selects **Saudi Arabia** from the custom Country dropdown.
+    ...                Uses the generic custom-dropdown helper but targets the option text explicitly.
+    Select Custom Dropdown Option By Name    ${LOC_SO_COUNTRY_BTN}    countryname    Saudi Arabia
 
 Fill Contact Details
     [Documentation]    Fills billing and contact information.
@@ -582,7 +736,7 @@ Click Next To Preview
     Wait For Loading Overlay To Disappear
     Scroll To Element Via JS    ${LOC_SO_BTN_STEP2_NEXT}
     Click Element Via JS    ${LOC_SO_BTN_STEP2_NEXT}
-    Sleep    2s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
     Wait Until Element Is Visible    ${LOC_SO_STEP3_PANE}    timeout=30s
     Log    Advanced to Step 3 — Preview.
@@ -610,9 +764,11 @@ Fill Shipping Details Step 2
 # ═══════════════════════════════════════════════════════════════════════
 Accept Terms And Submit Order
     [Documentation]    Checks the T&C checkbox on preview, clicks Submit, handles the T&C modal.
-    ...                The T&C checkbox exists in both the pane and the modal.
+    ...                The T&C checkbox exists in both the pane and the modal. For SIM Replacement
+    ...                orders the checkbox may not be conventionally "visible" (React/custom render),
+    ...                so a JS-based fallback forces it checked before Submit.
     Wait For Loading Overlay To Disappear
-    # Check the T&C checkbox on the preview pane (if visible)
+    # --- Primary: standard visibility path ---
     ${tc_visible}=    Run Keyword And Return Status
     ...    Wait Until Element Is Visible    ${LOC_SO_TC_CHECKBOX}    timeout=10s
     IF    ${tc_visible}
@@ -624,18 +780,40 @@ Accept Terms And Submit Order
             Click Element Via JS    ${LOC_SO_TC_CHECKBOX}
             Sleep    1s
         END
+    ELSE
+        ${tc_js}=    Execute Javascript
+        ...    var cb = document.getElementById('termsAndConditions');
+        ...    if (!cb) {
+        ...        var all = document.querySelectorAll('input[type="checkbox"]');
+        ...        for (var i = 0; i < all.length; i++) {
+        ...            var id = (all[i].id || '').toLowerCase();
+        ...            var nm = (all[i].name || '').toLowerCase();
+        ...            if (id.indexOf('terms') >= 0 || nm.indexOf('terms') >= 0) { cb = all[i]; break; }
+        ...        }
+        ...    }
+        ...    if (!cb) return 'not_found';
+        ...    var anc = cb.closest('label') || cb.closest('div') || cb.parentElement;
+        ...    if (anc) anc.scrollIntoView({behavior:'smooth', block:'center'});
+        ...    if (!cb.checked) {
+        ...        cb.checked = true;
+        ...        cb.dispatchEvent(new Event('change', {bubbles:true}));
+        ...        cb.dispatchEvent(new Event('click',  {bubbles:true}));
+        ...    }
+        ...    return cb.checked ? 'checked' : 'failed';
+        Log    T&C JS result: ${tc_js}    console=yes
+        Sleep    1s
     END
     # Click Submit
     Scroll To Element Via JS    ${LOC_SO_BTN_SUBMIT}
     Click Element Via JS    ${LOC_SO_BTN_SUBMIT}
-    Sleep    3s
+    Sleep    1s
     # Handle T&C modal if it appears
     ${tc_modal_visible}=    Run Keyword And Return Status
     ...    Wait Until Element Is Visible    ${LOC_SO_TC_MODAL}    timeout=15s
     IF    ${tc_modal_visible}
         Handle TC Modal
     END
-    Sleep    3s
+    Sleep    1s
     Wait For Condition
     ...    return !document.body.classList.contains('loading-indicator')
     ...    timeout=120s
@@ -664,20 +842,20 @@ Handle TC Modal
     # Click Continue button
     Wait Until Element Is Visible    ${LOC_SO_TC_MODAL_CONTINUE}    timeout=30s
     Click Element Via JS    ${LOC_SO_TC_MODAL_CONTINUE}
-    Sleep    3s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
 
 Click Submit Without TC
     [Documentation]    Clicks Submit without checking the T&C checkbox.
     Scroll To Element Via JS    ${LOC_SO_BTN_SUBMIT}
     Click Element Via JS    ${LOC_SO_BTN_SUBMIT}
-    Sleep    2s
+    Sleep    1s
 
 Click Close Button On Preview
     [Documentation]    Clicks the Close button on the Preview page to go back to Live Order.
     Scroll To Element Via JS    ${LOC_SO_BTN_CLOSE}
     Click Element Via JS    ${LOC_SO_BTN_CLOSE}
-    Sleep    2s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
 
 Click Previous To Shipping
@@ -693,7 +871,7 @@ Click Previous To Shipping
 # ═══════════════════════════════════════════════════════════════════════
 Open Cancel Modal For First Row
     [Documentation]    Clicks the Cancel button on the first grid row to open the cancel modal.
-    ...                Tries multiple locator patterns since button visibility depends on order status.
+    ...                Modal host may be ``#savePopup`` or a Kendo ``.k-window`` — we wait on ``cancelReason`` input.
     Wait Until Element Is Visible    ${LOC_SO_GRID_FIRST_ROW}    timeout=30s
     Wait For Loading Overlay To Disappear
     ${cancel_visible}=    Run Keyword And Return Status
@@ -702,14 +880,25 @@ Open Cancel Modal For First Row
         Scroll To Element Via JS    ${LOC_SO_ROW_CANCEL_BTN}
         Click Element Via JS    ${LOC_SO_ROW_CANCEL_BTN}
     ELSE
-        # Fallback: try JS to find and click the cancel button icon
+        # Fallback: first data row — any delete/cancel-style command link
         Execute Javascript
-        ...    var btn = document.querySelector('#simOrderGrid tbody tr:first-child a.printOrderdelete, #simOrderGrid tbody tr:first-child a.k-grid-Delete');
-        ...    if(btn) btn.click();
+        ...    var row = document.querySelector('#simOrderGrid tbody tr.k-master-row, #simOrderGrid tbody tr:first-child');
+        ...    if (!row) return;
+        ...    var links = row.querySelectorAll('a');
+        ...    for (var i = 0; i < links.length; i++) {
+        ...      var el = links[i];
+        ...      var s = ((el.className || '') + ' ' + (el.title || '') + ' ' + (el.textContent || '')).toLowerCase();
+        ...      if (s.indexOf('delete') >= 0 || s.indexOf('cancel') >= 0 || el.classList.contains('printOrderdelete') || el.classList.contains('k-grid-Delete')) {
+        ...        el.click();
+        ...        return;
+        ...      }
+        ...    }
     END
-    Wait Until Element Is Visible    ${LOC_SO_CANCEL_MODAL}    timeout=30s
+    Wait For Loading Overlay To Disappear
     Sleep    1s
-    Log    Cancel Order modal opened.
+    Wait Until Element Is Visible    ${LOC_SO_CANCEL_REASON_INPUT}    timeout=35s
+    Sleep    0.5s
+    Log    Cancel Order modal opened (cancelReason field visible).
 
 Fill Cancel Modal And Submit
     [Documentation]    Fills the Cancel Reason and Remarks, then clicks Proceed.
@@ -718,17 +907,20 @@ Fill Cancel Modal And Submit
     Clear And Input Text Into Field    ${LOC_SO_CANCEL_REASON_INPUT}    ${reason}
     Clear And Input Text Into Field    ${LOC_SO_CANCEL_REMARKS_TEXTAREA}    ${remarks}
     Click Element Via JS    ${LOC_SO_CANCEL_PROCEED_BTN}
-    Sleep    3s
+    Sleep    1s
     Wait For Condition
     ...    return !document.body.classList.contains('loading-indicator')
     ...    timeout=120s
 
 Close Cancel Modal
-    [Documentation]    Closes the Cancel Order modal without proceeding.
-    Wait Until Element Is Visible    ${LOC_SO_CANCEL_MODAL}    timeout=30s
-    Click Element Via JS    ${LOC_SO_CANCEL_CLOSE_BTN}
+    [Documentation]    Closes the Cancel Order modal without proceeding (legacy popup or Kendo window).
+    Wait Until Element Is Visible    ${LOC_SO_CANCEL_REASON_INPUT}    timeout=15s
+    ${clicked}=    Run Keyword And Return Status    Click Element Via JS    ${LOC_SO_CANCEL_CLOSE_BTN}
+    IF    not ${clicked}
+        Run Keyword And Ignore Error    Click Element Via JS    ${LOC_SO_CANCEL_CLOSE_X}
+    END
     Sleep    1s
-    Wait Until Element Is Not Visible    ${LOC_SO_CANCEL_MODAL}    timeout=30s
+    Wait Until Element Is Not Visible    ${LOC_SO_CANCEL_REASON_INPUT}    timeout=30s
 
 # ═══════════════════════════════════════════════════════════════════════
 #  GRID ACTIONS — Search
@@ -739,7 +931,7 @@ Search Live Orders
     Wait Until Element Is Visible    ${LOC_SO_SEARCH_INPUT}    timeout=30s
     Clear And Input Text Into Field    ${LOC_SO_SEARCH_INPUT}    ${search_text}
     Click Element Via JS    ${LOC_SO_SEARCH_BTN}
-    Sleep    3s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -768,44 +960,35 @@ Verify On Create SIM Order Page
     Wait Until Element Is Visible    ${LOC_SO_WIZARD_CONTAINER}    timeout=30s
 
 Verify Order Created Successfully
-    [Documentation]    Verify success toast or redirect to /LiveOrder with grid visible.
-    ...                Some orders may process async; checks toast and/or URL.
-    Sleep    3s
+    [Documentation]    Waits for success toast after order submission, then waits for the app to
+    ...                automatically redirect to /LiveOrder. Fails fast on error toast.
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
-    ${toast_visible}=    Run Keyword And Return Status
-    ...    Wait Until Element Is Visible    ${LOC_SO_TOAST_SUCCESS}    timeout=15s
-    IF    ${toast_visible}
-        ${toast_text}=    Get Text    ${LOC_SO_TOAST_SUCCESS}
-        Log    Success toast: ${toast_text}    console=yes
-    END
-    # Check for errors
+    # First check for an error toast — fail immediately if present
     ${error_visible}=    Run Keyword And Return Status
-    ...    Wait Until Element Is Visible    ${LOC_SO_TOAST_ERROR}    timeout=3s
+    ...    Wait Until Element Is Visible    ${LOC_SO_TOAST_ERROR}    timeout=5s
     IF    ${error_visible}
         ${err_text}=    Get Text    ${LOC_SO_TOAST_ERROR}
-        Log    Error toast after submit: ${err_text}    console=yes    level=WARN
-    END
-    # Wait for redirect to Live Order (may take time for processing)
-    ${redirected}=    Run Keyword And Return Status
-    ...    Wait Until Keyword Succeeds    5x    5s    Location Should Contain    ${LIVE_ORDER_PATH}
-    IF    ${redirected}
-        ${current_url}=    Get Location
-        Should Not Contain    ${current_url}    CreateSIMOrder
-        Wait Until Element Is Visible    ${LOC_SO_GRID}    timeout=30s
-        Log    SIM Order created — redirected to Live Order listing.    console=yes
-    ELSE
-        ${current_url}=    Get Location
-        Log    WARN: Not on Live Order page after submit. URL: ${current_url}    console=yes    level=WARN
-        ${on_create}=    Evaluate    'CreateSIMOrder' in '''${current_url}'''
-        IF    ${on_create}
-            Log    Still on Create SIM Order page — checking for success indicators.    console=yes
-            ${any_success}=    Run Keyword And Return Status
-            ...    Page Should Contain Element    xpath=//*[contains(@class,'toast-success') or contains(@class,'alert-success') or contains(text(),'success')]
-            IF    ${any_success}
-                Log    Found success indicator on page.    console=yes
-            END
+        ${is_sim_order_fail}=    Run Keyword And Return Status    Should Contain    ${err_text}    Sim Order Creation Failed
+        IF    ${is_sim_order_fail}
+            Fail
+            ...    Order creation failed — error toast: ${err_text}. Server-side rejection (not fixable from test code alone). Typical data/setup causes: EC/BU SIM limits, missing or mismatched Admin SIM ranges (ICCID/IMSI/MSISDN pools) for the order account, or blank-SIM inventory. For SIM replacement prep, confirm ``SR Ensure Sim Limits…`` / range creation ran and ``SIMR_EC_ACCOUNT_NAME`` matches the wizard account; check backend order logs if the environment should succeed.
         END
+        Fail    Order creation failed — error toast: ${err_text}
     END
+    # Wait for success toast (up to 60s — backend processing can be slow)
+    ${toast_visible}=    Run Keyword And Return Status
+    ...    Wait Until Element Is Visible    ${LOC_SO_TOAST_SUCCESS}    timeout=30s
+    IF    ${toast_visible}
+        ${toast_text}=    Get Text    ${LOC_SO_TOAST_SUCCESS}
+        Log    Order created — success toast: ${toast_text}    console=yes
+    ELSE
+        Log    WARN: Success toast not detected within 30s after submit.    console=yes    level=WARN
+    END
+    # Wait for automatic redirect to Live Order page (app navigates there after success)
+    Wait Until Keyword Succeeds    12x    10s    Location Should Contain    ${LIVE_ORDER_PATH}
+    Wait Until Element Is Visible    ${LOC_SO_GRID}    timeout=30s
+    Log    SIM Order created — automatically landed on Live Order page.    console=yes
 
 Verify Preview Page Visible
     [Documentation]    Asserts the Preview page (Step 3) is visible with shipping and order summary sections.
@@ -829,7 +1012,7 @@ Verify Live Order Grid Has Data
     ...                Waits a bit for data to load since grid can start empty.
     Wait Until Element Is Visible    ${LOC_SO_GRID}    timeout=30s
     Wait For Loading Overlay To Disappear
-    Sleep    3s
+    Sleep    1s
     ${row_count}=    Get Element Count    ${LOC_SO_GRID_ROWS}
     Should Be True    ${row_count} > 0    Live Order grid has no data rows.
     Log    Live Order grid loaded with ${row_count} row(s).
@@ -838,7 +1021,7 @@ Grid Has At Least One Row
     [Documentation]    Returns True if the Live Order grid has at least one data row, False otherwise.
     Wait Until Element Is Visible    ${LOC_SO_GRID}    timeout=30s
     Wait For Loading Overlay To Disappear
-    Sleep    2s
+    Sleep    1s
     ${row_count}=    Get Element Count    ${LOC_SO_GRID_ROWS}
     ${has_data}=    Evaluate    ${row_count} > 0
     RETURN    ${has_data}
@@ -863,7 +1046,7 @@ Verify Next Button Blocked Or Error Shown
     [Arguments]    ${current_pane_locator}    ${next_pane_locator}    ${next_btn_locator}
     Scroll To Element Via JS    ${next_btn_locator}
     Click Element Via JS    ${next_btn_locator}
-    Sleep    3s
+    Sleep    1s
     ${navigated}=    Run Keyword And Return Status
     ...    Wait Until Element Is Visible    ${next_pane_locator}    timeout=5s
     IF    ${navigated}
@@ -884,7 +1067,7 @@ Verify Next Button Blocked Or Error Shown
 Verify Negative SIM Order Outcome
     [Documentation]    Robust check after submitting with invalid SIM Order data.
     [Arguments]    ${test_label}=negative test
-    Sleep    2s
+    Sleep    1s
     ${alert_visible}=    Run Keyword And Return Status
     ...    Wait Until Element Is Visible    ${LOC_SO_ALERT_DANGER}    timeout=8s
     IF    ${alert_visible}
@@ -921,9 +1104,9 @@ Verify Negative SIM Order Outcome
 Verify Cancel Order Outcome
     [Documentation]    Checks for success/error after cancelling an order.
     [Arguments]    ${test_label}=cancel test
-    Sleep    2s
+    Sleep    1s
     ${modal_gone}=    Run Keyword And Return Status
-    ...    Wait Until Element Is Not Visible    ${LOC_SO_CANCEL_MODAL}    timeout=10s
+    ...    Wait Until Element Is Not Visible    ${LOC_SO_CANCEL_REASON_INPUT}    timeout=10s
     ${success_toast}=    Run Keyword And Return Status
     ...    Wait Until Element Is Visible    ${LOC_SO_TOAST_SUCCESS}    timeout=10s
     ${error_toast}=    Run Keyword And Return Status
@@ -943,14 +1126,14 @@ Verify Cancel Order Outcome
 Verify Cancel Blocked With Empty Reason
     [Documentation]    Attempts to cancel with empty reason and verifies it is blocked.
     [Arguments]    ${test_label}=cancel empty reason
-    Sleep    2s
+    Sleep    1s
     ${modal_still}=    Run Keyword And Return Status
-    ...    Element Should Be Visible    ${LOC_SO_CANCEL_MODAL}
+    ...    Element Should Be Visible    ${LOC_SO_CANCEL_REASON_INPUT}
     IF    ${modal_still}
         Log    [${test_label}] Modal still visible — proceed was blocked (expected).
     END
     ${error_visible}=    Run Keyword And Return Status
-    ...    Page Should Contain Element    xpath=//div[@id='savePopup']//*[contains(@class,'error') or contains(@class,'text-danger')]
+    ...    Page Should Contain Element    xpath=//*[.//input[@name='cancelReason']]//*[contains(@class,'error') or contains(@class,'text-danger')]
     IF    ${error_visible}
         Log    [${test_label}] Validation error in cancel modal.
     END

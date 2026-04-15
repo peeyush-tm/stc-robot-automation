@@ -11,10 +11,12 @@ ${LOC_WL_GRID}                        id=IPWhitelistingGrid
 ${LOC_WL_GRID_ROWS}                   xpath=//div[@id='IPWhitelistingGrid']//tbody/tr
 
 # ── Create IP Whitelisting — Header Fields ──────────────────────
-# Customer: React Select (not native select); use control + option click
+# Customer: React Select (not native select); click inner control, not only the testid wrapper
 ${LOC_WL_CUSTOMER_SELECT}             css:[data-testid="customerId"]
-${LOC_WL_CUSTOMER_REACT_CONTROL}      css:[data-testid="customerId"]
-${LOC_WL_CUSTOMER_REACT_OPTION}       xpath=//div[contains(@class,'react-select__menu')]//div[contains(@class,'react-select__option')]
+${LOC_WL_CUSTOMER_REACT_CONTROL}      xpath=(//*[@data-testid="customerId" and (contains(@class,'react-select__control') or contains(@class,'select__control'))] | //*[@data-testid="customerId"]//div[contains(@class,'react-select__control') or contains(@class,'select__control')])[1]
+${LOC_WL_CUSTOMER_REACT_INPUT}        xpath=//*[@data-testid="customerId"]//input
+${LOC_WL_CUSTOMER_FALLBACK_CONTROL}   xpath=//div[not(ancestor::div[@id='add-service-item-dialog']) and (contains(@class,'react-select__control') or contains(@class,'select__control'))][1]
+${LOC_WL_CUSTOMER_REACT_OPTION}       xpath=//div[contains(@class,'react-select__menu') or contains(@class,'select__menu')]//div[contains(@class,'react-select__option') or contains(@class,'select__option')]
 ${LOC_WL_BU_SELECT}                   name=businessUnit
 
 # ── Add Rule Button ──────────────────────────────────────────────

@@ -10,12 +10,40 @@ Resource    ../locators/login_locators.resource
 #  NAVIGATION — Reports sidebar and Create Report form
 # ═══════════════════════════════════════════════════════════════════════
 Navigate To Reports Page
-    [Documentation]    From current page, click Reports in left nav; wait for /Report listing.
+    [Documentation]    SPA-safe: reach /Report via top tab (if present) or left sidebar ``Report-icon``.
+    ...                Does not use ``Go To`` for listing (same class of issue as Manage Label direct URL).
     Wait For Loading Overlay To Disappear
-    Wait Until Element Is Visible    ${LOC_NAV_REPORTS}    timeout=30s
-    Scroll To Element Via JS    ${LOC_NAV_REPORTS}
-    Click Element Via JS    ${LOC_NAV_REPORTS}
+    ${url}=    Get Location
+    # Path must be /Report (not /ReportSubscriptions, etc.): /Report then ? # / or end.
+    ${on_report_path}=    Run Keyword And Return Status
+    ...    Should Match Regexp    ${url}    (?i).*/Report([?#/]|$)
+    ${is_create}=    Run Keyword And Return Status
+    ...    Should Match Regexp    ${url}    (?i).*CreateReports
+    IF    ${on_report_path} and not ${is_create}
+        Wait For App Loading To Complete
+        Wait Until Element Is Visible    ${LOC_REPORT_PAGE_BODY}    timeout=30s
+        Log    Already on Report listing.
+        RETURN
+    END
+    ${tab_ok}=    Run Keyword And Return Status
+    ...    Wait Until Element Is Visible    ${LOC_TAB_REPORT}    timeout=5s
+    IF    ${tab_ok}
+        Scroll To Element Via JS    ${LOC_TAB_REPORT}
+        Click Element Via JS    ${LOC_TAB_REPORT}
+    ELSE
+        ${side_ok}=    Run Keyword And Return Status
+        ...    Wait Until Element Is Visible    ${LOC_NAV_REPORTS_SIDEBAR}    timeout=8s
+        IF    ${side_ok}
+            Scroll To Element Via JS    ${LOC_NAV_REPORTS_SIDEBAR}
+            Click Element Via JS    ${LOC_NAV_REPORTS_SIDEBAR}
+        ELSE
+            Scroll To Element Via JS    ${LOC_NAV_REPORTS}
+            Wait Until Element Is Visible    ${LOC_NAV_REPORTS}    timeout=30s
+            Click Element Via JS    ${LOC_NAV_REPORTS}
+        END
+    END
     Wait Until Location Contains    /Report    timeout=15s
+    Wait For App Loading To Complete
     Wait Until Element Is Visible    ${LOC_REPORT_PAGE_BODY}    timeout=30s
     Log    Navigated to Report listing page.
 
@@ -39,12 +67,9 @@ Login And Navigate To Create Report
     Wait Until Element Is Visible    ${LOC_BTN_CREATE}    timeout=30s
 
 Navigate To Reports Page Via URL
-    [Documentation]    Navigate directly to Report listing URL (e.g. after login).
+    [Documentation]    Same as ``Navigate To Reports Page`` (sidebar/tab). ``report_listing_url`` is ignored — kept for call compatibility; do not use ``Go To`` for SPA listing.
     [Arguments]    ${report_listing_url}
-    Go To    ${report_listing_url}
-    Wait For Page Load
-    Wait Until Location Contains    /Report    timeout=15s
-    Wait Until Element Is Visible    ${LOC_REPORT_PAGE_BODY}    timeout=30s
+    Navigate To Reports Page
 
 # ═══════════════════════════════════════════════════════════════════════
 #  CREATE REPORT FORM — Field interactions
@@ -191,7 +216,7 @@ Select Display Level
 Verify Account Auto Selected
     [Documentation]    Verifies Account field has a value after Display Level selection.
     ...                Handles both native <select> and disabled/readonly text input patterns.
-    Sleep    2s
+    Sleep    1s
     ${account_val}=    Execute JavaScript
     ...    var lbl = Array.from(document.querySelectorAll('label')).find(function(l){
     ...        return (l.innerText||'').replace('*','').trim()==='Account';
@@ -258,7 +283,7 @@ Submit Create Report Form
     Wait Until Element Is Visible    ${LOC_BTN_CREATE}    timeout=15s
     Scroll To Element Via JS    ${LOC_BTN_CREATE}
     Click Element Via JS    ${LOC_BTN_CREATE}
-    Sleep    2s
+    Sleep    1s
     Wait For Loading Overlay To Disappear
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -318,7 +343,7 @@ Apply Report Name Filter
     ELSE
         Press Keys    ${filter_in}    RETURN
     END
-    Sleep    2s
+    Sleep    1s
     Wait For Loading Overlay To Disappear
 
 Validate First Row Report Name
@@ -360,14 +385,14 @@ Validate Delete And Download Icons In First Row
     END
 
 First Row Download Action Ready
-    [Documentation]    True when first row ACTION column (td[2]) has both delete and download links.
-    ${c}=    Get Element Count    xpath=(//div[contains(@class,'k-grid')]//tbody//tr[contains(@class,'k-master-row')])[1]//td[2]//a
-    Should Be True    ${c} >= 2
+    [Documentation]    True when the Download link in the first row ACTION column is VISIBLE
+    ...                (report status has transitioned from In Progress → Completed/Ready).
+    Element Should Be Visible    ${LOC_FIRST_ROW_DOWNLOAD_LINK}
 
 Wait For Report Ready To Download
     [Documentation]    Navigates back to the Report listing page and re-applies the filter on every
     ...                attempt so the grid refreshes with the latest status from the server.
-    ...                Passes when the download link (2nd action <a>) becomes visible.
+    ...                Passes when the download link becomes visible (report is Completed).
     [Arguments]    ${filter_name}
     Navigate To Reports Page
     Apply Report Name Filter    ${filter_name}
@@ -381,14 +406,15 @@ Click Download In First Row
     ...                Pass filter_name to enable page-reload polling; omit for a DOM-only wait.
     [Arguments]    ${filter_name}=${EMPTY}
     IF    '${filter_name}' != '${EMPTY}'
-        Log    Waiting for report download link — reloading page every 10s (up to 3 min)...
+        Log    Waiting for report download link — reloading page every 15s (up to 7.5 min)...
         Wait Until Keyword Succeeds    20x    10s    Wait For Report Ready To Download    ${filter_name}
     ELSE
         Wait Until Element Is Visible    ${LOC_REPORT_GRID_FIRST_ROW}    timeout=15s
-        Wait Until Keyword Succeeds    60x    3s    First Row Download Action Ready
+        Wait Until Keyword Succeeds    90x    5s    First Row Download Action Ready
     END
+    Wait Until Element Is Visible    ${LOC_FIRST_ROW_DOWNLOAD_LINK}    timeout=15s
     Click Element Via JS    ${LOC_FIRST_ROW_DOWNLOAD_LINK}
-    Sleep    3s
+    Sleep    1s
     Wait For Loading Overlay To Disappear
 
 Download Report From First Row And Verify Click

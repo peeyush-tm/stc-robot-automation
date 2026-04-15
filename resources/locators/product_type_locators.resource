@@ -5,6 +5,8 @@ ${LOC_LOADING_INDICATOR}        xpath=//body[contains(@class,'loading-indicator'
 # ── Navigation Locators (verified from actual HTML) ──────────────────
 ${LOC_ADMIN_TOGGLE}             xpath=//i[contains(@class,'admin-menu-icon')]
 ${LOC_PRODUCT_TYPE_NAV}         link=SIM Product Type
+# Listing tab when already under Admin (e.g. ManageUser or after leaving Create form) — same idea as Label's pageHeading tab
+${LOC_PT_TAB_LISTING}           xpath=//ul[@id='pageHeading']//a[contains(@href,'/ProductType') and not(contains(@href,'Create'))]
 
 # ── Manage User Page (loaded after clicking Admin) ──────────────────
 ${LOC_MU_GRID_DATA}             id=gridData
@@ -33,6 +35,7 @@ ${LOC_PT_SUB_TYPE_1_DD}         xpath=//*[@data-testid='serviceSubType1eet']
 ${LOC_PT_SUB_TYPE_2_INPUT}      xpath=//input[@name='serviceSubType2']
 ${LOC_PT_SUB_TYPE_3_INPUT}      xpath=//input[@name='serviceSubType3']
 ${LOC_PT_SUB_TYPE_4_INPUT}      xpath=//input[@name='serviceSubType4']
+${LOC_PT_PROFILE_NAME_INPUT}     xpath=//input[@name='profileName']
 ${LOC_PT_PACKAGING_SIZE}        xpath=//input[@name='packagingSize']
 ${LOC_PT_COMMENT_INPUT}         xpath=//input[@name='comment']
 ${LOC_PT_DESC_EN_INPUT}         xpath=//input[@name='descEnglish']

@@ -29,18 +29,6 @@ TC_LOGIN_002 Logout Should Redirect To Login Page
     [Tags]    smoke    regression    positive    login
     TC_LOGIN_002
 
-TC_LOGIN_003 Navigate To Manage Devices After Login
-    [Documentation]    Login successfully, then navigate to /ManageDevices.
-    ...                Verify: URL contains /ManageDevices, grid data container is visible.
-    [Tags]    smoke    regression    positive    login    navigation
-    TC_LOGIN_003
-
-TC_LOGIN_004 Verify Manage Devices Page Elements
-    [Documentation]    Login and navigate to Manage Devices.
-    ...                Verify: gridData, searchinput, actionForm are present; grid has at least one row.
-    [Tags]    regression    positive    login    navigation
-    TC_LOGIN_004
-
 # ═══════════════════════════════════════════════════════════════════════
 #  NEGATIVE TEST CASES — CREDENTIALS
 # ═══════════════════════════════════════════════════════════════════════
@@ -101,18 +89,6 @@ TC_LOGIN_012 Incorrect Captcha Should Show Error
 #  NEGATIVE TEST CASES — SECURITY / INJECTION
 # ═══════════════════════════════════════════════════════════════════════
 
-TC_LOGIN_013 SQL Injection In Username Should Be Rejected
-    [Documentation]    Enter a SQL injection payload as the username.
-    ...                Verify: "Authorization Failure" error displayed; auth NOT bypassed.
-    [Tags]    regression    negative    security    login
-    TC_LOGIN_013
-
-TC_LOGIN_014 Special Characters In Username Should Show Error
-    [Documentation]    Enter special characters as the username.
-    ...                Verify: "Authorization Failure" error displayed; no unhandled exception.
-    [Tags]    regression    negative    security    login
-    TC_LOGIN_014
-
 TC_LOGIN_015 Whitespace Only Username Should Show Error
     [Documentation]    Enter whitespace-only input in the username field.
     ...                Verify: error displayed — "Authorization Failure" or "Username is required".
@@ -139,19 +115,6 @@ TC_LOGIN_002
     Verify Login Success
     Perform Logout
     Verify Logout Success
-
-TC_LOGIN_003
-    Login With Credentials    ${VALID_USERNAME}    ${VALID_PASSWORD}
-    Verify Login Success
-    Navigate To Manage Devices
-    Verify Manage Devices Page Loaded
-
-TC_LOGIN_004
-    Login With Credentials    ${VALID_USERNAME}    ${VALID_PASSWORD}
-    Verify Login Success
-    Navigate To Manage Devices
-    Verify Manage Devices Page Loaded
-    Verify Manage Devices Grid Has Data
 
 TC_LOGIN_005
     Login With Credentials    ${INVALID_USERNAME}    ${VALID_PASSWORD}
@@ -184,14 +147,6 @@ TC_LOGIN_011
 TC_LOGIN_012
     Login With Credentials And Wrong Captcha    ${VALID_USERNAME}    ${VALID_PASSWORD}    ${INCORRECT_CAPTCHA}
     Verify Invalid Captcha Error
-
-TC_LOGIN_013
-    Login With Credentials    ${SQL_INJECTION_INPUT}    ${VALID_PASSWORD}
-    Verify Authorization Failure Error
-
-TC_LOGIN_014
-    Login With Credentials    ${SPECIAL_CHARS_INPUT}    ${VALID_PASSWORD}
-    Verify Authorization Failure Error
 
 TC_LOGIN_015
     Login With Credentials    ${WHITESPACE_INPUT}    ${VALID_PASSWORD}

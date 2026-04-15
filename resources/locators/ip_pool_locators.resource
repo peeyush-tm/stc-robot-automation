@@ -13,7 +13,7 @@ ${LOC_IP_GRID_ROWS}                   xpath=//div[contains(@class,'k-grid')]//tb
 # ── Create IP Pool — Form Fields ────────────────────────────────
 ${LOC_IP_ACCOUNT_TREE}                xpath=//div[@for='accountId'] | //*[@data-testid='accountId'] | //div[contains(@class,'treeview') or contains(@class,'account')][1]
 ${LOC_IP_ACCOUNT_TREE_ALT}            xpath=//*[@data-testid='accountId']
-${LOC_IP_ACCOUNT_TREE_FIRST}          xpath=//ul[contains(@class,'treeview')]//li[1]//span[contains(@class,'item')] | //div[contains(@class,'select__option')][1] | //li[contains(@class,'k-item')][1]
+${LOC_IP_ACCOUNT_TREE_FIRST}          xpath=//ul[contains(@class,'treeview')]//li[1]//span[contains(@class,'item')] | //div[contains(@class,'react-select__menu')]//div[contains(@class,'react-select__option')][1] | //li[contains(@class,'k-item')][1]
 ${LOC_IP_APN_TYPE}                    name=apnCategory
 ${LOC_IP_NUMBER_OF_IPS}               name=numberOfIps
 ${LOC_IP_APN_SELECT}                  css:[data-testid='APNPrfiln']

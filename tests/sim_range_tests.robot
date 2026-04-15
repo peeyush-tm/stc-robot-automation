@@ -67,7 +67,8 @@ TC_SR_008 Submit Button Disabled When Pool Name Empty
     TC_SR_008
 
 TC_SR_009 Submit Button Disabled When Account Not Selected
-    [Documentation]    Fill form but skip Account selection. Submit should be disabled.
+    [Documentation]    Fill form; clear Account to placeholder (app may pre-select default).
+    ...                Submit should be disabled without a real account.
     [Tags]    regression    negative    sim_range
     TC_SR_009
 
@@ -212,6 +213,7 @@ TC_SR_009
     Enter SIM Range Description    ${VALID_SR_DESCRIPTION}
     Add ICCID Range    ${VALID_ICCID_FROM}    ${VALID_ICCID_TO}
     Add IMSI Range    ${VALID_IMSI_FROM}    ${VALID_IMSI_TO}
+    Clear Account Selection On SIM Range
     Verify Submit Button Is Disabled
 
 TC_SR_010

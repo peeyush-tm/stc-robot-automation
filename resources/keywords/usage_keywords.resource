@@ -152,7 +152,7 @@ Lookup MSISDNs From Grid
     [Arguments]    ${imsi_data_list}
     Ensure Session Is Active
     Go To    ${MANAGE_DEVICES_URL_E2E}
-    Sleep    3s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
     Wait Until Element Is Visible    ${LOC_DSC_GRID}    timeout=30s
     Wait Until Element Is Visible    ${LOC_DSC_GRID_ROWS}    timeout=30s
@@ -162,10 +162,10 @@ Lookup MSISDNs From Grid
         ${msisdn}=    Get From Dictionary    ${entry}    msisdn
         IF    "${msisdn}" == "${EMPTY}"
             Reset Grid To Default View
-            Sleep    2s
+            Sleep    1s
             Wait For Loading Overlay To Disappear
             Search Device By IMSI    ${imsi}
-            Sleep    3s
+            Sleep    1s
             Wait For Loading Overlay To Disappear
             Wait Until Element Is Visible    ${LOC_DSC_GRID_ROWS}    timeout=30s
             ${imsi_col}=    Get Column Index By Header Text    ${IMSI_COLUMN_HEADER}
@@ -197,10 +197,10 @@ Perform Usage For Single IMSI
         ${volume}=   Get From Dictionary    ${usage}    volume
         Log    ===== ${label} usage for IMSI ${imsi} (type=${type}, subType=${subtype}, volume=${volume}) =====    console=yes
         ${ur_response}=    Call User Request API    ${imsi}    ${msisdn}    ${type}    ${subtype}
-        Sleep    2s
+        Sleep    1s
         ${cdr_response}=    Call CDR API    ${imsi}    ${msisdn}    ${type}    ${volume}    ${subtype}    ${ur_response}
         Log    ${label} usage completed for IMSI ${imsi}.    console=yes
-        Sleep    2s
+        Sleep    1s
     END
 
 Perform Usage For All IMSIs
@@ -237,7 +237,7 @@ Validate Usage In UI For All IMSIs
     # 1) Navigate to Manage Devices page
     Log    Navigating to Manage Devices page...    console=yes
     Go To    ${MANAGE_DEVICES_URL_E2E}
-    Sleep    3s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
     Wait Until Element Is Visible    ${LOC_DSC_GRID}    timeout=30s
     Wait Until Element Is Visible    ${LOC_DSC_GRID_ROWS}    timeout=30s
@@ -260,11 +260,10 @@ Validate Usage Columns For IMSI
     [Arguments]    ${imsi}
     # Reset grid then search for this IMSI (assumes we are on Manage Devices)
     Reset Grid To Default View
-    Sleep    2s
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
     Search Device By IMSI    ${imsi}
-    Sleep    3s
-    Wait For Loading Overlay To Disappear
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
     Wait Until Element Is Visible    ${LOC_DSC_GRID_ROWS}    timeout=30s
     Log    Search complete; load settled. Clicking expand icon...    console=yes
@@ -277,8 +276,7 @@ Validate Usage Columns For IMSI
     ELSE
         Click Element Via JS    ${LOC_DSC_FIRST_ROW_EXPAND}
     END
-    Sleep    2s
-    Wait For Loading Overlay To Disappear
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
     Log    Expand complete; load settled. Clicking Usage tab...    console=yes
     Scroll Element Into View    ${LOC_DSC_FIRST_ROW}
@@ -330,8 +328,7 @@ Validate Usage Columns For IMSI
             END
         END
     END
-    Sleep    2s
-    Wait For Loading Overlay To Disappear
+    Sleep    0.3s
     Wait For Loading Overlay To Disappear
     Log    Usage tab open; load settled. Reading DATA USAGE (MB)...    console=yes
     # Wait for usage table to appear (async load); retry read up to 10s.
@@ -432,3 +429,238 @@ Validate Usage Columns For IMSI
     ...    DATA USAGE (MB) for IMSI ${imsi} should be 5.00 in Usage tab first row, got: ${data_val}
     Log    PASS: IMSI ${imsi} — DATA USAGE (MB)=5.00 in Usage tab    console=yes
     Capture Page Screenshot    e2e_usage_validated_${imsi}.png
+
+# ═══════════════════════════════════════════════════════════════════════
+#  PAYG ITERATIVE USAGE — loop User Request + CDR until quotaType=payg
+# ═══════════════════════════════════════════════════════════════════════
+
+Call User Request API And Return Full Response
+    [Documentation]    Calls User Request API and returns the full parsed JSON dict
+    ...                WITHOUT asserting volume > 0 (volume may be 0 when quota exhausted).
+    [Arguments]    ${imsi}    ${msisdn}    ${usage_type}    ${usage_subtype}=${EMPTY}
+    ${params}=    Create Dictionary
+    ...    type=${usage_type}
+    ...    OCStoken=${USAGE_OCS_TOKEN}
+    ...    origin=${USAGE_ORIGIN}
+    ...    serviceType=${USAGE_SERVICE_TYPE}
+    ...    msisdn=${msisdn}
+    ...    imsi=${imsi}
+    ...    network=${USAGE_NETWORK}
+    ...    ratType=${USAGE_RAT_TYPE}
+    IF    "${usage_subtype}" != "${EMPTY}"
+        Set To Dictionary    ${params}    subType=${usage_subtype}
+    END
+    ${headers}=    Create Dictionary    x-ocs-ip=${USAGE_OCS_IP}
+    Log    User Request API: imsi=${imsi} type=${usage_type}    console=yes
+    Create Session    usage_session    ${USAGE_API_BASE_URL}    verify=${False}    disable_warnings=1
+    TRY
+        ${response}=    POST On Session    usage_session    /UserRequest    params=${params}    headers=${headers}    expected_status=200
+        Log    User Request response: ${response.text}    console=yes
+        ${json}=    Evaluate    json.loads('''${response.text}''')    json
+    FINALLY
+        Delete All Sessions
+    END
+    RETURN    ${json}
+
+Perform Iterative Usage Until PAYG For Single IMSI
+    [Documentation]    For one IMSI: repeatedly call User Request API, read quotaType and volume,
+    ...                call CDR API with full volume from response, until quotaType becomes "payg".
+    ...                Returns the final User Request JSON (with quotaType=payg).
+    [Arguments]    ${imsi}    ${msisdn}    ${max_iterations}=${PAYG_MAX_USAGE_ITERATIONS}
+    Log    Starting iterative usage for IMSI ${imsi} until quotaType=payg (max ${max_iterations} iterations)    console=yes
+    ${iteration}=    Set Variable    ${0}
+    ${final_json}=    Set Variable    ${None}
+    FOR    ${i}    IN RANGE    ${max_iterations}
+        ${iteration}=    Evaluate    ${iteration} + 1
+        Log    === Iteration ${iteration}/${max_iterations} for IMSI ${imsi} ===    console=yes
+        ${ur_json}=    Call User Request API And Return Full Response    ${imsi}    ${msisdn}    data
+        ${user}=    Get From Dictionary    ${ur_json}    user
+        ${quota_type}=    Get From Dictionary    ${user}    quotaType
+        ${volume}=    Get From Dictionary    ${user}    volume
+        Log    Iteration ${iteration}: quotaType=${quota_type}, volume=${volume}    console=yes
+        ${qt_lower}=    Convert To Lowercase    ${quota_type}
+        IF    "${qt_lower}" == "${PAYG_EXPECTED_QUOTA_TYPE}"
+            Log    quotaType is now PAYG after ${iteration} iterations!    console=yes
+            ${final_json}=    Set Variable    ${ur_json}
+            Exit For Loop
+        END
+        ${vol_str}=    Convert To String    ${volume}
+        IF    "${vol_str}" == "0" or "${vol_str}" == ""
+            Log    WARN: volume is 0/empty but quotaType is still "${quota_type}". Retrying...    console=yes
+            Sleep    2s
+            CONTINUE
+        END
+        Sleep    1s
+        ${cdr_resp}=    Call CDR API    ${imsi}    ${msisdn}    data    ${volume}    ${EMPTY}    ${ur_json}
+        Log    CDR sent with full volume=${volume}. Waiting before next iteration...    console=yes
+        Sleep    2s
+    END
+    Should Not Be Equal    ${final_json}    ${None}
+    ...    quotaType did not reach "payg" after ${max_iterations} iterations for IMSI ${imsi}.
+    RETURN    ${final_json}
+
+Perform PAYG Data Usage For Single IMSI
+    [Documentation]    After quotaType=payg: calls User Request for data, then CDR with
+    ...                the returned volume. This is the actual PAYG data consumption.
+    [Arguments]    ${imsi}    ${msisdn}
+    Log    Performing PAYG data usage for IMSI ${imsi}    console=yes
+    ${ur_json}=    Call User Request API And Return Full Response    ${imsi}    ${msisdn}    data
+    ${user}=    Get From Dictionary    ${ur_json}    user
+    ${quota_type}=    Get From Dictionary    ${user}    quotaType
+    ${volume}=    Get From Dictionary    ${user}    volume
+    ${qt_lower}=    Convert To Lowercase    ${quota_type}
+    Should Be Equal    ${qt_lower}    ${PAYG_EXPECTED_QUOTA_TYPE}
+    ...    Expected quotaType=payg for PAYG usage but got "${quota_type}".
+    Log    PAYG User Request: quotaType=${quota_type}, volume=${volume}    console=yes
+    ${vol_str}=    Convert To String    ${volume}
+    IF    "${vol_str}" != "0" and "${vol_str}" != ""
+        Sleep    1s
+        ${cdr_resp}=    Call CDR API    ${imsi}    ${msisdn}    data    ${volume}    ${EMPTY}    ${ur_json}
+        Log    PAYG CDR sent with volume=${volume} for IMSI ${imsi}.    console=yes
+    ELSE
+        Log    WARN: PAYG volume is 0/empty for IMSI ${imsi}. CDR skipped.    console=yes
+    END
+    RETURN    ${ur_json}
+
+Perform Iterative Usage Until PAYG For All IMSIs
+    [Documentation]    For each IMSI in the list: iterate User Request + CDR until quotaType=payg,
+    ...                then perform one final PAYG data usage.
+    [Arguments]    @{imsi_data}
+    ${total}=    Get Length    ${imsi_data}
+    Log    Starting iterative PAYG usage for ${total} IMSIs.    console=yes
+    ${idx}=    Set Variable    ${1}
+    FOR    ${entry}    IN    @{imsi_data}
+        ${imsi}=    Get From Dictionary    ${entry}    imsi
+        ${msisdn}=    Get From Dictionary    ${entry}    msisdn
+        Log    ===== IMSI ${idx}/${total}: ${imsi} (MSISDN: ${msisdn}) =====    console=yes
+        ${payg_json}=    Perform Iterative Usage Until PAYG For Single IMSI    ${imsi}    ${msisdn}
+        Perform PAYG Data Usage For Single IMSI    ${imsi}    ${msisdn}
+        ${idx}=    Evaluate    ${idx} + 1
+    END
+    Log    Iterative PAYG usage complete for all ${total} IMSIs.    console=yes
+
+# ═══════════════════════════════════════════════════════════════════════
+#  PAYG USAGE UI VALIDATION
+#  Expand IMSI → Usage tab → find PAYG data column → verify > 0
+# ═══════════════════════════════════════════════════════════════════════
+
+Validate PAYG Usage In UI For All IMSIs
+    [Documentation]    Navigate to Manage Devices; for each IMSI expand row, open Usage tab,
+    ...                find the PAYG data column, and verify value in MB > 0.
+    [Arguments]    @{imsi_data}
+    Log    Waiting 30s for PAYG usage data to reflect in UI...    console=yes
+    Sleep    30s
+    Ensure Session Is Active
+    Go To    ${MANAGE_DEVICES_URL_E2E}
+    Sleep    0.3s
+    Wait For Loading Overlay To Disappear
+    Wait Until Element Is Visible    ${LOC_DSC_GRID}    timeout=30s
+    Wait Until Element Is Visible    ${LOC_DSC_GRID_ROWS}    timeout=30s
+    Log    On Manage Devices page; grid loaded.    console=yes
+    ${total}=    Get Length    ${imsi_data}
+    ${pass_count}=    Set Variable    ${0}
+    FOR    ${entry}    IN    @{imsi_data}
+        ${imsi}=    Get From Dictionary    ${entry}    imsi
+        Log    Validating PAYG usage for IMSI ${imsi}    console=yes
+        Validate PAYG Usage Column For IMSI    ${imsi}
+        ${pass_count}=    Evaluate    ${pass_count} + 1
+        Log    IMSI ${pass_count}/${total} PAYG validated: ${imsi}    console=yes
+    END
+    Log    All ${total} IMSIs PAYG usage validated in UI.    console=yes
+
+Validate PAYG Usage Column For IMSI
+    [Documentation]    On Manage Devices: search IMSI, expand row, open Usage tab,
+    ...                find column with "payg" and "data" in header, verify value > 0.
+    [Arguments]    ${imsi}
+    Reset Grid To Default View
+    Sleep    0.3s
+    Wait For Loading Overlay To Disappear
+    Search Device By IMSI    ${imsi}
+    Sleep    0.3s
+    Wait For Loading Overlay To Disappear
+    Wait Until Element Is Visible    ${LOC_DSC_GRID_ROWS}    timeout=30s
+    ${expand_visible}=    Run Keyword And Return Status
+    ...    Wait Until Element Is Visible    ${LOC_DSC_FIRST_ROW_EXPAND}    timeout=10s
+    IF    not ${expand_visible}
+        Wait Until Element Is Visible    ${LOC_DSC_FIRST_ROW_EXPAND_ALT}    timeout=10s
+        Click Element Via JS    ${LOC_DSC_FIRST_ROW_EXPAND_ALT}
+    ELSE
+        Click Element Via JS    ${LOC_DSC_FIRST_ROW_EXPAND}
+    END
+    Sleep    0.3s
+    Wait For Loading Overlay To Disappear
+    Scroll Element Into View    ${LOC_DSC_FIRST_ROW}
+    Sleep    0.5s
+    # Click Usage tab in expanded detail row
+    ${usage_clicked}=    Run Keyword And Return Status
+    ...    Execute Javascript
+    ...    var grid = document.getElementById('gridData');
+    ...    if(!grid) return false;
+    ...    var detailRow = grid.querySelector('tr.k-detail-row') || (function(){ var m = grid.querySelector('tr.k-master-row'); return m && m.nextElementSibling && m.nextElementSibling.tagName === 'TR' ? m.nextElementSibling : null; })();
+    ...    if(!detailRow) return false;
+    ...    var nodes = detailRow.querySelectorAll('a, span, li, button, div[role="tab"]');
+    ...    for(var i=0; i<nodes.length; i++){ var t = (nodes[i].textContent || '').trim(); if(t === 'Usage' && nodes[i].offsetParent){ nodes[i].click(); return true; } }
+    ...    for(var i=0; i<nodes.length; i++){ var t = (nodes[i].textContent || '').trim().toLowerCase(); if(t.indexOf('usage') >= 0 && t.length < 20 && nodes[i].offsetParent){ nodes[i].click(); return true; } }
+    ...    return false;
+    IF    not ${usage_clicked}
+        ${usage_clicked}=    Run Keyword And Return Status
+        ...    Wait Until Element Is Visible    ${LOC_DSC_DETAIL_USAGE_TAB_LINK}    timeout=10s
+        IF    ${usage_clicked}
+            Click Element Via JS    ${LOC_DSC_DETAIL_USAGE_TAB_LINK}
+        ELSE
+            Fail    Usage tab not found in expanded row for IMSI ${imsi}.
+        END
+    END
+    Sleep    0.5s
+    Wait For Loading Overlay To Disappear
+    # Read PAYG data column value from usage tab
+    ${payg_val}=    Set Variable    NOT_FOUND
+    FOR    ${i}    IN RANGE    15
+        ${payg_val}=    Execute Javascript
+        ...    var grid = document.getElementById('gridData');
+        ...    if(!grid) return 'NO_GRID';
+        ...    var detailRow = grid.querySelector('tr.k-detail-row');
+        ...    if(!detailRow){ var m = grid.querySelector('tr.k-master-row'); if(m && m.nextElementSibling) detailRow = m.nextElementSibling; }
+        ...    if(!detailRow) return 'NO_DETAIL';
+        ...    var tables = detailRow.querySelectorAll('table');
+        ...    if(tables.length === 0) tables = [grid.querySelector('table')];
+        ...    for(var t=0; t<tables.length; t++){
+        ...        if(!tables[t]) continue;
+        ...        var ths = tables[t].querySelectorAll('thead th');
+        ...        var colIdx = -1;
+        ...        for(var h=0; h<ths.length; h++){
+        ...            var txt = (ths[h].textContent || '').trim().toLowerCase();
+        ...            if(txt.indexOf('payg') >= 0 && (txt.indexOf('data') >= 0 || txt.indexOf('usage') >= 0)){ colIdx = h; break; }
+        ...        }
+        ...        if(colIdx < 0){
+        ...            for(var h2=0; h2<ths.length; h2++){
+        ...                var t2 = (ths[h2].textContent || '').trim().toLowerCase();
+        ...                if(t2.indexOf('payg') >= 0){ colIdx = h2; break; }
+        ...            }
+        ...        }
+        ...        if(colIdx >= 0){
+        ...            var rows = tables[t].querySelectorAll('tbody tr');
+        ...            if(rows.length > 0){
+        ...                var cells = rows[0].querySelectorAll('td');
+        ...                if(cells[colIdx]) return cells[colIdx].textContent.trim();
+        ...            }
+        ...        }
+        ...    }
+        ...    return 'NOT_FOUND';
+        Exit For Loop If    '${payg_val}' != 'NOT_FOUND' and '${payg_val}' != 'NO_GRID' and '${payg_val}' != 'NO_DETAIL'
+        Sleep    1s
+    END
+    Log    IMSI ${imsi} PAYG DATA column value: ${payg_val}    console=yes
+    Should Not Be Equal As Strings    ${payg_val}    NOT_FOUND
+    ...    PAYG DATA column not found in Usage tab for IMSI ${imsi}. Looked for header with payg and (data or usage), or payg-only.
+    Should Not Be Equal As Strings    ${payg_val}    NO_GRID
+    ...    gridData not found on page for IMSI ${imsi}.
+    Should Not Be Equal As Strings    ${payg_val}    NO_DETAIL
+    ...    Detail row not found after expanding IMSI ${imsi}.
+    Should Not Be Equal    ${payg_val}    ${EMPTY}
+    ...    PAYG DATA value is empty for IMSI ${imsi}.
+    ${payg_num}=    Convert To Number    ${payg_val}
+    Should Be True    ${payg_num} > 0
+    ...    PAYG DATA for IMSI ${imsi} should be > 0 MB, got: ${payg_val}
+    Log    PASS: IMSI ${imsi} PAYG DATA = ${payg_val} MB    console=yes
+    Capture Page Screenshot    payg_usage_validated_${imsi}.png

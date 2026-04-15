@@ -18,7 +18,17 @@ ${LOC_DSC_FILTER_AREA}             id=filterArea
 ${LOC_DSC_RESET_ALL_FILTER}        id=resetAllFilter
 ${LOC_DSC_FILTER_POPUP}            id=filterPopup
 ${LOC_DSC_SIM_STATE_FILTER}        xpath=//div[@id='filterArea']//*[contains(translate(text(),'abcdefghijklmnopqrstuvwxyz','ABCDEFGHIJKLMNOPQRSTUVWXYZ'),'SIM STATE')]
+# Filters sidebar (Kendo PanelBar): expand **Account** accordion — prefer header link, then whole row (see CMP screenshots)
+${LOC_DSC_FILTER_ACCOUNT_K_LINK}    xpath=(//*[@id='filterPopup']//span[contains(@class,'k-link')][contains(@class,'k-header')][contains(.,'Account')])[1]
+${LOC_DSC_FILTER_ACCOUNT_PANEL_LI}    xpath=(//*[@id='filterPopup']//li[contains(@class,'k-item')][.//span[contains(@class,'k-link')][contains(.,'Account')]])[1]
+# Plain span (user xpath), then string-value / case fallbacks
+${LOC_DSC_FILTER_ACCOUNT_SPAN_TEXT}     xpath=(//*[@id='filterPopup']//span[contains(text(),'Account')])[1]
+${LOC_DSC_FILTER_ACCOUNT_SPAN_CONTAINS}    xpath=(//*[@id='filterPopup']//span[contains(.,'Account')])[1]
+${LOC_DSC_FILTER_ACCOUNT_SPAN_ICASE}    xpath=(//*[@id='filterPopup']//span[contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'account')])[1]
+${LOC_DSC_FILTER_ACCOUNT_HEADER}   xpath=(//*[@id='filterPopup']//*[contains(@class,'k-header') or contains(@class,'k-link')][contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'account')])[1]
+# Prefer this on Manage Devices — ``id=accountInput`` can exist elsewhere and steal the first match.
 ${LOC_DSC_ACCOUNT_INPUT}           id=accountInput
+${LOC_DSC_ACCOUNT_INPUT_IN_POPUP}    xpath=//*[@id='filterPopup']//input[@id='accountInput']
 ${LOC_DSC_ACCOUNT_CLOSE_BTN}       id=accountCloseBtn
 
 # ── Action Bar Locators ──────────────────────────────────────────────

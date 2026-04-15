@@ -17,7 +17,7 @@ Navigate To Manage APN Via Service Tab
     Wait Until Element Is Visible    ${LOC_MENU_SERVICE}    timeout=30s
     Scroll To Element Via JS    ${LOC_MENU_SERVICE}
     Click Element Via JS    ${LOC_MENU_SERVICE}
-    Sleep    2s
+    Sleep    1s
     # Step 2 — wait for APN tab in top navigation and click it
     Wait For Loading Overlay To Disappear
     Wait Until Element Is Visible    ${LOC_TAB_APN}    timeout=30s
@@ -38,7 +38,7 @@ Click Create APN Button
     ...    Location Should Contain    ${CREATE_APN_PATH}
     Wait For Loading Overlay To Disappear
     Wait Until Element Is Visible    ${LOC_APN_TYPE}    timeout=30s
-    Sleep    3s
+    Sleep    1s
     Log    Navigated to Create APN page.
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -59,7 +59,7 @@ Select APN Type
     [Arguments]    ${apn_type}
     Wait Until Element Is Visible    ${LOC_APN_TYPE}    timeout=30s
     Select From List By Value    ${LOC_APN_TYPE}    ${apn_type}
-    Sleep    3s
+    Sleep    1s
     Wait For Loading Overlay To Disappear
 
 Select Account
@@ -68,13 +68,13 @@ Select Account
     [Arguments]    ${account_name}=${ACCOUNT_NAME}
     Wait Until Element Is Visible    ${LOC_ACCOUNT_DROPDOWN}    timeout=30s
     Click Element Via JS    ${LOC_ACCOUNT_DROPDOWN}
-    Sleep    2s
+    Sleep    1s
     ${input}=    Get WebElement    ${LOC_ACCOUNT_SEARCH_INPUT}
     Execute Javascript    arguments[0].focus(); arguments[0].value='';    ARGUMENTS    ${input}
     Execute Javascript
     ...    var el=arguments[0]; el.value=arguments[1]; el.dispatchEvent(new Event('input',{bubbles:true})); el.dispatchEvent(new Event('change',{bubbles:true})); el.dispatchEvent(new Event('keyup',{bubbles:true}));
     ...    ARGUMENTS    ${input}    ${account_name}
-    Sleep    2s
+    Sleep    1s
     ${option_locator}=    Set Variable    xpath=//div[contains(@class,'selectDropdown')]//*[contains(text(),'${account_name}')]
     ${option_visible}=    Run Keyword And Return Status
     ...    Wait Until Element Is Visible    ${option_locator}    timeout=10s
@@ -202,7 +202,7 @@ Expand Subnet Mask Section
     IF    not ${already_open}
         Execute Javascript
         ...    var a = document.querySelector('a[href="#onetimechanges"]'); if(a) a.click();
-        Sleep    2s
+        Sleep    1s
     END
     Execute Javascript
     ...    var el = document.querySelector('#onetimechanges'); if(el) { el.classList.add('in'); el.style.display='block'; el.style.height='auto'; }
@@ -222,7 +222,7 @@ Add And Fill Subnet Mask Entry
     END
     Execute Javascript
     ...    var btn = document.querySelector('#onetimechanges a.pulsgreen'); if(btn) btn.click();
-    Sleep    2s
+    Sleep    1s
     ${input_exists}=    Execute Javascript
     ...    return document.querySelector('#subnetmaskinput0') !== null;
     IF    not ${input_exists}
@@ -244,7 +244,7 @@ Add And Fill Subnet Mask Entry
     Scroll To Element Via JS    xpath=//div[@id='onetimechanges']//button
     Sleep    1s
     Click Element    xpath=//div[@id='onetimechanges']//button
-    Sleep    3s
+    Sleep    1s
     Wait For Loading Overlay To Disappear
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -254,7 +254,7 @@ Expand Radius Configuration
     [Documentation]    Scrolls to and expands the Radius Configuration accordion.
     Execute Javascript
     ...    var el = document.querySelector('#openRadiusDetailsTab'); if(el) { el.scrollIntoView({block:'center'}); el.click(); }
-    Sleep    2s
+    Sleep    1s
     ${visible}=    Run Keyword And Return Status
     ...    Wait Until Element Is Visible    ${LOC_RADIUS_CONFIG}    timeout=10s
     IF    not ${visible}
@@ -290,7 +290,7 @@ Fill Secondary Details
     [Arguments]    ${hlr_apn_id}=${EMPTY}    ${mcc}=${EMPTY}    ${mnc}=${EMPTY}    ${profile_id}=${EMPTY}
     Execute Javascript
     ...    var a = document.querySelector('a[href="#secondary"]'); if(a) { a.scrollIntoView({block:'center'}); a.click(); }
-    Sleep    2s
+    Sleep    1s
     Execute Javascript
     ...    var el = document.querySelector('#secondary'); if(el) { el.classList.add('in'); el.style.display='block'; el.style.height='auto'; }
     Sleep    1s
@@ -318,7 +318,7 @@ Fill QoS Details
     ...            ${up_unit_lte}=1    ${down_unit_lte}=1
     Execute Javascript
     ...    var a = document.querySelector('a[href="#quality"]'); if(a) { a.scrollIntoView({block:'center'}); a.click(); }
-    Sleep    2s
+    Sleep    1s
     Execute Javascript
     ...    var el = document.querySelector('#quality'); if(el) { el.classList.add('in'); el.style.display='block'; el.style.height='auto'; }
     Sleep    1s
@@ -342,7 +342,7 @@ Submit Create APN Form
     Wait Until Element Is Visible    ${LOC_SUBMIT_BTN}    timeout=30s
     ${btn}=    Get WebElement    ${LOC_SUBMIT_BTN}
     Execute Javascript    arguments[0].click();    ARGUMENTS    ${btn}
-    Sleep    3s
+    Sleep    1s
     Wait For Condition
     ...    return !document.body.classList.contains('loading-indicator')
     ...    timeout=120s
@@ -436,7 +436,7 @@ Verify Negative Submission Outcome
     ...                           (app accepted input — possible validation gap).
     ...                Outcome 3: Still on Create page with validation text → PASS.
     [Arguments]    ${test_label}=negative test
-    Sleep    2s
+    Sleep    1s
     # --- Check for error indicators first ---
     ${alert_visible}=    Run Keyword And Return Status
     ...    Wait Until Element Is Visible    ${LOC_ALERT_DANGER}    timeout=8s

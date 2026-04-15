@@ -30,14 +30,16 @@ ${LOC_SO_ROW_FAIL_BTN}             xpath=//div[@id='simOrderGrid']//tbody/tr[1]/
 ${LOC_SO_ROW_RETRY_BTN}            xpath=//div[@id='simOrderGrid']//tbody/tr[1]//a[contains(@class,'k-grid-Retry')]
 ${LOC_SO_ROW_EXPAND_BTN}           xpath=//div[@id='simOrderGrid']//tbody/tr[1]//td[contains(@class,'k-hierarchy-cell')]/a
 
-# ── Cancel Order Modal — #savePopup ─────────────────────────────────
+# ── Cancel Order Modal — legacy ``#savePopup`` or Kendo ``.k-window`` (same fields)
 ${LOC_SO_CANCEL_MODAL}             xpath=//div[@id='savePopup']
-${LOC_SO_CANCEL_MODAL_TITLE}       xpath=//div[@id='savePopup']//h4[contains(@class,'modal-title')]
+${LOC_SO_CANCEL_MODAL_KENDO}     xpath=//div[contains(@class,'k-window')][.//input[@name='cancelReason']]
+${LOC_SO_CANCEL_MODAL_ANY}         xpath=//div[@id='savePopup' or contains(@class,'k-window')][.//input[@name='cancelReason']]
+${LOC_SO_CANCEL_MODAL_TITLE}       xpath=//div[@id='savePopup' or contains(@class,'k-window')]//h4[contains(@class,'modal-title')] | //div[contains(@class,'k-window-title')]
 ${LOC_SO_CANCEL_REASON_INPUT}      xpath=//input[@name='cancelReason']
 ${LOC_SO_CANCEL_REMARKS_TEXTAREA}  xpath=//textarea[@id='cancelRemarks']
-${LOC_SO_CANCEL_PROCEED_BTN}       xpath=//button[@id='prceedBtn']
-${LOC_SO_CANCEL_CLOSE_BTN}         xpath=//div[@id='savePopup']//button[contains(@class,'btn-cancel-color')]
-${LOC_SO_CANCEL_CLOSE_X}           xpath=//div[@id='savePopup']//button[contains(@class,'close')]
+${LOC_SO_CANCEL_PROCEED_BTN}       xpath=//div[.//input[@name='cancelReason']]//button[@id='prceedBtn']
+${LOC_SO_CANCEL_CLOSE_BTN}         xpath=//div[@id='savePopup']//button[contains(@class,'btn-cancel-color')] | //div[contains(@class,'k-window')][.//input[@name='cancelReason']]//button[contains(@class,'btn-cancel-color')]
+${LOC_SO_CANCEL_CLOSE_X}           xpath=//div[@id='savePopup']//button[contains(@class,'close')] | //div[contains(@class,'k-window')][.//input[@name='cancelReason']]//a[contains(@class,'k-window-action')] | //div[contains(@class,'k-window')][.//input[@name='cancelReason']]//button[contains(@class,'close')]
 
 # ── Pagination ──────────────────────────────────────────────────────
 ${LOC_SO_PAGE_INFO}                xpath=//span[contains(@class,'k-pager-info')]
@@ -70,10 +72,13 @@ ${LOC_SO_STEP1_HEADING}            xpath=//div[@id='discover']//h4[normalize-spa
 ${LOC_SO_SIM_REPLACEMENT_YES}      xpath=//div[@id='discover']//input[@name='isBlank' and @value='true']
 ${LOC_SO_SIM_REPLACEMENT_NO}       xpath=//div[@id='discover']//input[@name='isBlank' and @value='false']
 ${LOC_SO_ACCOUNT_INPUT}            xpath=//input[@name='accountSelected']
+${LOC_SO_ACCOUNT_BTN}              xpath=//div[@id='discover']//*[@data-testid='accountSelected']//div[contains(@class,'selectBtn')]
+${LOC_SO_ACCOUNT_OPTION_ANY}       xpath=//body//div[@data-testid='accountSelected' and contains(@class,'option')][1]
 ${LOC_SO_ACCOUNT_TREEVIEW_SEARCH}  xpath=//input[contains(@class,'search-textbox') and contains(@class,'inputtree')]
 ${LOC_SO_ACCOUNT_TREEVIEW}         xpath=//div[@id='discover']//div[contains(@class,'k-widget k-treeview')]
-${LOC_SO_SIM_CATEGORY_CONTAINER}   xpath=//div[@data-testid='orderSimCategory' and contains(@class,'select')]
-${LOC_SO_SIM_CATEGORY_BTN}         xpath=//div[@data-testid='orderSimCategory']//div[contains(@class,'selectBtn')]
+# SIM Category — scope to Step 1 (#discover); union fallbacks when nested .selectBtn or markup changes.
+${LOC_SO_SIM_CATEGORY_CONTAINER}   xpath=//div[@id='discover']//div[@data-testid='orderSimCategory' and contains(@class,'select')] | //div[@id='discover']//div[contains(@class,'form-group')][.//*[@data-testid='orderSimCategory']] | (//div[@id='discover']//*[@data-testid='orderSimCategory'])[1]
+${LOC_SO_SIM_CATEGORY_BTN}         xpath=//div[@id='discover']//div[@data-testid='orderSimCategory']//div[contains(@class,'selectBtn')] | //div[@id='discover']//div[@data-testid='orderSimCategory']//div[contains(@class,'SelectBtn')] | //div[@id='discover']//div[contains(@class,'form-group')][.//div[@data-testid='orderSimCategory']]//div[contains(@class,'selectBtn')] | //div[@id='discover']//label[contains(@class,'control-label')][contains(normalize-space(.),'SIM Category')]/ancestor::div[contains(@class,'form-group')][1]//div[contains(@class,'selectBtn')] | //div[@id='discover']//label[contains(normalize-space(.),'SIM Category')]/following::div[contains(@class,'selectBtn')][1] | //div[@id='discover']//*[@data-testid='orderSimCategory'][contains(@class,'selectBtn')] | //div[@id='discover']//*[@data-testid='orderSimCategory']//div[contains(@class,'form-control')][contains(@class,'select')]
 ${LOC_SO_SIM_TYPE_SELECT}          xpath=//select[@name='simType']
 ${LOC_SO_SIM_PRODUCT_CONTAINER}    xpath=//div[@data-testid='productCatalog' and contains(@class,'select')]
 ${LOC_SO_SIM_PRODUCT_BTN}          xpath=//div[@data-testid='productCatalog']//div[contains(@class,'selectBtn')]

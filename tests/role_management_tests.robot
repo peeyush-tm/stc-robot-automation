@@ -1,16 +1,16 @@
-﻿*** Settings ***
+*** Settings ***
 Library     SeleniumLibrary
 Library     String
+Library     ../libraries/ConfigLoader.py
 Resource    ../resources/keywords/browser_keywords.resource
 Resource    ../resources/keywords/login_keywords.resource
 Resource    ../resources/keywords/role_management_keywords.resource
 Resource    ../resources/locators/login_locators.resource
 Resource    ../resources/locators/role_management_locators.resource
-Variables   ../config/env_config.py
 Variables   ../variables/login_variables.py
 Variables   ../variables/role_management_variables.py
 
-Suite Setup       Login And Navigate To Manage Role
+Suite Setup       Run Keywords    Load Environment Config From Json    ${ENV}    AND    Login And Navigate To Manage Role
 Suite Teardown    Close All Browsers
 Test Setup        Refresh Manage Role Page
 Test Teardown     Run Keyword If Test Failed    Capture Page Screenshot

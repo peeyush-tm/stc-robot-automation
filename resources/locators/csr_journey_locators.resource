@@ -4,8 +4,9 @@ ${LOC_LOADING_INDICATOR}        xpath=//body[contains(@class,'loading-indicator'
 
 # ── Navigation (Admin → CSR Journey) ─────────────────────────────────
 ${LOC_ADMIN_ICON}               xpath=//i[contains(@class,'admin-menu-icon')]
-${LOC_CSR_JOURNEY_NAV}          xpath=//ul[@id='pageHeading']//a[@href='/CSRJourney']
-${LOC_CSR_JOURNEY_NAV_SIDEBAR}  xpath=//a[@href='/CSRJourney'][not(ancestor::ul[@id='pageHeading'])]
+# Listing only (exclude Create); href may be ``/CSRJourney`` or hash-router variant
+${LOC_CSR_JOURNEY_NAV}          xpath=//ul[@id='pageHeading']//a[contains(@href,'CSRJourney') and not(contains(@href,'Create'))]
+${LOC_CSR_JOURNEY_NAV_SIDEBAR}  xpath=//a[contains(@href,'CSRJourney') and not(contains(@href,'Create'))][not(ancestor::ul[@id='pageHeading'])]
 
 # ── CSR Journey Landing Page ─────────────────────────────────────────
 # Select Customer: custom dropdown (div-based)
@@ -16,25 +17,36 @@ ${LOC_CSRJ_CUSTOMER_SEARCH}     xpath=//div[contains(@class,'selectcsrjourney')]
 ${LOC_CSRJ_CUSTOMER_OPTION}     xpath=//div[@name="customerId" and @data-testid="customerId" and contains(@class,"option")]
 # Select Business Unit: click this div to open BU dropdown (then options with data-testid="bussinessUnit" become visible)
 # Button: <div class="selectBtn form-control show" value="29300">billingAccountSANJ_1003</div>
-# Use second such div on page (first = Customer, second = BU)
-${LOC_CSRJ_BU_DD_BTN}           xpath=(//div[contains(@class,'selectBtn') and contains(@class,'form-control')])[2]
-${LOC_CSRJ_BU_DD_LIST}          xpath=//div[contains(@class,'selectcsrjourney')]//div[contains(@class,'selectDropdown')][2]
-${LOC_CSRJ_BU_SEARCH}           xpath=//div[contains(@class,'selectcsrjourney')]//input[contains(@class,'searchInput')][2]
+# Second select inside CSR widget only (global [2] can hit a different module's react-select)
+${LOC_CSRJ_BU_DD_BTN}           xpath=(//div[contains(@class,'selectcsrjourney')]//div[contains(@class,'selectBtn')])[2]
+# After customer is chosen, the customer menu closes — often only ONE selectDropdown remains; [2] never appears.
+${LOC_CSRJ_BU_DD_LIST}          xpath=(//div[contains(@class,'selectcsrjourney')]//div[contains(@class,'selectDropdown')])[last()]
+${LOC_CSRJ_BU_SEARCH}           xpath=(//div[contains(@class,'selectcsrjourney')]//input[contains(@class,'searchInput')])[last()]
 # BU option (visible after clicking BU button): select this account - div name="bussinessUnit" data-testid="bussinessUnit" class="option select" value="29300"
 ${LOC_CSRJ_BU_OPTION}           xpath=//div[@name="bussinessUnit" and @data-testid="bussinessUnit" and contains(@class,"option")]
 # Create Order button: <button type="button" class="btn btn-custom-color pull-right width-75">Create Order</button>
 ${LOC_CSRJ_CREATE_ORDER_BTN}    xpath=//button[@type="button" and contains(@class,"btn-custom-color") and contains(@class,"pull-right") and normalize-space()="Create Order"]
-# APN / Device Plan table
-${LOC_CSRJ_APN_TABLE}           xpath=//table[contains(@class,'col-md-12')]
-${LOC_CSRJ_APN_TABLE_BODY}      xpath=//table[contains(@class,'col-md-12')]//tbody
-${LOC_CSRJ_APN_ROW_1}           xpath=//table[contains(@class,'col-md-12')]//tbody/tr[1]
+# APN / Device Plan table — multiple ``#gridData`` nodes can exist; [1] is not always the visible CSR device-plan grid. Keywords poll + header wait.
+${LOC_CSRJ_APN_TABLE}           xpath=(//*[@id='gridData'])[1]//table
+${LOC_CSRJ_APN_TABLE_ALT2}      xpath=(//*[@id='gridData'])[2]//table
+${LOC_CSRJ_APN_TABLE_LEGACY}    xpath=//table[contains(@class,'col-md-12')]
+${LOC_CSRJ_APN_TABLE_BODY}      xpath=(//*[@id='gridData'])[1]//tbody
+${LOC_CSRJ_APN_TABLE_BODY_ALT2}      xpath=(//*[@id='gridData'])[2]//tbody
+${LOC_CSRJ_APN_TABLE_BODY_LEGACY}    xpath=//table[contains(@class,'col-md-12')]//tbody
+${LOC_CSRJ_APN_HEADER_APNTYPE}    xpath=//th[contains(translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'apn type')]
+${LOC_CSRJ_APN_ROW_1}           xpath=(//*[@id='gridData'])[1]//tbody/tr[1]
+# Filled at runtime by ``CSRJ Discover Device Plan Table Locators`` (CSRJ Wait For Landing Apn Table Visible / conflict flow)
+${CSRJ_RUN_DEVICE_PLAN_TABLE}    ${EMPTY}
+${CSRJ_RUN_DEVICE_PLAN_TBODY}    ${EMPTY}
+# Set by ``CSRJ Evaluate Optional Skip Landing Grids By Env`` when ``CSRJ_ALLOW_EMPTY_DEVICE_GRID`` and landing is otherwise ready
+${CSRJ_LANDING_GRIDS_OPTIONAL}    ${FALSE}
 # Grid action icons
 ${LOC_CSRJ_CSR_SUMMARY_ICON}    xpath=//i[contains(@class,'k-grid-csrSummary')]
 ${LOC_CSRJ_EDIT_ICON}           xpath=//i[contains(@class,'k-grid-editNodeKendoPopup') and not(contains(@class,'csrSummary'))]
 ${LOC_CSRJ_DELETE_ICON}         xpath=//i[contains(@class,'k-grid-deleteNodeKendoPopup')]
 ${LOC_CSRJ_CHANGE_TP_ICON}      xpath=//i[contains(@class,'k-grid-changeTPNodeKendoPopup')]
-# Main CSR grid (landing page): #content > div:nth-child(2) > div.csrjourneydev > div
-${LOC_CSRJ_GRID}                xpath=//*[@id='content']/div[2]//div[contains(@class,'csrjourneydev')]/div
+# Main CSR grid — prefer Kendo #gridData (layout varies; csrjourneydev wrapper is not always under content/div[2])
+${LOC_CSRJ_GRID}                xpath=(//*[@id='gridData'])[1]
 # Row by device plan alias: use in keyword with Replace String to inject alias
 ${LOC_CSRJ_GRID_ROW_DELETE_BY_ALIAS}   xpath=//div[@id='gridData']//tr[contains(@class,'k-master-row') and contains(.,'ALIAS_PLACEHOLDER')]//i[contains(@class,'k-grid-deleteNodeKendoPopup')]
 ${LOC_CSRJ_GRID_ROW_EDIT_BY_ALIAS}     xpath=//div[@id='gridData']//tr[contains(@class,'k-master-row') and contains(.,'ALIAS_PLACEHOLDER')]//i[contains(@class,'k-grid-editNodeKendoPopup')]
@@ -71,8 +83,8 @@ ${LOC_SS_TARIFF_PLAN_SEARCH}     xpath=//div[contains(@class,'form-group')][.//l
 ${LOC_SS_TARIFF_PLAN_OPTION}     xpath=//div[@name="tariffplan" and @data-testid="tariffplan" and contains(@class,"option")]
 # APN Type: <select name="apnCategory" data-testid="apnCategory" class="form-control">
 ${LOC_SS_APN_TYPE_DD}            xpath=//select[@name="apnCategory" and @data-testid="apnCategory"]
-# Add APNs button: <button class="btn btn-custom-color cursor-pointer">Add APN's</button>
-${LOC_SS_ADD_APNS_BTN}           xpath=//button[contains(@class,"btn-custom-color") and contains(@class,"cursor-pointer") and normalize-space()="Add APN's"]
+# Add APNs button — label/case varies: Add APN's, Add APNs, ADD APN, etc.
+${LOC_SS_ADD_APNS_BTN}           xpath=//button[contains(@class,'btn-custom-color') and contains(@class,'cursor-pointer') and contains(translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'add apn')]
 # Fetch Device Plan: <button class="btn btn-custom-color cursor-pointer">Fetch Device Plan</button>
 ${LOC_SS_FETCH_DP_BTN}           xpath=//button[contains(@class,'btn-custom-color') and contains(@class,'cursor-pointer') and normalize-space()='Fetch Device Plan']
 # Bundle Plan: <select name="bundleName" data-testid="bundleName" class="form-control">
@@ -104,7 +116,7 @@ ${LOC_SS_DEVICE_PLAN_SAVE_BTN}   xpath=//*[@id='content']//div[contains(@class,'
 # ── APN and IP Preference Modal (#apnSelectionModal) ─────────────────
 ${LOC_APN_MODAL}                 xpath=//*[@id='apnSelectionModal']
 ${LOC_APN_MODAL_TITLE}           xpath=//*[@id='apnSelectionModal']//h5[contains(@class,'modal-title') and normalize-space()='APN and IP Preference']
-# React-select: APN name = public_dynamic (e.g. <div class="css-dvua67-singleValue select__single-value">public_dynamic</div>)
+# React-select APN label: defaults here match dev; ``Load Environment Config From Json`` overwrites these locators per ``DEFAULT_CSR_MODAL_APN_NAME``.
 ${LOC_APN_MODAL_APN_INPUT}       xpath=//*[@id='apnSelectionModal']//div[contains(@class,'basic-multi-select')]//input[contains(@id,'react-select')]
 ${LOC_APN_MODAL_APN_SINGLE_VALUE}   xpath=//*[@id='apnSelectionModal']//div[(contains(@class,'single-value') or contains(@class,'singleValue')) and normalize-space(.)='public_dynamic']
 ${LOC_APN_MODAL_APN_OPTION}      xpath=//*[@id='apnSelectionModal']//div[contains(@class,'select__option') and normalize-space(.)='public_dynamic']
@@ -125,6 +137,11 @@ ${LOC_SP_VOICE_PAYG}             xpath=//button[@id='voicespayg']
 ${LOC_SP_SMS_PAYG}               xpath=//button[@id='smspayg']
 ${LOC_SP_DATA_PAYG}              xpath=//button[@id='datapayg']
 ${LOC_SP_ROAMING_TOGGLE}         xpath=//button[@id='toggleIsRoaming']
+# NB-IoT as a Separate Service (fallback if enable-all script misses the toggle)
+${LOC_SP_NBIOT_SEPARATE_TOGGLE}       xpath=//*[@id='addServicePlanModal']//label[contains(normalize-space(.),'NB-IoT as a Separate Service')]/ancestor::div[contains(@class,'row')][1]//button[contains(@class,'btn')]
+${LOC_SP_NBIOT_SEPARATE_TOGGLE_ALT}   xpath=//*[@id='addServicePlanModal']//label[contains(normalize-space(.),'NB-IoT as a Separate Service')]/ancestor::*[contains(@class,'d-flex') or contains(@class,'form-group')][1]//button[contains(@class,'btn')]
+# Add Service Plan — optional label click (script in ``CSRJ Enable All Options In Add Service Plan Modal`` covers full modal)
+${LOC_SP_INTL_VOICE_LBL}         xpath=//*[@id='addServicePlanModal']//label[contains(normalize-space(.),'International Voice')]
 # Create Service Plan dialog — Save (dialog opens when clicking Create Service Plan link)
 # HTML: <button class="btn btn-custom-color m-l-15 width-75 ml-2 cursor-pointer" type="submit">Save</button>
 ${LOC_SP_MODAL_SAVE}             xpath=//*[@id='addServicePlanModal']//button[@type='submit' and contains(@class,'btn-custom-color') and contains(@class,'ml-2') and contains(@class,'cursor-pointer') and normalize-space(.)='Save']
@@ -173,8 +190,8 @@ ${LOC_AS_ADDON_PLAN_OPTION_1}    xpath=(//div[contains(@class,'select__option')]
 ${LOC_AS_ADDON_TABLE}            xpath=//div[contains(@class,'charge-tabs')]//table
 ${LOC_AS_ADDON_TABLE_ROW_1}      xpath=//div[contains(@class,'charge-tabs')]//table//tbody/tr[1]
 # Discount Accordion
-${LOC_AS_DISCOUNT_TOGGLE}        xpath=//a[@href='#disconpenalties' and @data-toggle='collapse']
-${LOC_AS_DISCOUNT_ADD_BTN}       xpath=//*[@id='disconpenalties']//button[normalize-space()='+ Add']
+${LOC_AS_DISCOUNT_TOGGLE}        xpath=//a[@data-toggle='collapse' and contains(translate(@href,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'disconpen')]
+${LOC_AS_DISCOUNT_ADD_BTN}       xpath=//*[contains(translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'disconpen') or @id='disconpenalties']//button[contains(@class,'add_button') or normalize-space()='+ Add' or contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'+ add')]
 # Add Discount Modal (#addDiscountModal)
 ${LOC_AS_DISCOUNT_MODAL}         xpath=//*[@id='addDiscountModal']
 ${LOC_AS_DISCOUNT_CAT_DD}        xpath=//*[@id='addDiscountModal']//select[@name='discountCategory']
@@ -188,7 +205,8 @@ ${LOC_AS_DISCOUNT_MODAL_CLOSE}   xpath=//*[@id='addDiscountModal']//button[conta
 ${LOC_AS_CLOSE_BTN}              xpath=//button[contains(@class,'btn-cancel-color') and normalize-space()='Close'][not(ancestor::*[@id='addDiscountModal'])]
 # Previous (Additional Services only): #content > ... > div.flex.flex-column > div.flex.justify-content-end > div > button
 # querySelector: #content > div.flex-center > div.flex.flex-column > div.flex.justify-content-end > div > button.btn.btn-custom-color-black...
-${LOC_AS_PREV_BTN}               xpath=//*[@id='content']//div[contains(@class,'flex-center')]//div[contains(@class,'flex-column')]/div[contains(@class,'justify-content-end')]//button[contains(@class,'btn-custom-color-black') and contains(@class,'pull-right') and normalize-space()='Previous']
+# Footer "Previous" class varies (black vs default); scope to #content and visible button text
+${LOC_AS_PREV_BTN}               xpath=//*[@id='content']//div[contains(@class,'flex-column')]//button[normalize-space()='Previous' and contains(@class,'btn') and not(ancestor::*[@id='addDiscountModal'])]
 # Next: <button class="btn btn-custom-color width-75">Next</button>
 ${LOC_AS_NEXT_BTN}               xpath=//button[contains(@class,'btn-custom-color') and contains(@class,'width-75') and normalize-space()='Next'][not(ancestor::*[@id='addDiscountModal'])]
 
@@ -196,14 +214,14 @@ ${LOC_AS_NEXT_BTN}               xpath=//button[contains(@class,'btn-custom-colo
 #  STEP 3: ORDER SUMMARY (Read-Only)
 # ══════════════════════════════════════════════════════════════════════
 # Customer & BU info
-${LOC_SUM_CUSTOMER_LABEL}        xpath=//label[@class='gc-label' and normalize-space()='CUSTOMER']
-${LOC_SUM_CUSTOMER_VALUE}        xpath=//label[@class='gc-label' and normalize-space()='CUSTOMER']/following-sibling::span[@class='gc-value']
-${LOC_SUM_BU_LABEL}              xpath=//label[@class='gc-label' and normalize-space()='BUSINESS UNIT']
-${LOC_SUM_BU_VALUE}              xpath=//label[@class='gc-label' and normalize-space()='BUSINESS UNIT']/following-sibling::span[@class='gc-value']
+${LOC_SUM_CUSTOMER_LABEL}        xpath=//*[contains(@class,'gc-label') and normalize-space()='CUSTOMER']
+${LOC_SUM_CUSTOMER_VALUE}        xpath=//*[contains(@class,'gc-label') and normalize-space()='CUSTOMER']/following-sibling::*[contains(@class,'gc-value')]
+${LOC_SUM_BU_LABEL}              xpath=//*[contains(@class,'gc-label') and normalize-space()='BUSINESS UNIT']
+${LOC_SUM_BU_VALUE}              xpath=//*[contains(@class,'gc-label') and normalize-space()='BUSINESS UNIT']/following-sibling::*[contains(@class,'gc-value')]
 # Tariff Plan Accordion
 ${LOC_SUM_TP_TOGGLE}             xpath=//a[@href='#accordionTariffPlan' and @data-toggle='collapse']
 ${LOC_SUM_TP_PANEL}              xpath=//*[@id='accordionTariffPlan']
-${LOC_SUM_TP_VALUE}              xpath=//*[@id='accordionTariffPlan']//label[contains(normalize-space(),'Tariff Plan')]/following-sibling::span[@class='gc-value']
+${LOC_SUM_TP_VALUE}              xpath=//*[@id='accordionTariffPlan']//*[contains(normalize-space(),'Tariff Plan')]/following-sibling::*[contains(@class,'gc-value')]
 # Account Plan Accordion
 ${LOC_SUM_AP_TOGGLE}             xpath=//a[@href='#accordionAccountPlan' and @data-toggle='collapse']
 ${LOC_SUM_AP_PANEL}              xpath=//*[@id='accordionAccountPlan']
@@ -211,11 +229,11 @@ ${LOC_SUM_AP_PANEL}              xpath=//*[@id='accordionAccountPlan']
 ${LOC_SUM_DP_TOGGLE}             xpath=//a[@href='#devicePlan' and @data-toggle='collapse']
 ${LOC_SUM_DP_PANEL}              xpath=//*[@id='devicePlan']
 # Bottom Navigation Buttons (Summary)
-${LOC_SUM_CLOSE_BTN}             xpath=//button[contains(@class,'btn-cancel-color') and normalize-space()='Close']
+${LOC_SUM_CLOSE_BTN}             xpath=(//*[@id='content']//button[contains(@class,'btn-cancel-color') and normalize-space()='Close'])[last()]
 # Previous (Order Summary only): #content > ... > div.flex.flex-column > div:nth-child(3) > div.flex.justify-content-end > div > button
 # querySelector: #content > div.flex-center > div.flex.flex-column > div:nth-child(3) > div.flex.justify-content-end > div > button.btn...
 ${LOC_SUM_PREV_BTN}              xpath=//*[@id='content']//div[contains(@class,'flex-center')]//div[contains(@class,'flex-column')]/div[position()=3]//div[contains(@class,'justify-content-end')]//button[contains(@class,'btn-custom-color-black') and contains(@class,'pull-right') and normalize-space()='Previous']
-${LOC_SUM_SAVE_EXIT_BTN}         xpath=//button[contains(@class,'btn-custom-color') and normalize-space()='Save & Exit']
+${LOC_SUM_SAVE_EXIT_BTN}         xpath=//button[contains(@class,'btn-custom-color') and (normalize-space()='Save & Exit' or (contains(normalize-space(.),'Save') and contains(normalize-space(.),'Exit')))]
 # Summary screen — Save & Continue (click on Summary to save and continue)
 # HTML: <button class="btn btn-custom-color  mr-2 m-r-10">Save & Continue</button>
 ${LOC_SUM_SAVE_CONTINUE_BTN}     xpath=//button[contains(@class,'btn-custom-color') and contains(@class,'mr-2') and contains(@class,'m-r-10') and normalize-space(.)='Save & Continue']

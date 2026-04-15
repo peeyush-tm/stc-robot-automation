@@ -15,7 +15,10 @@ ${LOC_PASSWORD_VALIDATION}         xpath=//*[contains(text(),'Password Required'
 # ── Post-Login / Navigation Locators ────────────────────────────────
 ${LOC_POST_LOGIN_LANDMARK}         xpath=//div[@id='gridData']//tbody[@role='rowgroup']//tr[contains(@class,'k-master-row')]
 ${LOC_USER_PROFILE_MENU}           xpath=//li[@id='userSetting']//a
-${LOC_LOGOUT_BUTTON}               xpath=//a[.//i[contains(@class,'user-log-out')]]
+# Open user menu: first li under #userSetting, then Log Out (see Perform Logout).
+${LOC_USER_SETTING_DROPDOWN_TRIGGER}    xpath=//li[@id='userSetting']//li[1]
+# Icon class (CMP) or visible "Log Out" / "Logout" text inside user menu
+${LOC_LOGOUT_BUTTON}               xpath=//li[@id='userSetting']//a[.//i[contains(@class,'user-log-out')]] | //a[.//i[contains(@class,'user-log-out')]] | //li[@id='userSetting']//*[self::a or self::span][contains(translate(normalize-space(.),'LOGOUT','logout'),'log out')] | //a[contains(translate(normalize-space(.),'LOGOUT','logout'),'log out')]
 
 # ── Manage Devices Page Locators (verified against ManageDevices.js) ─
 ${LOC_MD_GRID_DATA}                xpath=//div[@id='gridData']

@@ -7,27 +7,11 @@ Resource    ../locators/login_locators.resource
 
 *** Keywords ***
 # ═══════════════════════════════════════════════════════════════════════
-#  LOGIN (wait for username, password, captcha fields → enter creds →
-#         wait for captcha image → enter captcha → click login →
-#         wait for Manage Devices page to load fully)
+#  LOGIN — uses shared flow: captcha first, then credentials with value checks
 # ═══════════════════════════════════════════════════════════════════════
 Login For Product Type
-    [Documentation]    Waits for login page fields (username, password, captcha) to be visible,
-    ...                enters credentials, waits for captcha image, fetches and enters captcha,
-    ...                clicks Login, then waits until Manage Devices page loads fully.
-    Wait For App Loading To Complete
-    Wait Until Element Is Visible    ${LOC_LOGIN_ROOT}            timeout=15s
-    Wait Until Element Is Visible    ${LOC_LOGIN_USERNAME_INPUT}  timeout=10s
-    Wait Until Element Is Visible    ${LOC_LOGIN_PASSWORD_INPUT}  timeout=10s
-    Wait Until Element Is Visible    ${LOC_LOGIN_CAPTCHA_INPUT}   timeout=10s
-    Enter Username    ${VALID_USERNAME}
-    Enter Password    ${VALID_PASSWORD}
-    Wait Until Element Is Visible    ${LOC_LOGIN_CAPTCHA_IMAGE}   timeout=20s
-    Sleep    2s
-    ${captcha_value}=    Fetch Captcha Value
-    Enter Captcha    ${captcha_value}
-    Click Login Button
-    Wait For App Loading To Complete
+    [Documentation]    Logs in via ``Login With Credentials`` (captcha before credentials, verified fields).
+    Login With Credentials    ${VALID_USERNAME}    ${VALID_PASSWORD}
     Wait Until Element Is Visible    ${LOC_MD_GRID_DATA}          timeout=45s
     Wait Until Element Is Visible    ${LOC_MD_GRID_TBODY}         timeout=30s
     Wait Until Element Is Visible    ${LOC_POST_LOGIN_LANDMARK}   timeout=30s
@@ -260,7 +244,7 @@ Click Assign Customer Icon On First Row
         Wait Until Element Is Visible    ${LOC_ASSIGN_POPUP}    ${PT_TIMEOUT}
     END
     Wait For App Loading To Complete
-    Sleep    2s
+    Sleep    1s
     Log    Assign Customers dialog opened and fully loaded.
 
 Verify Assign Customer Icon Visible
@@ -268,19 +252,34 @@ Verify Assign Customer Icon Visible
     Wait Until Element Is Visible    ${LOC_PT_ASSIGN_CUST_ICON}    ${PT_TIMEOUT}
 
 Select First Enterprise Customer
-    [Documentation]    Clicks the Select Customers input to open the EC dropdown,
-    ...                retries click if list does not open, then clicks the first EC.
+    [Documentation]    Opens the EC picker in Assign Customers (React Select in current UI;
+    ...                legacy Kendo input supported as fallback), then selects the first option.
     Wait For App Loading To Complete
-    Wait Until Element Is Visible    ${LOC_ASSIGN_POPUP}               ${PT_TIMEOUT}
-    Wait Until Element Is Visible    ${LOC_ASSIGN_SELECT_CUSTOMERS}    ${PT_TIMEOUT}
-    Wait Until Keyword Succeeds      3x    2s    Open EC Dropdown And Select First
+    Wait Until Element Is Visible    ${LOC_ASSIGN_POPUP}    ${PT_TIMEOUT}
+    Sleep    1s
+    Wait Until Keyword Succeeds    3x    3s    Open EC Dropdown And Select First
 
 Open EC Dropdown And Select First
-    [Documentation]    Single attempt: click Select Customers input, wait for list, click first EC.
-    Click Element Via JS             ${LOC_ASSIGN_SELECT_CUSTOMERS}
-    Sleep    2s
-    Wait Until Element Is Visible    ${LOC_ASSIGN_CUSTOMER_OPT_1}      10s
-    Click Element Via JS             ${LOC_ASSIGN_CUSTOMER_OPT_1}
+    [Documentation]    Opens EC dropdown — tries React Select (modal), then Kendo
+    ...                ``Select Customers`` input + ``k-item`` list.
+    ${react_ctrl}=    Set Variable
+    ...    xpath=//div[@role='dialog']//div[contains(@class,'modal-body')]//div[contains(@class,'select__control') or contains(@class,'react-select__control')]
+    ${react_open}=    Run Keyword And Return Status
+    ...    Wait Until Element Is Visible    ${react_ctrl}    8s
+    IF    ${react_open}
+        Click Element    ${react_ctrl}
+        Sleep    1s
+        ${first_rs}=    Set Variable
+        ...    xpath=(//div[contains(@class,'select__menu')]//div[contains(@class,'select__option') or contains(@class,'react-select__option')])[1]
+        Wait Until Element Is Visible    ${first_rs}    15s
+        Click Element    ${first_rs}
+    ELSE
+        Wait Until Element Is Visible    ${LOC_ASSIGN_SELECT_CUSTOMERS}    15s
+        Click Element Via JS    ${LOC_ASSIGN_SELECT_CUSTOMERS}
+        Sleep    1s
+        Wait Until Element Is Visible    ${LOC_ASSIGN_CUSTOMER_OPT_1}    10s
+        Click Element Via JS    ${LOC_ASSIGN_CUSTOMER_OPT_1}
+    END
     Sleep    1s
 
 Select Enterprise Customer By Name
@@ -290,12 +289,13 @@ Select Enterprise Customer By Name
     [Arguments]    ${ec_name}
     Wait For App Loading To Complete
     Wait Until Element Is Visible    ${LOC_ASSIGN_POPUP}    ${PT_TIMEOUT}
-    Sleep    2s
-    # Click the React Select dropdown wrapper to open it
-    ${react_select}=    Set Variable    xpath=//div[contains(@class,'modal-body')]//div[contains(@class,'select__control')]
+    Sleep    1s
+    # Click the React Select dropdown wrapper to open it (scoped to dialog body)
+    ${react_select}=    Set Variable
+    ...    xpath=//div[@role='dialog']//div[contains(@class,'modal-body')]//div[contains(@class,'select__control') or contains(@class,'react-select__control')]
     Wait Until Element Is Visible    ${react_select}    ${PT_TIMEOUT}
     Click Element    ${react_select}
-    Sleep    2s
+    Sleep    1s
     # Type the EC name into the React Select hidden input to filter
     ${react_input}=    Set Variable    xpath=//div[contains(@class,'modal-body')]//div[contains(@class,'select__input')]//input
     ${input_visible}=    Run Keyword And Return Status
@@ -328,7 +328,7 @@ Click Close Assign Customer Popup
     ...                using multiple strategies to ensure the button is found.
     Wait For App Loading To Complete
     Wait Until Element Is Visible    ${LOC_ASSIGN_POPUP}         ${PT_TIMEOUT}
-    Sleep    3s
+    Sleep    1s
     ${found}=    Run Keyword And Return Status
     ...    Wait Until Element Is Visible    ${LOC_ASSIGN_CLOSE_BTN}    10s
     IF    ${found}
@@ -346,7 +346,7 @@ Click Close Assign Customer Popup
 Verify EC Assignment Successful
     [Documentation]    Waits for dialog to close and grid to refresh after clicking Update.
     ...                Checks for toast but does not fail if it disappears quickly.
-    Sleep    3s
+    Sleep    1s
     ${toast_seen}=    Run Keyword And Return Status
     ...    Wait Until Element Is Visible    ${LOC_PT_UPDATED_TOAST}    10s
     IF    ${toast_seen}
@@ -360,10 +360,10 @@ Verify EC Assignment Successful
     IF    not ${popup_gone}
         Log    Assign dialog still open — clicking Close as fallback.    console=yes
         Click Close Assign Customer Popup
-        Sleep    2s
+        Sleep    1s
     END
     Wait Until Element Is Visible    ${LOC_PT_GRID_DATA}    ${PT_TIMEOUT}
-    Sleep    2s
+    Sleep    1s
     Wait For App Loading To Complete
 
 Verify Assign Popup Still Open
@@ -379,7 +379,7 @@ Verify Product Type Status In Grid
     ...                then validates that the STATUS column matches the expected value.
     [Arguments]    ${expected_status}    ${product_name}=${EMPTY}
     Wait Until Element Is Visible    ${LOC_PT_GRID_DATA}    ${PT_TIMEOUT}
-    Sleep    2s
+    Sleep    1s
     # If product name given, search for it in the grid search field first
     IF    '${product_name}' != '${EMPTY}' and '${product_name}' != ''
         ${search_exists}=    Run Keyword And Return Status
@@ -388,7 +388,7 @@ Verify Product Type Status In Grid
             Clear Element Text    ${LOC_PT_SEARCH_FIELD}
             Input Text    ${LOC_PT_SEARCH_FIELD}    ${product_name}
             Click Element Via JS    ${LOC_PT_SEARCH_BTN}
-            Sleep    3s
+            Sleep    1s
             Wait For App Loading To Complete
         END
     END
@@ -422,7 +422,7 @@ Verify Product Type Status In Grid
         ...    Wait Until Element Is Visible    ${LOC_PT_SEARCH_CLOSE}    3s
         IF    ${close_exists}
             Click Element Via JS    ${LOC_PT_SEARCH_CLOSE}
-            Sleep    2s
+            Sleep    1s
             Wait For App Loading To Complete
         END
     END
@@ -433,7 +433,7 @@ Verify No Data After Expand
     [Documentation]    Clicks the expand icon on the first grid row, waits for "No Data Available".
     Wait Until Element Is Visible    ${LOC_PT_EXPAND_ICON}    ${PT_TIMEOUT}
     Click Element Via JS             ${LOC_PT_EXPAND_ICON}
-    Sleep    2s
+    Sleep    1s
     Wait Until Element Is Visible    ${LOC_PT_NO_DATA}        ${PT_TIMEOUT}
     Element Should Be Visible        ${LOC_PT_NO_DATA}
     Log    Row expanded — No Data Available confirmed.
@@ -443,7 +443,7 @@ Verify EC Visible After Expand
     ...                expanded content is visible (NOT "No Data Available").
     Wait Until Element Is Visible    ${LOC_PT_EXPAND_ICON}    ${PT_TIMEOUT}
     Click Element Via JS             ${LOC_PT_EXPAND_ICON}
-    Sleep    2s
+    Sleep    1s
     Page Should Not Contain Element  ${LOC_PT_NO_DATA}
     Log    Row expanded — assigned EC data is visible.
 
@@ -454,7 +454,7 @@ Verify Assigned Customer Name After Expand
     Wait Until Element Is Visible    ${LOC_PT_EXPAND_ICON}    ${PT_TIMEOUT}
     Scroll To Element Via JS    ${LOC_PT_EXPAND_ICON}
     Click Element Via JS    ${LOC_PT_EXPAND_ICON}
-    Sleep    3s
+    Sleep    1s
     # Verify the expanded detail row contains "Assigned Customers" and the EC name
     ${detail_text}=    Execute Javascript
     ...    var detailRows = document.querySelectorAll('tr.k-detail-row');
@@ -477,3 +477,39 @@ Login And Navigate To Product Type
     ...                click SIM Product Type → wait for /ProductType (loading done).
     Login For Product Type
     Navigate To Product Type Module
+
+Go To Product Type Listing
+    [Documentation]    Opens the SIM Product Type listing using the **existing** browser session.
+    ...                ``/CreateProductType`` contains the substring "ProductType", so URL checks must exclude it.
+    ...                Prefers page-heading tab or Admin → SIM Product Type (SPA-safe); avoids bare direct URL alone.
+    ...                Use as Test Setup when ``Login And Navigate To Product Type`` ran once in Suite Setup.
+    ${on_listing}=    Product Type Listing URL Is Active
+    IF    not ${on_listing}
+        ${tab_ok}=    Run Keyword And Return Status
+        ...    Wait Until Element Is Visible    ${LOC_PT_TAB_LISTING}    5s
+        IF    ${tab_ok}
+            Click Element Via JS    ${LOC_PT_TAB_LISTING}
+            Wait For App Loading To Complete
+            Wait Until Keyword Succeeds    ${PT_RETRY_COUNT}    ${PT_RETRY_INTERVAL}
+            ...    Product Type Listing URL Should Be Active
+        ELSE
+            Navigate To Product Type Module
+        END
+        Product Type Listing URL Should Be Active
+    END
+    Wait Until Element Is Visible    ${LOC_PT_GRID_DATA}    ${PT_TIMEOUT}
+
+Product Type Listing URL Is Active
+    [Documentation]    True only on listing ``/ProductType``, not ``/CreateProductType`` (substring false positive).
+    ${on_create}=    Run Keyword And Return Status    Location Should Contain    CreateProductType
+    IF    ${on_create}
+        RETURN    ${False}
+    END
+    ${on_listing_path}=    Run Keyword And Return Status    Location Should Contain    ProductType
+    RETURN    ${on_listing_path}
+
+Product Type Listing URL Should Be Active
+    [Documentation]    Fails if still on create form or wrong route.
+    ${url}=    Get Location
+    Should Not Contain    ${url}    CreateProductType
+    Should Contain    ${url}    ProductType

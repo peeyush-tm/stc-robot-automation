@@ -2,6 +2,9 @@ import random
 import string
 import time
 
+from _config_defaults import config_scalar
+from _shared_seed import env_default
+
 
 def _random_string(length=6):
     return "".join(random.choices(string.ascii_lowercase + string.digits, k=length))
@@ -14,7 +17,9 @@ LIVE_ORDER_PATH = "/LiveOrder"
 CREATE_SIM_ORDER_PATH = "/CreateSIMOrder"
 
 # ── Valid Form Data — Step 1 (Order Details) ─────────────────────────
-VALID_ACCOUNT_NAME = "KSA_OPCO"
+VALID_ACCOUNT_NAME = env_default(
+    "STC_SO_VALID_ACCOUNT_NAME", config_scalar("DEFAULT_OPCO_ACCOUNT", "KSA_OPCO")
+)
 VALID_SIM_TYPE_VALUE = "6"
 VALID_QUANTITY = "5"
 VALID_ACTIVATION_TYPE = "autoActivation"

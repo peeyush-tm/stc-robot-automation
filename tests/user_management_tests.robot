@@ -1,16 +1,16 @@
 *** Settings ***
 Library     SeleniumLibrary
 Library     String
+Library     ../libraries/ConfigLoader.py
 Resource    ../resources/keywords/browser_keywords.resource
 Resource    ../resources/keywords/login_keywords.resource
 Resource    ../resources/keywords/user_management_keywords.resource
 Resource    ../resources/locators/login_locators.resource
 Resource    ../resources/locators/user_management_locators.resource
-Variables   ../config/env_config.py
 Variables   ../variables/login_variables.py
 Variables   ../variables/user_management_variables.py
 
-Suite Setup       Login And Navigate To Manage User
+Suite Setup       Run Keywords    Load Environment Config From Json    ${ENV}    AND    Login And Navigate To Manage User
 Suite Teardown    Close All Browsers
 Test Setup        Navigate Back To Manage User Page
 Test Teardown     Run Keyword If Test Failed    Capture Page Screenshot
@@ -207,7 +207,7 @@ TC_USER_016 Submit Without Filling Any Field
     Open Create User Form
     Verify Create User Form Loaded
     Click Submit Button
-    Verify On Create User Page
+    Verify On Create User Page After Invalid Submit
     Verify Error Toast Or Validation Displayed
 
 TC_USER_017 Submit Without Selecting Account
@@ -227,7 +227,7 @@ TC_USER_017 Submit Without Selecting Account
     Select Time Zone
     Select OTP SMS Checkbox
     Click Submit Button
-    Verify On Create User Page
+    Verify On Create User Page After Invalid Submit
     Verify Error Toast Or Validation Displayed
 
 TC_USER_018 Submit Without Username
@@ -248,7 +248,7 @@ TC_USER_018 Submit Without Username
     Select Time Zone
     Select OTP SMS Checkbox
     Click Submit Button
-    Verify On Create User Page
+    Verify On Create User Page After Invalid Submit
     Verify Error Toast Or Validation Displayed
 
 TC_USER_019 Submit Without First Name
@@ -268,7 +268,7 @@ TC_USER_019 Submit Without First Name
     Select Time Zone
     Select OTP SMS Checkbox
     Click Submit Button
-    Verify On Create User Page
+    Verify On Create User Page After Invalid Submit
     Verify Error Toast Or Validation Displayed
 
 TC_USER_020 Submit Without Last Name
@@ -288,7 +288,7 @@ TC_USER_020 Submit Without Last Name
     Select Time Zone
     Select OTP SMS Checkbox
     Click Submit Button
-    Verify On Create User Page
+    Verify On Create User Page After Invalid Submit
     Verify Error Toast Or Validation Displayed
 
 TC_USER_021 Submit Without Primary Phone
@@ -308,7 +308,7 @@ TC_USER_021 Submit Without Primary Phone
     Select Time Zone
     Select OTP SMS Checkbox
     Click Submit Button
-    Verify On Create User Page
+    Verify On Create User Page After Invalid Submit
     Verify Error Toast Or Validation Displayed
 
 TC_USER_022 Submit Without Email Address
@@ -327,7 +327,7 @@ TC_USER_022 Submit Without Email Address
     Select Time Zone
     Select OTP SMS Checkbox
     Click Submit Button
-    Verify On Create User Page
+    Verify On Create User Page After Invalid Submit
     Verify Error Toast Or Validation Displayed
 
 TC_USER_023 Submit Without Confirm Email Address
@@ -347,7 +347,7 @@ TC_USER_023 Submit Without Confirm Email Address
     Select Time Zone
     Select OTP SMS Checkbox
     Click Submit Button
-    Verify On Create User Page
+    Verify On Create User Page After Invalid Submit
     Verify Error Toast Or Validation Displayed
 
 TC_USER_024 Submit Without Selecting Role
@@ -367,7 +367,7 @@ TC_USER_024 Submit Without Selecting Role
     Select Time Zone
     Select OTP SMS Checkbox
     Click Submit Button
-    Verify On Create User Page
+    Verify On Create User Page After Invalid Submit
     Verify Error Toast Or Validation Displayed
 
 TC_USER_025 Submit Without Selecting Country
@@ -387,7 +387,7 @@ TC_USER_025 Submit Without Selecting Country
     Select Time Zone
     Select OTP SMS Checkbox
     Click Submit Button
-    Verify On Create User Page
+    Verify On Create User Page After Invalid Submit
     Verify Error Toast Or Validation Displayed
 
 TC_USER_026 Submit Without Selecting Time Zone
@@ -407,7 +407,7 @@ TC_USER_026 Submit Without Selecting Time Zone
     Select Country
     Select OTP SMS Checkbox
     Click Submit Button
-    Verify On Create User Page
+    Verify On Create User Page After Invalid Submit
     Verify Error Toast Or Validation Displayed
 
 TC_USER_027 Submit Without Selecting Any OTP Channel
@@ -429,7 +429,7 @@ TC_USER_027 Submit Without Selecting Any OTP Channel
     Select Time Zone
     Uncheck All OTP Checkboxes
     Click Submit Button
-    Verify On Create User Page
+    Verify On Create User Page After Invalid Submit
     Verify Error Toast Or Validation Displayed
 
 # â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
@@ -454,7 +454,7 @@ TC_USER_028 Username Less Than 5 Characters
     Select Time Zone
     Select OTP SMS Checkbox
     Click Submit Button
-    Verify On Create User Page
+    Verify On Create User Page After Invalid Submit
     Verify Error Toast Or Validation Displayed
 
 TC_USER_029 Username More Than 50 Characters
@@ -475,7 +475,7 @@ TC_USER_029 Username More Than 50 Characters
     Select Time Zone
     Select OTP SMS Checkbox
     Click Submit Button
-    Verify On Create User Page
+    Verify On Create User Page After Invalid Submit
     Verify Error Toast Or Validation Displayed
 
 TC_USER_030 Phone Less Than 5 Digits
@@ -496,7 +496,7 @@ TC_USER_030 Phone Less Than 5 Digits
     Select Time Zone
     Select OTP SMS Checkbox
     Click Submit Button
-    Verify On Create User Page
+    Verify On Create User Page After Invalid Submit
     Verify Error Toast Or Validation Displayed
 
 TC_USER_031 Phone More Than 16 Digits
@@ -517,7 +517,7 @@ TC_USER_031 Phone More Than 16 Digits
     Select Time Zone
     Select OTP SMS Checkbox
     Click Submit Button
-    Verify On Create User Page
+    Verify On Create User Page After Invalid Submit
     Verify Error Toast Or Validation Displayed
 
 TC_USER_032 Phone With Non Numeric Characters
@@ -538,7 +538,7 @@ TC_USER_032 Phone With Non Numeric Characters
     Select Time Zone
     Select OTP SMS Checkbox
     Click Submit Button
-    Verify On Create User Page
+    Verify On Create User Page After Invalid Submit
     Verify Error Toast Or Validation Displayed
 
 TC_USER_033 Invalid Email Format
@@ -560,7 +560,7 @@ TC_USER_033 Invalid Email Format
     Select Time Zone
     Select OTP SMS Checkbox
     Click Submit Button
-    Verify On Create User Page
+    Verify On Create User Page After Invalid Submit
     Verify Error Toast Or Validation Displayed
 
 TC_USER_034 Mismatched Confirm Email
@@ -582,7 +582,7 @@ TC_USER_034 Mismatched Confirm Email
     Select Time Zone
     Select OTP SMS Checkbox
     Click Submit Button
-    Verify On Create User Page
+    Verify On Create User Page After Invalid Submit
     Verify Error Toast Or Validation Displayed
 
 TC_USER_035 Duplicate Username Should Show Error
@@ -715,7 +715,7 @@ TC_USER_041 Whitespace Only Username
     Select Time Zone
     Select OTP SMS Checkbox
     Click Submit Button
-    Verify On Create User Page
+    Verify On Create User Page After Invalid Submit
     Verify Error Toast Or Validation Displayed
 
 TC_USER_042 Whitespace Only First Name
@@ -737,7 +737,7 @@ TC_USER_042 Whitespace Only First Name
     Select Time Zone
     Select OTP SMS Checkbox
     Click Submit Button
-    Verify On Create User Page
+    Verify On Create User Page After Invalid Submit
     Verify Error Toast Or Validation Displayed
 
 TC_USER_043 Whitespace Only Last Name
@@ -759,7 +759,7 @@ TC_USER_043 Whitespace Only Last Name
     Select Time Zone
     Select OTP SMS Checkbox
     Click Submit Button
-    Verify On Create User Page
+    Verify On Create User Page After Invalid Submit
     Verify Error Toast Or Validation Displayed
 
 TC_USER_044 Special Characters In Username

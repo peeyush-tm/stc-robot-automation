@@ -1,6 +1,7 @@
 *** Settings ***
 Library     SeleniumLibrary
 Library     ../libraries/ConfigLoader.py
+Variables   ../variables/login_variables.py
 Variables   ../variables/cost_center_variables.py
 Resource    ../resources/keywords/browser_keywords.resource
 Resource    ../resources/keywords/login_keywords.resource
@@ -8,7 +9,8 @@ Resource    ../resources/keywords/cost_center_keywords.resource
 Resource    ../resources/locators/cost_center_locators.resource
 Resource    ../resources/locators/login_locators.resource
 
-Suite Setup       Login And Navigate To Manage Account Suite
+Suite Setup       Run Keywords    Load Environment Config From Json    ${ENV}
+...               AND    Login And Navigate To Manage Account Suite
 Suite Teardown    Close All Browsers
 Test Setup        Refresh ManageAccount Page
 Test Teardown     Run Keyword If Test Failed    Capture Page Screenshot
