@@ -59,6 +59,11 @@ Open Test Browser
         ${chrome_options}=    Evaluate    sys.modules['selenium.webdriver'].ChromeOptions()    sys
         ${hlw}=    Evaluate    __import__('os').environ.get('STC_CHROME_HEADLESS_WINDOW_SIZE','1680,945')
         ${blk}=    Evaluate    __import__('os').environ.get('STC_CHROME_BLOCK_IMAGES','0')
+        # Use bundled Chrome binary when STC_CHROME_BINARY is set (server environments)
+        ${custom_binary}=    Evaluate    __import__('os').environ.get('STC_CHROME_BINARY','')
+        IF    '${custom_binary}' != ''
+            Evaluate    setattr($chrome_options, 'binary_location', '${custom_binary}')
+        END
         # SSL / certificate bypass
         Call Method    ${chrome_options}    add_argument    --ignore-certificate-errors
         Call Method    ${chrome_options}    add_argument    --allow-insecure-localhost
