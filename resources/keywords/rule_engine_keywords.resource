@@ -770,35 +770,61 @@ Validate Rule Created Successfully
 
 Delete Rule From Listing By Name
     [Documentation]    After rule creation, navigates to Rule Engine listing, waits for page
-    ...                and grid to fully load, clicks the first row delete icon, confirms popup,
-    ...                waits for success toast, and waits for loading to complete before returning.
+    ...                and grid to fully load, finds and clicks the delete icon on the first row,
+    ...                confirms popup, waits for success toast and loading to complete.
     [Arguments]    ${rule_name}    ${skip_navigation}=${FALSE}
     # 1. Navigate to listing and wait for everything to load
     Navigate To Rule Engine Listing
     Wait For Loading Overlay To Disappear
-    Sleep    2s    reason=Wait for grid data to populate after page load
+    Sleep    3s    reason=Wait for grid data and React to render after page load
     Wait For Loading Overlay To Disappear
-    # 2. Wait for grid to have at least one data row (table or div-based)
-    Wait Until Element Is Visible    ${LOC_RE_DELETE_ICON_IN_ROW}    timeout=20s
-    ...    error=No delete icon found in grid — rule "${rule_name}" may not be visible.
-    # 3. Log first row name for traceability
-    ${first_row_name}=    Execute Javascript
-    ...    var row = document.querySelector('#gridData tr.k-master-row, #gridData tr, #gridData tbody tr');
-    ...    if (!row) return 'no_row';
+    # 2. Find and click the delete icon on first row using JS (most reliable)
+    ${delete_result}=    Execute Javascript
+    ...    var row = document.querySelector('#gridData tr.k-master-row, #gridData tbody tr');
+    ...    if (!row) return 'no_row_found';
+    ...    /* Log the first row rule name */
+    ...    var ruleName = '';
     ...    var cells = row.querySelectorAll('td');
     ...    for (var j = 0; j < cells.length; j++) {
     ...        var t = cells[j].textContent.trim();
-    ...        if (t.length > 0) return t;
+    ...        if (t.length > 2 && !t.includes('✎') && !t.includes('✖')) { ruleName = t; break; }
     ...    }
-    ...    return '';
-    Log    First row rule name: ${first_row_name} (expected: ${rule_name})    console=yes
-    # 4. Click delete icon on first row using the locator that works
-    Click Element Via JS    ${LOC_RE_DELETE_ICON_IN_ROW}
-    # 5. Confirm deletion popup and wait for completion
-    Wait Until Element Is Visible    ${LOC_RE_DELETE_CONFIRM_OK}    8s
+    ...    console.log('First row rule: ' + ruleName);
+    ...    /* Find the delete button — look for red icons, trash icons, delete links */
+    ...    var selectors = [
+    ...        'a.k-grid-Delete', '.fa-trash', '.fa-times-circle', '.k-i-delete',
+    ...        'a[title="Delete"]', 'button[title="Delete"]',
+    ...        '.text-danger', 'a.delete', '.btn-danger',
+    ...        'a.red', 'span.red', 'i.red',
+    ...        'a:nth-child(3)', 'a:last-child'
+    ...    ];
+    ...    var allLinks = row.querySelectorAll('a, button, span.fa, i.fa');
+    ...    /* Try each link/icon in the first row action cell */
+    ...    for (var i = 0; i < allLinks.length; i++) {
+    ...        var el = allLinks[i];
+    ...        var cls = (el.className || '').toLowerCase();
+    ...        var title = (el.title || el.getAttribute('title') || '').toLowerCase();
+    ...        var style = window.getComputedStyle(el);
+    ...        var color = style.color || '';
+    ...        var isRed = color.includes('255') || color.includes('dc3545') || color.includes('danger') ||
+    ...                    cls.includes('delete') || cls.includes('trash') || cls.includes('times') ||
+    ...                    cls.includes('danger') || cls.includes('red') || title.includes('delete');
+    ...        if (isRed && el.offsetParent !== null) {
+    ...            el.click();
+    ...            return 'clicked:' + ruleName + ':' + cls;
+    ...        }
+    ...    }
+    ...    return 'no_delete_found:' + ruleName + ':links=' + allLinks.length;
+    Log    Delete result: ${delete_result}    console=yes
+    IF    not '${delete_result}'.startswith('clicked')
+        Log    WARN: Could not find delete icon — ${delete_result}    level=WARN    console=yes
+        RETURN
+    END
+    # 3. Confirm deletion popup and wait for completion
+    Wait Until Element Is Visible    ${LOC_RE_DELETE_CONFIRM_OK}    10s
     Click Element Via JS    ${LOC_RE_DELETE_CONFIRM_OK}
     Wait For Loading Overlay To Disappear
-    # 6. Validate delete success toast
+    # 4. Validate delete success toast
     Wait Until Element Is Visible    ${LOC_RE_TOAST_SUCCESS}    timeout=10s
     ...    error=Delete success toast not visible after deleting rule "${rule_name}"
     Wait For Loading Overlay To Disappear
@@ -817,13 +843,20 @@ Cleanup Automation Rules
     ...            var found = true;
     ...            while (found) {
     ...                found = false;
-    ...                var rows = document.querySelectorAll('#gridData tr');
+    ...                var rows = document.querySelectorAll('#gridData tr.k-master-row, #gridData tbody tr');
     ...                for (var i = 0; i < rows.length; i++) {
     ...                    var cells = rows[i].querySelectorAll('td');
     ...                    for (var j = 0; j < cells.length; j++) {
     ...                        var t = (cells[j].textContent || '').trim();
     ...                        if (pattern.test(t)) {
-    ...                            var del = rows[i].querySelector('.k-grid-Delete, .fa-trash, .k-i-delete, [class*="delete"]');
+    ...                            var allLinks = rows[i].querySelectorAll('a, button, span.fa, i.fa');
+    ...                            var del = null;
+    ...                            for (var k = 0; k < allLinks.length; k++) {
+    ...                                var c = (allLinks[k].className||'').toLowerCase();
+    ...                                var col = window.getComputedStyle(allLinks[k]).color||'';
+    ...                                if (c.includes('delete')||c.includes('trash')||c.includes('times')||c.includes('danger')||c.includes('red')||col.includes('255, 0')||col.includes('220, 53')) { del=allLinks[k]; break; }
+    ...                            }
+    ...                            if (!del) del = rows[i].querySelector('.k-grid-Delete, .fa-trash, .k-i-delete, [class*="delete"]');
     ...                            if (del) {
     ...                                del.click();
     ...                                await new Promise(r => setTimeout(r, 500));

@@ -8,8 +8,10 @@ ${LOC_RE_CREATE_BTN}                  xpath=//a[@href='/CreateRuleEngine' or con
 ${LOC_RE_LISTING_GRID}                id=gridData
 # Search input on Rule Engine listing
 ${LOC_RE_SEARCH_INPUT}                xpath=//input[@placeholder='Enter Search Text']
-# Delete icon in a grid row (pencil-trash pattern common in Kendo grids)
-${LOC_RE_DELETE_ICON_IN_ROW}          xpath=//tr[contains(@class,'k-master-row')]//*[contains(@class,'k-grid-Delete') or contains(@class,'fa-trash') or contains(@class,'k-i-delete')]
+# Delete icon in first grid row — red circle icon in ACTION column
+${LOC_RE_DELETE_ICON_IN_ROW}          xpath=(//tr[contains(@class,'k-master-row')]//td[contains(@class,'action') or position()=1]//*[contains(@class,'delete') or contains(@class,'fa-times') or contains(@class,'fa-trash') or contains(@class,'k-grid-Delete') or contains(@class,'k-i-delete') or contains(@class,'text-danger') or contains(@class,'red') or @title='Delete'])[1]
+# Broader fallback — any clickable red/delete element in first row
+${LOC_RE_DELETE_ICON_FIRST_ROW}       xpath=(//tr[contains(@class,'k-master-row')][1]//a[contains(@class,'delete') or contains(@class,'danger') or contains(@class,'red') or contains(@class,'k-grid-Delete')])[1] | (//tr[contains(@class,'k-master-row')][1]//span[contains(@class,'fa-times') or contains(@class,'fa-trash') or contains(@class,'k-i-delete')])[1]
 # Delete confirmation modal (Bootstrap modal-dialog, Kendo k-window/k-dialog, or role=dialog)
 ${LOC_RE_DELETE_CONFIRM_OK}           xpath=//div[contains(@class,'modal-dialog') or contains(@class,'k-window') or contains(@class,'k-dialog') or @role='dialog']//button[normalize-space(.)='OK' or normalize-space(.)='Yes' or normalize-space(.)='Confirm' or normalize-space(.)='Delete' or contains(@class,'k-primary')]
 ${LOC_RE_DELETE_CONFIRM_CANCEL}       xpath=//div[contains(@class,'modal-dialog') or contains(@class,'k-window') or contains(@class,'k-dialog') or @role='dialog']//button[normalize-space(.)='Cancel' or normalize-space(.)='No']
