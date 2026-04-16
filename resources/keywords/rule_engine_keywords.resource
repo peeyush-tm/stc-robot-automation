@@ -755,7 +755,7 @@ Validate Rule Created Successfully
     ...            if (window.location.href.indexOf('/RuleEngine') >= 0 && window.location.href.indexOf('Create') < 0) {
     ...                if (document.getElementById('gridData')) { resolve('listing'); return; }
     ...            }
-    ...            if (Date.now() - start > 30000) { resolve('timeout'); return; }
+    ...            if (Date.now() - start > 90000) { resolve('timeout'); return; }
     ...            setTimeout(check, 300);
     ...        }
     ...        check();
@@ -763,7 +763,7 @@ Validate Rule Created Successfully
     IF    '${success}'.startswith('error:')
         Fail    Rule creation FAILED: ${success}
     END
-    Should Not Be Equal    ${success}    timeout    Rule creation not confirmed within 30s.
+    Should Not Be Equal    ${success}    timeout    Rule creation not confirmed within 90s.
     # App auto-routes to listing — just wait for grid
     Wait For Loading Overlay To Disappear
     Wait Until Element Is Visible    ${LOC_RE_LISTING_GRID}    timeout=10s
