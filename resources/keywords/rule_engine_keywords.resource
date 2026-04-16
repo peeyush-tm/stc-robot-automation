@@ -804,10 +804,10 @@ Delete Rule From Listing By Name
     Wait Until Element Is Visible    ${LOC_RE_DELETE_CONFIRM_OK}    8s
     Click Element Via JS    ${LOC_RE_DELETE_CONFIRM_OK}
     Wait For Loading Overlay To Disappear
-    # Quick toast check
-    ${toast_ok}=    Run Keyword And Return Status
-    ...    Wait Until Element Is Visible    ${LOC_RE_TOAST_SUCCESS}    timeout=5s
-    Log    Rule "${rule_name}" deleted from first row.    console=yes
+    # Validate delete success toast
+    Wait Until Element Is Visible    ${LOC_RE_TOAST_SUCCESS}    timeout=8s
+    ...    error=Delete success toast not visible after deleting rule "${rule_name}"
+    Log    Rule "${rule_name}" deleted successfully — success toast verified.    console=yes
 
 Cleanup Automation Rules
     [Documentation]    Deletes all rules created by automation (names starting with Auto/All/SL_/FP_/CC_/OT_)
