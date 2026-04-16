@@ -806,84 +806,56 @@ Delete Rule From Listing By Name
 
 Cleanup Automation Rules
     [Documentation]    Deletes all rules created by automation (names starting with Auto/All/SL_/FP_/CC_/OT_)
-    ...                from the listing. First tries UI grid cleanup, then falls back to direct DB delete
-    ...                to handle rules on pages beyond the first grid page.
+    ...                from the listing grid. Handles pagination by navigating through all grid pages.
     ...                Call at suite start to avoid "Max Rule Creation Limit" errors.
     Navigate To Rule Engine Listing
     ${deleted_count}=    Execute Javascript
     ...    return new Promise(async function(resolve) {
     ...        var count = 0;
-    ...        async function deleteOne() {
-    ...            var rows = document.querySelectorAll('#gridData tr');
-    ...            for (var i = 0; i < rows.length; i++) {
-    ...                var cells = rows[i].querySelectorAll('td');
-    ...                for (var j = 0; j < cells.length; j++) {
-    ...                    var t = (cells[j].textContent || '').trim();
-    ...                    if (/^(Auto|All|AllSL|AllFP|AllCC|AllOT|SL_Trg|FP_Trg|CC_Trg|OT_Trg)/i.test(t)) {
-    ...                        var del = rows[i].querySelector('.k-grid-Delete, .fa-trash, .k-i-delete, [class*="delete"]');
-    ...                        if (del) { del.click(); return t; }
+    ...        var pattern = /^(Auto|All|AllSL|AllFP|AllCC|AllOT|SL_Trg|FP_Trg|CC_Trg|OT_Trg)/i;
+    ...        async function deleteFromCurrentPage() {
+    ...            var found = true;
+    ...            while (found) {
+    ...                found = false;
+    ...                var rows = document.querySelectorAll('#gridData tr');
+    ...                for (var i = 0; i < rows.length; i++) {
+    ...                    var cells = rows[i].querySelectorAll('td');
+    ...                    for (var j = 0; j < cells.length; j++) {
+    ...                        var t = (cells[j].textContent || '').trim();
+    ...                        if (pattern.test(t)) {
+    ...                            var del = rows[i].querySelector('.k-grid-Delete, .fa-trash, .k-i-delete, [class*="delete"]');
+    ...                            if (del) {
+    ...                                del.click();
+    ...                                await new Promise(r => setTimeout(r, 500));
+    ...                                var ok = document.querySelector('.modal .btn-primary, .k-dialog .k-button-solid-primary, [class*="confirm"] .btn-primary, .modal-footer .btn-danger');
+    ...                                if (ok) { ok.click(); count++; }
+    ...                                await new Promise(r => setTimeout(r, 2000));
+    ...                                found = true;
+    ...                                break;
+    ...                            }
+    ...                        }
     ...                    }
+    ...                    if (found) break;
     ...                }
     ...            }
-    ...            return null;
     ...        }
-    ...        for (var attempt = 0; attempt < 50; attempt++) {
-    ...            var name = await deleteOne();
-    ...            if (!name) break;
-    ...            await new Promise(r => setTimeout(r, 500));
-    ...            var ok = document.querySelector('.modal .btn-primary, .k-dialog .k-button-solid-primary, [class*="confirm"] .btn-primary, .modal-footer .btn-danger');
-    ...            if (ok) { ok.click(); count++; }
-    ...            await new Promise(r => setTimeout(r, 2000));
+    ...        /* Delete from current page, then navigate to next page and repeat */
+    ...        for (var pageAttempt = 0; pageAttempt < 10; pageAttempt++) {
+    ...            await deleteFromCurrentPage();
+    ...            var nextBtn = document.querySelector('.k-pager-nav .k-i-arrow-60-right, .k-pager-nav .k-i-caret-alt-right, a[title="Go to the next page"]:not(.k-state-disabled)');
+    ...            if (nextBtn && !nextBtn.closest('.k-state-disabled')) {
+    ...                nextBtn.click();
+    ...                await new Promise(r => setTimeout(r, 2000));
+    ...            } else {
+    ...                break;
+    ...            }
     ...        }
     ...        resolve(count);
     ...    });
-    Log    UI Cleanup: deleted ${deleted_count} leftover automation rule(s).    console=yes
+    Log    Cleanup: deleted ${deleted_count} leftover automation rule(s) from grid.    console=yes
     IF    ${deleted_count} > 0
         Wait For Loading Overlay To Disappear
     END
-    # Fallback: DB-level cleanup for rules the UI grid didn't reach (pagination)
-    ${db_deleted}=    Cleanup Automation Rules Via DB
-    IF    ${db_deleted} > 0
-        Log    DB Cleanup: deleted ${db_deleted} additional rule(s) missed by UI.    console=yes    level=WARN
-    END
-
-Cleanup Automation Rules Via DB
-    [Documentation]    Direct DB delete of automation rules that the UI cleanup may have missed.
-    ...                Deletes rules matching automation naming patterns for the configured account.
-    ...                Returns the number of rules deleted.
-    ${db_deleted}=    Evaluate    0
-    ${status}    ${result}=    Run Keyword And Ignore Error    Cleanup Rules In Database
-    IF    '${status}' == 'PASS'
-        ${db_deleted}=    Set Variable    ${result}
-    ELSE
-        Log    DB cleanup skipped or failed: ${result}    level=WARN
-    END
-    RETURN    ${db_deleted}
-
-Cleanup Rules In Database
-    [Documentation]    Connects to DB and deletes automation rules. Returns count deleted.
-    Connect To Database    pymysql
-    ...    dbHost=${DB_HOST}
-    ...    dbPort=${DB_PORT}
-    ...    dbName=${DB_NAME}
-    ...    dbUsername=${DB_USER}
-    ...    dbPassword=${DB_PASS}
-    ${result}=    Query    SELECT id, rule_name FROM rule_engine_rule WHERE rule_name REGEXP '^(Auto|All|AllSL|AllFP|AllCC|AllOT|SL_Trg|FP_Trg|CC_Trg|OT_Trg)'
-    ${count}=    Get Length    ${result}
-    IF    ${count} > 0
-        FOR    ${row}    IN    @{result}
-            ${rule_id}=    Set Variable    ${row[0]}
-            Execute Sql String    DELETE FROM rule_engine_rule_trigger WHERE rule_id = ${rule_id}
-            Execute Sql String    DELETE FROM rule_engine_rule_action WHERE rule_id = ${rule_id}
-            Execute Sql String    DELETE FROM rule_engine_imsi_rule WHERE rule_id = ${rule_id}
-            Execute Sql String    DELETE FROM rule_engine_tag_rule WHERE rule_id = ${rule_id}
-            Execute Sql String    DELETE FROM rule_to_device_plan_mapping WHERE rule_id = ${rule_id}
-            Execute Sql String    DELETE FROM rule_engine_rule WHERE id = ${rule_id}
-            Log    DB deleted rule: ${row[1]} (id=${rule_id})    console=yes
-        END
-    END
-    Disconnect From Database
-    RETURN    ${count}
 
 Validate Wizard Stays On Tab 1
     [Documentation]    Asserts the wizard did NOT advance past Tab 1.
