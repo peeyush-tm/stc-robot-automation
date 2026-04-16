@@ -791,30 +791,26 @@ Delete Rule From Listing By Name
     ...    }
     ...    console.log('First row rule: ' + ruleName);
     ...    /* Find the delete button — look for red icons, trash icons, delete links */
-    ...    var selectors = [
-    ...        'a.k-grid-Delete', '.fa-trash', '.fa-times-circle', '.k-i-delete',
-    ...        'a[title="Delete"]', 'button[title="Delete"]',
-    ...        '.text-danger', 'a.delete', '.btn-danger',
-    ...        'a.red', 'span.red', 'i.red',
-    ...        'a:nth-child(3)', 'a:last-child'
-    ...    ];
-    ...    var allLinks = row.querySelectorAll('a, button, span.fa, i.fa');
-    ...    /* Try each link/icon in the first row action cell */
+    ...    /* Dump all clickable elements info for debugging */
+    ...    var allLinks = row.querySelectorAll('a, button, span[class*="k-i-"], i[class*="fa"]');
+    ...    var info = [];
     ...    for (var i = 0; i < allLinks.length; i++) {
     ...        var el = allLinks[i];
-    ...        var cls = (el.className || '').toLowerCase();
-    ...        var title = (el.title || el.getAttribute('title') || '').toLowerCase();
-    ...        var style = window.getComputedStyle(el);
-    ...        var color = style.color || '';
-    ...        var isRed = color.includes('255') || color.includes('dc3545') || color.includes('danger') ||
-    ...                    cls.includes('delete') || cls.includes('trash') || cls.includes('times') ||
-    ...                    cls.includes('danger') || cls.includes('red') || title.includes('delete');
-    ...        if (isRed && el.offsetParent !== null) {
-    ...            el.click();
-    ...            return 'clicked:' + ruleName + ':' + cls;
-    ...        }
+    ...        info.push(i + ':' + (el.tagName||'') + '.' + (el.className||'').replace(/\s+/g,'.'));
     ...    }
-    ...    return 'no_delete_found:' + ruleName + ':links=' + allLinks.length;
+    ...    /* The delete icon is typically the 3rd action icon (view/edit/delete pattern) */
+    ...    /* From screenshot: green=edit, red=delete. Find by position — delete is usually last action link */
+    ...    var actionCell = cells[0]; /* ACTION column is first */
+    ...    var actionLinks = actionCell ? actionCell.querySelectorAll('a') : [];
+    ...    if (actionLinks.length >= 3) {
+    ...        /* 3rd link is typically delete (1=view, 2=edit, 3=delete) */
+    ...        actionLinks[2].click();
+    ...        return 'clicked:' + ruleName + ':3rd_action_link:' + info.join('|');
+    ...    } else if (actionLinks.length >= 2) {
+    ...        actionLinks[actionLinks.length - 1].click();
+    ...        return 'clicked:' + ruleName + ':last_action_link:' + info.join('|');
+    ...    }
+    ...    return 'no_delete_found:' + ruleName + ':links=' + info.join('|');
     Log    Delete result: ${delete_result}    console=yes
     IF    not '${delete_result}'.startswith('clicked')
         Log    WARN: Could not find delete icon — ${delete_result}    level=WARN    console=yes
