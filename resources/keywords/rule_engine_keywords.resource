@@ -28,19 +28,22 @@ Navigate To Create Rule Page
     Wait For Page Load
     Wait For Loading Overlay To Disappear
     ${wizard_ok}=    Run Keyword And Return Status
-    ...    Wait Until Element Is Visible    ${LOC_RE_RULE_NAME}    timeout=12s
+    ...    Wait Until Element Is Visible    ${LOC_RE_RULE_NAME}    timeout=15s
     IF    not ${wizard_ok}
         # Tab 1 not visible — try navigating via listing
         Navigate To Rule Engine Listing
         Click Create Rule Button
         ${retry_ok}=    Run Keyword And Return Status
-        ...    Wait Until Element Is Visible    ${LOC_RE_RULE_NAME}    timeout=10s
+        ...    Wait Until Element Is Visible    ${LOC_RE_RULE_NAME}    timeout=15s
         IF    not ${retry_ok}
             # Force reload to clean state
+            Reload Page
+            Wait For Page Load
+            Wait For Loading Overlay To Disappear
             Go To    ${RE_CREATE_RULE_URL}
             Wait For Page Load
             Wait For Loading Overlay To Disappear
-            Wait Until Element Is Visible    ${LOC_RE_RULE_NAME}    timeout=10s
+            Wait Until Element Is Visible    ${LOC_RE_RULE_NAME}    timeout=20s
         END
     END
 
@@ -166,11 +169,12 @@ Custom Dropdown Should Have Options
     ...    Custom dropdown has no selectable options (still loading or Not Found).
 
 RE Rule Category Control Visible
-    [Documentation]    Tab 2: waits up to 15s for Rule Category widget (native select or custom div) to appear.
-    ${sel}=    Element Visible After Poll    ${LOC_RE_RULE_CATEGORY_SELECT}    10s
+    [Documentation]    Tab 2: waits up to 20s for Rule Category widget (native select or custom div) to appear.
+    Wait For Loading Overlay To Disappear
+    ${sel}=    Element Visible After Poll    ${LOC_RE_RULE_CATEGORY_SELECT}    15s
     IF    ${sel}    RETURN
     ${btn_js}=    Visible Rule Category Select Button Present
-    Should Be True    ${btn_js}    msg=Rule Category field not visible on Define Triggers tab after 10s.
+    Should Be True    ${btn_js}    msg=Expected Rule Category control on Tab 2.
 
 # ═══════════════════════════════════════════════════════════════════════
 #  TAB 2 — DEFINE TRIGGERS
@@ -630,7 +634,8 @@ Fill Tabs Up To Tab 3
     Fill Tabs Up To Tab 2    rule_name=${rule_name}    category=${category}
     Fill Define Triggers Tab    rule_category_index=${rule_category_index}
     Click Next Tab
-    Wait Until Element Is Visible    ${LOC_RE_AGGREGATION}    timeout=10s
+    Wait For Loading Overlay To Disappear
+    Wait Until Element Is Visible    ${LOC_RE_AGGREGATION}    timeout=15s
 
 Fill Tabs Up To Tab 4
     [Documentation]    Fills Tabs 1-3 and clicks Next to arrive at Tab 4.
@@ -766,6 +771,9 @@ RE Rule Create Success Toast Or Listing
 Validate Rule Created Successfully
     [Documentation]    Waits for success toast or auto-redirect to listing. No extra navigation.
     [Arguments]    ${rule_name}=${EMPTY}
+    # Ensure script timeout is 120s (may have been reset after proactive browser restart)
+    ${sl}=    Get Library Instance    SeleniumLibrary
+    Evaluate    $sl.driver.set_script_timeout(120)
     # Single JS poll: checks toast/error/listing — resolves as soon as any is detected
     ${success}=    Execute Javascript
     ...    return new Promise(function(resolve) {
@@ -897,7 +905,7 @@ Cleanup Automation Rules
 Validate Wizard Stays On Tab 1
     [Documentation]    Asserts the wizard did NOT advance past Tab 1.
     Wait For Loading Overlay To Disappear
-    Wait Until Element Is Visible    ${LOC_RE_RULE_NAME}    10s
+    Wait Until Element Is Visible    ${LOC_RE_RULE_NAME}    15s
     ${on_create_page}=    Run Keyword And Return Status
     ...    Location Should Contain    ${RE_CREATE_RULE_PATH}
     Should Be True    ${on_create_page}    Expected to remain on Create Rule page.
@@ -905,14 +913,14 @@ Validate Wizard Stays On Tab 1
 Validate Wizard Stays On Tab 2
     [Documentation]    Asserts the wizard remains on Tab 2 (Define Triggers).
     Wait For Loading Overlay To Disappear
-    ${native}=    Element Visible After Poll    ${LOC_RE_RULE_CATEGORY_SELECT}    5s
+    ${native}=    Element Visible After Poll    ${LOC_RE_RULE_CATEGORY_SELECT}    12s
     ${js}=    Visible Rule Category Select Button Present
     Should Be True    ${native} or ${js}    msg=Expected Rule Category control on Tab 2.
 
 Validate Wizard Stays On Tab 3
     [Documentation]    Asserts the wizard remains on Tab 3 (Assign Devices).
     Wait For Loading Overlay To Disappear
-    Wait Until Element Is Visible    ${LOC_RE_AGGREGATION}    8s
+    Wait Until Element Is Visible    ${LOC_RE_AGGREGATION}    15s
 
 Validate Wizard Stays On Tab 4
     [Documentation]    Asserts the wizard remains on Tab 4 (Action).

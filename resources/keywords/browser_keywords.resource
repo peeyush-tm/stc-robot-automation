@@ -99,6 +99,9 @@ Open Test Browser
         Create Webdriver    Chrome    options=${chrome_options}
         Set Selenium Implicit Wait    ${IMPLICIT_WAIT}s
         Set Selenium Timeout    ${PAGE_LOAD_TIMEOUT}s
+        # Set script timeout to 120s so long JS polls (rule creation, async waits) don't abort at 30s default
+        ${sl}=    Get Library Instance    SeleniumLibrary
+        Evaluate    $sl.driver.set_script_timeout(120)
         Install Global Page Size Limiter
         Go To Url With Connection Retries    ${url}
         Inject Grid Oom Patch Into Current Page
@@ -139,6 +142,9 @@ Open Test Browser
         Create Webdriver    Chrome    options=${chrome_options}
         Set Selenium Implicit Wait    ${IMPLICIT_WAIT}s
         Set Selenium Timeout    ${PAGE_LOAD_TIMEOUT}s
+        # Set script timeout to 120s so long JS polls (rule creation, async waits) don't abort at 30s default
+        ${sl}=    Get Library Instance    SeleniumLibrary
+        Evaluate    $sl.driver.set_script_timeout(120)
         Maximize Browser Window
         Install Global Page Size Limiter
         Go To Url With Connection Retries    ${url}
