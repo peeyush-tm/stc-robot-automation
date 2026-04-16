@@ -769,58 +769,39 @@ Validate Rule Created Successfully
     Wait Until Element Is Visible    ${LOC_RE_LISTING_GRID}    timeout=10s
 
 Delete Rule From Listing By Name
-    [Documentation]    After rule creation, navigates to the Rule Engine listing, waits for
-    ...                the grid to load, validates the first row contains the expected rule name,
-    ...                clicks the first row delete icon, and confirms deletion.
+    [Documentation]    After rule creation, navigates to Rule Engine listing, waits for page
+    ...                and grid to fully load, clicks the first row delete icon, confirms popup,
+    ...                waits for success toast, and waits for loading to complete before returning.
     [Arguments]    ${rule_name}    ${skip_navigation}=${FALSE}
-    # Always navigate to listing to ensure grid is loaded properly
+    # 1. Navigate to listing and wait for everything to load
     Navigate To Rule Engine Listing
     Wait For Loading Overlay To Disappear
-    # Wait for grid to have at least one row
-    ${grid_ready}=    Execute Javascript
-    ...    return new Promise(function(resolve) {
-    ...        var start = Date.now();
-    ...        function check() {
-    ...            var row = document.querySelector('#gridData tr');
-    ...            if (row && row.querySelectorAll('td').length > 0) { resolve('ready'); return; }
-    ...            if (Date.now() - start > 15000) { resolve('timeout'); return; }
-    ...            setTimeout(check, 500);
-    ...        }
-    ...        check();
-    ...    });
-    IF    '${grid_ready}' != 'ready'
-        Log    Grid not ready after 15s — cannot delete rule "${rule_name}".    level=WARN    console=yes
-        RETURN
-    END
-    # Validate first row contains the rule name
+    Sleep    2s    reason=Wait for grid data to populate after page load
+    Wait For Loading Overlay To Disappear
+    # 2. Wait for grid to have at least one data row (table or div-based)
+    Wait Until Element Is Visible    ${LOC_RE_DELETE_ICON_IN_ROW}    timeout=20s
+    ...    error=No delete icon found in grid — rule "${rule_name}" may not be visible.
+    # 3. Log first row name for traceability
     ${first_row_name}=    Execute Javascript
-    ...    var row = document.querySelector('#gridData tr');
-    ...    if (!row) return '';
+    ...    var row = document.querySelector('#gridData tr.k-master-row, #gridData tr, #gridData tbody tr');
+    ...    if (!row) return 'no_row';
     ...    var cells = row.querySelectorAll('td');
     ...    for (var j = 0; j < cells.length; j++) {
     ...        var t = cells[j].textContent.trim();
-    ...        if (t.length > 0 && t !== '') return t;
+    ...        if (t.length > 0) return t;
     ...    }
     ...    return '';
     Log    First row rule name: ${first_row_name} (expected: ${rule_name})    console=yes
-    # Click delete icon on first row
-    ${clicked}=    Execute Javascript
-    ...    var row = document.querySelector('#gridData tr');
-    ...    if (!row) return 'no_row';
-    ...    var del = row.querySelector('.k-grid-Delete, .fa-trash, .k-i-delete, [class*="delete"]');
-    ...    if (del) { del.click(); return 'clicked'; }
-    ...    return 'no_delete_icon';
-    IF    '${clicked}' != 'clicked'
-        Log    Could not click delete on first row (${clicked}) — skipping.    level=WARN    console=yes
-        RETURN
-    END
-    # Confirm deletion popup
+    # 4. Click delete icon on first row using the locator that works
+    Click Element Via JS    ${LOC_RE_DELETE_ICON_IN_ROW}
+    # 5. Confirm deletion popup and wait for completion
     Wait Until Element Is Visible    ${LOC_RE_DELETE_CONFIRM_OK}    8s
     Click Element Via JS    ${LOC_RE_DELETE_CONFIRM_OK}
     Wait For Loading Overlay To Disappear
-    # Validate delete success toast
-    Wait Until Element Is Visible    ${LOC_RE_TOAST_SUCCESS}    timeout=8s
+    # 6. Validate delete success toast
+    Wait Until Element Is Visible    ${LOC_RE_TOAST_SUCCESS}    timeout=10s
     ...    error=Delete success toast not visible after deleting rule "${rule_name}"
+    Wait For Loading Overlay To Disappear
     Log    Rule "${rule_name}" deleted successfully — success toast verified.    console=yes
 
 Cleanup Automation Rules
