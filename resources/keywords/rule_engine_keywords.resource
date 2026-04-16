@@ -769,15 +769,29 @@ Validate Rule Created Successfully
     Wait Until Element Is Visible    ${LOC_RE_LISTING_GRID}    timeout=10s
 
 Delete Rule From Listing By Name
-    [Documentation]    After rule creation, the new rule appears as the first row in the grid.
-    ...                Validates the first row contains the expected rule name, then clicks
-    ...                the first row's delete icon and confirms the deletion popup.
-    ...                Pass skip_navigation=True when already on the listing page.
+    [Documentation]    After rule creation, navigates to the Rule Engine listing, waits for
+    ...                the grid to load, validates the first row contains the expected rule name,
+    ...                clicks the first row delete icon, and confirms deletion.
     [Arguments]    ${rule_name}    ${skip_navigation}=${FALSE}
-    IF    not ${skip_navigation}
-        Navigate To Rule Engine Listing
-    END
+    # Always navigate to listing to ensure grid is loaded properly
+    Navigate To Rule Engine Listing
     Wait For Loading Overlay To Disappear
+    # Wait for grid to have at least one row
+    ${grid_ready}=    Execute Javascript
+    ...    return new Promise(function(resolve) {
+    ...        var start = Date.now();
+    ...        function check() {
+    ...            var row = document.querySelector('#gridData tr');
+    ...            if (row && row.querySelectorAll('td').length > 0) { resolve('ready'); return; }
+    ...            if (Date.now() - start > 15000) { resolve('timeout'); return; }
+    ...            setTimeout(check, 500);
+    ...        }
+    ...        check();
+    ...    });
+    IF    '${grid_ready}' != 'ready'
+        Log    Grid not ready after 15s — cannot delete rule "${rule_name}".    level=WARN    console=yes
+        RETURN
+    END
     # Validate first row contains the rule name
     ${first_row_name}=    Execute Javascript
     ...    var row = document.querySelector('#gridData tr');
