@@ -791,26 +791,10 @@ Delete Rule From Listing By Name
     ...    }
     ...    console.log('First row rule: ' + ruleName);
     ...    /* Find the delete button — look for red icons, trash icons, delete links */
-    ...    /* Dump all clickable elements info for debugging */
-    ...    var allLinks = row.querySelectorAll('a, button, span[class*="k-i-"], i[class*="fa"]');
-    ...    var info = [];
-    ...    for (var i = 0; i < allLinks.length; i++) {
-    ...        var el = allLinks[i];
-    ...        info.push(i + ':' + (el.tagName||'') + '.' + (el.className||'').replace(/\s+/g,'.'));
-    ...    }
-    ...    /* The delete icon is typically the 3rd action icon (view/edit/delete pattern) */
-    ...    /* From screenshot: green=edit, red=delete. Find by position — delete is usually last action link */
-    ...    var actionCell = cells[0]; /* ACTION column is first */
-    ...    var actionLinks = actionCell ? actionCell.querySelectorAll('a') : [];
-    ...    if (actionLinks.length >= 3) {
-    ...        /* 3rd link is typically delete (1=view, 2=edit, 3=delete) */
-    ...        actionLinks[2].click();
-    ...        return 'clicked:' + ruleName + ':3rd_action_link:' + info.join('|');
-    ...    } else if (actionLinks.length >= 2) {
-    ...        actionLinks[actionLinks.length - 1].click();
-    ...        return 'clicked:' + ruleName + ':last_action_link:' + info.join('|');
-    ...    }
-    ...    return 'no_delete_found:' + ruleName + ':links=' + info.join('|');
+    ...    /* Click the k-grid-Delete link directly */
+    ...    var del = row.querySelector('a.k-grid-Delete, .k-grid-Delete');
+    ...    if (del) { del.click(); return 'clicked:' + ruleName + ':k-grid-Delete'; }
+    ...    return 'no_delete_found:' + ruleName;
     Log    Delete result: ${delete_result}    console=yes
     IF    not '${delete_result}'.startswith('clicked')
         Log    WARN: Could not find delete icon — ${delete_result}    level=WARN    console=yes
