@@ -73,11 +73,13 @@ STC_REPORT_FOLDER_ENV = "STC_REPORT_FOLDER"
 LISTENER_PATH = os.path.join(ROOT_DIR, "libraries", "STCReportListener.py")
 
 
-def _child_env_with_debug_log(report_folder):
+def _child_env(report_folder, suite_path=""):
     env = os.environ.copy()
-    debug_dir = os.path.join(report_folder, "_debug")
-    os.makedirs(debug_dir, exist_ok=True)
-    env[DEBUG_SESSION_LOG_ENV] = os.path.join(debug_dir, DEBUG_SESSION_LOG_NAME)
+    # Only set debug log for Rule Engine suites — not needed for others
+    if "rule_engine" in os.path.basename(suite_path).lower():
+        debug_dir = os.path.join(report_folder, "Rule_Engine")
+        os.makedirs(debug_dir, exist_ok=True)
+        env[DEBUG_SESSION_LOG_ENV] = os.path.join(debug_dir, DEBUG_SESSION_LOG_NAME)
     # Expose report folder so STCReportListener can find it inside the subprocess.
     env[STC_REPORT_FOLDER_ENV] = report_folder
     return env
@@ -314,7 +316,7 @@ def run_suites(suites, report_folder, args):
         print(f"{'='*60}")
         print(f"  Command: {' '.join(cmd)}\n")
 
-        result = subprocess.run(cmd, cwd=ROOT_DIR, env=_child_env_with_debug_log(report_folder))
+        result = subprocess.run(cmd, cwd=ROOT_DIR, env=_child_env(report_folder, suite_path))
         output_name = f"output_{idx}_{os.path.splitext(os.path.basename(suite_path))[0]}.xml"
         output_path = os.path.join(report_folder, output_name)
         if os.path.exists(output_path):
@@ -341,7 +343,7 @@ def run_e2e(report_folder, args, suite_path=None):
     print(f"{'='*60}")
     print(f"  Command: {' '.join(cmd)}\n")
 
-    result = subprocess.run(cmd, cwd=ROOT_DIR, env=_child_env_with_debug_log(report_folder))
+    result = subprocess.run(cmd, cwd=ROOT_DIR, env=_child_env(report_folder))
     output_path = os.path.join(report_folder, "output.xml")
     outputs = [output_path] if os.path.exists(output_path) else []
 
@@ -417,19 +419,25 @@ def organize_report_folder(report_folder):
             except Exception:
                 pass
 
-    # ── Move debug/probe files ───────────────────────────────────────
+    # ── Move any stray debug/probe files still at root (backward compat) ──
     debug_files = glob.glob(os.path.join(report_folder, "debug-*.log"))
     probe_files = glob.glob(os.path.join(report_folder, "*_dom_probe_*.json"))
-    misc_files = debug_files + probe_files
-    if misc_files:
-        debug_dir = os.path.join(report_folder, "_debug")
-        os.makedirs(debug_dir, exist_ok=True)
-        for f in misc_files:
-            try:
-                shutil.move(f, os.path.join(debug_dir, os.path.basename(f)))
-                moved += 1
-            except Exception:
-                pass
+    for f in debug_files:
+        dest_dir = os.path.join(report_folder, "Rule_Engine")
+        os.makedirs(dest_dir, exist_ok=True)
+        try:
+            shutil.move(f, os.path.join(dest_dir, os.path.basename(f)))
+            moved += 1
+        except Exception:
+            pass
+    for f in probe_files:
+        dest_dir = os.path.join(report_folder, "Ip_Pool")
+        os.makedirs(dest_dir, exist_ok=True)
+        try:
+            shutil.move(f, os.path.join(dest_dir, os.path.basename(f)))
+            moved += 1
+        except Exception:
+            pass
 
     # ── Move sanity_report.csv into Sanity/ if at root ───────────────
     sanity_csv = os.path.join(report_folder, "sanity_report.csv")
@@ -549,10 +557,6 @@ def print_summary(report_folder):
         for f in other_files:
             print(f"    - {f}")
 
-    dbg_log = os.path.join(report_folder, DEBUG_SESSION_LOG_NAME)
-    if os.path.isfile(dbg_log):
-        print(f"\n  Debug NDJSON (agent session 7a554c): {dbg_log}")
-
     total = len(xml_files) + len(html_files) + len(png_files) + len(other_files)
     print(f"\n  Total: {total} file(s)")
     print(f"{'='*60}\n")
@@ -602,7 +606,7 @@ def run_sanity(report_folder, args):
             cmd += ["--rerunfailed", rf]
         cmd.append(SANITY_SUITE)
         print(f"  Command: {' '.join(cmd)}\n")
-        result = subprocess.run(cmd, cwd=ROOT_DIR, env=_child_env_with_debug_log(report_folder))
+        result = subprocess.run(cmd, cwd=ROOT_DIR, env=_child_env(report_folder))
     else:
         # ── Sequential run via robot ───────────────────────────────────
         cmd = [sys.executable, "-m", "robot"]
@@ -626,7 +630,7 @@ def run_sanity(report_folder, args):
             cmd += ["--rerunfailed", rf]
         cmd.append(SANITY_SUITE)
         print(f"  Command: {' '.join(cmd)}\n")
-        result = subprocess.run(cmd, cwd=ROOT_DIR, env=_child_env_with_debug_log(report_folder))
+        result = subprocess.run(cmd, cwd=ROOT_DIR, env=_child_env(report_folder))
 
     output_path = os.path.join(report_folder, "output_sanity.xml")
     outputs = [output_path] if os.path.exists(output_path) else []
@@ -746,7 +750,7 @@ def main():
             )
             print(f"  Command: {' '.join(crud_cmd)}\n")
             crud_result = subprocess.run(
-                crud_cmd, cwd=ROOT_DIR, env=_child_env_with_debug_log(report_folder)
+                crud_cmd, cwd=ROOT_DIR, env=_child_env(report_folder)
             )
             crud_output_name = f"output_{len(outputs)+1}_role_user_crud_tests.xml"
             crud_output_path = os.path.join(report_folder, crud_output_name)
