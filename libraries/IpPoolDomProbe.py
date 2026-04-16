@@ -76,7 +76,9 @@ class IpPoolDomProbe:
         text = json.dumps(data, indent=2, default=str)
         safe = "".join(c if c.isalnum() or c in "-_" else "_" for c in str(label))[:80]
         outdir = builtin.get_variable_value("${OUTPUTDIR}") or os.getcwd()
-        path = os.path.join(str(outdir), "ip_pool_dom_probe_%s.json" % safe)
+        ip_pool_dir = os.path.join(str(outdir), "Ip_Pool")
+        os.makedirs(ip_pool_dir, exist_ok=True)
+        path = os.path.join(ip_pool_dir, "ip_pool_dom_probe_%s.json" % safe)
         parent = os.path.dirname(path)
         if parent:
             os.makedirs(parent, exist_ok=True)

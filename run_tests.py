@@ -75,7 +75,9 @@ LISTENER_PATH = os.path.join(ROOT_DIR, "libraries", "STCReportListener.py")
 
 def _child_env_with_debug_log(report_folder):
     env = os.environ.copy()
-    env[DEBUG_SESSION_LOG_ENV] = os.path.join(report_folder, DEBUG_SESSION_LOG_NAME)
+    debug_dir = os.path.join(report_folder, "_debug")
+    os.makedirs(debug_dir, exist_ok=True)
+    env[DEBUG_SESSION_LOG_ENV] = os.path.join(debug_dir, DEBUG_SESSION_LOG_NAME)
     # Expose report folder so STCReportListener can find it inside the subprocess.
     env[STC_REPORT_FOLDER_ENV] = report_folder
     return env
@@ -389,19 +391,21 @@ def collect_stray_artifacts(report_folder):
 
 
 def organize_report_folder(report_folder):
-    """Move stray screenshots, debug logs, and probe files into their module subfolders.
+    """Move stray files at report root into proper subfolders.
 
-    - selenium-screenshot-*.png at root → _stray_screenshots/ subfolder
-    - debug-*.log → _debug/ subfolder
-    - *_dom_probe_*.json → matching module folder (e.g. Ip_Pool/) or _debug/
-    - billing/*.csv → kept as-is (E2E invoice artifacts)
+    - selenium-screenshot-*.png → _stray_screenshots/
+    - debug-*.log → _debug/
+    - *_dom_probe_*.json → _debug/
+    - sanity_report.csv → Sanity/
+    - stc_test_data.json → kept at root (used by PDF generator)
+    - billing/ → kept as-is (E2E invoice artifacts)
     """
     if not os.path.isdir(report_folder):
         return
 
     moved = 0
 
-    # ── Move stray screenshots into _stray_screenshots/ ──────────────
+    # ── Move stray screenshots ───────────────────────────────────────
     stray_pngs = glob.glob(os.path.join(report_folder, "selenium-screenshot-*.png"))
     if stray_pngs:
         stray_dir = os.path.join(report_folder, "_stray_screenshots")
@@ -413,7 +417,7 @@ def organize_report_folder(report_folder):
             except Exception:
                 pass
 
-    # ── Move debug logs into _debug/ ─────────────────────────────────
+    # ── Move debug/probe files ───────────────────────────────────────
     debug_files = glob.glob(os.path.join(report_folder, "debug-*.log"))
     probe_files = glob.glob(os.path.join(report_folder, "*_dom_probe_*.json"))
     misc_files = debug_files + probe_files
@@ -426,6 +430,17 @@ def organize_report_folder(report_folder):
                 moved += 1
             except Exception:
                 pass
+
+    # ── Move sanity_report.csv into Sanity/ if at root ───────────────
+    sanity_csv = os.path.join(report_folder, "sanity_report.csv")
+    if os.path.exists(sanity_csv):
+        sanity_dir = os.path.join(report_folder, "Sanity")
+        os.makedirs(sanity_dir, exist_ok=True)
+        try:
+            shutil.move(sanity_csv, os.path.join(sanity_dir, "sanity_report.csv"))
+            moved += 1
+        except Exception:
+            pass
 
     if moved:
         print(f"  Organized {moved} stray file(s) into subfolders.")

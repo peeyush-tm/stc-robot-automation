@@ -24,7 +24,9 @@ Login For Sanity Suite
         Create Directory    ${sanity_dir}
         Set Suite Variable    ${SANITY_REPORT_DIR}    ${sanity_dir}
     END
-    ${csv_path}=    Set Variable    ${SANITY_REPORT_DIR}${/}sanity_report.csv
+    ${sanity_subfolder}=    Set Variable    ${SANITY_REPORT_DIR}${/}Sanity
+    Create Directory    ${sanity_subfolder}
+    ${csv_path}=    Set Variable    ${sanity_subfolder}${/}sanity_report.csv
     Create File    ${csv_path}    TC ID,Page Name,Page URL,Page Title,Grid Columns,Row Count,Status,Screenshot\n
     Set Suite Variable    ${SANITY_CSV_PATH}    ${csv_path}
     Set Suite Variable    ${SANITY_TC_COUNTER}    ${0}
