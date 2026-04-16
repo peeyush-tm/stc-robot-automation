@@ -465,32 +465,43 @@ def send_email(summary):
 
     msg.attach(MIMEText(build_email_body(summary), "html"))
 
-    # Attach combined_report.html or report.html
+    # Attach combined_report.html or report.html (skip if > 20MB)
+    MAX_ATTACH_MB = 20
     for report_name in ("combined_report.html", "report.html"):
         report_html = os.path.join(summary["output_dir"], report_name)
         if os.path.exists(report_html):
-            with open(report_html, "rb") as fh:
-                part = MIMEBase("application", "octet-stream")
-                part.set_payload(fh.read())
-                encoders.encode_base64(part)
-                part.add_header(
-                    "Content-Disposition", "attachment", filename=report_name
-                )
-                msg.attach(part)
+            size_mb = os.path.getsize(report_html) / (1024 * 1024)
+            if size_mb <= MAX_ATTACH_MB:
+                with open(report_html, "rb") as fh:
+                    part = MIMEBase("application", "octet-stream")
+                    part.set_payload(fh.read())
+                    encoders.encode_base64(part)
+                    part.add_header(
+                        "Content-Disposition", "attachment", filename=report_name
+                    )
+                    msg.attach(part)
+                print(f"  Attached: {report_name} ({size_mb:.1f} MB)")
+            else:
+                print(f"  Skipped {report_name} ({size_mb:.1f} MB > {MAX_ATTACH_MB} MB limit)")
             break
 
-    # Attach PDF report if available
+    # Attach PDF report if available (skip if > 20MB)
     for pdf_name in os.listdir(summary["output_dir"]):
         if pdf_name.endswith(".pdf"):
             pdf_path = os.path.join(summary["output_dir"], pdf_name)
-            with open(pdf_path, "rb") as fh:
-                part = MIMEBase("application", "octet-stream")
-                part.set_payload(fh.read())
-                encoders.encode_base64(part)
-                part.add_header(
-                    "Content-Disposition", "attachment", filename=pdf_name
-                )
-                msg.attach(part)
+            size_mb = os.path.getsize(pdf_path) / (1024 * 1024)
+            if size_mb <= MAX_ATTACH_MB:
+                with open(pdf_path, "rb") as fh:
+                    part = MIMEBase("application", "octet-stream")
+                    part.set_payload(fh.read())
+                    encoders.encode_base64(part)
+                    part.add_header(
+                        "Content-Disposition", "attachment", filename=pdf_name
+                    )
+                    msg.attach(part)
+                print(f"  Attached: {pdf_name} ({size_mb:.1f} MB)")
+            else:
+                print(f"  Skipped {pdf_name} ({size_mb:.1f} MB > {MAX_ATTACH_MB} MB limit)")
             break
 
     # Try configured SMTP first
