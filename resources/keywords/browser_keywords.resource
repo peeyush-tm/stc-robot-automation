@@ -376,7 +376,7 @@ Proactive Browser Restart If Needed
     IF    ${needs_restart}
         Log    Proactive browser restart (test #${counter}, interval=${interval}) to prevent Chrome memory crash.    level=WARN
         Run Keyword And Ignore Error    Close All Browsers
-        Force Kill Chrome Processes
+        Sleep    2s    reason=Let Chrome processes clean up gracefully
         Open Test Browser    ${BASE_URL}    ${BROWSER}
         Login With Credentials    ${VALID_USERNAME}    ${VALID_PASSWORD}
         Verify Login Success
