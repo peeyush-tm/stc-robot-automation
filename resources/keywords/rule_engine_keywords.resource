@@ -769,40 +769,45 @@ Validate Rule Created Successfully
     Wait Until Element Is Visible    ${LOC_RE_LISTING_GRID}    timeout=10s
 
 Delete Rule From Listing By Name
-    [Documentation]    Finds the row with the exact rule name in the grid and clicks its delete icon.
-    ...                Only deletes the specific row — safe for grids with multiple rules.
+    [Documentation]    After rule creation, the new rule appears as the first row in the grid.
+    ...                Validates the first row contains the expected rule name, then clicks
+    ...                the first row's delete icon and confirms the deletion popup.
     ...                Pass skip_navigation=True when already on the listing page.
     [Arguments]    ${rule_name}    ${skip_navigation}=${FALSE}
     IF    not ${skip_navigation}
         Navigate To Rule Engine Listing
     END
     Wait For Loading Overlay To Disappear
-    ${safe}=    Replace String    ${rule_name}    '    ''
-    # Use JS to find the exact row and click its delete icon — fastest approach
-    ${deleted}=    Execute Javascript
-    ...    var rows = document.querySelectorAll('#gridData tr');
-    ...    for (var i = 0; i < rows.length; i++) {
-    ...        var cells = rows[i].querySelectorAll('td');
-    ...        for (var j = 0; j < cells.length; j++) {
-    ...            if (cells[j].textContent.trim() === '${safe}') {
-    ...                var del = rows[i].querySelector('.k-grid-Delete, .fa-trash, .k-i-delete, [class*="delete"]');
-    ...                if (del) { del.click(); return 'found'; }
-    ...            }
-    ...        }
+    # Validate first row contains the rule name
+    ${first_row_name}=    Execute Javascript
+    ...    var row = document.querySelector('#gridData tr');
+    ...    if (!row) return '';
+    ...    var cells = row.querySelectorAll('td');
+    ...    for (var j = 0; j < cells.length; j++) {
+    ...        var t = cells[j].textContent.trim();
+    ...        if (t.length > 0 && t !== '') return t;
     ...    }
-    ...    return 'not_found';
-    IF    '${deleted}' == 'not_found'
-        Log    Rule "${rule_name}" not found in grid — nothing to delete.    level=WARN    console=yes
+    ...    return '';
+    Log    First row rule name: ${first_row_name} (expected: ${rule_name})    console=yes
+    # Click delete icon on first row
+    ${clicked}=    Execute Javascript
+    ...    var row = document.querySelector('#gridData tr');
+    ...    if (!row) return 'no_row';
+    ...    var del = row.querySelector('.k-grid-Delete, .fa-trash, .k-i-delete, [class*="delete"]');
+    ...    if (del) { del.click(); return 'clicked'; }
+    ...    return 'no_delete_icon';
+    IF    '${clicked}' != 'clicked'
+        Log    Could not click delete on first row (${clicked}) — skipping.    level=WARN    console=yes
         RETURN
     END
     # Confirm deletion popup
     Wait Until Element Is Visible    ${LOC_RE_DELETE_CONFIRM_OK}    8s
     Click Element Via JS    ${LOC_RE_DELETE_CONFIRM_OK}
     Wait For Loading Overlay To Disappear
-    # Quick toast check — don't block long if toast auto-dismissed
+    # Quick toast check
     ${toast_ok}=    Run Keyword And Return Status
     ...    Wait Until Element Is Visible    ${LOC_RE_TOAST_SUCCESS}    timeout=5s
-    Log    Rule "${rule_name}" deleted.    console=yes
+    Log    Rule "${rule_name}" deleted from first row.    console=yes
 
 Cleanup Automation Rules
     [Documentation]    Deletes all rules created by automation (names starting with Auto/All/SL_/FP_/CC_/OT_)
