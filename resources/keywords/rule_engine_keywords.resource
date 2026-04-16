@@ -23,14 +23,25 @@ Navigate To Rule Engine Listing
 
 Navigate To Create Rule Page
     [Documentation]    Navigates directly to /CreateRuleEngine. Falls back to listing if direct URL fails.
+    ...                Always ensures Tab 1 (Application Level) is active with Rule Name input visible.
     Go To    ${RE_CREATE_RULE_URL}
     Wait For Page Load
     Wait For Loading Overlay To Disappear
     ${wizard_ok}=    Run Keyword And Return Status
     ...    Wait Until Element Is Visible    ${LOC_RE_RULE_NAME}    timeout=12s
     IF    not ${wizard_ok}
+        # Tab 1 not visible — try navigating via listing
         Navigate To Rule Engine Listing
         Click Create Rule Button
+        ${retry_ok}=    Run Keyword And Return Status
+        ...    Wait Until Element Is Visible    ${LOC_RE_RULE_NAME}    timeout=10s
+        IF    not ${retry_ok}
+            # Force reload to clean state
+            Go To    ${RE_CREATE_RULE_URL}
+            Wait For Page Load
+            Wait For Loading Overlay To Disappear
+            Wait Until Element Is Visible    ${LOC_RE_RULE_NAME}    timeout=10s
+        END
     END
 
 Navigate To Rule Engine Via Sidebar
@@ -365,8 +376,21 @@ Fill All Trigger Fields Via JS
     ...        var val = (inp.value || '').trim();
     ...        var ph = (inp.placeholder || '').toLowerCase();
     ...        var nearby = nearbyText(inp).toLowerCase();
-    ...        var isDatePicker = inp.type === 'date' || (inp.closest && inp.closest('.k-datepicker, .react-datepicker-wrapper')) || /^\d{4}-\d{2}|^\w{3}-\d{4}/i.test(val);
-    ...        if (isDatePicker) continue;
+    ...        var isDatePicker = inp.type === 'date' || (inp.closest && inp.closest('.k-datepicker, .react-datepicker-wrapper')) || /^\d{1,2}\s\w{3}\s\d{4}|^\d{4}-\d{2}/i.test(val);
+    ...        if (isDatePicker) {
+    ...            /* Set date picker to 1 hour in the future to avoid "earlier than current time" error */
+    ...            var fut = new Date(Date.now() + 3600000);
+    ...            var dd = String(fut.getDate()).padStart(2,'0');
+    ...            var mmm = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][fut.getMonth()];
+    ...            var yyyy = fut.getFullYear();
+    ...            var hh = String(fut.getHours()).padStart(2,'0');
+    ...            var mi = String(fut.getMinutes()).padStart(2,'0');
+    ...            var futStr = dd + ' ' + mmm + ' ' + yyyy + ' ' + hh + ':' + mi + ':00';
+    ...            nativeSet(inp, futStr);
+    ...            actions.push({type:'datepicker', idx:k, set:futStr});
+    ...            filledInputs++;
+    ...            continue;
+    ...        }
     ...        /* Detect nearby select values (HOURS/DAYS) and validation messages */
     ...        var hasHours = false, hasDays = false;
     ...        var nearDiv = inp.closest && inp.closest('.row, .form-group') || inp.parentElement;
@@ -776,7 +800,7 @@ Delete Rule From Listing By Name
     # 1. Navigate to listing and wait for everything to load
     Navigate To Rule Engine Listing
     Wait For Loading Overlay To Disappear
-    Sleep    3s    reason=Wait for grid data and React to render after page load
+    Sleep    1s    reason=Wait for grid data to render after page load
     Wait For Loading Overlay To Disappear
     # 2. Find and click the delete icon on first row using JS (most reliable)
     ${delete_result}=    Execute Javascript
