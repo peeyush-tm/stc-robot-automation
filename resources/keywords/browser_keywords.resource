@@ -108,7 +108,9 @@ Open Test Browser
         ${win_w}=    Evaluate    int("${hlw}".split(",")[0])
         ${win_h}=    Evaluate    int("${hlw}".split(",")[1])
         Evaluate    $sl.driver.set_window_size(${win_w}, ${win_h})
-        Log    Headless viewport forced to ${win_w}x${win_h} via set_window_size().    console=yes
+        # Verify viewport — critical to know if the fix actually worked
+        ${actual_size}=    Execute Javascript    return JSON.stringify({w: window.innerWidth, h: window.innerHeight, outerW: window.outerWidth, outerH: window.outerHeight});
+        Log    HEADLESS VIEWPORT: target=${win_w}x${win_h}, actual=${actual_size}    console=yes
         Install Global Page Size Limiter
         Go To Url With Connection Retries    ${url}
         Inject Grid Oom Patch Into Current Page

@@ -77,12 +77,13 @@ Navigate To CSR Journey Module
 
 Wait For CSR Journey Page Loaded
     [Documentation]    Waits until the CSR Journey URL has loaded and the page is ready (loading complete,
-    ...                Customer dropdown visible). Use after visiting/navigating to CSR Journey page.
+    ...                Customer dropdown present in DOM). Use after visiting/navigating to CSR Journey page.
+    ...                DOM-presence check — element may be below the fold on new QE build.
     Wait Until Keyword Succeeds    ${CSRJ_RETRY_COUNT}    ${CSRJ_RETRY_INTERVAL}
     ...    Location Should Contain    CSRJourney
     Wait For App Loading To Complete    timeout=60s
     Wait For Loading Overlay To Disappear
-    Wait Until Element Is Visible    ${LOC_CSRJ_CUSTOMER_DD_BTN}    ${CSRJ_TIMEOUT}
+    Wait Until Page Contains Element    ${LOC_CSRJ_CUSTOMER_DD_BTN}    ${CSRJ_TIMEOUT}
     Brief UI Settle Short
     Wait For Loading Overlay To Disappear
     Log    CSR Journey page loaded and ready.
@@ -1212,7 +1213,7 @@ Verify Redirected To CSR Journey Landing
         Log    CSRJ: still on CreateCSRJourney after close/save — opening listing via Admin (SPA URL may not update).    WARN
         Go To CSR Journey Landing
     END
-    Wait Until Element Is Visible    ${LOC_CSRJ_CUSTOMER_DD_BTN}    60s
+    Wait Until Page Contains Element    ${LOC_CSRJ_CUSTOMER_DD_BTN}    60s
     Log    Redirected to CSR Journey landing page.
 
 CSR Journey URL Should Not Be Create Page
