@@ -155,6 +155,14 @@ Open Test Browser
         ${sl}=    Get Library Instance    SeleniumLibrary
         Evaluate    $sl.driver.set_script_timeout(120)
         Maximize Browser Window
+        # Enforce explicit viewport — Maximize Browser Window may silently fail on headless/Xvfb servers,
+        # leaving the window at 800x600. Explicit set_window_size ensures elements are not below the fold.
+        ${cw}=    Evaluate    __import__('os').environ.get('STC_CHROME_HEADED_WINDOW_SIZE','1680,945')
+        ${cw_w}=    Evaluate    int("${cw}".split(",")[0])
+        ${cw_h}=    Evaluate    int("${cw}".split(",")[1])
+        Evaluate    $sl.driver.set_window_size(${cw_w}, ${cw_h})
+        ${chrome_actual}=    Execute Javascript    return JSON.stringify({w: window.innerWidth, h: window.innerHeight});
+        Log    CHROME VIEWPORT: target=${cw_w}x${cw_h}, actual=${chrome_actual}    console=yes
         Install Global Page Size Limiter
         Go To Url With Connection Retries    ${url}
         Inject Grid Oom Patch Into Current Page

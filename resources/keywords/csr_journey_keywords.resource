@@ -441,6 +441,8 @@ CSRJ Assert Bu Button Reflects Selection
 
 Verify Create Order Button Visible
     [Documentation]    Asserts the Create Order button is visible (user has RW permission).
+    Wait Until Page Contains Element    ${LOC_CSRJ_CREATE_ORDER_BTN}    ${CSRJ_TIMEOUT}
+    Scroll To Element Via JS    ${LOC_CSRJ_CREATE_ORDER_BTN}
     Wait Until Element Is Visible    ${LOC_CSRJ_CREATE_ORDER_BTN}    ${CSRJ_TIMEOUT}
 
 Verify Create Order Button Not Visible
