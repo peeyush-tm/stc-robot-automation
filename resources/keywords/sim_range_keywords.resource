@@ -392,8 +392,8 @@ Set React Input Value Via JS
 #  ICCID RANGE — POPUP INTERACTIONS
 # ═══════════════════════════════════════════════════════════════════════
 Add ICCID Range
-    [Documentation]    Opens Add ICCID Range popup, fills From/To via multiple React-compatible
-    ...                strategies (direct React onChange, execCommand, native setter), then submits.
+    [Documentation]    Opens Add ICCID Range popup, fills From/To via execCommand insertText
+    ...                (triggers React synthetic onChange), then submits.
     [Arguments]    ${from_value}    ${to_value}
     Wait Until Element Is Visible    ${LOC_ICCID_PANEL}    timeout=30s
     Wait Until Element Is Visible    ${LOC_ADD_ICCID_BTN}    timeout=30s
@@ -401,119 +401,46 @@ Add ICCID Range
     Wait Until Element Is Visible    ${LOC_ICCID_POPUP}    timeout=30s
     Sleep    1s
     Wait Until Element Is Visible    ${LOC_ICCID_FROM}    timeout=30s
-    # Remove maxLength constraints
+    # execCommand('insertText') triggers React synthetic onChange — same approach as Add IMSI Range
     Execute Javascript
-    ...    ['fromInput','toInput'].forEach(function(nm){
-    ...      var el=document.querySelector('#addRangePopup input[name="'+nm+'"]:not([disabled])');
-    ...      if(el){ el.removeAttribute('maxLength'); el.removeAttribute('maxlength'); el.setAttribute('maxlength','50'); }
-    ...    });
-    # ── Fill via Selenium Input Text (real WebDriver keystrokes — best for jQuery/Kendo) ──
-    Click Element    ${LOC_ICCID_FROM}
-    Clear Element Text    ${LOC_ICCID_FROM}
-    Input Text    ${LOC_ICCID_FROM}    ${from_value}
-    Sleep    0.5s
-    Click Element    ${LOC_ICCID_TO}
-    Clear Element Text    ${LOC_ICCID_TO}
-    Input Text    ${LOC_ICCID_TO}    ${to_value}
-    Sleep    0.5s
-    # Dispatch full event sequence: keydown/keyup/input/change (jQuery validators use keyup)
+    ...    var el = document.querySelector('#addRangePopup input[name=fromInput]:not([disabled])');
+    ...    el.focus(); el.select();
+    ...    document.execCommand('selectAll', false, null);
+    ...    document.execCommand('delete', false, null);
+    ...    document.execCommand('insertText', false, '${from_value}');
+    Sleep    1s
     Execute Javascript
-    ...    (function(fromVal, toVal){ ['fromInput','toInput'].forEach(function(nm, idx){ var val = idx===0 ? fromVal : toVal; var el = document.querySelector('#addRangePopup input[name="'+nm+'"]:not([disabled])'); if(!el) return; var nativeSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,'value').set; nativeSetter.call(el, val); var tracker = el._valueTracker; if(tracker) tracker.setValue(''); el.dispatchEvent(new Event('input',{bubbles:true})); el.dispatchEvent(new Event('change',{bubbles:true})); el.dispatchEvent(new KeyboardEvent('keydown',{bubbles:true,key:'0',keyCode:48})); el.dispatchEvent(new KeyboardEvent('keyup',{bubbles:true,key:'0',keyCode:48})); el.dispatchEvent(new Event('blur',{bubbles:true})); el.dispatchEvent(new FocusEvent('focusout',{bubbles:true})); }); if(typeof jQuery!=='undefined'){ jQuery('#addRangePopup input[name=fromInput]').val(fromVal).trigger('input').trigger('change').trigger('keyup'); jQuery('#addRangePopup input[name=toInput]').val(toVal).trigger('input').trigger('change').trigger('keyup'); } })(arguments[0], arguments[1]);
-    ...    ARGUMENTS    ${from_value}    ${to_value}
-    Sleep    2s
-    # TAB out to trigger final validation
+    ...    var el = document.querySelector('#addRangePopup input[name=toInput]:not([disabled])');
+    ...    el.focus(); el.select();
+    ...    document.execCommand('selectAll', false, null);
+    ...    document.execCommand('delete', false, null);
+    ...    document.execCommand('insertText', false, '${to_value}');
+    Sleep    1s
     Press Keys    ${LOC_ICCID_TO}    TAB
     Sleep    2s
-    # Verify actual values in fields
     ${actual_from}=    Execute Javascript
     ...    var el = document.querySelector('#addRangePopup input[name=fromInput]:not([disabled])'); return el ? el.value : 'NOT_FOUND';
     ${actual_to}=    Execute Javascript
     ...    var el = document.querySelector('#addRangePopup input[name=toInput]:not([disabled])'); return el ? el.value : 'NOT_FOUND';
-    Log    ICCID FROM actual: ${actual_from} (expected ${from_value})    console=yes
-    Log    ICCID TO actual: ${actual_to} (expected ${to_value})    console=yes
-    Wait For Loading Overlay To Disappear
-    # Check if Submit is enabled now
-    ${submit_ok}=    Run Keyword And Return Status
+    Log    ICCID FROM actual: ${actual_from}    console=yes
+    Log    ICCID TO actual: ${actual_to}    console=yes
+    ${btn_ready}=    Run Keyword And Return Status
     ...    Wait Until Element Is Enabled    ${LOC_ICCID_POPUP_SUBMIT}    timeout=10s
-    IF    not ${submit_ok}
-        Log    ICCID Submit still disabled; forcing enable.    level=WARN    console=yes
-    END
-    # Force-enable + click Submit via Selenium native click
-    Execute Javascript
-    ...    var b=document.querySelector('#addRangePopup button[class*="btn-custom-color"]');
-    ...    if(b){ b.disabled=false; b.removeAttribute('disabled'); }
-    Sleep    0.3s
-    Click Element    ${LOC_ICCID_POPUP_SUBMIT}
-    Wait For Loading Overlay To Disappear
-    ${popup_closed}=    Run Keyword And Return Status
-    ...    Wait Until Element Is Not Visible    ${LOC_ICCID_POPUP}    timeout=30s
-    # ── Retry: press ENTER on the To field (form submit via Enter key) ──
-    IF    not ${popup_closed}
-        Log    ICCID popup still open after Submit click; pressing ENTER on To field.    level=WARN    console=yes
-        Execute Javascript
-        ...    var b=document.querySelector('#addRangePopup button[class*="btn-custom-color"]');
-        ...    if(b){ b.disabled=false; b.removeAttribute('disabled'); }
-        Click Element    ${LOC_ICCID_TO}
-        Press Keys    ${LOC_ICCID_TO}    RETURN
-        Wait For Loading Overlay To Disappear
-        ${popup_closed}=    Run Keyword And Return Status
-        ...    Wait Until Element Is Not Visible    ${LOC_ICCID_POPUP}    timeout=30s
-    END
-    # ── Retry: close, re-open, fill char-by-char with Press Keys ──
-    IF    not ${popup_closed}
-        Log    ICCID popup still open; close + re-open + char-by-char fill.    level=WARN    console=yes
-        Execute Javascript    var c=document.querySelector('#addRangePopup button[class*="btn-cancel-color"]'); if(c) c.click();
+    IF    not ${btn_ready}
+        Log    ICCID Submit still disabled after execCommand fill; force-enabling.    level=WARN    console=yes
+        ${force_result}=    Execute Javascript
+        ...    var btn = document.querySelector('#addRangePopup button[class*="btn-custom-color"]');
+        ...    if(btn){ btn.disabled=false; btn.removeAttribute('disabled');
+        ...        btn.classList.remove('disabled'); btn.click(); return 'FORCE_CLICKED'; }
+        ...    return 'NO_BTN_FOUND';
+        Log    ICCID force-enable result: ${force_result}    console=yes
         Sleep    2s
-        ${gone}=    Run Keyword And Return Status
-        ...    Wait Until Element Is Not Visible    ${LOC_ICCID_POPUP}    timeout=10s
-        IF    not ${gone}
-            Execute Javascript    var p=document.getElementById('addRangePopup'); if(p){p.style.display='none';}
-            Sleep    1s
-        END
-        Click Element Via JS    ${LOC_ADD_ICCID_BTN}
-        Wait Until Element Is Visible    ${LOC_ICCID_POPUP}    timeout=30s
-        Sleep    1s
-        Execute Javascript
-        ...    var names=['fromInput','toInput']; names.forEach(function(nm){ var el=document.querySelector('#addRangePopup input[name="'+nm+'"]:not([disabled])'); if(el){ el.removeAttribute('maxLength'); el.removeAttribute('maxlength'); el.setAttribute('maxlength','50'); } });
-        Wait Until Element Is Visible    ${LOC_ICCID_FROM}    timeout=10s
-        # Fill with Press Keys (character by character via Actions API)
-        Click Element    ${LOC_ICCID_FROM}
-        Press Keys    ${LOC_ICCID_FROM}    CTRL+a    DELETE
-        Sleep    0.3s
-        Press Keys    ${LOC_ICCID_FROM}    ${from_value}
-        Sleep    1s
-        Press Keys    ${LOC_ICCID_FROM}    TAB
-        Sleep    1s
-        Press Keys    ${LOC_ICCID_TO}    CTRL+a    DELETE
-        Sleep    0.3s
-        Press Keys    ${LOC_ICCID_TO}    ${to_value}
-        Sleep    1s
-        Press Keys    ${LOC_ICCID_TO}    TAB
-        Sleep    2s
-        Wait For Loading Overlay To Disappear
-        # Try Submit: force-enable + click + ENTER
-        Execute Javascript
-        ...    var b=document.querySelector('#addRangePopup button[class*="btn-custom-color"]'); if(b){ b.disabled=false; b.removeAttribute('disabled'); }
-        Click Element    ${LOC_ICCID_POPUP_SUBMIT}
-        Sleep    2s
-        ${popup_closed}=    Run Keyword And Return Status
-        ...    Wait Until Element Is Not Visible    ${LOC_ICCID_POPUP}    timeout=15s
-        IF    not ${popup_closed}
-            Press Keys    ${LOC_ICCID_TO}    RETURN
-            Wait For Loading Overlay To Disappear
-            ${popup_closed}=    Run Keyword And Return Status
-            ...    Wait Until Element Is Not Visible    ${LOC_ICCID_POPUP}    timeout=60s
-        END
+    ELSE
+        Click Element Via JS    ${LOC_ICCID_POPUP_SUBMIT}
     END
-    IF    not ${popup_closed}
-        ${diag}=    Execute Javascript
-        ...    return (function(){ var p=document.getElementById('addRangePopup'); if(!p) return JSON.stringify({note:'no_popup_node'}); var errs=[]; p.querySelectorAll('.text-danger,.alert-danger,.invalid-feedback,[class*="error"],[class*="invalid"]').forEach(function(e){ var t=(e.textContent||'').trim(); if(t) errs.push(t); }); var s=window.getComputedStyle(p); var f=document.querySelector('#addRangePopup input[name=fromInput]:not([disabled])'); var t0=document.querySelector('#addRangePopup input[name=toInput]:not([disabled])'); var reactState='N/A'; if(f){ var fk=Object.keys(f).find(function(k){return k.startsWith('__reactFiber$')||k.startsWith('__reactInternalInstance$');}); if(fk){ var fib=f[fk]; var cur=fib; var states=[]; for(var i=0;i<25&&cur;i++){ if(cur.memoizedState!=null){ try{var ms=JSON.stringify(cur.memoizedState,function(k,v){if(typeof v==='function')return'[F]';if(v&&v.$$typeof)return'[R]';return v;}); if(ms&&ms.length<3000)states.push({lv:i,tag:cur.tag,ms:JSON.parse(ms)});}catch(e){} } cur=cur['return']; } reactState=JSON.stringify(states); } } return JSON.stringify({display:s.display, visibility:s.visibility, errors:errs, fromVal:f?f.value:'', toVal:t0?t0.value:'', reactState:reactState.substring(0,2000)}); })();
-        Fail    ICCID popup still open after all attempts. from=${from_value} to=${to_value}. Diag: ${diag}
-    END
-    Wait For Loading Overlay To Disappear
+    Wait Until Element Is Not Visible    ${LOC_ICCID_POPUP}    timeout=30s
     Execute Javascript    var g=document.getElementById('iccidRangeTable'); if(g) g.scrollIntoView({block:'center'});
-    Wait Until Keyword Succeeds    3x    3s
-    ...    Wait Until Element Is Visible    ${LOC_ICCID_GRID}    timeout=45s
+    Wait Until Element Is Visible    ${LOC_ICCID_GRID}    timeout=30s
 
 Open ICCID Popup And Enter Range
     [Documentation]    Opens ICCID popup and enters values without submitting.
