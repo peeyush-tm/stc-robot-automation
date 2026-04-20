@@ -22,7 +22,7 @@ ${LOC_LOGOUT_BUTTON}               xpath=//li[@id='userSetting']//a[.//i[contain
 
 # ── Manage Devices Page Locators (verified against ManageDevices.js) ─
 ${LOC_MD_GRID_DATA}                xpath=//div[@id='gridData']
-${LOC_MD_SEARCH_INPUT}             xpath=//input[@id='searchinput']
+${LOC_MD_SEARCH_INPUT}             xpath=//input[@id='searchinput'] | //input[@placeholder='Search Device'] | //input[@placeholder='Enter Search Text']
 ${LOC_MD_ACTION_FORM}              xpath=//form[@id='actionForm']
 ${LOC_MD_GRID_TBODY}               xpath=//div[@id='gridData']//tbody[@role='rowgroup']
 ${LOC_MD_FIRST_DEVICE_ROW}         xpath=(//div[@id='gridData']//tr[contains(@class,'k-master-row')])[1]
