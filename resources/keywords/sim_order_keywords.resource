@@ -233,10 +233,9 @@ Select BU Account From TreeView
     ...                DOM-presence check + scrollIntoView — new QE build renders the input below the fold.
     [Arguments]    ${ec_name}    ${bu_name}
     Wait Until Page Contains Element    ${LOC_SO_ACCOUNT_INPUT}    timeout=30s
-    Execute Javascript    var el = document.querySelector("input[name='accountSelected']"); if(el) el.scrollIntoView({block:'center'});
     Wait For Loading Overlay To Disappear
-    # Step 1: Click the Account dropdown to open the treeview panel
-    Click Element Via JS    ${LOC_SO_ACCOUNT_INPUT}
+    # Step 1: Click the Account dropdown to open the treeview panel (force — below the fold on new build)
+    Click Element Via JS Force    ${LOC_SO_ACCOUNT_INPUT}
     Sleep    1s
     ${tree_visible}=    Run Keyword And Return Status
     ...    Wait Until Element Is Visible    ${LOC_SO_ACCOUNT_TREEVIEW}    15s

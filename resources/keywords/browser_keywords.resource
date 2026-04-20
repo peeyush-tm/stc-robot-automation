@@ -102,6 +102,13 @@ Open Test Browser
         # Set script timeout to 120s so long JS polls (rule creation, async waits) don't abort at 30s default
         ${sl}=    Get Library Instance    SeleniumLibrary
         Evaluate    $sl.driver.set_script_timeout(120)
+        # CRITICAL FIX for headless: --window-size argument is often ignored by --headless=new mode.
+        # Explicitly force a large viewport so elements don't render off-screen (which is why elements
+        # appeared "not visible" on server but worked fine locally in headed Chrome).
+        ${win_w}=    Evaluate    int("${hlw}".split(",")[0])
+        ${win_h}=    Evaluate    int("${hlw}".split(",")[1])
+        Evaluate    $sl.driver.set_window_size(${win_w}, ${win_h})
+        Log    Headless viewport forced to ${win_w}x${win_h} via set_window_size().    console=yes
         Install Global Page Size Limiter
         Go To Url With Connection Retries    ${url}
         Inject Grid Oom Patch Into Current Page
@@ -260,6 +267,16 @@ Click Element Via JS
     Wait Until Element Is Visible    ${locator}    timeout=30s
     ${element}=    Get WebElement    ${locator}
     Execute Javascript    arguments[0].click();    ARGUMENTS    ${element}
+
+Click Element Via JS Force
+    [Documentation]    Same as Click Element Via JS but skips the visibility check — use when the element
+    ...                is present in DOM but not Robot-visible (below the fold, covered by an overlay,
+    ...                or only triggered via JS). Caller is responsible for scrolling into view.
+    [Arguments]    ${locator}
+    Wait For Loading Overlay To Disappear
+    Wait Until Page Contains Element    ${locator}    timeout=30s
+    ${element}=    Get WebElement    ${locator}
+    Execute Javascript    arguments[0].scrollIntoView({block:'center'}); arguments[0].click();    ARGUMENTS    ${element}
 
 Scroll To Element Via JS
     [Documentation]    Scrolls the page until the element is in view.

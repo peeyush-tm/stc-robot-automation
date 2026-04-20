@@ -292,9 +292,7 @@ Select CSR Journey Customer By Name
     [Arguments]    ${customer_name}
     Wait For App Loading To Complete    timeout=90s
     Wait For Loading Overlay To Disappear
-    Wait Until Page Contains Element    ${LOC_CSRJ_CUSTOMER_DD_BTN}    ${CSRJ_TIMEOUT}
-    Execute Javascript    var el = document.querySelector('.selectcsrjourney .selectBtn'); if(el) el.scrollIntoView({block:'center'});
-    Click Element Via JS             ${LOC_CSRJ_CUSTOMER_DD_BTN}
+    Click Element Via JS Force       ${LOC_CSRJ_CUSTOMER_DD_BTN}
     Wait For Loading Overlay To Disappear
     Wait Until Page Contains Element    ${LOC_CSRJ_CUSTOMER_DD_LIST}    ${CSRJ_TIMEOUT}
     Wait Until Page Contains Element    ${LOC_CSRJ_CUSTOMER_SEARCH}    ${CSRJ_TIMEOUT}
@@ -374,9 +372,7 @@ Select CSR Journey Business Unit By Name
     FOR    ${attempt}    IN RANGE    3
         CSRJ Dismiss Open Dropdowns On Landing
         Wait For Loading Overlay To Disappear
-        Wait Until Page Contains Element    ${LOC_CSRJ_BU_DD_BTN}    ${CSRJ_TIMEOUT}
-        Execute Javascript    var els = document.querySelectorAll('.selectcsrjourney .selectBtn'); if(els[1]) els[1].scrollIntoView({block:'center'});
-        Click Element Via JS             ${LOC_CSRJ_BU_DD_BTN}
+        Click Element Via JS Force       ${LOC_CSRJ_BU_DD_BTN}
         Wait For Loading Overlay To Disappear
         Wait Until Page Contains Element    ${LOC_CSRJ_BU_DD_LIST}    ${CSRJ_TIMEOUT}
         Wait Until Page Contains Element    ${LOC_CSRJ_BU_SEARCH}    ${CSRJ_TIMEOUT}
@@ -1497,43 +1493,18 @@ Save Wholesale Discount Default
 # ═══════════════════════════════════════════════════════════════════════
 Open Account VAS Modal
     [Documentation]    Ensures Account VAS accordion is expanded (does NOT toggle if already open),
-    ...                then clicks the ``+ Add`` button to open the Add Account Level VAS Charges modal.
-    ...                Uses JS to locate + click the button directly (more reliable across span/a/button wrappers).
+    ...                then clicks the real ``<button class="add_button">+ Add</button>`` inside the section.
     Ensure Account VAS Accordion Expanded
     Sleep    0.5s
     ${clicked}=    Execute Javascript
     ...    var root = document.querySelector('#accountlevelvasCharges');
     ...    if (!root) return 'no-root';
-    ...    var btn = root.querySelector('[class*="add-button"]:not([class*="toppart"]):not([class*="bottompart"])') || root.querySelector('.add-button, .add_button, [class*="add-button"]');
-    ...    if (!btn) {
-    ...      var addDivs = root.querySelectorAll('[class*="add-button"]');
-    ...      for (var i = 0; i < addDivs.length; i++) {
-    ...        var p = addDivs[i].parentElement;
-    ...        while (p && p !== root) {
-    ...          if (p.className && typeof p.className === 'string' && p.className.indexOf('add-button') >= 0) {
-    ...            btn = p;
-    ...            break;
-    ...          }
-    ...          p = p.parentElement;
-    ...        }
-    ...        if (btn) break;
-    ...        btn = addDivs[i].parentElement;
-    ...      }
-    ...    }
-    ...    if (!btn) return 'no-add-button';
+    ...    var btn = root.querySelector('button.add_button');
+    ...    if (!btn) return 'no-btn';
     ...    btn.scrollIntoView({block: 'center'});
-    ...    var r = btn.getBoundingClientRect();
-    ...    var cx = r.left + r.width / 2;
-    ...    var cy = r.top + r.height / 2;
-    ...    var opts = {bubbles: true, cancelable: true, view: window, clientX: cx, clientY: cy, button: 0};
-    ...    try {
-    ...      btn.dispatchEvent(new MouseEvent('mousedown', opts));
-    ...      btn.dispatchEvent(new MouseEvent('mouseup', opts));
-    ...      btn.dispatchEvent(new MouseEvent('click', opts));
-    ...      if (typeof btn.click === 'function') btn.click();
-    ...    } catch (e) {}
-    ...    return 'clicked-' + (btn.tagName || '?') + '-class-' + (btn.className || '').substring(0,60);
-    Log    Account VAS + Add click result: ${clicked}    console=yes
+    ...    btn.click();
+    ...    return 'clicked';
+    Log    Account VAS + Add click: ${clicked}    console=yes
     Wait Until Element Is Visible    ${LOC_ACCT_VAS_MODAL}    ${CSRJ_TIMEOUT}
     Sleep    1s
 
@@ -1561,39 +1532,18 @@ Close Account VAS Modal
 # ═══════════════════════════════════════════════════════════════════════
 Open Device VAS Modal
     [Documentation]    Ensures Device VAS accordion is expanded (does NOT toggle if already open),
-    ...                then clicks the ``+ Add`` button to open the Add Device Level VAS Charges modal.
-    ...                Uses JS to locate + click the button directly (more reliable across span/a/button wrappers).
+    ...                then clicks the real ``<button class="add_button">+ Add</button>`` inside the section.
     Ensure Device VAS Accordion Expanded
     Sleep    0.5s
-    ${html}=    Execute Javascript
-    ...    var root = document.querySelector('#devicelevelvasCharges');
-    ...    if (!root) return 'no-root';
-    ...    var toppart = root.querySelector('.add-buttontoppart, [class*="add-buttontoppart"]');
-    ...    if (!toppart) return 'no-toppart';
-    ...    var p1 = toppart.parentElement;
-    ...    var p2 = p1 ? p1.parentElement : null;
-    ...    return 'TOP=' + (toppart.outerHTML || '').substring(0,200) + ' || P1=' + (p1 ? p1.tagName+'#'+(p1.id||'')+'.'+(p1.className||'').toString().substring(0,60) : 'null') + ' || P2=' + (p2 ? p2.tagName+'#'+(p2.id||'')+'.'+(p2.className||'').toString().substring(0,60) : 'null');
-    Log    Device VAS DOM: ${html}    console=yes
     ${clicked}=    Execute Javascript
     ...    var root = document.querySelector('#devicelevelvasCharges');
     ...    if (!root) return 'no-root';
-    ...    var toppart = root.querySelector('.add-buttontoppart, [class*="add-buttontoppart"]');
-    ...    if (!toppart) return 'no-toppart';
-    ...    var btn = toppart.parentElement;
-    ...    if (!btn) return 'no-parent';
+    ...    var btn = root.querySelector('button.add_button');
+    ...    if (!btn) return 'no-btn';
     ...    btn.scrollIntoView({block: 'center'});
-    ...    var r = btn.getBoundingClientRect();
-    ...    var cx = r.left + r.width / 2;
-    ...    var cy = r.top + r.height / 2;
-    ...    var opts = {bubbles: true, cancelable: true, view: window, clientX: cx, clientY: cy, button: 0};
-    ...    try {
-    ...      btn.dispatchEvent(new MouseEvent('mousedown', opts));
-    ...      btn.dispatchEvent(new MouseEvent('mouseup', opts));
-    ...      btn.dispatchEvent(new MouseEvent('click', opts));
-    ...      if (typeof btn.click === 'function') btn.click();
-    ...    } catch (e) {}
-    ...    return 'clicked-parent-' + (btn.tagName || '?') + '.' + (btn.className || '').toString().substring(0,60);
-    Log    Device VAS + Add click result: ${clicked}    console=yes
+    ...    btn.click();
+    ...    return 'clicked';
+    Log    Device VAS + Add click: ${clicked}    console=yes
     Wait Until Element Is Visible    ${LOC_DEV_VAS_MODAL}    ${CSRJ_TIMEOUT}
     Sleep    1s
 
