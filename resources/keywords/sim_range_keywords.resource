@@ -82,8 +82,11 @@ Enter SIM Range Defined Pool Count
     [Documentation]    Sets the main form ``poolCount`` input. QE often renders this field
     ...                read-only or non-interactable until ranges exist — use native setter + events
     ...                instead of Click/Clear/Input Text.
+    ...                Uses DOM-presence check (Page Contains Element) instead of visibility —
+    ...                on newer QE builds the field renders below the fold; the JS below scrolls
+    ...                it into view itself.
     [Arguments]    ${pool_count}
-    Wait Until Element Is Visible    ${LOC_SR_POOL_COUNT}    timeout=30s
+    Wait Until Page Contains Element    ${LOC_SR_POOL_COUNT}    timeout=30s
     Wait For Loading Overlay To Disappear
     Execute Javascript
     ...    var n = String(arguments[0] != null ? arguments[0] : '').trim();
@@ -707,9 +710,11 @@ Fill SIM Range With ICCID And IMSI
 Verify Pool Count
     [Documentation]    Reads auto-calculated Pool Count and asserts it is non-zero/non-empty.
     ...                If expected_count is provided, also logs a comparison.
+    ...                DOM-presence check (not visibility) — the field may be below the fold.
     [Arguments]    ${expected_count}=${EMPTY}
     Sleep    1s
-    Wait Until Element Is Visible    ${LOC_SR_POOL_COUNT}    timeout=30s
+    Wait Until Page Contains Element    ${LOC_SR_POOL_COUNT}    timeout=30s
+    Execute Javascript    var el = document.querySelector("input[name='poolCount']"); if(el) el.scrollIntoView({block:'center'});
     ${pool_count}=    Get Value    ${LOC_SR_POOL_COUNT}
     Log    Pool Count value: ${pool_count}    console=yes
     ${is_populated}=    Evaluate    '${pool_count}' != '' and '${pool_count}' != '0'
@@ -724,7 +729,8 @@ Verify Pool Count
 
 Verify Pool Count Is Zero Or Empty
     [Documentation]    Asserts Pool Count is 0 or empty (no ranges added).
-    Wait Until Element Is Visible    ${LOC_SR_POOL_COUNT}    timeout=30s
+    Wait Until Page Contains Element    ${LOC_SR_POOL_COUNT}    timeout=30s
+    Execute Javascript    var el = document.querySelector("input[name='poolCount']"); if(el) el.scrollIntoView({block:'center'});
     ${pool_count}=    Get Value    ${LOC_SR_POOL_COUNT}
     ${is_zero}=    Evaluate    '${pool_count}' == '0' or '${pool_count}' == ''
     Should Be True    ${is_zero}    Pool Count should be 0 or empty but was ${pool_count}.
