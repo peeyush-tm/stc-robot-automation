@@ -9,6 +9,17 @@ from _shared_seed import read_value
 def _payg_rand(length=6):
     return "".join(random.choices(string.ascii_lowercase + string.digits, k=length))
 
+
+def _cfg_or(key: str, fallback: str) -> str:
+    """Return config value for ``key`` if non-empty, else ``fallback``.
+
+    Lets users pin PAYG SIM range values in ``config/<env>.json`` for deterministic
+    runs while keeping random generation as the default (empty config = random).
+    """
+    v = config_scalar(key, "").strip()
+    return v if v else fallback
+
+
 _PAYG_TS = str(int(time.time()))[-6:]
 
 # Rerun later PAYG steps (e.g. only TC_PAYG_SIM_05) after TC_PAYG_SIM_01 wrote .run_seed.json
@@ -35,22 +46,27 @@ PAYG_USAGE_COLUMN_KEYWORDS = ["payg", "data"]
 # SIM Range: From == To so ICCID/IMSI/MSISDN row count = 1, matching Defined Pool Count (default 1).
 # If From < To, range size is 2+ and the Add ICCID Range Submit stays disabled when pool count is 1.
 # Multi-scenario runs: ``PAYG Create SIM Range`` calls ``libraries/PaygRangeIds.apply_fresh_payg_range_identifiers`` to avoid ICCID/IMSI/MSISDN/pool collisions across SIM / pool / shared.
-PAYG_POOL_NAME = f"payg_pool_{_payg_rand(6)}"
-PAYG_SR_DESCRIPTION = "PAYG automation SIM range"
+# Config overrides (all optional — empty/missing = random): PAYG_POOL_NAME, PAYG_ICCID_FROM, PAYG_ICCID_TO, PAYG_IMSI_FROM, PAYG_IMSI_TO, PAYG_MSISDN_FROM, PAYG_MSISDN_TO, PAYG_MSISDN_POOL_NAME.
+PAYG_POOL_NAME = _cfg_or("PAYG_POOL_NAME", f"payg_pool_{_payg_rand(6)}")
+PAYG_SR_DESCRIPTION = _cfg_or("PAYG_SR_DESCRIPTION", "PAYG automation SIM range")
 # Popup inputs maxLength 20 on QE — pad with trailing zeros (avoid leading zeros; backend may reject those).
 _PAYG_ICCID_CORE = f"10000{_PAYG_TS}001"
 _ICCID_PAD = max(0, 20 - len(_PAYG_ICCID_CORE))
-PAYG_ICCID_FROM = _PAYG_ICCID_CORE + ("0" * _ICCID_PAD)
-PAYG_ICCID_TO = PAYG_ICCID_FROM
+PAYG_ICCID_FROM = _cfg_or("PAYG_ICCID_FROM", _PAYG_ICCID_CORE + ("0" * _ICCID_PAD))
+PAYG_ICCID_TO = _cfg_or("PAYG_ICCID_TO", PAYG_ICCID_FROM)
 _PAYG_IMSI_CORE = f"1000{_PAYG_TS}001"
 _IMSI_PAD = max(0, 15 - len(_PAYG_IMSI_CORE))
-PAYG_IMSI_FROM = _PAYG_IMSI_CORE + ("0" * _IMSI_PAD)
-PAYG_IMSI_TO = PAYG_IMSI_FROM
-PAYG_MSISDN_FROM = f"96660000{_PAYG_TS}01"
-PAYG_MSISDN_TO = PAYG_MSISDN_FROM
-PAYG_MSISDN_POOL_NAME = f"payg-msisdn-{_payg_rand(6)}"
-PAYG_MSISDN_DESCRIPTION = "PAYG automation MSISDN range"
-PAYG_EXPECTED_POOL_COUNT = "1"
+PAYG_IMSI_FROM = _cfg_or("PAYG_IMSI_FROM", _PAYG_IMSI_CORE + ("0" * _IMSI_PAD))
+PAYG_IMSI_TO = _cfg_or("PAYG_IMSI_TO", PAYG_IMSI_FROM)
+PAYG_MSISDN_FROM = _cfg_or("PAYG_MSISDN_FROM", f"96660000{_PAYG_TS}01")
+PAYG_MSISDN_TO = _cfg_or("PAYG_MSISDN_TO", PAYG_MSISDN_FROM)
+PAYG_MSISDN_POOL_NAME = _cfg_or(
+    "PAYG_MSISDN_POOL_NAME", f"payg-msisdn-{_payg_rand(6)}"
+)
+PAYG_MSISDN_DESCRIPTION = _cfg_or(
+    "PAYG_MSISDN_DESCRIPTION", "PAYG automation MSISDN range"
+)
+PAYG_EXPECTED_POOL_COUNT = _cfg_or("PAYG_EXPECTED_POOL_COUNT", "1")
 
 PAYG_ORDER_QUANTITY = "1"
 PAYG_SIM_ACTIVATE_COUNT = 1
