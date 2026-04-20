@@ -91,7 +91,7 @@
   "__comment_sim_range_overrides": "Optional manual overrides — leave empty for random generation. Set exact values for deterministic SIM range creation.",
   "SIM_RANGE_POOL_NAME": "",
   "SIM_RANGE_DESCRIPTION": "",
-  "SIM_RANGE_POOL_COUNT": "11",
+  "SIM_RANGE_POOL_COUNT": "10",
   "SIM_RANGE_ICCID_FROM": "8992431100267457011",
   "SIM_RANGE_ICCID_TO": "8992431100267457020",
   "SIM_RANGE_IMSI_FROM": "420023027457451",

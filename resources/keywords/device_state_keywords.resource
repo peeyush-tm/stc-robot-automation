@@ -104,8 +104,11 @@ Expand Account Filter Section In Filter Popup
 Open Filter Popup
     [Documentation]    Clicks the **Filters** toolbar icon (``filter-search-trigger``) via JS; waits until ``#filterPopup``
     ...                is visible and the in-modal spinner has cleared.
+    ...                DOM-presence + scrollIntoView — new QE build keeps the trigger as ``<a id="filter-search-trigger">``
+    ...                but it's rendered off-screen until the grid toolbar is scrolled into view.
     Request Page Garbage Collection Best Effort
-    Wait Until Element Is Visible    ${LOC_DSC_FILTER_SEARCH}    timeout=15s
+    Wait Until Page Contains Element    ${LOC_DSC_FILTER_SEARCH}    timeout=15s
+    Execute Javascript    var el = document.getElementById('filter-search-trigger'); if(el) el.scrollIntoView({block:'center'});
     Inject Grid Oom Patch Into Current Page
     Click Element Via JS    ${LOC_DSC_FILTER_SEARCH}
     IF    ${DSC_ACCOUNT_FILTER_OOM_SAFE}

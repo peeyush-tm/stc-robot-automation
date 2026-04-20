@@ -230,8 +230,10 @@ Select Account Legacy TreeView Fiber
 Select BU Account From TreeView
     [Documentation]    Opens the Account treeview dropdown, expands OPCO root (${DEFAULT_OPCO_ACCOUNT}) first,
     ...                then searches for EC, expands EC, searches for BU, and selects BU.
+    ...                DOM-presence check + scrollIntoView — new QE build renders the input below the fold.
     [Arguments]    ${ec_name}    ${bu_name}
-    Wait Until Element Is Visible    ${LOC_SO_ACCOUNT_INPUT}    timeout=30s
+    Wait Until Page Contains Element    ${LOC_SO_ACCOUNT_INPUT}    timeout=30s
+    Execute Javascript    var el = document.querySelector("input[name='accountSelected']"); if(el) el.scrollIntoView({block:'center'});
     Wait For Loading Overlay To Disappear
     # Step 1: Click the Account dropdown to open the treeview panel
     Click Element Via JS    ${LOC_SO_ACCOUNT_INPUT}

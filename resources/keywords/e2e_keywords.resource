@@ -716,12 +716,14 @@ E2E Create SIM Order
 E2E Capture Order ID
     [Documentation]    Navigates to Live Order tab, searches for the BU account name,
     ...                and reads the Order Number column from the first matching row.
+    ...                DOM-presence check — the grid may be below the fold on new builds.
     [Arguments]    ${bu_name}
     Ensure Session Is Active
     Go To    ${LIVE_ORDER_URL}
     Sleep    0.3s
     Wait For Loading Overlay To Disappear
-    Wait Until Element Is Visible    ${LOC_SO_GRID}    timeout=30s
+    Wait Until Page Contains Element    ${LOC_SO_GRID}    timeout=30s
+    Execute Javascript    var el = document.querySelector('#simOrderGrid, #gridData'); if(el) el.scrollIntoView({block:'start'});
     ${order_id}=    Capture Order Number From Grid    ${bu_name}
     Log    ===== CAPTURED ORDER NUMBER: ${order_id} for account ${bu_name} =====    console=yes
     Capture Page Screenshot    e2e_order_id_captured.png

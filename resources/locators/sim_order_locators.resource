@@ -18,10 +18,10 @@ ${LOC_SO_SEARCH_BTN}               xpath=//a[@id='searchButton']
 ${LOC_SO_CREATE_ORDER_BTN}         xpath=//a[contains(@class,'btn-custom-color') and normalize-space()='Create SIM Order']
 ${LOC_SO_DOWNLOAD_CSV_BTN}         xpath=//div[@id='downloadCSVSIMOrder']
 
-# ── Kendo Grid — #simOrderGrid ──────────────────────────────────────
-${LOC_SO_GRID}                     xpath=//div[@id='simOrderGrid']
-${LOC_SO_GRID_ROWS}                xpath=//div[@id='simOrderGrid']//tbody/tr[contains(@class,'k-master-row')]
-${LOC_SO_GRID_FIRST_ROW}           xpath=//div[@id='simOrderGrid']//tbody/tr[contains(@class,'k-master-row')][1]
+# ── Kendo Grid — #simOrderGrid (or #gridData on newer builds) ─────────
+${LOC_SO_GRID}                     xpath=//div[@id='simOrderGrid'] | //div[@id='gridData']
+${LOC_SO_GRID_ROWS}                xpath=//div[@id='simOrderGrid']//tbody/tr[contains(@class,'k-master-row')] | //div[@id='gridData']//tbody/tr[contains(@class,'k-master-row')]
+${LOC_SO_GRID_FIRST_ROW}           xpath=(//div[@id='simOrderGrid']//tbody/tr[contains(@class,'k-master-row')] | //div[@id='gridData']//tbody/tr[contains(@class,'k-master-row')])[1]
 
 # ── Row Action Buttons (first row) ──────────────────────────────────
 ${LOC_SO_ROW_CANCEL_BTN}           xpath=//div[@id='simOrderGrid']//tbody/tr[1]//a[contains(@class,'k-grid-Delete') and contains(@class,'printOrderdelete')]
