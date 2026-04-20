@@ -686,8 +686,22 @@ Click Close Button
 #  VALIDATIONS — POSITIVE
 # ═══════════════════════════════════════════════════════════════════════
 Verify SIM Range Created Successfully
-    [Documentation]    Verify success toast, redirect to /SIMRange, and grid visible.
-    Wait Until Element Is Visible    ${LOC_SR_TOAST_SUCCESS}    timeout=30s
+    [Documentation]    Wait for success OR error toast (race). On error, fail fast with
+    ...                the toast text. On success, verify redirect to /SIMRange listing.
+    ${success}=    Run Keyword And Return Status
+    ...    Wait Until Element Is Visible    ${LOC_SR_TOAST_SUCCESS}    timeout=15s
+    IF    not ${success}
+        ${error_visible}=    Run Keyword And Return Status
+        ...    Wait Until Element Is Visible    ${LOC_SR_TOAST_ERROR}    timeout=5s
+        IF    ${error_visible}
+            ${error_text}=    Get Text    ${LOC_SR_TOAST_ERROR}
+            Capture Page Screenshot
+            Fail    SIM Range creation failed — error toast: ${error_text}
+        ELSE
+            Capture Page Screenshot
+            Fail    SIM Range creation failed — no success/error toast appeared within 20s.
+        END
+    END
     ${toast_text}=    Get Text    ${LOC_SR_TOAST_SUCCESS}
     Log    Success toast: ${toast_text}
     Wait Until Keyword Succeeds    3x    5s
