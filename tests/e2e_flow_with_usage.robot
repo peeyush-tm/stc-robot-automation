@@ -125,6 +125,13 @@ Step 5 Create And Assign SIM Product Type
     [Tags]    e2e    step-5    product-type
     STEP_05
 
+Step 5b Expand EC And BU SIM Limits
+    [Documentation]    Before SIM Order: opens EC and BU accounts on ManageAccount,
+    ...                navigates to Account Settings, and adds +10 to each Max IMSI /
+    ...                Max SIM. Required so the BU has SIM capacity headroom.
+    [Tags]    e2e    step-5b    account-update
+    STEP_05B
+
 Step 6 Create SIM Order
     [Documentation]    Creates a SIM Order with quantity 10 using the onboarded BU account
     ...                selected via treeview (KSA_OPCO > EC > BU).
@@ -295,6 +302,11 @@ STEP_04
 STEP_05
     Should Not Be Empty    ${E2E_EC_NAME}    Step 1 must run first — EC name is empty.
     E2E Create Product Type And Assign EC    ${E2E_EC_NAME}
+
+STEP_05B
+    Should Not Be Empty    ${E2E_EC_NAME}    Step 1 must run first — EC name is empty.
+    Should Not Be Empty    ${E2E_BU_NAME}    Step 1 must run first — BU name is empty.
+    E2E Expand EC And BU SIM Limits    ${E2E_EC_NAME}    ${E2E_BU_NAME}    10
 
 STEP_06
     Should Not Be Empty    ${E2E_EC_NAME}    Step 1 must run first — EC name is empty.

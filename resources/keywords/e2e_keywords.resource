@@ -16,6 +16,7 @@ Resource    product_type_keywords.resource
 Resource    order_processing_keywords.resource
 Resource    usage_keywords.resource
 Resource    device_plan_keywords.resource
+Resource    sim_movement_keywords.resource
 Resource    ../locators/login_locators.resource
 Resource    ../locators/apn_locators.resource
 Resource    ../locators/csr_journey_locators.resource
@@ -355,6 +356,31 @@ E2E SIM Order Stale Preview Resubmit
     Sleep    2s
     Wait For Loading Overlay To Disappear
 
+# ═══════════════════════════════════════════════════════════════════════
+#  STEP 5B: EXPAND EC AND BU SIM LIMITS (UI — ManageAccount)
+# ═══════════════════════════════════════════════════════════════════════
+E2E Expand EC And BU SIM Limits
+    [Documentation]    Before SIM Order creation: open each account (EC then BU) in
+    ...                ManageAccount, go to Account Settings page, click + Add IMSI /
+    ...                + Add SIMs modal with the given increment, then Next → Update.
+    ...                Required so the BU has SIM capacity headroom for the upcoming order.
+    [Arguments]    ${ec_name}    ${bu_name}    ${increment}=10
+    Ensure Session Is Active
+    # ─── EC ───────────────────────────────────────────────
+    ${ec_cur}=    SM Get EC Max IMSI Count    ${ec_name}
+    ${ec_target}=    Evaluate    int(${ec_cur}) + int(${increment})
+    Log    EC '${ec_name}': current Max IMSI=${ec_cur} → target=${ec_target}    console=yes
+    SM Update EC Max IMSI    ${ec_name}    ${ec_target}
+    # ─── BU ───────────────────────────────────────────────
+    ${bu_cur}=    SM Get BU Max SIM Count    ${bu_name}
+    ${bu_target}=    Evaluate    int(${bu_cur}) + int(${increment})
+    Log    BU '${bu_name}': current Max SIM=${bu_cur} → target=${bu_target}    console=yes
+    SM Update BU Max SIM    ${bu_name}    ${bu_target}
+    Log    E2E SIM limits expanded: EC=${ec_target}, BU=${bu_target}    console=yes
+
+# ═══════════════════════════════════════════════════════════════════════
+#  STEP 6: SIM ORDER (UI)
+# ═══════════════════════════════════════════════════════════════════════
 E2E Create SIM Order
     [Documentation]    Creates a SIM Order by selecting the onboarded BU account from the
     ...                treeview (KSA_OPCO > EC > BU) with configurable quantity (default 10).
