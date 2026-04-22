@@ -48,7 +48,7 @@ variables/.run_seed.json
 
 # ── Helper scripts / generators (not part of test framework) ────────────
 # One-time code generators (deleted from repo, ignore if recreated)
-_gen_payg*.py
+_gen_*.py
 
 
 # Dev tools / scheduled run helpers
