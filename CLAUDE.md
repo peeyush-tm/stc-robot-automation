@@ -9,12 +9,12 @@ stc-automation/
 ├── config/                    # Environment configs (dev/qe/staging/prod)
 ├── libraries/                 # Custom Python libraries (14 files)
 ├── resources/
-│   ├── keywords/              # Robot Framework keyword files (24 files, per module)
+│   ├── keywords/              # Robot Framework keyword files (27 files, per module)
 │   └── locators/              # XPath/CSS locator definitions (19 files, per module)
-├── variables/                 # Python variable modules (25 files, per module)
+├── variables/                 # Python variable modules (26 files, per module)
 │   ├── _config_defaults.py    # Reads config/<env>.json for Python modules
 │   └── _shared_seed.py        # Cross-suite variable sharing via .run_seed.json
-├── tests/                     # Robot Framework test suites (25 files)
+├── tests/                     # Robot Framework test suites (31 files)
 ├── templates/                 # SOAP/API payload templates
 ├── prompts/                   # Reference specs and module prompts
 ├── documentation/             # Setup guides and project docs
@@ -103,8 +103,9 @@ All environment-specific values live in `config/<env>.json`. Key entries:
 
 Variable resolution order: seed file > environment variable > config JSON > hardcoded fallback.
 
-## Test Modules (25 suites, 500+ test cases)
+## Test Modules (30 suites, 800+ test cases)
 
+### Core Modules
 | Module | File | TCs | Description |
 |--------|------|-----|-------------|
 | Login | login_tests.robot | 12 | Login/logout, captcha, security |
@@ -132,6 +133,16 @@ Variable resolution order: seed file > environment variable > config JSON > hard
 | E2E Flow A | e2e_flow.robot | 17 | Full SIM lifecycle (no usage) |
 | E2E Flow B | e2e_flow_with_usage.robot | 20 | Full SIM lifecycle + usage |
 | Role/User CRUD | role_user_crud_tests.robot | 4 | Quick CRUD positive tests |
+
+### Feature Test Suites (deep UI coverage for specific pages)
+| Module | File | TCs | Description |
+|--------|------|-----|-------------|
+| CSR Journey Feature | csr_journey_feature_tests.robot | 213 | Deep UI coverage for the CSR Journey wizard (every field, dropdown, validation) |
+| Manage Devices Feature | manage_devices_feature_tests.robot | 43 | Manage Devices grid: columns, pagination, filters, bulk actions |
+| Device APN Feature | device_apn_feature_tests.robot | 35 | Device Detail → APN tab: view/edit, validation, persistence |
+| Device VAS Charges Feature | device_vas_charges_feature_tests.robot | 6 | Device-level VAS charges edit popup |
+| Setup Prerequisite Feature | setup_prerequisite_feature_tests.robot | 4 | Pre-flight: Product Type → SIM Order → state changes |
+| Diagnose QE Locators | diagnose_qe_locators.robot | 4 | Diagnostic utility — dumps locator state per page (no assertions) |
 
 ## Conventions
 

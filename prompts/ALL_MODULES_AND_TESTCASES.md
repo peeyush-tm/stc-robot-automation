@@ -1,8 +1,8 @@
 # STC Automation — All Modules and Test Cases Reference
 
 **Source:** `tasks.csv` (project root) + standalone test suites  
-**Last updated:** 2026-04-15  
-**Total test cases:** 500+ across 25 test suites
+**Last updated:** 2026-04-22  
+**Total test cases:** 800+ across 30 test suites (25 core + 5 feature) + 1 diagnostic utility
 
 This document lists all test modules, their test case IDs/names, and the prompt documentation available for each. Use it for AI prompts, traceability, and run filters.
 
@@ -39,6 +39,22 @@ This document lists all test modules, their test case IDs/names, and the prompt 
 | 25 | Role/User CRUD | tests/role_user_crud_tests.robot | 4 | (inline, tested via --with-crud) |
 | — | Order Processing | (shared keywords) | — | prompts/order_processing/Order_Processing.md |
 
+### Feature Suites (deep per-page UI coverage)
+
+| # | Module | Suite File | TCs | Prompt File |
+|---|--------|------------|-----|-------------|
+| 26 | CSR Journey Feature | tests/csr_journey_feature_tests.robot | 213 | prompts/csr_journey_feature/CSR_Journey_Feature.md |
+| 27 | Manage Devices Feature | tests/manage_devices_feature_tests.robot | 43 | prompts/manage_devices_feature/Manage_Devices_Feature.md |
+| 28 | Device APN Feature | tests/device_apn_feature_tests.robot | 35 | prompts/device_apn_feature/Device_APN_Feature.md |
+| 29 | Device VAS Charges Feature | tests/device_vas_charges_feature_tests.robot | 6 | prompts/device_vas_charges_feature/Device_VAS_Charges_Feature.md |
+| 30 | Setup Prerequisite Feature | tests/setup_prerequisite_feature_tests.robot | 4 | prompts/setup_prerequisite_feature/Setup_Prerequisite_Feature.md |
+
+### Diagnostic Utility (not counted in the 30 suites)
+
+| Utility | File | Prompt File |
+|---------|------|-------------|
+| Diagnose QE Locators | tests/diagnose_qe_locators.robot | prompts/diagnose_qe_locators/Diagnose_QE_Locators.md |
+
 ---
 
 ## Run Commands
@@ -70,6 +86,16 @@ python run_tests.py --suite "Report" --env qe
 python run_tests.py tests/sim_movement_tests.robot --env qe
 python run_tests.py tests/sim_replacement_tests.robot --env qe
 python run_tests.py tests/payg_data_usage_tests.robot --env qe
+
+# Feature suites (deep UI coverage — run by file, not in tasks.csv)
+python run_tests.py tests/csr_journey_feature_tests.robot --env qe
+python run_tests.py tests/manage_devices_feature_tests.robot --env qe
+python run_tests.py tests/device_apn_feature_tests.robot --env qe
+python run_tests.py tests/device_vas_charges_feature_tests.robot --env qe
+python run_tests.py tests/setup_prerequisite_feature_tests.robot --env qe
+
+# Diagnostic utility (logs DOM state, no assertions)
+python run_tests.py tests/diagnose_qe_locators.robot --env qe
 
 # E2E flows
 python run_tests.py --e2e --env qe
@@ -121,6 +147,13 @@ python run_tests.py --e2e --env qe --browser headlesschrome
 - **PAYG Data Usage:** TC_PAYG_SIM_01 … TC_PAYG_SIM_20, TC_PAYG_POOL_01 … TC_PAYG_POOL_20, TC_PAYG_SHARED_01+
 - **Role/User CRUD:** TC_CRUD_001 … TC_CRUD_004
 
+### Feature Suites
+- **CSR Journey Feature:** TC_CSRJ_100 … TC_CSRJ_3xx (213 TCs, grouped A–G)
+- **Manage Devices Feature:** TC_MD_001 … TC_MD_043
+- **Device APN Feature:** TC_DAPN_001 … TC_DAPN_035
+- **Device VAS Charges Feature:** TC_VAS_001 … TC_VAS_006
+- **Setup Prerequisite Feature:** TC_SETUP_001 … TC_SETUP_004
+
 For exact names and tags, open `tasks.csv` or the individual test `.robot` files.
 
 ---
@@ -167,6 +200,12 @@ For exact names and tags, open `tasks.csv` or the individual test `.robot` files
 | prompts/sim_replacement/SIM_Replacement.md | SIM Replacement module spec |
 | prompts/payg_data_usage/PAYG_Data_Usage.md | PAYG Data Usage multi-scenario spec |
 | prompts/order_processing/Order_Processing.md | Order Processing shared keywords spec |
+| prompts/csr_journey_feature/CSR_Journey_Feature.md | CSR Journey Feature suite (213 TCs) |
+| prompts/manage_devices_feature/Manage_Devices_Feature.md | Manage Devices Feature suite (43 TCs) |
+| prompts/device_apn_feature/Device_APN_Feature.md | Device APN Feature suite (35 TCs) |
+| prompts/device_vas_charges_feature/Device_VAS_Charges_Feature.md | Device VAS Charges Feature suite (6 TCs) |
+| prompts/setup_prerequisite_feature/Setup_Prerequisite_Feature.md | Setup Prerequisite Feature suite (4 TCs) |
+| prompts/diagnose_qe_locators/Diagnose_QE_Locators.md | Diagnostic utility — logs DOM state per page |
 
 ---
 

@@ -39,19 +39,24 @@ stc-automation/
 │   └── csv_reader.py              # Generic CSV reader
 │
 ├── resources/
-│   ├── keywords/                  # Robot Framework keyword files (24 files)
+│   ├── keywords/                  # Robot Framework keyword files (27 files)
 │   └── locators/                  # XPath/CSS locator definitions (19 files)
 │
-├── variables/                     # Python variable modules (25 files)
+├── variables/                     # Python variable modules (26 files)
 │   ├── _config_defaults.py        # Reads config/<env>.json for Python modules
 │   └── _shared_seed.py            # Cross-suite variable sharing via .run_seed.json
 │
-├── tests/                         # Robot Framework test suites (25 files)
+├── tests/                         # Robot Framework test suites (31 files)
 │   ├── login_tests.robot
-│   ├── sanity_tests.robot         # 48 page-load sanity checks
-│   ├── e2e_flow.robot             # E2E Flow A (17 steps)
-│   ├── e2e_flow_with_usage.robot  # E2E Flow B (20 steps + usage)
-│   ├── payg_data_usage_tests.robot # PAYG multi-scenario usage tests
+│   ├── sanity_tests.robot                # 48 page-load sanity checks
+│   ├── e2e_flow.robot                    # E2E Flow A (17 steps)
+│   ├── e2e_flow_with_usage.robot         # E2E Flow B (20 steps + usage)
+│   ├── payg_data_usage_tests.robot       # PAYG multi-scenario usage tests
+│   ├── csr_journey_feature_tests.robot   # 213 deep UI tests — CSR Journey wizard
+│   ├── manage_devices_feature_tests.robot # 43 UI tests — Manage Devices grid
+│   ├── device_apn_feature_tests.robot    # 35 UI tests — Device Detail → APN tab
+│   ├── device_vas_charges_feature_tests.robot # 6 UI tests — Device VAS charges popup
+│   ├── setup_prerequisite_feature_tests.robot # 4 pre-flight tests (PT → SIM Order → state)
 │   └── ... (20 more module suites)
 │
 ├── templates/                     # SOAP/API payload templates
@@ -167,6 +172,9 @@ python run_tests.py --e2e --env qe --email
 
 ## Test Modules
 
+**30 suites, 800+ test cases.** Core modules cover end-to-end CMP flows. Feature suites provide deep UI coverage for specific pages.
+
+### Core Modules (25 suites)
 | # | Module | Suite File | Test Cases | Tags |
 |---|--------|-----------|------------|------|
 | 1 | Login | login_tests.robot | 12 | login, security |
@@ -194,6 +202,20 @@ python run_tests.py --e2e --env qe --email
 | 23 | E2E Flow A | e2e_flow.robot | 17 | e2e |
 | 24 | E2E Flow B | e2e_flow_with_usage.robot | 20 | e2e, usage |
 | 25 | Role/User CRUD | role_user_crud_tests.robot | 4 | crud |
+
+### Feature Suites (5 suites — deep UI coverage per page)
+| # | Module | Suite File | Test Cases | Tags |
+|---|--------|-----------|------------|------|
+| 26 | CSR Journey Feature | csr_journey_feature_tests.robot | 213 | csr-journey, feature |
+| 27 | Manage Devices Feature | manage_devices_feature_tests.robot | 43 | manage-devices, feature |
+| 28 | Device APN Feature | device_apn_feature_tests.robot | 35 | device-apn, feature |
+| 29 | Device VAS Charges Feature | device_vas_charges_feature_tests.robot | 6 | device-vas, feature |
+| 30 | Setup Prerequisite Feature | setup_prerequisite_feature_tests.robot | 4 | setup, feature |
+
+### Diagnostic Utility (not counted above)
+| Utility | File | Purpose |
+|---------|------|---------|
+| Diagnose QE Locators | diagnose_qe_locators.robot | Dumps runtime locator state per page — used when a locator fails in QE only. No assertions. |
 
 ---
 

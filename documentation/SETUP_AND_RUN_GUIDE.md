@@ -60,25 +60,41 @@ stc-automation/
 │   ├── setall.bat                ← Sets PYTHONPATH & activates venv (Windows)
 │   └── setall.sh                 ← Sets PYTHONPATH & activates venv (Linux/Mac)
 │
-├── tests/                        ← All Robot Framework test suites
-│   ├── login_tests.robot
-│   ├── apn_tests.robot
-│   ├── sim_range_tests.robot
-│   ├── sim_order_tests.robot
-│   ├── device_plan_tests.robot
-│   ├── device_state_tests.robot
-│   ├── ip_pool_tests.robot
-│   ├── ip_whitelist_tests.robot
-│   ├── cost_center_tests.robot
-│   ├── csr_journey_tests.robot
-│   ├── product_type_tests.robot
-│   ├── rule_engine_tests.robot
-│   ├── role_management_tests.robot
-│   ├── user_management_tests.robot
-│   ├── onboard_customer_api_tests.robot
-│   ├── sanity_tests.robot
-│   ├── e2e_flow.robot            ← E2E Flow A (17 steps)
-│   └── e2e_flow_with_usage.robot ← E2E Flow B (20 steps, with usage injection)
+├── tests/                        ← All Robot Framework test suites (31 files)
+│   ├── Core Modules (25)
+│   │   ├── login_tests.robot
+│   │   ├── apn_tests.robot
+│   │   ├── sim_range_tests.robot
+│   │   ├── sim_range_msisdn_tests.robot
+│   │   ├── sim_order_tests.robot
+│   │   ├── sim_movement_tests.robot
+│   │   ├── sim_replacement_tests.robot
+│   │   ├── device_plan_tests.robot
+│   │   ├── device_state_tests.robot
+│   │   ├── ip_pool_tests.robot
+│   │   ├── ip_whitelist_tests.robot
+│   │   ├── cost_center_tests.robot
+│   │   ├── csr_journey_tests.robot
+│   │   ├── product_type_tests.robot
+│   │   ├── rule_engine_tests.robot
+│   │   ├── role_management_tests.robot
+│   │   ├── user_management_tests.robot
+│   │   ├── role_user_crud_tests.robot
+│   │   ├── label_tests.robot
+│   │   ├── report_tests.robot
+│   │   ├── payg_data_usage_tests.robot
+│   │   ├── onboard_customer_api_tests.robot
+│   │   ├── sanity_tests.robot
+│   │   ├── e2e_flow.robot                   ← E2E Flow A (17 steps)
+│   │   └── e2e_flow_with_usage.robot        ← E2E Flow B (20 steps + usage)
+│   ├── Feature Suites (5 — deep per-page UI coverage)
+│   │   ├── csr_journey_feature_tests.robot       (213 TCs)
+│   │   ├── manage_devices_feature_tests.robot    (43 TCs)
+│   │   ├── device_apn_feature_tests.robot        (35 TCs)
+│   │   ├── device_vas_charges_feature_tests.robot (6 TCs)
+│   │   └── setup_prerequisite_feature_tests.robot (4 TCs)
+│   └── Diagnostic Utility (not part of regression)
+│       └── diagnose_qe_locators.robot            ← logs DOM state on QE locator failures
 │
 ├── config/
 │   ├── dev.json                  ← dev environment config (default)
@@ -266,10 +282,26 @@ python run_tests.py --suite "Account Onboard"
 python run_tests.py --suite "E2E Flow"
 ```
 
+**Run a feature suite (deep per-page UI coverage):**
+```bash
+# Run by file path — feature suites are not in tasks.csv
+python run_tests.py tests/csr_journey_feature_tests.robot       # 213 TCs
+python run_tests.py tests/manage_devices_feature_tests.robot     # 43 TCs
+python run_tests.py tests/device_apn_feature_tests.robot         # 35 TCs
+python run_tests.py tests/device_vas_charges_feature_tests.robot # 6 TCs
+python run_tests.py tests/setup_prerequisite_feature_tests.robot # 4 TCs
+```
+
 **Run a single test case by name:**
 ```bash
 python run_tests.py tests/apn_tests.robot --test "TC_APN_001*"
 python run_tests.py tests/login_tests.robot --test "TC_LOGIN_001*"
+python run_tests.py tests/csr_journey_feature_tests.robot --test "TC_CSRJ_10*"
+```
+
+**Diagnostic utility** (logs DOM state, no assertions — use when a locator fails only on QE):
+```bash
+python run_tests.py tests/diagnose_qe_locators.robot --env qe
 ```
 
 ---
