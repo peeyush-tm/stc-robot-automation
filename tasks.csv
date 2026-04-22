@@ -692,308 +692,352 @@ order,module,suite_file,test_case_id,test_case_name,type,tags
 691,PAYG Data Usage,tests/payg_data_usage_tests.robot,TC_PAYG_SHARED_18,Iterative Usage Until PAYG Quota,positive,payg|api
 692,PAYG Data Usage,tests/payg_data_usage_tests.robot,TC_PAYG_SHARED_19,Perform PAYG Data Usage,positive,payg|api
 693,PAYG Data Usage,tests/payg_data_usage_tests.robot,TC_PAYG_SHARED_20,Validate PAYG Usage In UI,positive,payg|validation
-694,Role/User CRUD,tests/role_user_crud_tests.robot,TC_CRUD_001,Create Role,positive,positive|crud|role-management|smoke
-695,Role/User CRUD,tests/role_user_crud_tests.robot,TC_CRUD_002,Delete Created Role,positive,positive|crud|role-management|smoke
-696,Role/User CRUD,tests/role_user_crud_tests.robot,TC_CRUD_003,Create User,positive,positive|crud|user-management|smoke
-697,Role/User CRUD,tests/role_user_crud_tests.robot,TC_CRUD_004,Delete Created User,positive,positive|crud|user-management|smoke
-698,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_100,Verify User Login And Navigation To CSR Journey Page,positive,feature|regression|csrj|navigation
-699,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_101,Verify Customer And BU Selection And Create Order,positive,feature|regression|csrj
-700,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_102,Verify Tariff Plan Selection,positive,feature|regression|csrj|tariff-plan
-701,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_103,Verify APN Type Selection,positive,feature|regression|csrj|apn
-702,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_104,Verify Add APN Opens Popup,positive,feature|regression|csrj|apn
-703,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_105,Verify APN Dropdown Selection With IP Preference,positive,feature|regression|csrj|apn
-704,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_106,Verify Add Multiple APNs,positive,feature|regression|csrj|apn
-705,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_107,Verify Remove APN,positive,feature|regression|csrj|apn
-706,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_108,Verify Cancel APN Addition,negative,feature|regression|csrj|apn|negative
-707,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_109,Verify Save APN,positive,feature|regression|csrj|apn
-708,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_110,Verify Close APN Popup Without Saving,negative,feature|regression|csrj|apn|negative
-709,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_111,Verify Fetch Device Plan,positive,feature|regression|csrj|device-plan
-710,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_112,Verify Tariff And APN Mismatch Validation,negative,feature|regression|csrj|validation|negative
-711,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_113,Verify Device Plan Selection Under Bundle Plan,positive,feature|regression|csrj|device-plan
-712,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_114,Verify Device Plan Name Field Is Visible,positive,feature|regression|csrj|device-plan
-713,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_115,Verify User Can Enter Valid Device Plan Name,positive,feature|regression|csrj|device-plan
-714,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_116,Verify Field Accepts Alphanumeric Values,positive,feature|regression|csrj|device-plan|boundary
-715,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_117,Verify Field Accepts Special Characters,positive,feature|regression|csrj|device-plan|boundary
-716,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_118,Verify Maximum Character Limit,negative,regression|csrj|device-plan|boundary|negative
-717,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_119,Verify Minimum Character Requirement,negative,regression|csrj|device-plan|boundary|negative
-718,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_120,Verify Mandatory Field Validation,negative,regression|csrj|device-plan|negative
-719,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_121,Verify Trimming Of Leading Trailing Spaces,positive,regression|csrj|device-plan|boundary
-720,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_122,Verify Duplicate Plan Name Validation,negative,regression|csrj|device-plan|negative
-721,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_123,Verify Copy Paste Functionality,positive,feature|regression|csrj|device-plan
-722,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_124,Verify Special Input Only Spaces,negative,regression|csrj|device-plan|negative|boundary
-723,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_125,Verify Numeric Only Input,positive,feature|regression|csrj|device-plan|boundary
-724,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_126,Verify Field Editability,positive,feature|regression|csrj|device-plan
-725,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_127,Verify Device Plan Creation Opens Service Plan,positive,feature|regression|csrj|device-plan|service-plan
-726,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_128,Verify Default Services Behavior,positive,feature|regression|csrj|service-plan
-727,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_129,Verify Default Services Pre-Selected On Load,positive,feature|regression|csrj|service-plan
-728,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_130,Verify Default PAYG State,positive,feature|regression|csrj|service-plan|payg
-729,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_131,Verify Voice Options Availability,positive,feature|regression|csrj|service-plan
-730,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_132,Verify Selecting Voice Outgoing Checkbox,positive,feature|regression|csrj|service-plan
-731,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_133,Verify Deselecting Voice Outgoing Checkbox,positive,feature|regression|csrj|service-plan
-732,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_134,Verify Selecting Voice Incoming Checkbox,positive,feature|regression|csrj|service-plan
-733,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_135,Verify Deselecting Voice Incoming Checkbox,positive,feature|regression|csrj|service-plan
-734,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_136,Verify Selecting Voice Checkbox,positive,feature|regression|csrj|service-plan
-735,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_137,Verify Deselecting Voice Checkbox,positive,feature|regression|csrj|service-plan
-736,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_138,Verify Selecting International Voice Checkbox,positive,feature|regression|csrj|service-plan
-737,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_139,Verify Deselecting International Voice Checkbox,positive,feature|regression|csrj|service-plan
-738,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_140,Verify Multiple Voice Checkboxes Selected Together,positive,feature|regression|csrj|service-plan
-739,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_141,Verify Independent Selection Behavior,positive,feature|regression|csrj|service-plan
-740,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_142,Verify Selecting SMS MO Restriction,positive,feature|regression|csrj|service-plan
-741,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_143,Verify Deselecting SMS MO Restriction,positive,feature|regression|csrj|service-plan
-742,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_144,Verify Selecting SMS MT Restriction,positive,feature|regression|csrj|service-plan
-743,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_145,Verify Deselecting SMS MT Restriction,positive,feature|regression|csrj|service-plan
-744,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_146,Verify PAYG Toggle Visible For Voice,positive,feature|regression|csrj|service-plan|payg
-745,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_147,Verify PAYG Toggle Visible For SMS,positive,feature|regression|csrj|service-plan|payg
-746,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_148,Verify PAYG Toggle Visible For Data,positive,feature|regression|csrj|service-plan|payg
-747,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_149,Verify PAYG Toggle Visible For NB-IoT Data,positive,feature|regression|csrj|service-plan|payg|nbiot
-748,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_150,Verify Enabling PAYG For Voice,positive,feature|regression|csrj|service-plan|payg
-749,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_151,Verify Disabling PAYG For Voice,positive,feature|regression|csrj|service-plan|payg
-750,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_152,Verify Enabling PAYG For SMS,positive,feature|regression|csrj|service-plan|payg
-751,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_153,Verify Disabling PAYG For SMS,positive,feature|regression|csrj|service-plan|payg
-752,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_154,Verify Enabling PAYG For Data,positive,feature|regression|csrj|service-plan|payg
-753,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_155,Verify Disabling PAYG For Data,positive,feature|regression|csrj|service-plan|payg
-754,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_156,Verify Is Roaming Toggle,positive,feature|regression|csrj|service-plan
-755,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_157,Verify NB-IoT As Separate Service Toggle,positive,feature|regression|csrj|service-plan|nbiot
-756,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_158,Verify PAYG Toggle Reset On Close,negative,feature|regression|csrj|service-plan|payg|negative
-757,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_159,Verify Cancel Service Plan,negative,feature|regression|csrj|service-plan|negative
-758,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_160,Verify Save Service Plan,positive,feature|regression|csrj|service-plan
-759,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_161,Verify Default State Of All Services,positive,feature|regression|csrj|service-plan
-760,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_162,Verify All Default Services Are Visible,positive,feature|regression|csrj|service-plan
-761,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_163,Verify NB-IoT Radio Button Visible,positive,feature|regression|csrj|service-plan|nbiot
-762,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_164,Verify NB-IoT With Data Service Enabled,positive,feature|regression|csrj|service-plan|nbiot
-763,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_165,Verify Voice Restriction Checkbox,positive,feature|regression|csrj|service-plan
-764,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_166,Verify Data NB-IoT Checkbox,positive,feature|regression|csrj|service-plan|nbiot
-765,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_170,Verify Add Account VAS Charge Option Visible,positive,feature|regression|csrj|vas
-766,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_171,Verify Adding Account VAS Charge With Mandatory Fields,positive,feature|regression|csrj|vas
-767,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_172,Verify VAS Mandatory Fields Validation,negative,regression|csrj|vas|negative
-768,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_173,Verify Adding Device Level VAS Charge,positive,feature|regression|csrj|vas
-769,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_180,Verify Navigation To Additional Services,positive,feature|regression|csrj|navigation
-770,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_181,Verify Breadcrumb Navigation,positive,feature|regression|csrj|navigation
-771,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_182,Verify Addon Plan Selection,positive,feature|regression|csrj|additional-services|addon
-772,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_183,Verify Add Discount Option Visible,positive,feature|regression|csrj|additional-services|discount
-773,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_184,Verify Discount Category Opens Options,positive,feature|regression|csrj|additional-services|discount
-774,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_185,Verify Account Level Discount,positive,feature|regression|csrj|additional-services|discount
-775,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_186,Verify Discount Mandatory Fields Validation,negative,regression|csrj|additional-services|discount|negative
-776,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_187,Verify Close Discount Modal Discards Changes,negative,feature|regression|csrj|additional-services|discount|negative
-777,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_200,Verify Summary Screen Loads,positive,feature|regression|csrj|summary
-778,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_201,Verify Tariff Plan Section On Summary,positive,feature|regression|csrj|summary|tariff-plan
-779,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_202,Verify Account Plan Section On Summary,positive,feature|regression|csrj|summary|account-plan
-780,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_203,Verify Device Plan Section On Summary,positive,feature|regression|csrj|summary|device-plan
-781,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_204,Verify Breadcrumb Shows Summary,positive,feature|regression|csrj|summary|navigation
-782,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_205,Verify Previous On Summary Returns To Additional,positive,feature|regression|csrj|summary|navigation
-783,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_206,Verify Save And Continue Completes CSR,positive,feature|regression|csrj|summary|e2e
-784,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_210,Verify Close From Standard Services,negative,feature|regression|csrj|navigation|negative
-785,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_211,Verify Close From Additional Services,negative,feature|regression|csrj|navigation|negative
-786,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_212,Verify Close From Summary,negative,feature|regression|csrj|navigation|negative
-787,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_213,Verify Previous From Additional Returns To Standard,positive,feature|regression|csrj|navigation
-788,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_214,Verify DP Name Persistence After Save,positive,feature|regression|csrj|device-plan
-789,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_215,Verify Checkbox State Persists Before Saving,positive,feature|regression|csrj|service-plan
-790,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_216,Verify Checkbox State After Save,positive,feature|regression|csrj|service-plan
-791,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_217,Verify Checkbox Click Area Label,positive,feature|regression|csrj|service-plan
-792,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_218,Verify Rapid Clicking On Checkbox,positive,feature|regression|csrj|service-plan|edge-case
-793,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_219,Verify Enabling PAYG For NB-IoT Data,positive,feature|regression|csrj|service-plan|payg|nbiot
-794,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_220,Verify Disabling PAYG For NB-IoT Data,positive,feature|regression|csrj|service-plan|payg|nbiot
-795,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_221,Verify Independent Behavior Of PAYG Toggles,positive,feature|regression|csrj|service-plan|payg
-796,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_222,Verify PAYG Toggle Without Selecting Checkbox,positive,feature|regression|csrj|service-plan|payg|edge-case
-797,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_223,Verify PAYG Toggle Persistence After Save,positive,feature|regression|csrj|service-plan|payg
-798,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_224,Verify Rapid Toggle Switching,positive,feature|regression|csrj|service-plan|payg|edge-case
-799,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_225,Verify UI Indication Of PAYG State,positive,feature|regression|csrj|service-plan|payg
-800,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_226,Verify PAYG Radio Buttons,positive,feature|regression|csrj|service-plan|payg
-801,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_227,Verify Default Behavior Of SMS Service,positive,feature|regression|csrj|service-plan
-802,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_228,Verify Default Behavior Of Data Service,positive,feature|regression|csrj|service-plan
-803,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_229,Verify Default Behavior Of Voice Service,positive,feature|regression|csrj|service-plan
-804,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_230,Verify Default Behavior Of Roaming Service,positive,feature|regression|csrj|service-plan
-805,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_231,Verify Default Values On New Plan Creation,positive,feature|regression|csrj|service-plan
-806,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_232,Verify Save Without Changes Retains Defaults,positive,feature|regression|csrj|service-plan
-807,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_233,Verify Override Default Settings,positive,feature|regression|csrj|service-plan
-808,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_234,Verify Validation If Mandatory Service Disabled,negative,regression|csrj|service-plan|negative
-809,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_235,Verify Selection Of NB-IoT Radio Button,positive,feature|regression|csrj|service-plan|nbiot
-810,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_236,Verify NB-IoT Default Selection Behavior,positive,feature|regression|csrj|service-plan|nbiot
-811,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_237,Verify NB-IoT UI Alignment And Label,positive,feature|regression|csrj|service-plan|nbiot
-812,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_238,Verify Select NB-IoT Independently,positive,feature|regression|csrj|service-plan|nbiot
-813,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_239,Verify NB-IoT Does Not Disable Data,positive,feature|regression|csrj|service-plan|nbiot
-814,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_240,Verify Data And NB-IoT Coexist,positive,feature|regression|csrj|service-plan|nbiot
-815,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_241,Verify Saving Data And NB-IoT Configuration,positive,feature|regression|csrj|service-plan|nbiot
-816,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_242,Verify Switching Between Data And NB-IoT,positive,feature|regression|csrj|service-plan|nbiot
-817,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_246,Verify Edit Delete DP Icons,positive,feature|regression|csrj|device-plan
-818,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_247,Verify VAS Amount Field During Addition,positive,feature|regression|csrj|vas
-819,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_248,Verify Select End Date For Device Level VAS Charges,positive,feature|regression|csrj|vas
-820,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_249,Verify Select End Date For Account Level VAS Charges,positive,feature|regression|csrj|vas
-821,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_250,Verify VAS Charge Can Be Deleted,positive,feature|regression|csrj|vas
-822,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_251,Verify VAS Charges Editable,positive,feature|regression|csrj|vas
-823,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_252,Verify Override Account Level VAS Amount,positive,feature|regression|csrj|vas
-824,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_253,Verify Override Device Level VAS Amount,positive,feature|regression|csrj|vas
-825,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_257,Verify Auto Renewal Configuration,positive,feature|regression|csrj|additional-services|addon
-826,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_258,Verify Device Level Discount Option,positive,feature|regression|csrj|additional-services|discount
-827,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_259,Verify Only One Discount Category At A Time,positive,feature|regression|csrj|additional-services|discount
-828,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_260,Verify Adding Multiple Discounts,positive,feature|regression|csrj|additional-services|discount
-829,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_261,Verify Duplicate Discount Names,positive,regression|csrj|additional-services|discount|edge-case
-830,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_266,Verify Navigation To Summary From Discounts,positive,feature|regression|csrj|summary|navigation
-831,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_267,Verify Account OTC Details On Summary,positive,feature|regression|csrj|summary|account-plan
-832,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_268,Verify Account Recurring Charges On Summary,positive,feature|regression|csrj|summary|account-plan
-833,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_269,Verify Account VAS Charges On Summary,positive,feature|regression|csrj|summary|account-plan
-834,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_270,Verify Entitlement Details On Summary,positive,feature|regression|csrj|summary|device-plan
-835,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_271,Verify Service Plan Details On Summary,positive,feature|regression|csrj|summary|device-plan
-836,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_272,Verify Device OTC Charges On Summary,positive,feature|regression|csrj|summary|device-plan
-837,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_273,Verify Device Recurring Charges On Summary,positive,feature|regression|csrj|summary|device-plan
-838,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_274,Verify Device VAS Charges On Summary,positive,feature|regression|csrj|summary|device-plan
-839,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_275,Verify Suspension Charge On Summary,positive,feature|regression|csrj|summary
-840,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_276,Verify Discount For Device Plan On Summary,positive,feature|regression|csrj|summary|discount
-841,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_278,Verify Discount Section Visibility On Summary,positive,feature|regression|csrj|summary|discount
-842,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_279,Verify Discount Name Display On Summary,positive,feature|regression|csrj|summary|discount
-843,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_280,Verify Discount Value Display On Summary,positive,feature|regression|csrj|summary|discount
-844,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_281,Verify Discount Percentage Format,positive,feature|regression|csrj|summary|discount
-845,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_282,Verify Discount Start Date Display,positive,feature|regression|csrj|summary|discount
-846,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_283,Verify Discount End Date Display,positive,feature|regression|csrj|summary|discount
-847,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_284,Verify Discount Date Format Consistency,positive,feature|regression|csrj|summary|discount
-848,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_285,Verify Discount Row Structure,positive,feature|regression|csrj|summary|discount
-849,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_286,Verify Discount UI Alignment,positive,feature|regression|csrj|summary|discount
-850,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_287,Verify Discount Data Consistency,positive,feature|regression|csrj|summary|discount
-851,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_288,Verify Non Editable Discount On Summary,positive,feature|regression|csrj|summary|discount
-852,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_289,Verify Zero Percent Discount Handling,positive,feature|regression|csrj|summary|discount|edge-case
-853,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_290,Verify Discount Date Logic,positive,feature|regression|csrj|summary|discount
-854,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_291,Verify Empty Discount Section,negative,feature|regression|csrj|summary|discount|negative
-855,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_292,Verify Multiple Discount Rows On Summary,positive,feature|regression|csrj|summary|discount
-856,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_296,Verify Add-on Section Visible On Summary,positive,feature|regression|csrj|summary|addon
-857,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_297,Verify Add-on Plan Name Display,positive,feature|regression|csrj|summary|addon
-858,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_298,Verify Quota Value Display,positive,feature|regression|csrj|summary|addon
-859,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_299,Verify Quota Unit Display,positive,feature|regression|csrj|summary|addon
-860,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_300,Verify Validity Term Unit Display,positive,feature|regression|csrj|summary|addon
-861,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_301,Verify Zone Name Display On Summary,positive,feature|regression|csrj|summary|addon
-862,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_302,Verify APN Name Display On Summary,positive,feature|regression|csrj|summary|addon
-863,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_303,Verify Rating Group Display,positive,feature|regression|csrj|summary|addon
-864,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_304,Verify Auto Renewal Configuration On Summary,positive,feature|regression|csrj|summary|addon
-865,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_305,Verify Auto Enablement Status On Summary,positive,feature|regression|csrj|summary|addon
-866,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_306,Verify Mapped Device Plan On Summary,positive,feature|regression|csrj|summary|addon
-867,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_307,Verify Multiple Add-on Records On Summary,positive,feature|regression|csrj|summary|addon
-868,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_308,Verify Add-on Column Alignment On Summary,positive,feature|regression|csrj|summary|addon
-869,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_309,Verify Empty Add-on State On Summary,negative,feature|regression|csrj|summary|addon|negative
-870,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_310,Verify Add-on Data Consistency,positive,feature|regression|csrj|summary|addon
-871,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_311,Verify Quota Formatting On Summary,positive,feature|regression|csrj|summary|addon
-872,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_312,Verify Progress Popup Message,positive,feature|regression|csrj|summary
-873,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_313,Verify CSR Operation Start Message,positive,feature|regression|csrj|summary
-874,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_314,Verify Account Plan Creation Success,positive,feature|regression|csrj|summary
-875,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_315,Verify Add On Creation Success,positive,feature|regression|csrj|summary
-876,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_316,Verify Add On Publish Success,positive,feature|regression|csrj|summary
-877,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_317,Verify Account Level Discount Creation,positive,feature|regression|csrj|summary
-878,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_318,Verify APN Creation Success,positive,feature|regression|csrj|summary
-879,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_319,Verify Zone Creation Success,positive,feature|regression|csrj|summary
-880,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_320,Verify Service Plan Success,positive,feature|regression|csrj|summary
-881,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_321,Verify Device Plan Creation Success,positive,feature|regression|csrj|summary
-882,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_322,Verify Final CSR Completed Message,positive,feature|regression|csrj|summary
-883,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_323,Verify Message Order And Timing,positive,feature|regression|csrj|summary
-884,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_324,Verify Error Message On Failure,negative,regression|csrj|summary|negative
-885,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_325,Verify Success Messages Sequence,positive,feature|regression|csrj|summary
-886,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_326,Verify CSR Completion,positive,feature|regression|csrj|summary
-887,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_327,Verify APN Dropdown Lists Available APNs,positive,feature|regression|csrj|apn
-888,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_328,Verify Different APN And IP In Second Row,positive,feature|regression|csrj|apn
-889,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_329,Verify Save Without Selecting APN Shows Error,negative,regression|csrj|apn|negative
-890,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_330,Verify IP Preference Dropdown Options,positive,feature|regression|csrj|apn
-891,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_331,Verify Duplicate APN Selection Across Rows,negative,regression|csrj|apn|negative|edge-case
-892,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_332,Verify SMS Section Checkboxes Default State,positive,feature|regression|csrj|service-plan
-893,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_333,Verify Save Closes Popup And Reflects SP Name,positive,feature|regression|csrj|service-plan
-894,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_334,Verify VAS Charge Dropdown Lists Charges,positive,feature|regression|csrj|vas
-895,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_335,Verify Amount Auto Populates On VAS Selection,positive,feature|regression|csrj|vas
-896,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_336,Verify End Date Calendar Picker,positive,feature|regression|csrj|vas
-897,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_337,Verify VAS Record Shows Edit Delete Icons,positive,feature|regression|csrj|vas
-898,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_339,Verify Add On Plan Multiselect Visible,positive,feature|regression|csrj|additional-services|addon
-899,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_340,Verify Selecting Add On Populates Table,positive,feature|regression|csrj|additional-services|addon
-900,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_341,Verify Auto Renewal Toggle In Add On Table,positive,feature|regression|csrj|additional-services|addon
-901,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_342,Verify Auto Enablement Toggle,positive,feature|regression|csrj|additional-services|addon
-902,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_343,Verify Mapped Device Plan Add For Add On,positive,feature|regression|csrj|additional-services|addon
-903,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_344,Verify Removing Selected Add On Plan,positive,feature|regression|csrj|additional-services|addon
-904,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_345,Verify Discount Section Below Add On Table,positive,feature|regression|csrj|additional-services|discount
-905,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_346,Verify Account Level Discount Category And Fields,positive,feature|regression|csrj|additional-services|discount
-906,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_347,Verify Applicable To Dropdown Options,positive,feature|regression|csrj|additional-services|discount
-907,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_348,Verify Start Date Defaults And Changeable,positive,feature|regression|csrj|additional-services|discount
-908,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_349,Verify Price Field Accepts Numeric Input,positive,feature|regression|csrj|additional-services|discount
-909,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_350,Verify Device Plan Level Discount,positive,feature|regression|csrj|additional-services|discount
-910,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_351,Verify Edit Discount Opens Pre Filled Popup,positive,feature|regression|csrj|additional-services|discount
-911,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_001,Verify APN Tab Is Accessible From Device Detail Page And Loads Without Error,positive,feature|regression
-912,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_002,Verify All Device Header Fields Are Correctly Displayed When APN Tab Is Active,positive,feature|regression
-913,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_003,Verify Navigating Away From APN Tab And Returning Retains APN Tab State,positive,feature|regression
-914,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_004,Verify APN Type Dropdown Contains All Expected Options And Defaults Correctly,positive,feature|regression
-915,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_005,Verify Selecting Private APN Type Loads Only Private APNs,positive,feature|regression
-916,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_006,Verify Selecting Public APN Type Loads Only Public APNs,positive,feature|regression
-917,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_007,Verify Selecting Any APN Type Shows APNs Of All Types,positive,feature|regression
-918,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_008,Verify Refresh Button Reloads APN List Without Changing APN Type,positive,feature|regression
-919,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_009,Verify Refresh Button Shows Loading State And Completes Within Acceptable Time,positive,feature|regression
-920,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_010,Verify All Filter Tab Is Active By Default And Shows All APNs,positive,feature|regression
-921,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_011,Verify Assigned Filter Tab Shows Only Device-Assigned APNs,positive,feature|regression
-922,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_012,Verify Unassigned Filter Tab Shows Only APNs Not Yet Assigned,positive,feature|regression
-923,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_013,Verify Switching Between Assigned Unassigned And All Tabs Updates List,positive,feature|regression
-924,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_014,Verify Empty State Is Handled When No APNs Match The Filter,negative,feature|regression|negative
-925,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_015,Verify APN Name List Is Scrollable With Many APNs,positive,feature|regression
-926,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_016,Verify Clicking APN Name Selects It And Updates IP Panel,positive,feature|regression
-927,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_017,Verify Selecting Different APNs Updates IP Panel Independently,positive,feature|regression
-928,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_018,Verify APN Name Column Header Is Displayed And List Is Properly Formatted,positive,feature|regression
-929,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_019,Verify IPV4 And IPV6 Tabs Are Both Present In IP Address Panel,positive,feature|regression
-930,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_020,Verify IPV6 Tab Displays Correct IPV6 Address For Selected APN,positive,feature|regression
-931,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_021,Verify IPV4 Tab Displays Correct IPV4 Address For Selected APN,positive,feature|regression
-932,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_022,Verify Switching Between IPV4 And IPV6 Tabs Updates IP Display,positive,feature|regression
-933,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_023,Verify Radio Button Indicates Currently Assigned Active IP,positive,feature|regression
-934,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_024,Verify IPV4 Tab Shows Empty State When No IPV4 Address Is Assigned,negative,feature|regression|negative
-935,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_025,Verify IPV6 Tab Shows Empty State When No IPV6 Address Is Assigned,negative,feature|regression|negative
-936,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_026,Verify Multiple IP Addresses Are Displayed When An APN Has Multiple IPs,positive,feature|regression
-937,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_027,Verify Error Handling When APN List Fails To Load,negative,feature|regression|negative
-938,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_028,Verify APN Tab Shows Empty State When No APNs Configured For Device,negative,feature|regression|negative
-939,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_029,Verify Long APN Names Are Displayed Without Breaking Layout,positive,feature|regression
-940,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_030,Verify Long IPv6 Address Is Fully Displayed Without Truncation,positive,feature|regression
-941,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_031,Verify Unauthorized User Cannot Modify APN Configuration,negative,feature|regression|negative
-942,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_032,Verify E2E Open Device APN Tab Private APN Select And View IPV6,positive,feature|regression|e2e|smoke
-943,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_033,Verify Switching APN Type From Private To Public Updates List And IP Panel,positive,feature|regression
-944,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_034,Verify Assigned Filter Shows Only Device-Assigned APN And Unassigned Shows Rest,positive,feature|regression
-945,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_035,Verify Refresh Button Re-Syncs APN Data Without Losing Current Filter State,positive,feature|regression
-946,Device VAS Charges Feature,tests/device_vas_charges_feature_tests.robot,TC_VAS_001,Verify Edit Device Level VAS Charges Popup Opens,positive,feature|regression|vas
-947,Device VAS Charges Feature,tests/device_vas_charges_feature_tests.robot,TC_VAS_002,Verify Device Plan Dropdown Is Pre-Filled In Edit VAS Popup,positive,feature|regression|vas
-948,Device VAS Charges Feature,tests/device_vas_charges_feature_tests.robot,TC_VAS_003,Verify Amount Field Is Editable For Override,positive,feature|regression|vas
-949,Device VAS Charges Feature,tests/device_vas_charges_feature_tests.robot,TC_VAS_004,Verify End Date Calendar Picker In Edit VAS Popup,positive,feature|regression|vas
-950,Device VAS Charges Feature,tests/device_vas_charges_feature_tests.robot,TC_VAS_005,Verify Save Persists The Edited VAS Charge,positive,feature|regression|vas
-951,Device VAS Charges Feature,tests/device_vas_charges_feature_tests.robot,TC_VAS_006,Verify Delete Icon Removes The VAS Charge Row,positive,feature|regression|vas
-952,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_001,Verify Manage Devices Page Loads And Displays Device List With All Expected Columns,positive,feature|regression|manage-devices
-953,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_002,Verify SIM STATE Column Displays Correct Colour-Coded States,positive,feature|regression|manage-devices
-954,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_003,Verify Pagination Controls Navigate Correctly Between Pages,positive,feature|regression|manage-devices
-955,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_004,Verify Column Sort Ascending And Descending On Key Columns,positive,feature|regression|manage-devices
-956,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_005,Verify Expand Row Button Shows Device Sub-Details,positive,feature|regression|manage-devices
-957,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_006,Verify Top-Right Lock Or Export Icon Is Functional,positive,feature|regression|manage-devices
-958,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_007,Verify Search By ICCID Returns Correct Device,positive,feature|regression|manage-devices
-959,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_008,Verify Search Filter Dropdown Can Be Changed,positive,feature|regression|manage-devices
-960,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_009,Verify Change State Filter Dropdown Filters List By SIM State,positive,feature|regression|manage-devices
-961,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_010,Verify Search With Invalid Or Non-Existent ICCID Shows No Results,negative,feature|regression|manage-devices|negative
-962,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_011,Verify Search Field With Special Characters Or SQL Injection Is Handled Safely,negative,feature|regression|manage-devices|security|negative
-963,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_012,Verify Individual Device Row Selection Via Checkbox,positive,feature|regression|manage-devices
-964,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_013,Verify Select All Checkbox In Header Selects And Deselects All Rows,positive,feature|regression|manage-devices
-965,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_014,Verify Select Dropdown Provides Selection Options,positive,feature|regression|manage-devices
-966,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_015,Verify Close Button In Selection Toolbar Clears Selection,positive,feature|regression|manage-devices
-967,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_016,Verify Change State Toolbar Contains Correct Controls,positive,feature|regression|manage-devices
-968,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_017,Verify Selecting A State And Clicking Submit Opens Change State Popup,positive,feature|regression|manage-devices
-969,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_018,Verify Clicking Submit Without Selecting Any Device Shows Validation,negative,feature|regression|manage-devices|negative
-970,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_019,Verify Change State Close Button Dismisses Toolbar Action Without Changes,positive,feature|regression|manage-devices
-971,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_020,Verify Bulk State Change Can Be Applied To Multiple Selected Devices,positive,feature|regression|manage-devices
-972,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_021,Verify Change State Popup Displays Correct Fields,positive,feature|regression|manage-devices
-973,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_022,Verify Device Plan Dropdown Lists Available Plans And Is Pre-Filled,positive,feature|regression|manage-devices|device-plan
-974,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_023,Verify Reason Dropdown Contains All Valid Reasons And Default Is Pre-Selected,positive,feature|regression|manage-devices
-975,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_024,Verify Clicking Proceed Successfully Changes The Device State,positive,feature|regression|manage-devices|positive
-976,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_025,Verify Clicking Close On Popup Cancels The State Change,positive,feature|regression|manage-devices
-977,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_026,Verify Clicking X Icon On Popup Header Cancels Without Changes,positive,feature|regression|manage-devices
-978,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_027,Verify Proceed Button Without Selecting Reason Shows Validation,negative,feature|regression|manage-devices|negative
-979,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_028,Verify Proceed Button Without Selecting Device Plan Shows Validation,negative,feature|regression|manage-devices|negative
-980,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_029,Verify State Transition From InActive To Activated,positive,feature|regression|manage-devices
-981,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_030,Verify State Transition From Activated To Suspended,positive,feature|regression|manage-devices
-982,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_031,Verify State Transition From Warm To Activated,positive,feature|regression|manage-devices
-983,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_032,Verify System Prevents Or Warns When Setting Device To Its Current State,negative,feature|regression|manage-devices|negative
-984,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_033,Verify Case ID Dropdown Lists Available Cases And Can Be Selected,positive,feature|regression|manage-devices
-985,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_034,Verify Submit Button In Left Toolbar With Case ID Submits Action,positive,feature|regression|manage-devices
-986,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_035,Verify Submit Left Toolbar Without Case ID Shows Validation,negative,feature|regression|manage-devices|negative
-987,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_036,Verify All Tabs In Devices Module Are Accessible And Load Correctly,positive,feature|regression|manage-devices|navigation
-988,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_037,Verify Returning To Manage Devices Tab Retains Or Resets List State,positive,feature|regression|manage-devices|navigation
-989,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_038,Verify Page Performance With Large Data Set (2831 Devices / 142 Pages),positive,feature|regression|manage-devices
-990,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_039,Verify Browser Refresh Does Not Crash The Page Or Lose Critical Context,positive,feature|regression|manage-devices
-991,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_040,Verify Error Handling When Change State API Fails,negative,feature|regression|manage-devices|negative
-992,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_041,Verify Unauthorized User Cannot Perform State Change,negative,feature|regression|manage-devices|negative
-993,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_042,Verify UI Layout Is Responsive And Columns Remain Readable,positive,feature|regression|manage-devices
-994,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_043,Verify Blue Pencil Icon On Device Row Opens Device Detail Or Note Editor,positive,feature|regression|manage-devices
-995,Setup Prerequisite Feature,tests/setup_prerequisite_feature_tests.robot,TC_SETUP_001,Verify Create SIM Product Type And Assign To Customer,positive,feature|regression
-996,Setup Prerequisite Feature,tests/setup_prerequisite_feature_tests.robot,TC_SETUP_002,Verify SIM Order Created Successfully,positive,feature|regression|sim-order
-997,Setup Prerequisite Feature,tests/setup_prerequisite_feature_tests.robot,TC_SETUP_003,Verify SIM State Changed From Warm To Inactive,positive,feature|regression|device-state
-998,Setup Prerequisite Feature,tests/setup_prerequisite_feature_tests.robot,TC_SETUP_004,Verify IP Pool Creation (Static APN Pre-Requisite),positive,feature|regression|ip-pool
+694,E2E Flow,tests/e2e_flow.robot,STEP_01,Step 1 Onboard EC And BU Account Via API,positive,e2e|api|onboard
+695,E2E Flow,tests/e2e_flow.robot,STEP_01B,Step 1b Verify Onboarded Account On UI,positive,e2e|validation|onboard
+696,E2E Flow,tests/e2e_flow.robot,STEP_02,Step 2 Create APN For Onboarded Account,positive,e2e|apn
+697,E2E Flow,tests/e2e_flow.robot,STEP_03,Step 3 Create CSR Journey For Onboarded Account,positive,e2e|csr-journey
+698,E2E Flow,tests/e2e_flow.robot,STEP_04,Step 4 Create SIM Range With 10 ICCID IMSI,positive,e2e|sim-range
+699,E2E Flow,tests/e2e_flow.robot,STEP_05,Step 5 Create And Assign SIM Product Type,positive,e2e|product-type
+700,E2E Flow,tests/e2e_flow.robot,STEP_05B,Step 5b Expand EC And BU SIM Limits,positive,e2e
+701,E2E Flow,tests/e2e_flow.robot,STEP_06,Step 6 Create SIM Order,positive,e2e|sim-order
+702,E2E Flow,tests/e2e_flow.robot,STEP_07,Step 7 Capture Order ID From Live Order Grid,positive,e2e
+703,E2E Flow,tests/e2e_flow.robot,STEP_08,Step 8 Fetch EC And BU Account IDs From Database,positive,e2e
+704,E2E Flow,tests/e2e_flow.robot,STEP_09,Step 9 Run Create Order Script On Server,positive,e2e
+705,E2E Flow,tests/e2e_flow.robot,STEP_10,Step 10 Validate Order Status New To In Progress,positive,e2e|validation
+706,E2E Flow,tests/e2e_flow.robot,STEP_11,Step 11 Generate And Upload Response Files To Server,positive,e2e
+707,E2E Flow,tests/e2e_flow.robot,STEP_12,Step 12 Run Read Order Script On Server,positive,e2e
+708,E2E Flow,tests/e2e_flow.robot,STEP_13,Step 13 Validate Order Status In Progress To Completed,positive,e2e|validation
+709,E2E Flow,tests/e2e_flow.robot,STEP_14,Step 14 Validate SIMs In Warm State On Manage Devices,positive,e2e|manage-devices|validation
+710,E2E Flow,tests/e2e_flow.robot,STEP_15,Step 15 Update Order Status To Approved Via SOAP API,positive,e2e|api
+711,E2E Flow,tests/e2e_flow.robot,STEP_16,Step 16 Activate 5 SIMs And Capture IMSIs,positive,e2e
+712,E2E Flow,tests/e2e_flow.robot,STEP_17,Step 17 Generate Invoice And Download CSV,positive,e2e
+713,E2E Flow,tests/e2e_flow.robot,STEP_18,Step 18 Create Second CSR Journey With Different Plan,positive,e2e|csr-journey|device-plan
+714,E2E Flow,tests/e2e_flow.robot,STEP_19,Step 19 Perform Device Plan Change On One Activated SIM And Validate,positive,e2e|device-plan
+715,E2E Flow With Usage,tests/e2e_flow_with_usage.robot,STEP_01,Step 1 Onboard EC And BU Account Via API,positive,e2e|api|onboard
+716,E2E Flow With Usage,tests/e2e_flow_with_usage.robot,STEP_01B,Step 1b Verify Onboarded Account On UI,positive,e2e|validation|onboard
+717,E2E Flow With Usage,tests/e2e_flow_with_usage.robot,STEP_02,Step 2 Create APN For Onboarded Account,positive,e2e|apn
+718,E2E Flow With Usage,tests/e2e_flow_with_usage.robot,STEP_03,Step 3 Create CSR Journey For Onboarded Account,positive,e2e|csr-journey
+719,E2E Flow With Usage,tests/e2e_flow_with_usage.robot,STEP_04,Step 4 Create SIM Range With 10 ICCID IMSI,positive,e2e|sim-range
+720,E2E Flow With Usage,tests/e2e_flow_with_usage.robot,STEP_05,Step 5 Create And Assign SIM Product Type,positive,e2e|product-type
+721,E2E Flow With Usage,tests/e2e_flow_with_usage.robot,STEP_05B,Step 5b Expand EC And BU SIM Limits,positive,e2e
+722,E2E Flow With Usage,tests/e2e_flow_with_usage.robot,STEP_06,Step 6 Create SIM Order,positive,e2e|sim-order
+723,E2E Flow With Usage,tests/e2e_flow_with_usage.robot,STEP_07,Step 7 Capture Order ID From Live Order Grid,positive,e2e
+724,E2E Flow With Usage,tests/e2e_flow_with_usage.robot,STEP_08,Step 8 Fetch EC And BU Account IDs From Database,positive,e2e
+725,E2E Flow With Usage,tests/e2e_flow_with_usage.robot,STEP_09,Step 9 Run Create Order Script On Server,positive,e2e
+726,E2E Flow With Usage,tests/e2e_flow_with_usage.robot,STEP_10,Step 10 Validate Order Status New To In Progress,positive,e2e|validation
+727,E2E Flow With Usage,tests/e2e_flow_with_usage.robot,STEP_11,Step 11 Generate And Upload Response Files To Server,positive,e2e
+728,E2E Flow With Usage,tests/e2e_flow_with_usage.robot,STEP_12,Step 12 Run Read Order Script On Server,positive,e2e
+729,E2E Flow With Usage,tests/e2e_flow_with_usage.robot,STEP_13,Step 13 Validate Order Status In Progress To Completed,positive,e2e|validation
+730,E2E Flow With Usage,tests/e2e_flow_with_usage.robot,STEP_14,Step 14 Validate SIMs In Warm State On Manage Devices,positive,e2e|manage-devices|validation
+731,E2E Flow With Usage,tests/e2e_flow_with_usage.robot,STEP_15,Step 15 Update Order Status To Approved Via SOAP API,positive,e2e|api
+732,E2E Flow With Usage,tests/e2e_flow_with_usage.robot,STEP_16,Step 16 Activate 5 SIMs And Capture IMSIs And MSISDNs,positive,e2e
+733,E2E Flow With Usage,tests/e2e_flow_with_usage.robot,STEP_16A,Step 16a Perform Usage For All Activated IMSIs,positive,e2e|api
+734,E2E Flow With Usage,tests/e2e_flow_with_usage.robot,STEP_16B,Step 16b Validate Usage In UI For All IMSIs,positive,e2e|validation
+735,E2E Flow With Usage,tests/e2e_flow_with_usage.robot,STEP_17,Step 17 Generate Invoice And Download CSV,positive,e2e
+736,E2E Flow With Usage,tests/e2e_flow_with_usage.robot,STEP_18,Step 18 Create Second CSR Journey With Different Plan,positive,e2e|csr-journey|device-plan
+737,E2E Flow With Usage,tests/e2e_flow_with_usage.robot,STEP_19,Step 19 Perform Device Plan Change On One Activated SIM And Validate,positive,e2e|device-plan
+738,Role/User CRUD,tests/role_user_crud_tests.robot,TC_CRUD_001,Create Role,positive,positive|crud|role-management|smoke
+739,Role/User CRUD,tests/role_user_crud_tests.robot,TC_CRUD_002,Delete Created Role,positive,positive|crud|role-management|smoke
+740,Role/User CRUD,tests/role_user_crud_tests.robot,TC_CRUD_003,Create User,positive,positive|crud|user-management|smoke
+741,Role/User CRUD,tests/role_user_crud_tests.robot,TC_CRUD_004,Delete Created User,positive,positive|crud|user-management|smoke
+742,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_100,Verify User Login And Navigation To CSR Journey Page,positive,feature|regression|csrj|navigation
+743,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_101,Verify Customer And BU Selection And Create Order,positive,feature|regression|csrj
+744,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_102,Verify Tariff Plan Selection,positive,feature|regression|csrj|tariff-plan
+745,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_103,Verify APN Type Selection,positive,feature|regression|csrj|apn
+746,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_104,Verify Add APN Opens Popup,positive,feature|regression|csrj|apn
+747,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_105,Verify APN Dropdown Selection With IP Preference,positive,feature|regression|csrj|apn
+748,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_106,Verify Add Multiple APNs,positive,feature|regression|csrj|apn
+749,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_107,Verify Remove APN,positive,feature|regression|csrj|apn
+750,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_108,Verify Cancel APN Addition,negative,feature|regression|csrj|apn|negative
+751,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_109,Verify Save APN,positive,feature|regression|csrj|apn
+752,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_110,Verify Close APN Popup Without Saving,negative,feature|regression|csrj|apn|negative
+753,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_111,Verify Fetch Device Plan,positive,feature|regression|csrj|device-plan
+754,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_112,Verify Tariff And APN Mismatch Validation,negative,feature|regression|csrj|validation|negative
+755,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_113,Verify Device Plan Selection Under Bundle Plan,positive,feature|regression|csrj|device-plan
+756,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_114,Verify Device Plan Name Field Is Visible,positive,feature|regression|csrj|device-plan
+757,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_115,Verify User Can Enter Valid Device Plan Name,positive,feature|regression|csrj|device-plan
+758,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_116,Verify Field Accepts Alphanumeric Values,positive,feature|regression|csrj|device-plan|boundary
+759,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_117,Verify Field Accepts Special Characters,positive,feature|regression|csrj|device-plan|boundary
+760,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_118,Verify Maximum Character Limit,negative,regression|csrj|device-plan|boundary|negative
+761,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_119,Verify Minimum Character Requirement,negative,regression|csrj|device-plan|boundary|negative
+762,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_120,Verify Mandatory Field Validation,negative,regression|csrj|device-plan|negative
+763,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_121,Verify Trimming Of Leading Trailing Spaces,positive,regression|csrj|device-plan|boundary
+764,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_122,Verify Duplicate Plan Name Validation,negative,regression|csrj|device-plan|negative
+765,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_123,Verify Copy Paste Functionality,positive,feature|regression|csrj|device-plan
+766,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_124,Verify Special Input Only Spaces,negative,regression|csrj|device-plan|negative|boundary
+767,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_125,Verify Numeric Only Input,positive,feature|regression|csrj|device-plan|boundary
+768,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_126,Verify Field Editability,positive,feature|regression|csrj|device-plan
+769,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_127,Verify Device Plan Creation Opens Service Plan,positive,feature|regression|csrj|device-plan|service-plan
+770,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_128,Verify Default Services Behavior,positive,feature|regression|csrj|service-plan
+771,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_129,Verify Default Services Pre-Selected On Load,positive,feature|regression|csrj|service-plan
+772,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_130,Verify Default PAYG State,positive,feature|regression|csrj|service-plan|payg
+773,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_131,Verify Voice Options Availability,positive,feature|regression|csrj|service-plan
+774,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_132,Verify Selecting Voice Outgoing Checkbox,positive,feature|regression|csrj|service-plan
+775,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_133,Verify Deselecting Voice Outgoing Checkbox,positive,feature|regression|csrj|service-plan
+776,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_134,Verify Selecting Voice Incoming Checkbox,positive,feature|regression|csrj|service-plan
+777,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_135,Verify Deselecting Voice Incoming Checkbox,positive,feature|regression|csrj|service-plan
+778,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_136,Verify Selecting Voice Checkbox,positive,feature|regression|csrj|service-plan
+779,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_137,Verify Deselecting Voice Checkbox,positive,feature|regression|csrj|service-plan
+780,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_138,Verify Selecting International Voice Checkbox,positive,feature|regression|csrj|service-plan
+781,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_139,Verify Deselecting International Voice Checkbox,positive,feature|regression|csrj|service-plan
+782,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_140,Verify Multiple Voice Checkboxes Selected Together,positive,feature|regression|csrj|service-plan
+783,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_141,Verify Independent Selection Behavior,positive,feature|regression|csrj|service-plan
+784,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_142,Verify Selecting SMS MO Restriction,positive,feature|regression|csrj|service-plan
+785,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_143,Verify Deselecting SMS MO Restriction,positive,feature|regression|csrj|service-plan
+786,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_144,Verify Selecting SMS MT Restriction,positive,feature|regression|csrj|service-plan
+787,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_145,Verify Deselecting SMS MT Restriction,positive,feature|regression|csrj|service-plan
+788,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_146,Verify PAYG Toggle Visible For Voice,positive,feature|regression|csrj|service-plan|payg
+789,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_147,Verify PAYG Toggle Visible For SMS,positive,feature|regression|csrj|service-plan|payg
+790,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_148,Verify PAYG Toggle Visible For Data,positive,feature|regression|csrj|service-plan|payg
+791,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_149,Verify PAYG Toggle Visible For NB-IoT Data,positive,feature|regression|csrj|service-plan|payg|nbiot
+792,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_150,Verify Enabling PAYG For Voice,positive,feature|regression|csrj|service-plan|payg
+793,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_151,Verify Disabling PAYG For Voice,positive,feature|regression|csrj|service-plan|payg
+794,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_152,Verify Enabling PAYG For SMS,positive,feature|regression|csrj|service-plan|payg
+795,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_153,Verify Disabling PAYG For SMS,positive,feature|regression|csrj|service-plan|payg
+796,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_154,Verify Enabling PAYG For Data,positive,feature|regression|csrj|service-plan|payg
+797,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_155,Verify Disabling PAYG For Data,positive,feature|regression|csrj|service-plan|payg
+798,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_156,Verify Is Roaming Toggle,positive,feature|regression|csrj|service-plan
+799,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_157,Verify NB-IoT As Separate Service Toggle,positive,feature|regression|csrj|service-plan|nbiot
+800,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_158,Verify PAYG Toggle Reset On Close,negative,feature|regression|csrj|service-plan|payg|negative
+801,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_159,Verify Cancel Service Plan,negative,feature|regression|csrj|service-plan|negative
+802,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_160,Verify Save Service Plan,positive,feature|regression|csrj|service-plan
+803,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_161,Verify Default State Of All Services,positive,feature|regression|csrj|service-plan
+804,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_162,Verify All Default Services Are Visible,positive,feature|regression|csrj|service-plan
+805,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_163,Verify NB-IoT Radio Button Visible,positive,feature|regression|csrj|service-plan|nbiot
+806,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_164,Verify NB-IoT With Data Service Enabled,positive,feature|regression|csrj|service-plan|nbiot
+807,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_165,Verify Voice Restriction Checkbox,positive,feature|regression|csrj|service-plan
+808,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_166,Verify Data NB-IoT Checkbox,positive,feature|regression|csrj|service-plan|nbiot
+809,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_170,Verify Add Account VAS Charge Option Visible,positive,feature|regression|csrj|vas
+810,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_171,Verify Adding Account VAS Charge With Mandatory Fields,positive,feature|regression|csrj|vas
+811,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_172,Verify VAS Mandatory Fields Validation,negative,regression|csrj|vas|negative
+812,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_173,Verify Adding Device Level VAS Charge,positive,feature|regression|csrj|vas
+813,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_180,Verify Navigation To Additional Services,positive,feature|regression|csrj|navigation
+814,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_181,Verify Breadcrumb Navigation,positive,feature|regression|csrj|navigation
+815,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_182,Verify Addon Plan Selection,positive,feature|regression|csrj|additional-services|addon
+816,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_183,Verify Add Discount Option Visible,positive,feature|regression|csrj|additional-services|discount
+817,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_184,Verify Discount Category Opens Options,positive,feature|regression|csrj|additional-services|discount
+818,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_185,Verify Account Level Discount,positive,feature|regression|csrj|additional-services|discount
+819,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_186,Verify Discount Mandatory Fields Validation,negative,regression|csrj|additional-services|discount|negative
+820,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_187,Verify Close Discount Modal Discards Changes,negative,feature|regression|csrj|additional-services|discount|negative
+821,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_200,Verify Summary Screen Loads,positive,feature|regression|csrj|summary
+822,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_201,Verify Tariff Plan Section On Summary,positive,feature|regression|csrj|summary|tariff-plan
+823,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_202,Verify Account Plan Section On Summary,positive,feature|regression|csrj|summary|account-plan
+824,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_203,Verify Device Plan Section On Summary,positive,feature|regression|csrj|summary|device-plan
+825,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_204,Verify Breadcrumb Shows Summary,positive,feature|regression|csrj|summary|navigation
+826,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_205,Verify Previous On Summary Returns To Additional,positive,feature|regression|csrj|summary|navigation
+827,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_206,Verify Save And Continue Completes CSR,positive,feature|regression|csrj|summary|e2e
+828,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_210,Verify Close From Standard Services,negative,feature|regression|csrj|navigation|negative
+829,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_211,Verify Close From Additional Services,negative,feature|regression|csrj|navigation|negative
+830,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_212,Verify Close From Summary,negative,feature|regression|csrj|navigation|negative
+831,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_213,Verify Previous From Additional Returns To Standard,positive,feature|regression|csrj|navigation
+832,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_214,Verify DP Name Persistence After Save,positive,feature|regression|csrj|device-plan
+833,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_215,Verify Checkbox State Persists Before Saving,positive,feature|regression|csrj|service-plan
+834,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_216,Verify Checkbox State After Save,positive,feature|regression|csrj|service-plan
+835,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_217,Verify Checkbox Click Area Label,positive,feature|regression|csrj|service-plan
+836,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_218,Verify Rapid Clicking On Checkbox,positive,feature|regression|csrj|service-plan|edge-case
+837,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_219,Verify Enabling PAYG For NB-IoT Data,positive,feature|regression|csrj|service-plan|payg|nbiot
+838,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_220,Verify Disabling PAYG For NB-IoT Data,positive,feature|regression|csrj|service-plan|payg|nbiot
+839,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_221,Verify Independent Behavior Of PAYG Toggles,positive,feature|regression|csrj|service-plan|payg
+840,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_222,Verify PAYG Toggle Without Selecting Checkbox,positive,feature|regression|csrj|service-plan|payg|edge-case
+841,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_223,Verify PAYG Toggle Persistence After Save,positive,feature|regression|csrj|service-plan|payg
+842,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_224,Verify Rapid Toggle Switching,positive,feature|regression|csrj|service-plan|payg|edge-case
+843,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_225,Verify UI Indication Of PAYG State,positive,feature|regression|csrj|service-plan|payg
+844,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_226,Verify PAYG Radio Buttons,positive,feature|regression|csrj|service-plan|payg
+845,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_227,Verify Default Behavior Of SMS Service,positive,feature|regression|csrj|service-plan
+846,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_228,Verify Default Behavior Of Data Service,positive,feature|regression|csrj|service-plan
+847,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_229,Verify Default Behavior Of Voice Service,positive,feature|regression|csrj|service-plan
+848,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_230,Verify Default Behavior Of Roaming Service,positive,feature|regression|csrj|service-plan
+849,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_231,Verify Default Values On New Plan Creation,positive,feature|regression|csrj|service-plan
+850,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_232,Verify Save Without Changes Retains Defaults,positive,feature|regression|csrj|service-plan
+851,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_233,Verify Override Default Settings,positive,feature|regression|csrj|service-plan
+852,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_234,Verify Validation If Mandatory Service Disabled,negative,regression|csrj|service-plan|negative
+853,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_235,Verify Selection Of NB-IoT Radio Button,positive,feature|regression|csrj|service-plan|nbiot
+854,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_236,Verify NB-IoT Default Selection Behavior,positive,feature|regression|csrj|service-plan|nbiot
+855,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_237,Verify NB-IoT UI Alignment And Label,positive,feature|regression|csrj|service-plan|nbiot
+856,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_238,Verify Select NB-IoT Independently,positive,feature|regression|csrj|service-plan|nbiot
+857,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_239,Verify NB-IoT Does Not Disable Data,positive,feature|regression|csrj|service-plan|nbiot
+858,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_240,Verify Data And NB-IoT Coexist,positive,feature|regression|csrj|service-plan|nbiot
+859,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_241,Verify Saving Data And NB-IoT Configuration,positive,feature|regression|csrj|service-plan|nbiot
+860,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_242,Verify Switching Between Data And NB-IoT,positive,feature|regression|csrj|service-plan|nbiot
+861,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_246,Verify Edit Delete DP Icons,positive,feature|regression|csrj|device-plan
+862,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_247,Verify VAS Amount Field During Addition,positive,feature|regression|csrj|vas
+863,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_248,Verify Select End Date For Device Level VAS Charges,positive,feature|regression|csrj|vas
+864,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_249,Verify Select End Date For Account Level VAS Charges,positive,feature|regression|csrj|vas
+865,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_250,Verify VAS Charge Can Be Deleted,positive,feature|regression|csrj|vas
+866,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_251,Verify VAS Charges Editable,positive,feature|regression|csrj|vas
+867,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_252,Verify Override Account Level VAS Amount,positive,feature|regression|csrj|vas
+868,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_253,Verify Override Device Level VAS Amount,positive,feature|regression|csrj|vas
+869,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_257,Verify Auto Renewal Configuration,positive,feature|regression|csrj|additional-services|addon
+870,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_258,Verify Device Level Discount Option,positive,feature|regression|csrj|additional-services|discount
+871,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_259,Verify Only One Discount Category At A Time,positive,feature|regression|csrj|additional-services|discount
+872,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_260,Verify Adding Multiple Discounts,positive,feature|regression|csrj|additional-services|discount
+873,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_261,Verify Duplicate Discount Names,positive,regression|csrj|additional-services|discount|edge-case
+874,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_266,Verify Navigation To Summary From Discounts,positive,feature|regression|csrj|summary|navigation
+875,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_267,Verify Account OTC Details On Summary,positive,feature|regression|csrj|summary|account-plan
+876,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_268,Verify Account Recurring Charges On Summary,positive,feature|regression|csrj|summary|account-plan
+877,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_269,Verify Account VAS Charges On Summary,positive,feature|regression|csrj|summary|account-plan
+878,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_270,Verify Entitlement Details On Summary,positive,feature|regression|csrj|summary|device-plan
+879,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_271,Verify Service Plan Details On Summary,positive,feature|regression|csrj|summary|device-plan
+880,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_272,Verify Device OTC Charges On Summary,positive,feature|regression|csrj|summary|device-plan
+881,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_273,Verify Device Recurring Charges On Summary,positive,feature|regression|csrj|summary|device-plan
+882,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_274,Verify Device VAS Charges On Summary,positive,feature|regression|csrj|summary|device-plan
+883,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_275,Verify Suspension Charge On Summary,positive,feature|regression|csrj|summary
+884,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_276,Verify Discount For Device Plan On Summary,positive,feature|regression|csrj|summary|discount
+885,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_278,Verify Discount Section Visibility On Summary,positive,feature|regression|csrj|summary|discount
+886,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_279,Verify Discount Name Display On Summary,positive,feature|regression|csrj|summary|discount
+887,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_280,Verify Discount Value Display On Summary,positive,feature|regression|csrj|summary|discount
+888,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_281,Verify Discount Percentage Format,positive,feature|regression|csrj|summary|discount
+889,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_282,Verify Discount Start Date Display,positive,feature|regression|csrj|summary|discount
+890,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_283,Verify Discount End Date Display,positive,feature|regression|csrj|summary|discount
+891,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_284,Verify Discount Date Format Consistency,positive,feature|regression|csrj|summary|discount
+892,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_285,Verify Discount Row Structure,positive,feature|regression|csrj|summary|discount
+893,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_286,Verify Discount UI Alignment,positive,feature|regression|csrj|summary|discount
+894,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_287,Verify Discount Data Consistency,positive,feature|regression|csrj|summary|discount
+895,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_288,Verify Non Editable Discount On Summary,positive,feature|regression|csrj|summary|discount
+896,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_289,Verify Zero Percent Discount Handling,positive,feature|regression|csrj|summary|discount|edge-case
+897,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_290,Verify Discount Date Logic,positive,feature|regression|csrj|summary|discount
+898,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_291,Verify Empty Discount Section,negative,feature|regression|csrj|summary|discount|negative
+899,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_292,Verify Multiple Discount Rows On Summary,positive,feature|regression|csrj|summary|discount
+900,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_296,Verify Add-on Section Visible On Summary,positive,feature|regression|csrj|summary|addon
+901,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_297,Verify Add-on Plan Name Display,positive,feature|regression|csrj|summary|addon
+902,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_298,Verify Quota Value Display,positive,feature|regression|csrj|summary|addon
+903,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_299,Verify Quota Unit Display,positive,feature|regression|csrj|summary|addon
+904,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_300,Verify Validity Term Unit Display,positive,feature|regression|csrj|summary|addon
+905,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_301,Verify Zone Name Display On Summary,positive,feature|regression|csrj|summary|addon
+906,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_302,Verify APN Name Display On Summary,positive,feature|regression|csrj|summary|addon
+907,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_303,Verify Rating Group Display,positive,feature|regression|csrj|summary|addon
+908,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_304,Verify Auto Renewal Configuration On Summary,positive,feature|regression|csrj|summary|addon
+909,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_305,Verify Auto Enablement Status On Summary,positive,feature|regression|csrj|summary|addon
+910,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_306,Verify Mapped Device Plan On Summary,positive,feature|regression|csrj|summary|addon
+911,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_307,Verify Multiple Add-on Records On Summary,positive,feature|regression|csrj|summary|addon
+912,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_308,Verify Add-on Column Alignment On Summary,positive,feature|regression|csrj|summary|addon
+913,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_309,Verify Empty Add-on State On Summary,negative,feature|regression|csrj|summary|addon|negative
+914,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_310,Verify Add-on Data Consistency,positive,feature|regression|csrj|summary|addon
+915,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_311,Verify Quota Formatting On Summary,positive,feature|regression|csrj|summary|addon
+916,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_312,Verify Progress Popup Message,positive,feature|regression|csrj|summary
+917,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_313,Verify CSR Operation Start Message,positive,feature|regression|csrj|summary
+918,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_314,Verify Account Plan Creation Success,positive,feature|regression|csrj|summary
+919,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_315,Verify Add On Creation Success,positive,feature|regression|csrj|summary
+920,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_316,Verify Add On Publish Success,positive,feature|regression|csrj|summary
+921,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_317,Verify Account Level Discount Creation,positive,feature|regression|csrj|summary
+922,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_318,Verify APN Creation Success,positive,feature|regression|csrj|summary
+923,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_319,Verify Zone Creation Success,positive,feature|regression|csrj|summary
+924,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_320,Verify Service Plan Success,positive,feature|regression|csrj|summary
+925,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_321,Verify Device Plan Creation Success,positive,feature|regression|csrj|summary
+926,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_322,Verify Final CSR Completed Message,positive,feature|regression|csrj|summary
+927,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_323,Verify Message Order And Timing,positive,feature|regression|csrj|summary
+928,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_324,Verify Error Message On Failure,negative,regression|csrj|summary|negative
+929,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_325,Verify Success Messages Sequence,positive,feature|regression|csrj|summary
+930,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_326,Verify CSR Completion,positive,feature|regression|csrj|summary
+931,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_327,Verify APN Dropdown Lists Available APNs,positive,feature|regression|csrj|apn
+932,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_328,Verify Different APN And IP In Second Row,positive,feature|regression|csrj|apn
+933,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_329,Verify Save Without Selecting APN Shows Error,negative,regression|csrj|apn|negative
+934,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_330,Verify IP Preference Dropdown Options,positive,feature|regression|csrj|apn
+935,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_331,Verify Duplicate APN Selection Across Rows,negative,regression|csrj|apn|negative|edge-case
+936,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_332,Verify SMS Section Checkboxes Default State,positive,feature|regression|csrj|service-plan
+937,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_333,Verify Save Closes Popup And Reflects SP Name,positive,feature|regression|csrj|service-plan
+938,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_334,Verify VAS Charge Dropdown Lists Charges,positive,feature|regression|csrj|vas
+939,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_335,Verify Amount Auto Populates On VAS Selection,positive,feature|regression|csrj|vas
+940,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_336,Verify End Date Calendar Picker,positive,feature|regression|csrj|vas
+941,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_337,Verify VAS Record Shows Edit Delete Icons,positive,feature|regression|csrj|vas
+942,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_339,Verify Add On Plan Multiselect Visible,positive,feature|regression|csrj|additional-services|addon
+943,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_340,Verify Selecting Add On Populates Table,positive,feature|regression|csrj|additional-services|addon
+944,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_341,Verify Auto Renewal Toggle In Add On Table,positive,feature|regression|csrj|additional-services|addon
+945,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_342,Verify Auto Enablement Toggle,positive,feature|regression|csrj|additional-services|addon
+946,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_343,Verify Mapped Device Plan Add For Add On,positive,feature|regression|csrj|additional-services|addon
+947,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_344,Verify Removing Selected Add On Plan,positive,feature|regression|csrj|additional-services|addon
+948,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_345,Verify Discount Section Below Add On Table,positive,feature|regression|csrj|additional-services|discount
+949,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_346,Verify Account Level Discount Category And Fields,positive,feature|regression|csrj|additional-services|discount
+950,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_347,Verify Applicable To Dropdown Options,positive,feature|regression|csrj|additional-services|discount
+951,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_348,Verify Start Date Defaults And Changeable,positive,feature|regression|csrj|additional-services|discount
+952,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_349,Verify Price Field Accepts Numeric Input,positive,feature|regression|csrj|additional-services|discount
+953,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_350,Verify Device Plan Level Discount,positive,feature|regression|csrj|additional-services|discount
+954,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_351,Verify Edit Discount Opens Pre Filled Popup,positive,feature|regression|csrj|additional-services|discount
+955,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_001,Verify APN Tab Is Accessible From Device Detail Page And Loads Without Error,positive,feature|regression
+956,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_002,Verify All Device Header Fields Are Correctly Displayed When APN Tab Is Active,positive,feature|regression
+957,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_003,Verify Navigating Away From APN Tab And Returning Retains APN Tab State,positive,feature|regression
+958,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_004,Verify APN Type Dropdown Contains All Expected Options And Defaults Correctly,positive,feature|regression
+959,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_005,Verify Selecting Private APN Type Loads Only Private APNs,positive,feature|regression
+960,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_006,Verify Selecting Public APN Type Loads Only Public APNs,positive,feature|regression
+961,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_007,Verify Selecting Any APN Type Shows APNs Of All Types,positive,feature|regression
+962,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_008,Verify Refresh Button Reloads APN List Without Changing APN Type,positive,feature|regression
+963,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_009,Verify Refresh Button Shows Loading State And Completes Within Acceptable Time,positive,feature|regression
+964,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_010,Verify All Filter Tab Is Active By Default And Shows All APNs,positive,feature|regression
+965,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_011,Verify Assigned Filter Tab Shows Only Device-Assigned APNs,positive,feature|regression
+966,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_012,Verify Unassigned Filter Tab Shows Only APNs Not Yet Assigned,positive,feature|regression
+967,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_013,Verify Switching Between Assigned Unassigned And All Tabs Updates List,positive,feature|regression
+968,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_014,Verify Empty State Is Handled When No APNs Match The Filter,negative,feature|regression|negative
+969,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_015,Verify APN Name List Is Scrollable With Many APNs,positive,feature|regression
+970,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_016,Verify Clicking APN Name Selects It And Updates IP Panel,positive,feature|regression
+971,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_017,Verify Selecting Different APNs Updates IP Panel Independently,positive,feature|regression
+972,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_018,Verify APN Name Column Header Is Displayed And List Is Properly Formatted,positive,feature|regression
+973,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_019,Verify IPV4 And IPV6 Tabs Are Both Present In IP Address Panel,positive,feature|regression
+974,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_020,Verify IPV6 Tab Displays Correct IPV6 Address For Selected APN,positive,feature|regression
+975,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_021,Verify IPV4 Tab Displays Correct IPV4 Address For Selected APN,positive,feature|regression
+976,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_022,Verify Switching Between IPV4 And IPV6 Tabs Updates IP Display,positive,feature|regression
+977,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_023,Verify Radio Button Indicates Currently Assigned Active IP,positive,feature|regression
+978,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_024,Verify IPV4 Tab Shows Empty State When No IPV4 Address Is Assigned,negative,feature|regression|negative
+979,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_025,Verify IPV6 Tab Shows Empty State When No IPV6 Address Is Assigned,negative,feature|regression|negative
+980,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_026,Verify Multiple IP Addresses Are Displayed When An APN Has Multiple IPs,positive,feature|regression
+981,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_027,Verify Error Handling When APN List Fails To Load,negative,feature|regression|negative
+982,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_028,Verify APN Tab Shows Empty State When No APNs Configured For Device,negative,feature|regression|negative
+983,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_029,Verify Long APN Names Are Displayed Without Breaking Layout,positive,feature|regression
+984,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_030,Verify Long IPv6 Address Is Fully Displayed Without Truncation,positive,feature|regression
+985,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_031,Verify Unauthorized User Cannot Modify APN Configuration,negative,feature|regression|negative
+986,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_032,Verify E2E Open Device APN Tab Private APN Select And View IPV6,positive,feature|regression|e2e|smoke
+987,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_033,Verify Switching APN Type From Private To Public Updates List And IP Panel,positive,feature|regression
+988,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_034,Verify Assigned Filter Shows Only Device-Assigned APN And Unassigned Shows Rest,positive,feature|regression
+989,Device APN Feature,tests/device_apn_feature_tests.robot,TC_DAPN_035,Verify Refresh Button Re-Syncs APN Data Without Losing Current Filter State,positive,feature|regression
+990,Device VAS Charges Feature,tests/device_vas_charges_feature_tests.robot,TC_VAS_001,Verify Edit Device Level VAS Charges Popup Opens,positive,feature|regression|vas
+991,Device VAS Charges Feature,tests/device_vas_charges_feature_tests.robot,TC_VAS_002,Verify Device Plan Dropdown Is Pre-Filled In Edit VAS Popup,positive,feature|regression|vas
+992,Device VAS Charges Feature,tests/device_vas_charges_feature_tests.robot,TC_VAS_003,Verify Amount Field Is Editable For Override,positive,feature|regression|vas
+993,Device VAS Charges Feature,tests/device_vas_charges_feature_tests.robot,TC_VAS_004,Verify End Date Calendar Picker In Edit VAS Popup,positive,feature|regression|vas
+994,Device VAS Charges Feature,tests/device_vas_charges_feature_tests.robot,TC_VAS_005,Verify Save Persists The Edited VAS Charge,positive,feature|regression|vas
+995,Device VAS Charges Feature,tests/device_vas_charges_feature_tests.robot,TC_VAS_006,Verify Delete Icon Removes The VAS Charge Row,positive,feature|regression|vas
+996,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_001,Verify Manage Devices Page Loads And Displays Device List With All Expected Columns,positive,feature|regression|manage-devices
+997,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_002,Verify SIM STATE Column Displays Correct Colour-Coded States,positive,feature|regression|manage-devices
+998,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_003,Verify Pagination Controls Navigate Correctly Between Pages,positive,feature|regression|manage-devices
+999,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_004,Verify Column Sort Ascending And Descending On Key Columns,positive,feature|regression|manage-devices
+1000,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_005,Verify Expand Row Button Shows Device Sub-Details,positive,feature|regression|manage-devices
+1001,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_006,Verify Top-Right Lock Or Export Icon Is Functional,positive,feature|regression|manage-devices
+1002,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_007,Verify Search By ICCID Returns Correct Device,positive,feature|regression|manage-devices
+1003,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_008,Verify Search Filter Dropdown Can Be Changed,positive,feature|regression|manage-devices
+1004,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_009,Verify Change State Filter Dropdown Filters List By SIM State,positive,feature|regression|manage-devices
+1005,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_010,Verify Search With Invalid Or Non-Existent ICCID Shows No Results,negative,feature|regression|manage-devices|negative
+1006,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_011,Verify Search Field With Special Characters Or SQL Injection Is Handled Safely,negative,feature|regression|manage-devices|security|negative
+1007,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_012,Verify Individual Device Row Selection Via Checkbox,positive,feature|regression|manage-devices
+1008,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_013,Verify Select All Checkbox In Header Selects And Deselects All Rows,positive,feature|regression|manage-devices
+1009,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_014,Verify Select Dropdown Provides Selection Options,positive,feature|regression|manage-devices
+1010,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_015,Verify Close Button In Selection Toolbar Clears Selection,positive,feature|regression|manage-devices
+1011,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_016,Verify Change State Toolbar Contains Correct Controls,positive,feature|regression|manage-devices
+1012,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_017,Verify Selecting A State And Clicking Submit Opens Change State Popup,positive,feature|regression|manage-devices
+1013,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_018,Verify Clicking Submit Without Selecting Any Device Shows Validation,negative,feature|regression|manage-devices|negative
+1014,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_019,Verify Change State Close Button Dismisses Toolbar Action Without Changes,positive,feature|regression|manage-devices
+1015,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_020,Verify Bulk State Change Can Be Applied To Multiple Selected Devices,positive,feature|regression|manage-devices
+1016,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_021,Verify Change State Popup Displays Correct Fields,positive,feature|regression|manage-devices
+1017,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_022,Verify Device Plan Dropdown Lists Available Plans And Is Pre-Filled,positive,feature|regression|manage-devices|device-plan
+1018,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_023,Verify Reason Dropdown Contains All Valid Reasons And Default Is Pre-Selected,positive,feature|regression|manage-devices
+1019,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_024,Verify Clicking Proceed Successfully Changes The Device State,positive,feature|regression|manage-devices|positive
+1020,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_025,Verify Clicking Close On Popup Cancels The State Change,positive,feature|regression|manage-devices
+1021,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_026,Verify Clicking X Icon On Popup Header Cancels Without Changes,positive,feature|regression|manage-devices
+1022,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_027,Verify Proceed Button Without Selecting Reason Shows Validation,negative,feature|regression|manage-devices|negative
+1023,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_028,Verify Proceed Button Without Selecting Device Plan Shows Validation,negative,feature|regression|manage-devices|negative
+1024,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_029,Verify State Transition From InActive To Activated,positive,feature|regression|manage-devices
+1025,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_030,Verify State Transition From Activated To Suspended,positive,feature|regression|manage-devices
+1026,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_031,Verify State Transition From Warm To Activated,positive,feature|regression|manage-devices
+1027,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_032,Verify System Prevents Or Warns When Setting Device To Its Current State,negative,feature|regression|manage-devices|negative
+1028,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_033,Verify Case ID Dropdown Lists Available Cases And Can Be Selected,positive,feature|regression|manage-devices
+1029,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_034,Verify Submit Button In Left Toolbar With Case ID Submits Action,positive,feature|regression|manage-devices
+1030,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_035,Verify Submit Left Toolbar Without Case ID Shows Validation,negative,feature|regression|manage-devices|negative
+1031,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_036,Verify All Tabs In Devices Module Are Accessible And Load Correctly,positive,feature|regression|manage-devices|navigation
+1032,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_037,Verify Returning To Manage Devices Tab Retains Or Resets List State,positive,feature|regression|manage-devices|navigation
+1033,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_038,Verify Page Performance With Large Data Set (2831 Devices / 142 Pages),positive,feature|regression|manage-devices
+1034,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_039,Verify Browser Refresh Does Not Crash The Page Or Lose Critical Context,positive,feature|regression|manage-devices
+1035,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_040,Verify Error Handling When Change State API Fails,negative,feature|regression|manage-devices|negative
+1036,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_041,Verify Unauthorized User Cannot Perform State Change,negative,feature|regression|manage-devices|negative
+1037,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_042,Verify UI Layout Is Responsive And Columns Remain Readable,positive,feature|regression|manage-devices
+1038,Manage Devices Feature,tests/manage_devices_feature_tests.robot,TC_MD_043,Verify Blue Pencil Icon On Device Row Opens Device Detail Or Note Editor,positive,feature|regression|manage-devices
+1039,Setup Prerequisite Feature,tests/setup_prerequisite_feature_tests.robot,TC_SETUP_001,Verify Create SIM Product Type And Assign To Customer,positive,feature|regression
+1040,Setup Prerequisite Feature,tests/setup_prerequisite_feature_tests.robot,TC_SETUP_002,Verify SIM Order Created Successfully,positive,feature|regression|sim-order
+1041,Setup Prerequisite Feature,tests/setup_prerequisite_feature_tests.robot,TC_SETUP_003,Verify SIM State Changed From Warm To Inactive,positive,feature|regression|device-state
+1042,Setup Prerequisite Feature,tests/setup_prerequisite_feature_tests.robot,TC_SETUP_004,Verify IP Pool Creation (Static APN Pre-Requisite),positive,feature|regression|ip-pool
