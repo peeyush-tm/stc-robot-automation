@@ -40,7 +40,7 @@ TC_015_001 Create Report Happy Path And Validate Grid
 
 TC_015_002 Create Report And Download File
     [Documentation]    Create report, then click Download in first row and verify no error.
-    [Tags]    regression    positive    report    download
+    [Tags]    regression    positive    report
     Navigate To Reports Page
     Open Create Report Form
     Select Report Category    ${REPORT_CATEGORY_NAME}
@@ -55,7 +55,7 @@ TC_015_002 Create Report And Download File
 
 TC_015_003 Create Report With Send Email
     [Documentation]    Create report with Send Email enabled and one recipient.
-    [Tags]    regression    positive    report    email
+    [Tags]    regression    positive    report
     Navigate To Reports Page
     Open Create Report Form
     Select Report Category    ${REPORT_CATEGORY_NAME}
@@ -71,7 +71,7 @@ TC_015_003 Create Report With Send Email
 
 TC_015_004 Create Report Weekly View
     [Documentation]    Create Data Usage report with WEEK view criterion.
-    [Tags]    regression    positive    report    extended
+    [Tags]    regression    positive    report
     Navigate To Reports Page
     Open Create Report Form
     Select Report Category    ${REPORT_CATEGORY_NAME}
@@ -86,7 +86,7 @@ TC_015_004 Create Report Weekly View
 
 TC_015_005 Create Report Monthly View
     [Documentation]    Create Data Usage report with MONTH view criterion.
-    [Tags]    regression    positive    report    extended
+    [Tags]    regression    positive    report
     Navigate To Reports Page
     Open Create Report Form
     Select Report Category    ${REPORT_CATEGORY_NAME}
@@ -100,7 +100,7 @@ TC_015_005 Create Report Monthly View
 
 TC_015_006 Create Report PDF Format
     [Documentation]    Create Data Usage report in PDF format.
-    [Tags]    regression    positive    report    extended
+    [Tags]    regression    positive    report
     Navigate To Reports Page
     Open Create Report Form
     Select Report Category    ${REPORT_CATEGORY_NAME}
@@ -114,7 +114,7 @@ TC_015_006 Create Report PDF Format
 
 TC_015_007 Create Report XLSX Format
     [Documentation]    Create Data Usage report in XLSX format.
-    [Tags]    regression    positive    report    extended
+    [Tags]    regression    positive    report
     Navigate To Reports Page
     Open Create Report Form
     Select Report Category    ${REPORT_CATEGORY_NAME}
@@ -192,7 +192,7 @@ TC_015_NEG_04 No Report Format Should Show Error
 
 TC_015_NEG_05 Send Email Without Recipients Should Show Error
     [Documentation]    Enable Send Email but add no recipient; expect error toast.
-    [Tags]    regression    negative    report    email
+    [Tags]    regression    negative    report
     Navigate To Reports Page
     Open Create Report Form
     Select Report Category    ${REPORT_CATEGORY_NAME}

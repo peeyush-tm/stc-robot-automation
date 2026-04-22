@@ -27,19 +27,19 @@ Test Teardown     Handle Test Teardown
 TC_CDP_002 Change Device Plan On Activated SIM
     [Documentation]    Filter account + Activated, validate initial state and device plan (DP1),
     ...                change to DP2, wait 5 min, search IMSI to verify DP2 in grid.
-    [Tags]    smoke    regression    positive    device_plan    activated
+    [Tags]    smoke    regression    positive    device_plan
     TC_CDP_002
 
 TC_CDP_003 Change Device Plan On TestActive SIM
     [Documentation]    Filter account + TestActive, validate initial state and device plan (DP1),
     ...                change to DP2, wait 5 min, search IMSI to verify DP2 in grid.
-    [Tags]    regression    positive    device_plan    testactive
+    [Tags]    regression    positive    device_plan
     TC_CDP_003
 
 TC_CDP_004 Change Device Plan On Suspended SIM
     [Documentation]    Filter account + Suspended, validate initial state and device plan (DP1),
     ...                change to DP2, wait 5 min, search IMSI to verify DP2 in grid.
-    [Tags]    regression    positive    device_plan    suspended
+    [Tags]    regression    positive    device_plan
     TC_CDP_004
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -49,7 +49,7 @@ TC_CDP_004 Change Device Plan On Suspended SIM
 TC_CDP_005 Verify Change Device Plan Popup Opens
     [Documentation]    Select an Activated device, choose Change Device Plan, select a plan,
     ...                verify the popup modal appears with Reason dropdown visible.
-    [Tags]    regression    positive    device_plan    activated
+    [Tags]    regression    positive    device_plan
     TC_CDP_005
 
 TC_CDP_006 Close Popup Without Submitting Should Not Change Plan
@@ -66,7 +66,7 @@ TC_CDP_007 Change Device Plan On Terminate SIM Should Be Blocked
     [Documentation]    For a Terminated SIM, Device Plan action should be blocked at some
     ...                stage — either dropdown not available, no plans in the plan dropdown,
     ...                submit button disabled, error toast, or popup doesn't open.
-    [Tags]    regression    negative    device_plan    terminate
+    [Tags]    regression    negative    device_plan
     TC_CDP_007
 
 TC_CDP_008 No Device Selected Should Not Allow Action

@@ -80,5 +80,45 @@ SQL_INJECTION_APN_NAME = "' OR '1'='1' --"
 SPECIAL_CHARS_APN_NAME = "!@#$%^&*()_+{}|:<>?"
 DUPLICATE_APN_NAME = "test-apn-automation"
 
+# ── Public APN E2E (Static Dual-Stack) ──────────────────────────────
+E2E_PUBLIC_APN_ID = f"34{_TIMESTAMP}"
+E2E_PUBLIC_APN_NAME = f"auto-e2e-pub-{_random_string(6)}"
+E2E_PUBLIC_DESCRIPTION = "E2E Public APN with Static IPV4 and IPV6"
+E2E_PUBLIC_EQOS_ID = "3456789"
+E2E_PUBLIC_CONTEXT_ID = "23456789"
+PUBLIC_ACCOUNT_NAME = "KSA_OPCO"
+
+# ── APN ID Validation ────────────────────────────────────────────────
+ALPHA_APN_ID = "abc123xyz"
+SPECIAL_CHAR_APN_ID = "12#45@678"
+
+# ── Search / Grid Test Data ─────────────────────────────────────────
+APN_SEARCH_TERM = "auto-apn"
+
+# ── Expected Column Headers ─────────────────────────────────────────
+EXPECTED_APN_COLUMNS = [
+    "APN NAME", "APN ID", "ACCOUNT", "APN TYPE", "SHARED",
+    "STATUS", "EQOSID", "IPV4 ALLOCATION TYPE", "IPV6 ALLOCATION TYPE",
+    "HSS PROFILE ID", "DESCRIPTION", "CREATION DATE",
+]
+
+# ── Subnet IPV4 Test Data ────────────────────────────────────────────
+SUBNET_IPV4_VALID = "10.45.223.45"
+SUBNET_IPV4_PREFIX_30 = "/30"
+SUBNET_IPV4_INVALID = "999.999.999.999"
+SUBNET_IPV4_SECOND = "172.16.0.0"
+SUBNET_IPV4_SECOND_PREFIX = "/30"
+SUBNET_IPV4_EDGE_IP = "192.168.1.0"
+SUBNET_IPV4_PREFIX_32 = "/32"
+SUBNET_IPV4_PREFIX_24 = "/24"
+SUBNET_IPV4_PREFIX_29 = "/29"
+
+# ── Subnet IPV6 Test Data ────────────────────────────────────────────
+SUBNET_IPV6_VALID = "fd8c:42b7:1000:0000:0"
+SUBNET_IPV6_PREFIX_63 = "/63"
+SUBNET_IPV6_INVALID = "invalid::address::xyz"
+SUBNET_IPV6_SECOND = "2001:db8:1000::"
+SUBNET_IPV6_SECOND_PREFIX = "/64"
+
 # ── Expected Messages ────────────────────────────────────────────────
 TOAST_APN_CREATED = "APN Created Successfully"

@@ -26,43 +26,43 @@ Test Teardown     Handle Test Teardown
 TC_DSC_002 TestActive To Activated
     [Documentation]    Filter account + TestActive, validate initial state is TestActive,
     ...                change to Activated, wait 5 min, search IMSI to verify Activated.
-    [Tags]    smoke    regression    positive    device_state    testactive
+    [Tags]    smoke    regression    positive    device_state
     TC_DSC_002
 
 TC_DSC_003 TestActive To Suspended
     [Documentation]    Filter account + TestActive, validate initial state is TestActive,
     ...                change to Suspended, wait 5 min, search IMSI to verify Suspended.
-    [Tags]    regression    positive    device_state    testactive
+    [Tags]    regression    positive    device_state
     TC_DSC_003
 
 TC_DSC_004 Activated To Suspended
     [Documentation]    Filter account + Activated, validate initial state is Activated,
     ...                change to Suspended, wait 5 min, search IMSI to verify Suspended.
-    [Tags]    regression    positive    device_state    activated
+    [Tags]    regression    positive    device_state
     TC_DSC_004
 
 TC_DSC_005 Activated To Terminate
     [Documentation]    Filter account + Activated, validate initial state is Activated,
     ...                change to Terminate, wait 5 min, search IMSI to verify Terminate.
-    [Tags]    regression    positive    device_state    activated
+    [Tags]    regression    positive    device_state
     TC_DSC_005
 
 TC_DSC_006 Suspended To Terminate
     [Documentation]    Filter account + Suspended, validate initial state is Suspended,
     ...                change to Terminate, wait 5 min, search IMSI to verify Terminate.
-    [Tags]    regression    positive    device_state    suspended
+    [Tags]    regression    positive    device_state
     TC_DSC_006
 
 TC_DSC_007 InActive To Activated
     [Documentation]    Filter account + InActive, validate initial state is InActive,
     ...                change to Activated, wait 5 min, search IMSI to verify Activated.
-    [Tags]    regression    positive    device_state    inactive
+    [Tags]    regression    positive    device_state
     TC_DSC_007
 
 TC_DSC_008 InActive To TestActive
     [Documentation]    Filter account + InActive, validate initial state is InActive,
     ...                change to TestActive, wait 5 min, search IMSI to verify TestActive.
-    [Tags]    regression    positive    device_state    inactive
+    [Tags]    regression    positive    device_state
     TC_DSC_008
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -87,17 +87,17 @@ TC_DSC_010 Close Popup Without Submitting Should Not Change State
 
 TC_DSC_011 Activated To TestActive Should Be Blocked
     [Documentation]    Attempt invalid transition Activated → TestActive; expect blocked.
-    [Tags]    regression    negative    device_state    activated
+    [Tags]    regression    negative    device_state
     TC_DSC_011
 
 TC_DSC_012 Activated To TestReady Should Be Blocked
     [Documentation]    Attempt invalid transition Activated → TestReady; expect blocked.
-    [Tags]    regression    negative    device_state    activated
+    [Tags]    regression    negative    device_state
     TC_DSC_012
 
 TC_DSC_013 Suspended To TestActive Should Be Blocked
     [Documentation]    Attempt invalid transition Suspended → TestActive; expect blocked.
-    [Tags]    regression    negative    device_state    suspended
+    [Tags]    regression    negative    device_state
     TC_DSC_013
 
 # ═══════════════════════════════════════════════════════════════════════

@@ -75,19 +75,19 @@ Step 1 Onboard EC And BU Account Via API
     [Documentation]    Uses the same proven logic as TC_ONBOARD_001: sends createOnboardCustomer
     ...                SOAP request with all fields. Verifies HTTP 200, no SOAP fault.
     ...                Stores EC and BU names as suite variables for subsequent steps.
-    [Tags]    e2e    step-1    api    onboard
+    [Tags]    e2e    api    onboard
     STEP_01
 
 Step 1b Verify Onboarded Account On UI
     [Documentation]    Waits 5 min for backend processing, then navigates to ManageAccount,
     ...                enables Show Customer Wise Data, and validates both EC and BU accounts.
     ...                If not found on first attempt, waits another 5 min, refreshes, and retries.
-    [Tags]    e2e    step-1    validation    onboard
+    [Tags]    e2e    validation    onboard
     STEP_01B
 
 Step 2 Create APN For Onboarded Account
     [Documentation]    Creates a Private APN under the EC/BU onboarded in Step 1.
-    [Tags]    e2e    step-2    apn
+    [Tags]    e2e    apn
     STEP_02
 
 Step 3 Create CSR Journey For Onboarded Account
@@ -96,114 +96,114 @@ Step 3 Create CSR Journey For Onboarded Account
     ...                additional services, summary, and save.
     ...                Implementation: E2E Create CSR Journey → CSRJ Complete Create Wizard Save And Exit Like E2E
     ...                (csr_journey_keywords.resource). Deeper CSR UI regression: tests/csr_journey_tests.robot TC_CSRJ_004.
-    [Tags]    e2e    step-3    csr-journey
+    [Tags]    e2e    csr-journey
     STEP_03
 
 Step 4 Create SIM Range With 10 ICCID IMSI
     [Documentation]    Creates a SIM Range with 10 ICCID/IMSI entries using the default account (KSA_OPCO).
-    [Tags]    e2e    step-4    sim-range
+    [Tags]    e2e    sim-range
     STEP_04
 
 Step 5 Create And Assign SIM Product Type
     [Documentation]    Creates a SIM Product Type with default account (KSA_OPCO),
     ...                then assigns the onboarded EC to it.
-    [Tags]    e2e    step-5    product-type
+    [Tags]    e2e    product-type
     STEP_05
 
 Step 5b Expand EC And BU SIM Limits
     [Documentation]    Before SIM Order: opens EC and BU accounts on ManageAccount,
     ...                navigates to Account Settings, and adds +10 to each Max IMSI /
     ...                Max SIM. Required so the BU has SIM capacity headroom.
-    [Tags]    e2e    step-5b    account-update
+    [Tags]    e2e
     STEP_05B
 
 Step 6 Create SIM Order
     [Documentation]    Creates a SIM Order with quantity 10 using the onboarded BU account
     ...                selected via treeview (KSA_OPCO > EC > BU).
-    [Tags]    e2e    step-6    sim-order
+    [Tags]    e2e    sim-order
     STEP_06
 
 Step 7 Capture Order ID From Live Order Grid
     [Documentation]    Navigates to the Live Order tab, searches for the BU account,
     ...                and captures the Order Number from the first matching row.
     ...                Stores it as a suite variable for all subsequent steps.
-    [Tags]    e2e    step-7    order-processing    capture
+    [Tags]    e2e
     STEP_07
 
 Step 8 Fetch EC And BU Account IDs From Database
     [Documentation]    Connects to the STC database, queries for the EC and BU account
     ...                IDs by name, stores them, and closes the DB connection.
-    [Tags]    e2e    step-8    order-processing    database
+    [Tags]    e2e
     STEP_08
 
 Step 9 Run Create Order Script On Server
     [Documentation]    Connects to the order processing server via SSH and runs
     ...                start_createorder.sh. Waits for script completion.
-    [Tags]    e2e    step-9    order-processing    ssh
+    [Tags]    e2e
     STEP_09
 
 Step 10 Validate Order Status New To In Progress
     [Documentation]    After start_createorder.sh completes, navigates to the Live Order
     ...                tab and validates the order status changed from New to In Progress.
     ...                Retries up to 6 times with 30s between attempts.
-    [Tags]    e2e    step-10    order-processing    validation
+    [Tags]    e2e    validation
     STEP_10
 
 Step 11 Generate And Upload Response Files To Server
     [Documentation]    Generates 3 response files (orderId.dsprsp, orderId.ordrsp,
     ...                orderId.pcsrsp) from templates by replacing 120326 with the
     ...                actual orderId. Uploads them to the server's order/input directory.
-    [Tags]    e2e    step-11    order-processing    files
+    [Tags]    e2e
     STEP_11
 
 Step 12 Run Read Order Script On Server
     [Documentation]    Runs start_readorder.sh on the server to process the uploaded
     ...                response files. Closes the SSH connection after completion.
-    [Tags]    e2e    step-12    order-processing    ssh
+    [Tags]    e2e
     STEP_12
 
 Step 13 Validate Order Status In Progress To Completed
     [Documentation]    After start_readorder.sh completes, navigates to the Order History
     ...                tab and validates the order status changed to Completed.
-    [Tags]    e2e    step-13    order-processing    validation
+    [Tags]    e2e    validation
     STEP_13
 
 Step 14 Validate SIMs In Warm State On Manage Devices
     [Documentation]    Navigates to Manage Devices page, applies BU account filter,
     ...                verifies all SIMs are in Warm state and row count >= 10.
-    [Tags]    e2e    step-14    manage-devices    validation
+    [Tags]    e2e    manage-devices    validation
     STEP_14
 
 Step 15 Update Order Status To Approved Via SOAP API
     [Documentation]    Calls SOAP API to update the SIM order status to Approved.
     ...                Uses the captured orderId from Step 7.
-    [Tags]    e2e    step-15    api    soap
+    [Tags]    e2e    api
     STEP_15
 
 Step 16 Activate 5 SIMs And Capture IMSIs
     [Documentation]    Performs Device State Change on Manage Devices page to activate
     ...                5 SIMs from InActive to Activated state. After Step 15 approval,
     ...                SIMs are in InActive state. Captures all activated IMSIs for future use.
-    [Tags]    e2e    step-16    device-state-change    activation
+    [Tags]    e2e
     STEP_16
 
 Step 17 Generate Invoice And Download CSV
     [Documentation]    Calls Invoice API with BU account ID, waits for server-side
     ...                invoice generation, then downloads latest CSV from server
     ...                to the local billing/ folder.
-    [Tags]    e2e    step-17    invoice    billing
+    [Tags]    e2e
     STEP_17
 
 Step 18 Create Second CSR Journey With Different Plan
     [Documentation]    Creates a second CSR Journey for the same account with different
     ...                tariff/APN/device plan so a different device plan is available for DP change.
-    [Tags]    e2e    step-18    csr-journey    device-plan
+    [Tags]    e2e    csr-journey    device-plan
     STEP_18
 
 Step 19 Perform Device Plan Change On One Activated SIM And Validate
     [Documentation]    On Manage Devices, filters by BU + Activated, performs device plan
     ...                change on one SIM, waits 5 min, then verifies device plan updated in grid.
-    [Tags]    e2e    step-19    device-plan    dp-change
+    [Tags]    e2e    device-plan
     STEP_19
 
 *** Keywords ***

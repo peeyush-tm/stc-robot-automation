@@ -76,13 +76,13 @@ TC_LOGIN_010 All Fields Empty Should Show Error
 TC_LOGIN_011 Empty Captcha Should Show Error
     [Documentation]    Enter valid credentials but leave captcha field empty.
     ...                Verify: "Please Enter Captcha" toast error displayed.
-    [Tags]    regression    negative    login    captcha
+    [Tags]    regression    negative    login
     TC_LOGIN_011
 
 TC_LOGIN_012 Incorrect Captcha Should Show Error
     [Documentation]    Enter valid credentials with a deliberately wrong captcha value.
     ...                Verify: "Invalid Captcha" error displayed.
-    [Tags]    regression    negative    login    captcha
+    [Tags]    regression    negative    login
     TC_LOGIN_012
 
 # ═══════════════════════════════════════════════════════════════════════

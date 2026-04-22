@@ -43,17 +43,17 @@ ${PAYG_BU_ID}               ${EMPTY}
 
 TC_PAYG_SIM_01 Onboard Account
     [Documentation]    Onboard EC + BU via SOAP API for SIM Plan PAYG scenario.
-    [Tags]    payg    sim-plan    step-1    onboard    api
+    [Tags]    payg    onboard    api
     PAYG Onboard Account
 
 TC_PAYG_SIM_02 Verify Onboarded Account On UI
     [Documentation]    Wait for backend processing and verify account on ManageAccount page.
-    [Tags]    payg    sim-plan    step-2    onboard    validation
+    [Tags]    payg    onboard    validation
     PAYG Verify Account On UI
 
 TC_PAYG_SIM_03 Create APN
     [Documentation]    Create APN for the onboarded account.
-    [Tags]    payg    sim-plan    step-3    apn
+    [Tags]    payg    apn
     Should Not Be Empty    ${PAYG_EC_NAME}    Step 1 must run first — EC name is empty.
     E2E Create APN    ${PAYG_EC_NAME}    ${PAYG_BU_NAME}
 
@@ -61,33 +61,33 @@ TC_PAYG_SIM_04 Create CSR Journey With SIM Plan
     [Documentation]    CSR wizard with SIM device plan (``${PAYG_SIM_PLAN_DP}`` from config), PAYG tariff ``${PAYG_TARIFF_PLAN}``.
     ...                Uses ``CSRJ Complete Wizard With Specific Plans`` — Add Service Plan enables all main services
     ...                (International Voice, Data NB-IoT, PAYG toggles, Roaming, etc.); restriction checkboxes stay off.
-    [Tags]    payg    sim-plan    step-4    csr-journey
+    [Tags]    payg    csr-journey
     PAYG Create CSR Journey    ${PAYG_SIM_PLAN_DP}
 
 TC_PAYG_SIM_05 Create SIM Range
     [Documentation]    ICCID/IMSI/MSISDN ranges (size 1 each, pool count 1). Refreshes unique IDs for this scenario tag ``sim``.
     ...                SIM Range Account uses default/first option (KSA_OPCO) on both Create pages; onboarded EC is not selected there.
-    [Tags]    payg    sim-plan    step-5    sim-range
+    [Tags]    payg    sim-range
     PAYG Create SIM Range    sim
 
 TC_PAYG_SIM_06 Create And Assign Product Type
     [Documentation]    SIM Product Type for the same EC as this scenario (E2E flow; config/env URLs apply).
     ...                Unique ``${PT_NAME}`` per scenario so step 7 selects this PT (not a stale name from SIM/Pool/Shared).
-    [Tags]    payg    sim-plan    step-6    product-type
+    [Tags]    payg    product-type
     Should Not Be Empty    ${PAYG_EC_NAME}    Step 1 must run first — EC name is empty.
     PAYG Assign Unique Product Type Name
     E2E Create Product Type And Assign EC    ${PAYG_EC_NAME}
 
 TC_PAYG_SIM_07 Create SIM Order
     [Documentation]    Create SIM Order with quantity 1.
-    [Tags]    payg    sim-plan    step-7    sim-order
+    [Tags]    payg    sim-order
     Should Not Be Empty    ${PAYG_EC_NAME}    Step 1 must run first — EC name is empty.
     Should Not Be Empty    ${PAYG_BU_NAME}    Step 1 must run first — BU name is empty.
     E2E Create SIM Order    ${PAYG_EC_NAME}    ${PAYG_BU_NAME}    quantity=${PAYG_ORDER_QUANTITY}
 
 TC_PAYG_SIM_08 Capture Order ID
     [Documentation]    Capture Order ID from Live Order grid.
-    [Tags]    payg    sim-plan    step-8    order-processing    capture
+    [Tags]    payg
     Should Not Be Empty    ${PAYG_BU_NAME}    Step 1 must run first — BU name is empty.
     ${order_id}=    E2E Capture Order ID    ${PAYG_BU_NAME}
     Set Suite Variable    ${PAYG_ORDER_ID}    ${order_id}
@@ -95,7 +95,7 @@ TC_PAYG_SIM_08 Capture Order ID
 
 TC_PAYG_SIM_09 Fetch Account IDs From Database
     [Documentation]    Fetch EC and BU account IDs from database.
-    [Tags]    payg    sim-plan    step-9    order-processing    database
+    [Tags]    payg
     Should Not Be Empty    ${PAYG_EC_NAME}    Step 1 must run first — EC name is empty.
     Should Not Be Empty    ${PAYG_BU_NAME}    Step 1 must run first — BU name is empty.
     ${ec_id}    ${bu_id}=    E2E Fetch Account IDs From DB    ${PAYG_EC_NAME}    ${PAYG_BU_NAME}
@@ -105,52 +105,52 @@ TC_PAYG_SIM_09 Fetch Account IDs From Database
 
 TC_PAYG_SIM_10 Run Create Order Script
     [Documentation]    Run start_createorder.sh on server.
-    [Tags]    payg    sim-plan    step-10    order-processing    ssh
+    [Tags]    payg
     Should Not Be Empty    ${PAYG_ORDER_ID}    Step 8 must run first — Order ID is empty.
     E2E Run Create Order Script
     Log    Create order script completed for order ${PAYG_ORDER_ID}    console=yes
 
 TC_PAYG_SIM_11 Validate Order In Progress
     [Documentation]    Validate order status changed from New to In Progress.
-    [Tags]    payg    sim-plan    step-11    order-processing    validation
+    [Tags]    payg    validation
     Should Not Be Empty    ${PAYG_ORDER_ID}    Step 8 must run first — Order ID is empty.
     E2E Validate Order Status New To In Progress    ${PAYG_ORDER_ID}
 
 TC_PAYG_SIM_12 Upload Response Files
     [Documentation]    Generate and upload response files to server.
-    [Tags]    payg    sim-plan    step-12    order-processing    files
+    [Tags]    payg
     Should Not Be Empty    ${PAYG_ORDER_ID}    Step 8 must run first — Order ID is empty.
     E2E Generate And Upload Response Files    ${PAYG_ORDER_ID}
 
 TC_PAYG_SIM_13 Run Read Order Script
     [Documentation]    Run start_readorder.sh on server.
-    [Tags]    payg    sim-plan    step-13    order-processing    ssh
+    [Tags]    payg
     Should Not Be Empty    ${PAYG_ORDER_ID}    Step 8 must run first — Order ID is empty.
     E2E Run Read Order Script
     Log    Read order script completed for order ${PAYG_ORDER_ID}    console=yes
 
 TC_PAYG_SIM_14 Validate Order Completed
     [Documentation]    Validate order status changed to Completed.
-    [Tags]    payg    sim-plan    step-14    order-processing    validation
+    [Tags]    payg    validation
     Should Not Be Empty    ${PAYG_ORDER_ID}    Step 8 must run first — Order ID is empty.
     E2E Validate Order Status Completed    ${PAYG_ORDER_ID}
 
 TC_PAYG_SIM_15 Validate SIMs In Warm State
     [Documentation]    Validate 1 SIM in Warm state on Manage Devices.
-    [Tags]    payg    sim-plan    step-15    manage-devices    validation
+    [Tags]    payg    manage-devices    validation
     Should Not Be Empty    ${PAYG_BU_NAME}    Step 1 must run first — BU name is empty.
     ${row_count}=    E2E Validate SIMs In Warm State    ${PAYG_BU_NAME}    min_count=${PAYG_SIM_ACTIVATE_COUNT}
     Log    ${row_count} SIMs in Warm state for BU: ${PAYG_BU_NAME}    console=yes
 
 TC_PAYG_SIM_16 Approve Order Via SOAP
     [Documentation]    Update order status to Approved via SOAP API.
-    [Tags]    payg    sim-plan    step-16    api    soap
+    [Tags]    payg    api
     Should Not Be Empty    ${PAYG_ORDER_ID}    Step 8 must run first — Order ID is empty.
     E2E Update Order Status To Approved    ${PAYG_ORDER_ID}
 
 TC_PAYG_SIM_17 Activate SIMs And Capture Data
     [Documentation]    Activate 1 SIM and capture IMSI + MSISDN for usage.
-    [Tags]    payg    sim-plan    step-17    device-state-change    activation
+    [Tags]    payg
     Should Not Be Empty    ${PAYG_BU_NAME}    Step 1 must run first — BU name is empty.
     ${activated_imsis}    ${imsi_data}=    E2E Activate SIMs And Capture IMSIs    ${PAYG_BU_NAME}    count=${PAYG_SIM_ACTIVATE_COUNT}
     Set Suite Variable    @{PAYG_ACTIVATED_IMSIS}    @{activated_imsis}
@@ -162,7 +162,7 @@ TC_PAYG_SIM_17 Activate SIMs And Capture Data
 
 TC_PAYG_SIM_18 Iterative Usage Until PAYG Quota
     [Documentation]    For each IMSI, iterate User Request + CDR until quotaType becomes payg.
-    [Tags]    payg    sim-plan    step-18    usage    api
+    [Tags]    payg    api
     ${count}=    Get Length    ${PAYG_IMSI_DATA}
     Should Be True    ${count} > 0    No IMSI data. Run Step 17 first.
     Perform Iterative Usage Until PAYG For All IMSIs    @{PAYG_IMSI_DATA}
@@ -170,7 +170,7 @@ TC_PAYG_SIM_18 Iterative Usage Until PAYG Quota
 
 TC_PAYG_SIM_19 Perform PAYG Data Usage
     [Documentation]    After quotaType=payg, perform one PAYG data usage for each IMSI.
-    [Tags]    payg    sim-plan    step-19    usage    api    payg-data
+    [Tags]    payg    api
     ${count}=    Get Length    ${PAYG_IMSI_DATA}
     Should Be True    ${count} > 0    No IMSI data. Run Step 17 first.
     FOR    ${entry}    IN    @{PAYG_IMSI_DATA}
@@ -182,7 +182,7 @@ TC_PAYG_SIM_19 Perform PAYG Data Usage
 
 TC_PAYG_SIM_20 Validate PAYG Usage In UI
     [Documentation]    Expand each IMSI on Manage Devices, verify PAYG data usage > 0 MB.
-    [Tags]    payg    sim-plan    step-20    usage    validation    ui
+    [Tags]    payg    validation
     ${count}=    Get Length    ${PAYG_IMSI_DATA}
     Should Be True    ${count} > 0    No IMSI data. Run Step 17 first.
     Validate PAYG Usage In UI For All IMSIs    @{PAYG_IMSI_DATA}
@@ -194,50 +194,50 @@ TC_PAYG_SIM_20 Validate PAYG Usage In UI
 
 TC_PAYG_POOL_01 Onboard Account
     [Documentation]    Onboard EC + BU via SOAP API for Pool Plan PAYG scenario.
-    [Tags]    payg    pool-plan    step-1    onboard    api
+    [Tags]    payg    onboard    api
     PAYG Onboard Account
 
 TC_PAYG_POOL_02 Verify Onboarded Account On UI
     [Documentation]    Wait for backend processing and verify account on ManageAccount page.
-    [Tags]    payg    pool-plan    step-2    onboard    validation
+    [Tags]    payg    onboard    validation
     PAYG Verify Account On UI
 
 TC_PAYG_POOL_03 Create APN
     [Documentation]    Create APN for the onboarded account.
-    [Tags]    payg    pool-plan    step-3    apn
+    [Tags]    payg    apn
     Should Not Be Empty    ${PAYG_EC_NAME}    Step 1 must run first — EC name is empty.
     E2E Create APN    ${PAYG_EC_NAME}    ${PAYG_BU_NAME}
 
 TC_PAYG_POOL_04 Create CSR Journey With Pool Plan
     [Documentation]    CSR wizard with Pool device plan (``${PAYG_POOL_PLAN_DP}`` from config), PAYG tariff ``${PAYG_TARIFF_PLAN}``.
     ...                Same full Add Service Plan behaviour as SIM scenario (all main services; restrictions off).
-    [Tags]    payg    pool-plan    step-4    csr-journey
+    [Tags]    payg    csr-journey
     PAYG Create CSR Journey    ${PAYG_POOL_PLAN_DP}
 
 TC_PAYG_POOL_05 Create SIM Range
     [Documentation]    ICCID/IMSI/MSISDN ranges (size 1 each). Refreshes unique IDs for tag ``pool`` (avoids collision with SIM/shared in same run).
     ...                SIM Range Account: default KSA_OPCO (same as SIM plan step 5).
-    [Tags]    payg    pool-plan    step-5    sim-range
+    [Tags]    payg    sim-range
     PAYG Create SIM Range    pool
 
 TC_PAYG_POOL_06 Create And Assign Product Type
     [Documentation]    SIM Product Type for the same EC as this scenario (same E2E keywords as SIM plan).
     ...                Unique ``${PT_NAME}`` per scenario for SIM Order step 7 (same as SIM plan step 6).
-    [Tags]    payg    pool-plan    step-6    product-type
+    [Tags]    payg    product-type
     Should Not Be Empty    ${PAYG_EC_NAME}    Step 1 must run first — EC name is empty.
     PAYG Assign Unique Product Type Name
     E2E Create Product Type And Assign EC    ${PAYG_EC_NAME}
 
 TC_PAYG_POOL_07 Create SIM Order
     [Documentation]    Create SIM Order with quantity 1.
-    [Tags]    payg    pool-plan    step-7    sim-order
+    [Tags]    payg    sim-order
     Should Not Be Empty    ${PAYG_EC_NAME}    Step 1 must run first — EC name is empty.
     Should Not Be Empty    ${PAYG_BU_NAME}    Step 1 must run first — BU name is empty.
     E2E Create SIM Order    ${PAYG_EC_NAME}    ${PAYG_BU_NAME}    quantity=${PAYG_ORDER_QUANTITY}
 
 TC_PAYG_POOL_08 Capture Order ID
     [Documentation]    Capture Order ID from Live Order grid.
-    [Tags]    payg    pool-plan    step-8    order-processing    capture
+    [Tags]    payg
     Should Not Be Empty    ${PAYG_BU_NAME}    Step 1 must run first — BU name is empty.
     ${order_id}=    E2E Capture Order ID    ${PAYG_BU_NAME}
     Set Suite Variable    ${PAYG_ORDER_ID}    ${order_id}
@@ -245,7 +245,7 @@ TC_PAYG_POOL_08 Capture Order ID
 
 TC_PAYG_POOL_09 Fetch Account IDs From Database
     [Documentation]    Fetch EC and BU account IDs from database.
-    [Tags]    payg    pool-plan    step-9    order-processing    database
+    [Tags]    payg
     Should Not Be Empty    ${PAYG_EC_NAME}    Step 1 must run first — EC name is empty.
     Should Not Be Empty    ${PAYG_BU_NAME}    Step 1 must run first — BU name is empty.
     ${ec_id}    ${bu_id}=    E2E Fetch Account IDs From DB    ${PAYG_EC_NAME}    ${PAYG_BU_NAME}
@@ -255,52 +255,52 @@ TC_PAYG_POOL_09 Fetch Account IDs From Database
 
 TC_PAYG_POOL_10 Run Create Order Script
     [Documentation]    Run start_createorder.sh on server.
-    [Tags]    payg    pool-plan    step-10    order-processing    ssh
+    [Tags]    payg
     Should Not Be Empty    ${PAYG_ORDER_ID}    Step 8 must run first — Order ID is empty.
     E2E Run Create Order Script
     Log    Create order script completed for order ${PAYG_ORDER_ID}    console=yes
 
 TC_PAYG_POOL_11 Validate Order In Progress
     [Documentation]    Validate order status changed from New to In Progress.
-    [Tags]    payg    pool-plan    step-11    order-processing    validation
+    [Tags]    payg    validation
     Should Not Be Empty    ${PAYG_ORDER_ID}    Step 8 must run first — Order ID is empty.
     E2E Validate Order Status New To In Progress    ${PAYG_ORDER_ID}
 
 TC_PAYG_POOL_12 Upload Response Files
     [Documentation]    Generate and upload response files to server.
-    [Tags]    payg    pool-plan    step-12    order-processing    files
+    [Tags]    payg
     Should Not Be Empty    ${PAYG_ORDER_ID}    Step 8 must run first — Order ID is empty.
     E2E Generate And Upload Response Files    ${PAYG_ORDER_ID}
 
 TC_PAYG_POOL_13 Run Read Order Script
     [Documentation]    Run start_readorder.sh on server.
-    [Tags]    payg    pool-plan    step-13    order-processing    ssh
+    [Tags]    payg
     Should Not Be Empty    ${PAYG_ORDER_ID}    Step 8 must run first — Order ID is empty.
     E2E Run Read Order Script
     Log    Read order script completed for order ${PAYG_ORDER_ID}    console=yes
 
 TC_PAYG_POOL_14 Validate Order Completed
     [Documentation]    Validate order status changed to Completed.
-    [Tags]    payg    pool-plan    step-14    order-processing    validation
+    [Tags]    payg    validation
     Should Not Be Empty    ${PAYG_ORDER_ID}    Step 8 must run first — Order ID is empty.
     E2E Validate Order Status Completed    ${PAYG_ORDER_ID}
 
 TC_PAYG_POOL_15 Validate SIMs In Warm State
     [Documentation]    Validate 1 SIM in Warm state on Manage Devices.
-    [Tags]    payg    pool-plan    step-15    manage-devices    validation
+    [Tags]    payg    manage-devices    validation
     Should Not Be Empty    ${PAYG_BU_NAME}    Step 1 must run first — BU name is empty.
     ${row_count}=    E2E Validate SIMs In Warm State    ${PAYG_BU_NAME}    min_count=${PAYG_SIM_ACTIVATE_COUNT}
     Log    ${row_count} SIMs in Warm state for BU: ${PAYG_BU_NAME}    console=yes
 
 TC_PAYG_POOL_16 Approve Order Via SOAP
     [Documentation]    Update order status to Approved via SOAP API.
-    [Tags]    payg    pool-plan    step-16    api    soap
+    [Tags]    payg    api
     Should Not Be Empty    ${PAYG_ORDER_ID}    Step 8 must run first — Order ID is empty.
     E2E Update Order Status To Approved    ${PAYG_ORDER_ID}
 
 TC_PAYG_POOL_17 Activate SIMs And Capture Data
     [Documentation]    Activate 1 SIM and capture IMSI + MSISDN for usage.
-    [Tags]    payg    pool-plan    step-17    device-state-change    activation
+    [Tags]    payg
     Should Not Be Empty    ${PAYG_BU_NAME}    Step 1 must run first — BU name is empty.
     ${activated_imsis}    ${imsi_data}=    E2E Activate SIMs And Capture IMSIs    ${PAYG_BU_NAME}    count=${PAYG_SIM_ACTIVATE_COUNT}
     Set Suite Variable    @{PAYG_ACTIVATED_IMSIS}    @{activated_imsis}
@@ -312,7 +312,7 @@ TC_PAYG_POOL_17 Activate SIMs And Capture Data
 
 TC_PAYG_POOL_18 Iterative Usage Until PAYG Quota
     [Documentation]    For each IMSI, iterate User Request + CDR until quotaType becomes payg.
-    [Tags]    payg    pool-plan    step-18    usage    api
+    [Tags]    payg    api
     ${count}=    Get Length    ${PAYG_IMSI_DATA}
     Should Be True    ${count} > 0    No IMSI data. Run Step 17 first.
     Perform Iterative Usage Until PAYG For All IMSIs    @{PAYG_IMSI_DATA}
@@ -320,7 +320,7 @@ TC_PAYG_POOL_18 Iterative Usage Until PAYG Quota
 
 TC_PAYG_POOL_19 Perform PAYG Data Usage
     [Documentation]    After quotaType=payg, perform one PAYG data usage for each IMSI.
-    [Tags]    payg    pool-plan    step-19    usage    api    payg-data
+    [Tags]    payg    api
     ${count}=    Get Length    ${PAYG_IMSI_DATA}
     Should Be True    ${count} > 0    No IMSI data. Run Step 17 first.
     FOR    ${entry}    IN    @{PAYG_IMSI_DATA}
@@ -332,7 +332,7 @@ TC_PAYG_POOL_19 Perform PAYG Data Usage
 
 TC_PAYG_POOL_20 Validate PAYG Usage In UI
     [Documentation]    Expand each IMSI on Manage Devices, verify PAYG data usage > 0 MB.
-    [Tags]    payg    pool-plan    step-20    usage    validation    ui
+    [Tags]    payg    validation
     ${count}=    Get Length    ${PAYG_IMSI_DATA}
     Should Be True    ${count} > 0    No IMSI data. Run Step 17 first.
     Validate PAYG Usage In UI For All IMSIs    @{PAYG_IMSI_DATA}
@@ -344,50 +344,50 @@ TC_PAYG_POOL_20 Validate PAYG Usage In UI
 
 TC_PAYG_SHARED_01 Onboard Account
     [Documentation]    Onboard EC + BU via SOAP API for Shared Plan PAYG scenario.
-    [Tags]    payg    shared-plan    step-1    onboard    api
+    [Tags]    payg    onboard    api
     PAYG Onboard Account
 
 TC_PAYG_SHARED_02 Verify Onboarded Account On UI
     [Documentation]    Wait for backend processing and verify account on ManageAccount page.
-    [Tags]    payg    shared-plan    step-2    onboard    validation
+    [Tags]    payg    onboard    validation
     PAYG Verify Account On UI
 
 TC_PAYG_SHARED_03 Create APN
     [Documentation]    Create APN for the onboarded account.
-    [Tags]    payg    shared-plan    step-3    apn
+    [Tags]    payg    apn
     Should Not Be Empty    ${PAYG_EC_NAME}    Step 1 must run first — EC name is empty.
     E2E Create APN    ${PAYG_EC_NAME}    ${PAYG_BU_NAME}
 
 TC_PAYG_SHARED_04 Create CSR Journey With Shared Plan
     [Documentation]    CSR wizard with Shared device plan (``${PAYG_SHARED_PLAN_DP}`` from config), PAYG tariff ``${PAYG_TARIFF_PLAN}``.
     ...                Same full Add Service Plan behaviour as SIM scenario (all main services; restrictions off).
-    [Tags]    payg    shared-plan    step-4    csr-journey
+    [Tags]    payg    csr-journey
     PAYG Create CSR Journey    ${PAYG_SHARED_PLAN_DP}
 
 TC_PAYG_SHARED_05 Create SIM Range
     [Documentation]    ICCID/IMSI/MSISDN ranges (size 1 each). Refreshes unique IDs for tag ``shared``.
     ...                SIM Range Account: default KSA_OPCO (same as SIM plan step 5).
-    [Tags]    payg    shared-plan    step-5    sim-range
+    [Tags]    payg    sim-range
     PAYG Create SIM Range    shared
 
 TC_PAYG_SHARED_06 Create And Assign Product Type
     [Documentation]    SIM Product Type for the same EC as this scenario (same E2E keywords as SIM plan).
     ...                Unique ``${PT_NAME}`` per scenario for SIM Order step 7 (same as SIM plan step 6).
-    [Tags]    payg    shared-plan    step-6    product-type
+    [Tags]    payg    product-type
     Should Not Be Empty    ${PAYG_EC_NAME}    Step 1 must run first — EC name is empty.
     PAYG Assign Unique Product Type Name
     E2E Create Product Type And Assign EC    ${PAYG_EC_NAME}
 
 TC_PAYG_SHARED_07 Create SIM Order
     [Documentation]    Create SIM Order with quantity 1.
-    [Tags]    payg    shared-plan    step-7    sim-order
+    [Tags]    payg    sim-order
     Should Not Be Empty    ${PAYG_EC_NAME}    Step 1 must run first — EC name is empty.
     Should Not Be Empty    ${PAYG_BU_NAME}    Step 1 must run first — BU name is empty.
     E2E Create SIM Order    ${PAYG_EC_NAME}    ${PAYG_BU_NAME}    quantity=${PAYG_ORDER_QUANTITY}
 
 TC_PAYG_SHARED_08 Capture Order ID
     [Documentation]    Capture Order ID from Live Order grid.
-    [Tags]    payg    shared-plan    step-8    order-processing    capture
+    [Tags]    payg
     Should Not Be Empty    ${PAYG_BU_NAME}    Step 1 must run first — BU name is empty.
     ${order_id}=    E2E Capture Order ID    ${PAYG_BU_NAME}
     Set Suite Variable    ${PAYG_ORDER_ID}    ${order_id}
@@ -395,7 +395,7 @@ TC_PAYG_SHARED_08 Capture Order ID
 
 TC_PAYG_SHARED_09 Fetch Account IDs From Database
     [Documentation]    Fetch EC and BU account IDs from database.
-    [Tags]    payg    shared-plan    step-9    order-processing    database
+    [Tags]    payg
     Should Not Be Empty    ${PAYG_EC_NAME}    Step 1 must run first — EC name is empty.
     Should Not Be Empty    ${PAYG_BU_NAME}    Step 1 must run first — BU name is empty.
     ${ec_id}    ${bu_id}=    E2E Fetch Account IDs From DB    ${PAYG_EC_NAME}    ${PAYG_BU_NAME}
@@ -405,52 +405,52 @@ TC_PAYG_SHARED_09 Fetch Account IDs From Database
 
 TC_PAYG_SHARED_10 Run Create Order Script
     [Documentation]    Run start_createorder.sh on server.
-    [Tags]    payg    shared-plan    step-10    order-processing    ssh
+    [Tags]    payg
     Should Not Be Empty    ${PAYG_ORDER_ID}    Step 8 must run first — Order ID is empty.
     E2E Run Create Order Script
     Log    Create order script completed for order ${PAYG_ORDER_ID}    console=yes
 
 TC_PAYG_SHARED_11 Validate Order In Progress
     [Documentation]    Validate order status changed from New to In Progress.
-    [Tags]    payg    shared-plan    step-11    order-processing    validation
+    [Tags]    payg    validation
     Should Not Be Empty    ${PAYG_ORDER_ID}    Step 8 must run first — Order ID is empty.
     E2E Validate Order Status New To In Progress    ${PAYG_ORDER_ID}
 
 TC_PAYG_SHARED_12 Upload Response Files
     [Documentation]    Generate and upload response files to server.
-    [Tags]    payg    shared-plan    step-12    order-processing    files
+    [Tags]    payg
     Should Not Be Empty    ${PAYG_ORDER_ID}    Step 8 must run first — Order ID is empty.
     E2E Generate And Upload Response Files    ${PAYG_ORDER_ID}
 
 TC_PAYG_SHARED_13 Run Read Order Script
     [Documentation]    Run start_readorder.sh on server.
-    [Tags]    payg    shared-plan    step-13    order-processing    ssh
+    [Tags]    payg
     Should Not Be Empty    ${PAYG_ORDER_ID}    Step 8 must run first — Order ID is empty.
     E2E Run Read Order Script
     Log    Read order script completed for order ${PAYG_ORDER_ID}    console=yes
 
 TC_PAYG_SHARED_14 Validate Order Completed
     [Documentation]    Validate order status changed to Completed.
-    [Tags]    payg    shared-plan    step-14    order-processing    validation
+    [Tags]    payg    validation
     Should Not Be Empty    ${PAYG_ORDER_ID}    Step 8 must run first — Order ID is empty.
     E2E Validate Order Status Completed    ${PAYG_ORDER_ID}
 
 TC_PAYG_SHARED_15 Validate SIMs In Warm State
     [Documentation]    Validate 1 SIM in Warm state on Manage Devices.
-    [Tags]    payg    shared-plan    step-15    manage-devices    validation
+    [Tags]    payg    manage-devices    validation
     Should Not Be Empty    ${PAYG_BU_NAME}    Step 1 must run first — BU name is empty.
     ${row_count}=    E2E Validate SIMs In Warm State    ${PAYG_BU_NAME}    min_count=${PAYG_SIM_ACTIVATE_COUNT}
     Log    ${row_count} SIMs in Warm state for BU: ${PAYG_BU_NAME}    console=yes
 
 TC_PAYG_SHARED_16 Approve Order Via SOAP
     [Documentation]    Update order status to Approved via SOAP API.
-    [Tags]    payg    shared-plan    step-16    api    soap
+    [Tags]    payg    api
     Should Not Be Empty    ${PAYG_ORDER_ID}    Step 8 must run first — Order ID is empty.
     E2E Update Order Status To Approved    ${PAYG_ORDER_ID}
 
 TC_PAYG_SHARED_17 Activate SIMs And Capture Data
     [Documentation]    Activate 1 SIM and capture IMSI + MSISDN for usage.
-    [Tags]    payg    shared-plan    step-17    device-state-change    activation
+    [Tags]    payg
     Should Not Be Empty    ${PAYG_BU_NAME}    Step 1 must run first — BU name is empty.
     ${activated_imsis}    ${imsi_data}=    E2E Activate SIMs And Capture IMSIs    ${PAYG_BU_NAME}    count=${PAYG_SIM_ACTIVATE_COUNT}
     Set Suite Variable    @{PAYG_ACTIVATED_IMSIS}    @{activated_imsis}
@@ -462,7 +462,7 @@ TC_PAYG_SHARED_17 Activate SIMs And Capture Data
 
 TC_PAYG_SHARED_18 Iterative Usage Until PAYG Quota
     [Documentation]    For each IMSI, iterate User Request + CDR until quotaType becomes payg.
-    [Tags]    payg    shared-plan    step-18    usage    api
+    [Tags]    payg    api
     ${count}=    Get Length    ${PAYG_IMSI_DATA}
     Should Be True    ${count} > 0    No IMSI data. Run Step 17 first.
     Perform Iterative Usage Until PAYG For All IMSIs    @{PAYG_IMSI_DATA}
@@ -470,7 +470,7 @@ TC_PAYG_SHARED_18 Iterative Usage Until PAYG Quota
 
 TC_PAYG_SHARED_19 Perform PAYG Data Usage
     [Documentation]    After quotaType=payg, perform one PAYG data usage for each IMSI.
-    [Tags]    payg    shared-plan    step-19    usage    api    payg-data
+    [Tags]    payg    api
     ${count}=    Get Length    ${PAYG_IMSI_DATA}
     Should Be True    ${count} > 0    No IMSI data. Run Step 17 first.
     FOR    ${entry}    IN    @{PAYG_IMSI_DATA}
@@ -482,7 +482,7 @@ TC_PAYG_SHARED_19 Perform PAYG Data Usage
 
 TC_PAYG_SHARED_20 Validate PAYG Usage In UI
     [Documentation]    Expand each IMSI on Manage Devices, verify PAYG data usage > 0 MB.
-    [Tags]    payg    shared-plan    step-20    usage    validation    ui
+    [Tags]    payg    validation
     ${count}=    Get Length    ${PAYG_IMSI_DATA}
     Should Be True    ${count} > 0    No IMSI data. Run Step 17 first.
     Validate PAYG Usage In UI For All IMSIs    @{PAYG_IMSI_DATA}

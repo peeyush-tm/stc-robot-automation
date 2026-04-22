@@ -118,7 +118,7 @@ ${LOC_APN_MODAL}                 xpath=//*[@id='apnSelectionModal']
 ${LOC_APN_MODAL_TITLE}           xpath=//*[@id='apnSelectionModal']//h5[contains(@class,'modal-title') and normalize-space()='APN and IP Preference']
 # React-select APN label: defaults here match dev; ``Load Environment Config From Json`` overwrites these locators per ``DEFAULT_CSR_MODAL_APN_NAME``.
 ${LOC_APN_MODAL_APN_INPUT}       xpath=//*[@id='apnSelectionModal']//div[contains(@class,'basic-multi-select')]//input[contains(@id,'react-select')]
-${LOC_APN_MODAL_APN_SINGLE_VALUE}   xpath=//*[@id='apnSelectionModal']//div[(contains(@class,'single-value') or contains(@class,'singleValue')) and normalize-space(.)='public_dynamic']
+${LOC_APN_MODAL_APN_SINGLE_VALUE}   xpath=//*[@id='apnSelectionModal']//div[contains(@class,'single-value') or contains(@class,'singleValue')]
 ${LOC_APN_MODAL_APN_OPTION}      xpath=//*[@id='apnSelectionModal']//div[contains(@class,'select__option') and normalize-space(.)='public_dynamic']
 ${LOC_APN_MODAL_IP_PREF_DD}      xpath=//*[@id='apnSelectionModal']//select[@name='ipPreference']
 # Add APN dialog — Save: click via querySelector #apnSelectionModal ... button.btn.btn-custom-color.m-l-15.width-75
@@ -184,14 +184,14 @@ ${LOC_SS_NEXT_BTN}               xpath=//button[contains(@class,'btn-custom-colo
 #  STEP 2: ADDITIONAL SERVICES
 # ══════════════════════════════════════════════════════════════════════
 # Addon Plan: react-select multi-select
-${LOC_AS_ADDON_PLAN_CONTROL}     xpath=//div[contains(@class,'basic-multi-select') and not(ancestor::*[@id='addDiscountModal'])]//div[contains(@class,'select__control')]
+${LOC_AS_ADDON_PLAN_CONTROL}     xpath=(//div[contains(@class,'basic-multi-select')]//div[contains(@class,'select__control')] | //div[contains(@class,'select__control') and not(ancestor::*[@id='addDiscountModal']) and not(ancestor::*[contains(@id,'apnSelectionModal')]) and not(ancestor::*[contains(@class,'discon')])])[1]
 ${LOC_AS_ADDON_PLAN_INPUT}       xpath=//input[@id='react-select-5-input']
 ${LOC_AS_ADDON_PLAN_OPTION_1}    xpath=(//div[contains(@class,'select__option')])[1]
 ${LOC_AS_ADDON_TABLE}            xpath=//div[contains(@class,'charge-tabs')]//table
 ${LOC_AS_ADDON_TABLE_ROW_1}      xpath=//div[contains(@class,'charge-tabs')]//table//tbody/tr[1]
 # Discount Accordion
-${LOC_AS_DISCOUNT_TOGGLE}        xpath=//a[@data-toggle='collapse' and contains(translate(@href,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'disconpen')]
-${LOC_AS_DISCOUNT_ADD_BTN}       xpath=//*[contains(translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'disconpen') or @id='disconpenalties']//button[contains(@class,'add_button') or normalize-space()='+ Add' or contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'+ add')]
+${LOC_AS_DISCOUNT_TOGGLE}        xpath=//*[@data-toggle='collapse' and (contains(translate(@href,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'discon') or contains(translate(@href,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'discount') or contains(translate(@href,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'disconpen'))]
+${LOC_AS_DISCOUNT_ADD_BTN}       xpath=//*[contains(translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'disconpen') or contains(translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'discount') or @id='disconpenalties']//button[contains(@class,'add_button') or normalize-space()='+ Add' or contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'+ add')]
 # Add Discount Modal (#addDiscountModal)
 ${LOC_AS_DISCOUNT_MODAL}         xpath=//*[@id='addDiscountModal']
 ${LOC_AS_DISCOUNT_CAT_DD}        xpath=//*[@id='addDiscountModal']//select[@name='discountCategory']
@@ -206,7 +206,7 @@ ${LOC_AS_CLOSE_BTN}              xpath=//button[contains(@class,'btn-cancel-colo
 # Previous (Additional Services only): #content > ... > div.flex.flex-column > div.flex.justify-content-end > div > button
 # querySelector: #content > div.flex-center > div.flex.flex-column > div.flex.justify-content-end > div > button.btn.btn-custom-color-black...
 # Footer "Previous" class varies (black vs default); scope to #content and visible button text
-${LOC_AS_PREV_BTN}               xpath=//*[@id='content']//div[contains(@class,'flex-column')]//button[normalize-space()='Previous' and contains(@class,'btn') and not(ancestor::*[@id='addDiscountModal'])]
+${LOC_AS_PREV_BTN}               xpath=//button[contains(@class,'btn') and (normalize-space()='Previous' or normalize-space()='< Previous' or normalize-space()='Prev' or contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'previous')) and not(ancestor::*[@id='addDiscountModal']) and not(ancestor::*[contains(@class,'modal') and contains(@class,'show')])]
 # Next: <button class="btn btn-custom-color width-75">Next</button>
 ${LOC_AS_NEXT_BTN}               xpath=//button[contains(@class,'btn-custom-color') and contains(@class,'width-75') and normalize-space()='Next'][not(ancestor::*[@id='addDiscountModal'])]
 
@@ -219,7 +219,7 @@ ${LOC_SUM_CUSTOMER_VALUE}        xpath=//*[contains(@class,'gc-label') and norma
 ${LOC_SUM_BU_LABEL}              xpath=//*[contains(@class,'gc-label') and normalize-space()='BUSINESS UNIT']
 ${LOC_SUM_BU_VALUE}              xpath=//*[contains(@class,'gc-label') and normalize-space()='BUSINESS UNIT']/following-sibling::*[contains(@class,'gc-value')]
 # Tariff Plan Accordion
-${LOC_SUM_TP_TOGGLE}             xpath=//a[@href='#accordionTariffPlan' and @data-toggle='collapse']
+${LOC_SUM_TP_TOGGLE}             xpath=//*[@href='#accordionTariffPlan' and @data-toggle='collapse']
 ${LOC_SUM_TP_PANEL}              xpath=//*[@id='accordionTariffPlan']
 ${LOC_SUM_TP_VALUE}              xpath=//*[@id='accordionTariffPlan']//*[contains(normalize-space(),'Tariff Plan')]/following-sibling::*[contains(@class,'gc-value')]
 # Account Plan Accordion
@@ -284,3 +284,32 @@ ${LOC_SS_SERVICE_PLAN_DISABLED}     xpath=//input[@name='ServicePlanName' and @d
 ${LOC_SS_DP_NAME_LINK}              xpath=(//input[@name='dpAliasName'])[1]
 # Edit Device Plan window Save button (same as device plan section save)
 ${LOC_SS_EDIT_DP_SAVE_BTN}          xpath=//*[@id='content']//div[contains(@class,'bg-light-shade')]//div[contains(@class,'text-right') and contains(@class,'border-top-1')]//button[contains(@class,'btn') and contains(@class,'save')]
+
+# ── Service Plan Modal — Additional Checkboxes ─────────────────────
+${LOC_SP_VOICE_OUTGOING}            xpath=//*[@id='addServicePlanModal']//input[@id='Voice Outgoing'] | //*[@id='addServicePlanModal']//input[contains(@id,'voice') and contains(@id,'utgoing')]
+${LOC_SP_VOICE_INCOMING}            xpath=//*[@id='addServicePlanModal']//input[@id='Voice Incoming'] | //*[@id='addServicePlanModal']//input[contains(@id,'voice') and contains(@id,'ncoming')]
+${LOC_SP_VOICE}                     xpath=//*[@id='addServicePlanModal']//input[@id='Voice']
+${LOC_SP_INTL_VOICE}                xpath=//*[@id='addServicePlanModal']//input[@id='International Voice'] | //*[@id='addServicePlanModal']//input[contains(@id,'nternational')]
+${LOC_SP_VOICE_RESTRICTION}         xpath=//*[@id='addServicePlanModal']//input[@id='Voice Restriction'] | //*[@id='addServicePlanModal']//input[contains(@id,'oice') and contains(@id,'estriction')]
+${LOC_SP_SMS_MO_RESTRICTION}        xpath=//*[@id='addServicePlanModal']//input[@id='SMS MO Restriction'] | //*[@id='addServicePlanModal']//input[contains(@id,'SMS') and contains(@id,'MO')]
+${LOC_SP_SMS_MT_RESTRICTION}        xpath=//*[@id='addServicePlanModal']//input[@id='SMS MT Restriction'] | //*[@id='addServicePlanModal']//input[contains(@id,'SMS') and contains(@id,'MT')]
+${LOC_SP_DATA_NBIOT}                xpath=//*[@id='addServicePlanModal']//input[@id='Data NB-IoT'] | //*[@id='addServicePlanModal']//input[contains(@id,'NB-IoT') or contains(@id,'nbiot')]
+${LOC_SP_NBIOT_PAYG}                xpath=//button[@id='nbiotdatapayg'] | //button[contains(@id,'nbiot') and contains(@id,'payg')]
+
+# ── APN Modal — Multi-row elements ─────────────────────────────────
+${LOC_APN_MODAL_ADD_ROW_BTN}        xpath=//*[@id='apnSelectionModal']//button[contains(@class,'btn-primary') or contains(@class,'add')] | //*[@id='apnSelectionModal']//*[contains(@class,'fa-plus')]/parent::*
+${LOC_APN_MODAL_REMOVE_ROW_BTN}     xpath=//*[@id='apnSelectionModal']//*[contains(@class,'fa-minus') or contains(@class,'text-danger') or contains(@class,'btn-danger')]/parent::* | //*[@id='apnSelectionModal']//button[contains(@class,'danger')]
+${LOC_APN_MODAL_CANCEL_BTN}         xpath=//*[@id='apnSelectionModal']//button[contains(@class,'btn-cancel') or normalize-space()='Cancel']
+
+# ── Additional Services — Addon Table ──────────────────────────────
+${LOC_AS_ADDON_AUTO_RENEWAL}        xpath=//td[contains(text(),'AUTO-RENEWAL') or contains(@class,'auto-renewal')]//button | //table//button[contains(@id,'autoRenewal')]
+${LOC_AS_ADDON_AUTO_ENABLE}         xpath=//td[contains(text(),'AUTO-ENABLEMENT') or contains(@class,'auto-enable')]//button | //table//button[contains(@id,'autoEnable')]
+${LOC_AS_ADDON_MAPPED_DP_ADD}       xpath=//td//*[contains(text(),'+Add') or contains(@class,'add')]
+
+# ── Summary — Section Details ──────────────────────────────────────
+${LOC_SUM_ACCT_OTC_TABLE}           xpath=//div[contains(@class,'account-plan')]//table[contains(@class,'one-time') or .//th[contains(text(),'One Time')]]
+${LOC_SUM_ACCT_RC_TABLE}            xpath=//div[contains(@class,'account-plan')]//table[contains(@class,'recurring') or .//th[contains(text(),'Recurring')]]
+${LOC_SUM_ACCT_VAS_TABLE}           xpath=//div[contains(@class,'account-plan')]//table[contains(@class,'vas') or .//th[contains(text(),'VAS')]]
+${LOC_SUM_DISCOUNT_SECTION}         xpath=//*[contains(@class,'discount') or contains(text(),'Discount')]
+${LOC_SUM_ADDON_SECTION}            xpath=//*[contains(@class,'addon') or contains(text(),'Add-on') or contains(text(),'Add On')]
+${LOC_SUM_SUSPENSION_SECTION}       xpath=//*[contains(text(),'Suspension') or contains(@class,'suspension')]

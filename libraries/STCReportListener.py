@@ -67,6 +67,13 @@ class STCReportListener:
         # all tests across the entire run (written to JSON on close)
         self._all_tests: list = []
 
+        # Mapping of original screenshot filename -> new relative path (for log.html rewrite).
+        # Keys: 'selenium-screenshot-1.png', Values: 'Module_Sub/TC_XXX_step_01_PASS.png'
+        self._ss_rename_map: dict = {}
+
+        # report_dir is where log.html, report.html, combined_log.html live
+        self._report_dir: str = self._report_folder
+
     # ── name / path helpers ──────────────────────────────────────────────────
 
     @staticmethod
@@ -177,6 +184,10 @@ class STCReportListener:
                 try:
                     shutil.move(src, dst)
                     self._current_ss.append(dst)
+                    # Record the rename so log.html can be patched later
+                    self._ss_rename_map[os.path.basename(src)] = os.path.relpath(
+                        dst, self._report_dir
+                    ).replace("\\", "/")
                     # Update baseline so subsequent calls don't re-detect this file
                     self._pre_ss_files.discard(src)
                     self._pre_ss_files.add(dst)
@@ -213,6 +224,10 @@ class STCReportListener:
                 try:
                     shutil.move(src, dst)
                     self._current_ss.append(dst)
+                    # Record the rename so log.html can be patched later
+                    self._ss_rename_map[os.path.basename(src)] = os.path.relpath(
+                        dst, self._report_dir
+                    ).replace("\\", "/")
                 except OSError:
                     self._current_ss.append(src)
 
@@ -233,7 +248,7 @@ class STCReportListener:
         self._current_ss = []
 
     def close(self):
-        """Append this run's test data to stc_test_data.json."""
+        """Append this run's test data to stc_test_data.json and patch log.html screenshot paths."""
         path = os.path.join(self._report_folder, "stc_test_data.json")
         existing: list = []
         if os.path.isfile(path):
@@ -251,3 +266,55 @@ class STCReportListener:
                 json.dump(combined, fh, indent=2, ensure_ascii=False)
         except OSError as exc:
             print(f"  WARNING [STCReportListener]: could not write {path}: {exc}")
+
+        # Rewrite screenshot references in log.html / combined_log.html so the inline
+        # images still resolve after we've moved the PNG into the module subfolder.
+        # Also persist the rename map so it can be reloaded when combining logs later.
+        self._persist_rename_map()
+        self._patch_log_html()
+
+    def _persist_rename_map(self):
+        """Merge this run's rename map into .stc_ss_rename_map.json at the report root."""
+        map_path = os.path.join(self._report_folder, ".stc_ss_rename_map.json")
+        existing_map: dict = {}
+        if os.path.isfile(map_path):
+            try:
+                with open(map_path, "r", encoding="utf-8") as fh:
+                    existing_map = json.load(fh) or {}
+            except (OSError, json.JSONDecodeError):
+                existing_map = {}
+        existing_map.update(self._ss_rename_map)
+        try:
+            with open(map_path, "w", encoding="utf-8") as fh:
+                json.dump(existing_map, fh, indent=2, ensure_ascii=False)
+        except OSError:
+            pass
+        # Use the merged map for this close() so combined_log.html picks up prior runs too
+        self._ss_rename_map = existing_map
+
+    def _patch_log_html(self):
+        """Rewrite src=\"selenium-screenshot-N.png\" references to the renamed paths."""
+        if not self._ss_rename_map:
+            return
+        candidates = ["log.html", "combined_log.html", "report.html", "combined_report.html"]
+        for fname in candidates:
+            fpath = os.path.join(self._report_folder, fname)
+            if not os.path.isfile(fpath):
+                continue
+            try:
+                with open(fpath, "r", encoding="utf-8") as fh:
+                    html = fh.read()
+            except OSError:
+                continue
+            changed = False
+            for old_name, new_rel in self._ss_rename_map.items():
+                # Replace any reference to the old filename (quoted or bare)
+                if old_name in html:
+                    html = html.replace(old_name, new_rel)
+                    changed = True
+            if changed:
+                try:
+                    with open(fpath, "w", encoding="utf-8") as fh:
+                        fh.write(html)
+                except OSError as exc:
+                    print(f"  WARNING [STCReportListener]: could not patch {fpath}: {exc}")

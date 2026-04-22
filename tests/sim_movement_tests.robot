@@ -23,13 +23,13 @@ TC_SM_002 Capture SIM Row Count And Ensure EC IMSI Capacity
     [Documentation]    1) Manage Devices: EC + source BU row count (SM_SIM_ROW_COUNT).
     ...                2) EC Max IMSI vs rows: no change if max > rows; else raise toward rows+1
     ...                   using + Add IMSI delta. Sets SM_EC_MAX_IMSI_CAP for TC_SM_003.
-    [Tags]    regression    positive    account    imsi    sim-movement
+    [Tags]    regression    positive    sim-movement
     TC_SM_002
 
 TC_SM_003 Ensure Target BU Max SIM Capacity
     [Documentation]    Manage Devices row count for target BU only; BU max vs rows with EC cap
     ...                (SM_EC_MAX_IMSI_CAP). No change if max > rows; else min(rows+1, EC cap) via + Add SIMs delta.
-    [Tags]    regression    positive    account    sim-movement    business-unit
+    [Tags]    regression    positive    sim-movement
     TC_SM_003
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -51,7 +51,7 @@ TC_SM_005 Perform State-Aware SIM Movement To Target BU
 TC_SM_009 Verify SIM Movement In Batch Job Log By Request Id
     [Documentation]    Batch Job Log: filter by SM_BATCH_REQUEST_ID, expand row, assert OPERATION PERFORM = target BU,
     ...                RESULT SUCCESSFUL, Description contains SM_BJL_DETAIL_SUBSTRING (without DP change path).
-    [Tags]    regression    positive    sim-movement    batch-job
+    [Tags]    regression    positive    sim-movement
     TC_SM_009
 
 # ═══════════════════════════════════════════════════════════════════════

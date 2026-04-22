@@ -66,13 +66,13 @@ TC_SO_008 Cancel Order With Valid Reason And Remarks
     [Documentation]    Open Cancel modal for the first grid row, fill reason and remarks,
     ...                click Proceed, verify the cancel action completes.
     ...                Skips if no orders exist in the grid.
-    [Tags]    regression    positive    sim_order    cancel
+    [Tags]    regression    positive    sim_order
     TC_SO_008
 
 TC_SO_009 Close Cancel Modal Without Proceeding
     [Documentation]    Open Cancel modal, close it without submitting, verify modal closes
     ...                and grid is still visible. Skips if no orders exist.
-    [Tags]    regression    positive    sim_order    cancel
+    [Tags]    regression    positive    sim_order
     TC_SO_009
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -137,7 +137,7 @@ TC_SO_019 Cancel Order With Empty Reason Should Be Blocked
     [Documentation]    Open Cancel modal, leave Reason blank, click Proceed.
     ...                Verify the proceed is blocked or an error is shown.
     ...                Skips if no orders exist in the grid.
-    [Tags]    regression    negative    sim_order    cancel
+    [Tags]    regression    negative    sim_order
     TC_SO_019
 
 # ═══════════════════════════════════════════════════════════════════════

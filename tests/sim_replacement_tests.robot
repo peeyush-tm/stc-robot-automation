@@ -73,13 +73,13 @@ TC_SIMRPL_03 Perform SIM Replacement And Verify
 
 TC_SIMRPL_04 Verify Notes After Replacement
     [Documentation]    Requires SIMR_MSISDN and completed replacement (e.g. after TC_SIMRPL_01).
-    [Tags]    notes-verify    regression
+    [Tags]    regression
     Should Not Be Empty    ${SIMR_MSISDN}
     SR Expand First Row Open Notes And Assert Replacement    ${SIMR_MSISDN}
 
 TC_SIMRPL_05 Verify New SIM On Blank SIM Tab
     [Documentation]    Requires ${SIMR_NEW_ICCID} from TC_SIMRPL_01 (same suite session).
-    [Tags]    blank-sim-verify    regression
+    [Tags]    regression
     Should Not Be Empty    ${SIMR_NEW_ICCID}    msg=Run TC_SIMRPL_01 first or set suite variable SIMR_NEW_ICCID.
     SR Navigate To Blank Sims Page
     SR Search Grid On Current Page    ${SIMR_NEW_ICCID}
@@ -87,7 +87,7 @@ TC_SIMRPL_05 Verify New SIM On Blank SIM Tab
 
 TC_SIMRPL_06 Verify Old SIM On Lost SIM Module
     [Documentation]    Requires ${SIMR_OLD_ICCID} / ${SIMR_OLD_IMSI} from TC_SIMRPL_01.
-    [Tags]    lost-sim    regression
+    [Tags]    regression
     Should Not Be Empty    ${SIMR_OLD_ICCID}    msg=Run TC_SIMRPL_01 first.
     SR Navigate To Lost Sims Page
     SR Search Grid On Current Page    ${SIMR_OLD_ICCID}

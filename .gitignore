@@ -17,7 +17,7 @@ output/
 STC_Sanity_Automation/
 
 # Invoice CSV downloads from E2E Step 17 — these are test run artifacts
-billing/*.csv
+billing/
 
 # exports/ folder — generated inventory etc. (keep empty dir via .gitkeep)
 exports/**
@@ -40,6 +40,7 @@ bugs/
 
 # Config / secrets
 .env
+.env_example
 email_config.json
 
 # Seed file (written at runtime by E2E flow for cross-suite variable sharing)
@@ -56,6 +57,11 @@ check_results.py
 
 # Backup files
 tasks_backup.csv
+tasks_example.csv
+config/*_backup.json
+
+# Local interactive runner (dev helper, not part of framework)
+run_e2e_with_usage_interactive.sh
 
 # ── IDE / editor ────────────────────────────────────────────────────────
 .cursor/

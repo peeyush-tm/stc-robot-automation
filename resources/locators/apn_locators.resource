@@ -13,6 +13,41 @@ ${LOC_TAB_APN_REQUEST}             xpath=//*[@id="pageHeading"]/li[5]/a[1]
 ${LOC_CREATE_APN_BTN}              xpath=//a[contains(@href,'/CreateAPN')]
 ${LOC_MANAGE_APN_GRID}             xpath=//div[contains(@class,'k-grid')]
 
+# ── Manage APN Grid — Search ───────────────────────────────────────
+${LOC_APN_SEARCH_INPUT}            xpath=//input[@placeholder='Enter Search Text']
+
+# ── Manage APN Grid — Rows ──────────────────────────────────────────
+${LOC_APN_GRID_ROWS}               xpath=//div[contains(@class,'k-grid')]//tbody/tr[contains(@class,'k-master-row')]
+
+# ── Manage APN Grid — Pagination ────────────────────────────────────
+${LOC_APN_PAGINATION}              xpath=//*[contains(@class,'k-pager-wrap')]
+${LOC_APN_PAGE_NEXT}               xpath=//*[contains(@class,'k-pager-wrap')]//a[@title='Go to the next page']
+${LOC_APN_PAGE_PREV}               xpath=//*[contains(@class,'k-pager-wrap')]//a[@title='Go to the previous page']
+${LOC_APN_PAGE_LAST}               xpath=//*[contains(@class,'k-pager-wrap')]//a[@title='Go to the last page']
+${LOC_APN_PAGE_SIZE_SELECT}        xpath=//*[contains(@class,'k-pager-sizes')]//select
+${LOC_APN_PAGER_INFO}              xpath=//*[contains(@class,'k-pager-info')]
+
+# ── Manage APN Grid — Export ────────────────────────────────────────
+${LOC_APN_EXPORT_BTN}              xpath=//a[contains(@class,'k-grid-excel') or @title='Export to Excel' or @title='Export' or contains(@class,'export')] | //button[contains(@title,'Export') or contains(@class,'export')] | //i[contains(@class,'fa-download') or contains(@class,'fa-file-excel') or contains(@class,'fa-file-csv')]/parent::* | //span[contains(@class,'k-i-excel') or contains(@class,'k-i-download')]/parent::*
+
+# ── Manage APN Grid — Column Headers & Sort ─────────────────────────
+${LOC_APN_COLUMN_HEADERS}          xpath=//div[contains(@class,'k-grid')]//th[@role='columnheader']
+${LOC_APN_SORT_LINK}               xpath=//th[@role='columnheader']//a[@class='k-link']
+
+# ── Manage APN Grid — Column Filter ────────────────────────────────
+${LOC_APN_FILTER_ICON}             xpath=(//th[@role='columnheader']//a[contains(@class,'k-grid-filter')])[1]
+${LOC_APN_FILTER_INPUT}            xpath=//div[contains(@class,'k-filter-menu')]//input[contains(@class,'k-textbox')]
+${LOC_APN_FILTER_SUBMIT}           xpath=//div[contains(@class,'k-filter-menu')]//button[contains(@class,'k-primary')]
+${LOC_APN_FILTER_CLEAR}            xpath=//div[contains(@class,'k-filter-menu')]//button[not(contains(@class,'k-primary'))]
+
+# ── Manage APN Grid — Action Icons ─────────────────────────────────
+${LOC_APN_EDIT_ICON_FIRST}         xpath=(//div[contains(@class,'k-grid')]//tbody//tr[contains(@class,'k-master-row')]//a[contains(@class,'k-grid-Edit') or @title='Edit'] | //div[contains(@class,'k-grid')]//tbody//tr[1]//i[contains(@class,'fa-pencil') or contains(@class,'fa-edit') or contains(@class,'k-i-edit') or @title='Edit']/parent::* | //div[contains(@class,'k-grid')]//tbody//tr[1]/td[1]//a)[1]
+${LOC_APN_DELETE_ICON_FIRST}       xpath=(//div[contains(@class,'k-grid')]//tbody//tr[contains(@class,'k-master-row')]//a[@title='Delete'] | //div[contains(@class,'k-grid')]//tbody//tr[1]//i[contains(@class,'fa-trash') or @title='Delete']/parent::*)[1]
+
+# ── Delete Confirmation Dialog (SweetAlert / Custom Modal) ──────────
+${LOC_APN_DELETE_CONFIRM}          xpath=//div[contains(@class,'swal2-popup') or contains(@class,'swal2-modal') or contains(@class,'swal-modal') or contains(@class,'modal-dialog') or contains(@class,'k-window') or contains(@class,'confirm')]
+${LOC_APN_DELETE_OK_BTN}           xpath=//button[contains(@class,'swal2-confirm') or contains(@class,'swal-confirm')] | //div[contains(@class,'swal2-actions') or contains(@class,'swal-buttonswrapper')]//button[normalize-space()='OK'] | //div[contains(@class,'modal') or contains(@class,'confirm')]//button[normalize-space()='OK' or normalize-space()='Yes']
+
 # ── Create APN — Accordion Headers ─────────────────────────────────
 ${LOC_PRIMARY_DETAILS_TAB}         xpath=//*[@id="openPrimaryDetailsTab"]
 ${LOC_RADIUS_DETAILS_TAB}          id=openRadiusDetailsTab
@@ -45,6 +80,18 @@ ${LOC_SUBNET_MASK_INPUT}           id=subnetmaskinput0
 ${LOC_SUBNET_MASK_CIDR}            xpath=//select[@name="subnetmasklist"]
 ${LOC_SUBNET_CALCULATE_BTN}        xpath=//div[@id='onetimechanges']//button[contains(text(),'Calculate')]
 ${LOC_SUBNET_FIRST_USABLE_IP}     id=nextAvailableIp0
+
+# ── Subnet Mask — IPV4 Row Elements ────────────────────────────────
+${LOC_IPV4_ADD_SUBNET_BTN}         xpath=(//div[@id='onetimechanges']//a[contains(@class,'pulsgreen')])[1]
+${LOC_IPV4_CSV_UPLOAD_LINK}        xpath=(//div[@id='onetimechanges']//*[contains(text(),'CSV Upload')])[1]
+${LOC_IPV4_CSV_FILE_INPUT}         xpath=(//div[@id='onetimechanges']//input[@type='file'])[1]
+${LOC_IPV4_TOTAL_HOST}             xpath=//div[@id='onetimechanges']//*[contains(text(),'Total Host IPV4') or contains(text(),'Total Host IPv4') or contains(text(),'Total Host Ipv4')]
+
+# ── Subnet Mask — IPV6 Row Elements ────────────────────────────────
+${LOC_IPV6_ADD_SUBNET_BTN}         xpath=(//div[@id='onetimechanges']//a[contains(@class,'pulsgreen')])[last()]
+${LOC_IPV6_CSV_UPLOAD_LINK}        xpath=(//div[@id='onetimechanges']//*[contains(text(),'CSV Upload')])[last()]
+${LOC_IPV6_CSV_FILE_INPUT}         xpath=(//div[@id='onetimechanges']//input[@type='file'])[last()]
+${LOC_IPV6_TOTAL_HOST}             xpath=//div[@id='onetimechanges']//*[contains(text(),'Total Host IPV6') or contains(text(),'Total Host IPv6') or contains(text(),'Total Host Ipv6')]
 
 # ── Secondary Details Fields ────────────────────────────────────────
 ${LOC_HLR_APN_ID}                  xpath=//input[@name="hlrApnId"]

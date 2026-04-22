@@ -327,18 +327,20 @@ Select Target Device Plan And Get Names
     RETURN    ${initial_plan}    ${target_plan}
 
 Select Target Device Plan By Preferred Name
-    [Documentation]    Reads the currently selected option as dp1 (the SIM's current plan).
-    ...                Then picks dp2 as:
-    ...                  1. preferred_dp_name — if provided AND found AND different from dp1.
-    ...                  2. Otherwise the first available option that is different from dp1.
-    ...                Guarantees dp2 != dp1 so the change is meaningful.
-    ...                Returns dp1 (current plan) and dp2 (selected target plan).
-    [Arguments]    ${preferred_dp_name}=${EMPTY}
+    [Documentation]    Picks dp2 (target plan) from the dropdown, excluding the SIM's current plan.
+    ...                Exclusion uses ${current_grid_dp} (the plan the SIM actually has per the grid)
+    ...                — the dropdown's pre-selection is often a placeholder/different default and
+    ...                cannot be trusted as the SIM's real current DP.
+    ...                Priority: preferred_dp_name → first option != current_grid_dp.
+    ...                Returns dp1 (dropdown's displayed current, for logs) and dp2 (selected target).
+    [Arguments]    ${preferred_dp_name}=${EMPTY}    ${current_grid_dp}=${EMPTY}
     Wait Until Element Is Enabled    ${LOC_DP_PLAN_DROP}    timeout=30s
     ${plan_info}=    Execute Javascript
     ...    var sel = document.querySelector('select[name="changeSelectedValue"]');
     ...    if(!sel) return JSON.stringify({dp1:'', dp2:'', dp2_idx:-1, found:false});
     ...    var dp1 = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text.trim() : '';
+    ...    var cur = (arguments[1] || '').toLowerCase().trim();
+    ...    var exclude = cur || dp1.toLowerCase();
     ...    var options = [];
     ...    for(var i=0; i<sel.options.length; i++){
     ...      if(sel.options[i].value && sel.options[i].value !== '')
@@ -348,16 +350,16 @@ Select Target Device Plan By Preferred Name
     ...    var pref = arguments[0] ? arguments[0].toLowerCase().trim() : '';
     ...    if(pref){
     ...      for(var j=0; j<options.length; j++){
-    ...        if(options[j].text.toLowerCase().trim() === pref && options[j].text.trim().toLowerCase() !== dp1.toLowerCase())
+    ...        if(options[j].text.toLowerCase().trim() === pref && options[j].text.toLowerCase().trim() !== exclude)
     ...          return JSON.stringify({dp1:dp1, dp2:options[j].text, dp2_idx:options[j].idx, found:true});
     ...      }
     ...    }
     ...    for(var k=0; k<options.length; k++){
-    ...      if(options[k].text.trim().toLowerCase() !== dp1.toLowerCase())
+    ...      if(options[k].text.toLowerCase().trim() !== exclude)
     ...        return JSON.stringify({dp1:dp1, dp2:options[k].text, dp2_idx:options[k].idx, found:false});
     ...    }
     ...    return JSON.stringify({dp1:dp1, dp2:'', dp2_idx:-1, found:false});
-    ...    ARGUMENTS    ${preferred_dp_name}
+    ...    ARGUMENTS    ${preferred_dp_name}    ${current_grid_dp}
     ${parsed}=    Evaluate    json.loads('''${plan_info}''')    json
     ${initial_plan}=    Set Variable    ${parsed}[dp1]
     ${target_plan}=    Set Variable    ${parsed}[dp2]
@@ -477,7 +479,7 @@ Perform Full Device Plan Change For IMSI
     Select Change Device Plan Action
     ${dp1}=    Set Variable    ${EMPTY}
     ${dp2}=    Set Variable    ${EMPTY}
-    ${dp1}    ${dp2}=    Select Target Device Plan By Preferred Name    ${preferred_dp}
+    ${dp1}    ${dp2}=    Select Target Device Plan By Preferred Name    ${preferred_dp}    ${initial_dp_grid}
     Log    Changing Device Plan: "${initial_dp_grid}" → "${dp2}" (dropdown current: "${dp1}")    console=yes
     Fill DP Popup And Submit
     RETURN    ${imsi}    ${initial_dp_grid}    ${dp2}
@@ -504,7 +506,7 @@ Perform Full Device Plan Change For Account
     Select Change Device Plan Action
     ${dp1}=    Set Variable    ${EMPTY}
     ${dp2}=    Set Variable    ${EMPTY}
-    ${dp1}    ${dp2}=    Select Target Device Plan By Preferred Name    ${preferred_dp}
+    ${dp1}    ${dp2}=    Select Target Device Plan By Preferred Name    ${preferred_dp}    ${initial_dp_grid}
     Log    Changing Device Plan: "${initial_dp_grid}" → "${dp2}" (dropdown current: "${dp1}")    console=yes
     Fill DP Popup And Submit
     RETURN    ${imsi}    ${initial_dp_grid}    ${dp2}

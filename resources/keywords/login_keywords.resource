@@ -106,11 +106,11 @@ Captcha Image Loaded
 Connect To Captcha Database
     [Documentation]    Opens a MySQL connection to the CAPTCHA database.
     Connect To Database    pymysql
-    ...    dbHost=${DB_HOST}
-    ...    dbPort=${DB_PORT}
-    ...    dbName=${DB_NAME}
-    ...    dbUsername=${DB_USER}
-    ...    dbPassword=${DB_PASS}
+    ...    db_host=${DB_HOST}
+    ...    db_port=${DB_PORT}
+    ...    db_name=${DB_NAME}
+    ...    db_user=${DB_USER}
+    ...    db_password=${DB_PASS}
 
 Fetch Captcha From Database
     [Documentation]    Queries the captcha table and returns the latest captcha_text value.

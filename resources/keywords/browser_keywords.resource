@@ -130,7 +130,6 @@ Open Test Browser
         Call Method    ${chrome_options}    add_argument    --mute-audio
         Call Method    ${chrome_options}    add_argument    --no-first-run
         Call Method    ${chrome_options}    add_argument    --disable-infobars
-        Call Method    ${chrome_options}    add_argument    --start-maximized
         IF    '${blk}' == '1'
             Evaluate    $chrome_options.add_experimental_option('prefs', {'profile.default_content_setting_values': {'images': 2}})
             Log    STC_CHROME_BLOCK_IMAGES=1: blocking images to reduce headed Chrome memory.    level=INFO
@@ -154,9 +153,8 @@ Open Test Browser
         # Set script timeout to 120s so long JS polls (rule creation, async waits) don't abort at 30s default
         ${sl}=    Get Library Instance    SeleniumLibrary
         Evaluate    $sl.driver.set_script_timeout(120)
-        Maximize Browser Window
-        # Enforce explicit viewport — Maximize Browser Window may silently fail on headless/Xvfb servers,
-        # leaving the window at 800x600. Explicit set_window_size ensures elements are not below the fold.
+        # Don't Maximize — Chrome 147 rejects set_window_size when window state is 'maximized'.
+        # Explicit set_window_size gives a deterministic viewport across local/CI.
         ${cw}=    Evaluate    __import__('os').environ.get('STC_CHROME_HEADED_WINDOW_SIZE','1680,945')
         ${cw_w}=    Evaluate    int("${cw}".split(",")[0])
         ${cw_h}=    Evaluate    int("${cw}".split(",")[1])

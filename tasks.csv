@@ -131,7 +131,70 @@ order,module,suite_file,test_case_id,test_case_name,type,tags
 130,CSR Journey,tests/csr_journey_tests.robot,TC_CSRJ_054,Add Multiple Device Plans In Single CSR Journey,positive,csr-journey|positive
 131,CSR Journey,tests/csr_journey_tests.robot,TC_CSRJ_055,Verify Multiple Device Plan Rows On Summary,positive,csr-journey|positive
 132,CSR Journey,tests/csr_journey_tests.robot,TC_CSRJ_004_Delete,Delete CSR Created In Test Case 4,positive,csr-journey|positive
-133,SIM Range,tests/sim_range_tests.robot,TC_SR_001,Create SIM Range Via ICCID IMSI Successfully,positive,sim-range|positive
+133,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_100,Login And Navigation To CSR Journey Page,positive,csrj|feature
+134,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_101,Customer And BU Selection,positive,csrj|feature
+135,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_102,Create Order Opens Order Page,positive,csrj|feature
+136,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_103,Tariff Plan Selection,positive,csrj|feature
+137,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_104,APN Type Selection,positive,csrj|feature
+138,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_105,Add APNs Opens Popup,positive,csrj|feature
+139,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_106,APN Dropdown Selection And IP Preference,positive,csrj|feature
+140,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_107,Add Multiple APN Rows,positive,csrj|feature
+141,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_108,Remove APN Row,positive,csrj|feature
+142,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_109,Close APN Popup Without Saving,positive,csrj|feature
+143,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_110,Fetch Device Plan,positive,csrj|feature
+144,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_111,Device Plan Selection Under Bundle,positive,csrj|feature
+145,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_112,Device Plan Name Field Visible,positive,csrj|feature
+146,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_113,Enter Valid Device Plan Name,positive,csrj|feature
+147,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_114,Alphanumeric Values In DP Name,positive,csrj|feature
+148,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_115,Mandatory Field Validation DP Name,negative,csrj|feature
+149,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_116,Device Plan Creation With SP Link,positive,csrj|feature
+150,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_126,Default Services Pre-Selected,positive,csrj|feature
+151,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_127,Voice Outgoing Checkbox,positive,csrj|feature
+152,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_128,Voice Incoming Checkbox,positive,csrj|feature
+153,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_129,Voice Checkbox,positive,csrj|feature
+154,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_130,International Voice Checkbox,positive,csrj|feature
+155,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_131,Voice Restriction Checkbox,positive,csrj|feature
+156,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_132,SMS MO Restriction Checkbox,positive,csrj|feature
+157,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_133,SMS MT Restriction Checkbox,positive,csrj|feature
+158,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_134,Multiple Voice Checkboxes Together,positive,csrj|feature
+159,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_140,PAYG Toggle Visible For Voice,positive,csrj|feature
+160,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_141,PAYG Toggle Visible For SMS,positive,csrj|feature
+161,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_142,PAYG Toggle Visible For Data,positive,csrj|feature
+162,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_143,Enabling PAYG For Voice,positive,csrj|feature
+163,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_144,Enabling PAYG For SMS,positive,csrj|feature
+164,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_145,Enabling PAYG For Data,positive,csrj|feature
+165,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_146,Is Roaming Toggle,positive,csrj|feature
+166,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_147,NB-IoT Separate Service Toggle,positive,csrj|feature
+167,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_148,Save Service Plan,positive,csrj|feature
+168,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_149,Cancel Service Plan,negative,csrj|feature
+169,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_160,Add Account Level VAS Charge,positive,csrj|feature
+170,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_161,Add Device Level VAS Charge,positive,csrj|feature
+171,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_162,VAS Mandatory Fields Validation,negative,csrj|feature
+172,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_163,Close VAS Modal Discards Changes,positive,csrj|feature
+173,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_180,Additional Services Page Loads,positive,csrj|feature
+174,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_181,Addon Plan Selection,positive,csrj|feature
+175,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_182,Addon Table Populates After Selection,positive,csrj|feature
+176,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_183,Discount Section Visible,positive,csrj|feature
+177,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_184,Add Discount Popup Opens,positive,csrj|feature
+178,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_185,Account Level Discount Addition,positive,csrj|feature
+179,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_186,Close Discount Modal Discards,positive,csrj|feature
+180,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_187,Breadcrumb Shows Additional Services,positive,csrj|feature
+181,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_188,Previous Returns To Standard Services,positive,csrj|feature
+182,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_200,Summary Screen Loads,positive,csrj|feature
+183,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_201,Customer Info On Summary,positive,csrj|feature
+184,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_202,BU Info On Summary,positive,csrj|feature
+185,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_203,Tariff Plan Section On Summary,positive,csrj|feature
+186,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_204,Account Plan Section On Summary,positive,csrj|feature
+187,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_205,Device Plan Section On Summary,positive,csrj|feature
+188,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_206,Breadcrumb Shows Summary,positive,csrj|feature
+189,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_207,Previous On Summary Returns To Additional,positive,csrj|feature
+190,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_208,Save And Continue Completes CSR,positive,csrj|feature
+191,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_230,Next On Standard Services,positive,csrj|feature
+192,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_231,Close From Standard Services,negative,csrj|feature
+193,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_232,Close From Additional Services,negative,csrj|feature
+194,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_233,Close From Summary,negative,csrj|feature
+195,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_234,Tariff And APN Mismatch Validation,negative,csrj|feature
+196,SIM Range,tests/sim_range_tests.robot,TC_SR_001,Create SIM Range Via ICCID IMSI Successfully,positive,sim-range|positive
 134,SIM Range,tests/sim_range_tests.robot,TC_SR_002,Verify Create SIM Range Page Elements Visible,positive,sim-range|positive
 135,SIM Range,tests/sim_range_tests.robot,TC_SR_003,Verify Pool Count Auto Calculated After Adding Ranges,positive,sim-range|positive
 136,SIM Range,tests/sim_range_tests.robot,TC_SR_004,Verify Cancel Button Redirects To SIM Range List,negative,sim-range|negative
@@ -634,4 +697,126 @@ order,module,suite_file,test_case_id,test_case_name,type,tags
 633,Rule Engine,tests/rule_engine_tests.robot,TC_RE_020,NEG11 Invalid Email In Raise Alert To Field,negative,rule-engine|negative
 634,Rule Engine,tests/rule_engine_tests.robot,TC_RE_021,NEG12 Close Wizard Mid Way,negative,rule-engine|negative
 635,Rule Engine,tests/rule_engine_tests.robot,TC_RE_022,NEG13 Rule Name Exceeds 50 Characters,negative,rule-engine|negative
-636,Rule Engine,tests/rule_engine_tests.robot,TC_RE_023,NEG14 Device Plan Disabled When All DP Checked,negative,rule-engine|negative
+636,Rule Engine,tests/rule_engine_tests.robot,TC_RE_023,NEG14 Device Plan Disabled When All DP Checked,negative,rule-engine|negative196,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_214,CSR Journey Feature Test 214,positive,csrj|feature
+197,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_215,CSR Journey Feature Test 215,positive,csrj|feature
+198,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_216,CSR Journey Feature Test 216,positive,csrj|feature
+199,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_217,CSR Journey Feature Test 217,positive,csrj|feature
+200,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_218,CSR Journey Feature Test 218,positive,csrj|feature
+201,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_219,CSR Journey Feature Test 219,positive,csrj|feature
+202,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_220,CSR Journey Feature Test 220,positive,csrj|feature
+203,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_221,CSR Journey Feature Test 221,positive,csrj|feature
+204,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_222,CSR Journey Feature Test 222,positive,csrj|feature
+205,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_223,CSR Journey Feature Test 223,positive,csrj|feature
+206,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_224,CSR Journey Feature Test 224,positive,csrj|feature
+207,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_225,CSR Journey Feature Test 225,positive,csrj|feature
+208,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_226,CSR Journey Feature Test 226,positive,csrj|feature
+209,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_227,CSR Journey Feature Test 227,positive,csrj|feature
+210,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_228,CSR Journey Feature Test 228,positive,csrj|feature
+211,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_229,CSR Journey Feature Test 229,positive,csrj|feature
+212,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_230,CSR Journey Feature Test 230,positive,csrj|feature
+213,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_231,CSR Journey Feature Test 231,positive,csrj|feature
+214,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_232,CSR Journey Feature Test 232,positive,csrj|feature
+215,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_233,CSR Journey Feature Test 233,positive,csrj|feature
+216,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_234,CSR Journey Feature Test 234,positive,csrj|feature
+217,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_235,CSR Journey Feature Test 235,positive,csrj|feature
+218,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_236,CSR Journey Feature Test 236,positive,csrj|feature
+219,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_237,CSR Journey Feature Test 237,positive,csrj|feature
+220,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_238,CSR Journey Feature Test 238,positive,csrj|feature
+221,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_239,CSR Journey Feature Test 239,positive,csrj|feature
+222,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_240,CSR Journey Feature Test 240,positive,csrj|feature
+223,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_241,CSR Journey Feature Test 241,positive,csrj|feature
+224,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_242,CSR Journey Feature Test 242,positive,csrj|feature
+225,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_246,CSR Journey Feature Test 246,positive,csrj|feature
+226,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_247,CSR Journey Feature Test 247,positive,csrj|feature
+227,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_248,CSR Journey Feature Test 248,positive,csrj|feature
+228,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_249,CSR Journey Feature Test 249,positive,csrj|feature
+229,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_250,CSR Journey Feature Test 250,positive,csrj|feature
+230,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_251,CSR Journey Feature Test 251,positive,csrj|feature
+231,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_252,CSR Journey Feature Test 252,positive,csrj|feature
+232,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_253,CSR Journey Feature Test 253,positive,csrj|feature
+233,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_257,CSR Journey Feature Test 257,positive,csrj|feature
+234,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_258,CSR Journey Feature Test 258,positive,csrj|feature
+235,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_259,CSR Journey Feature Test 259,positive,csrj|feature
+236,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_260,CSR Journey Feature Test 260,positive,csrj|feature
+237,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_261,CSR Journey Feature Test 261,positive,csrj|feature
+238,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_266,CSR Journey Feature Test 266,positive,csrj|feature
+239,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_267,CSR Journey Feature Test 267,positive,csrj|feature
+240,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_268,CSR Journey Feature Test 268,positive,csrj|feature
+241,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_269,CSR Journey Feature Test 269,positive,csrj|feature
+242,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_270,CSR Journey Feature Test 270,positive,csrj|feature
+243,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_271,CSR Journey Feature Test 271,positive,csrj|feature
+244,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_272,CSR Journey Feature Test 272,positive,csrj|feature
+245,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_273,CSR Journey Feature Test 273,positive,csrj|feature
+246,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_274,CSR Journey Feature Test 274,positive,csrj|feature
+247,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_275,CSR Journey Feature Test 275,positive,csrj|feature
+248,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_276,CSR Journey Feature Test 276,positive,csrj|feature
+249,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_278,CSR Journey Feature Test 278,positive,csrj|feature
+250,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_279,CSR Journey Feature Test 279,positive,csrj|feature
+251,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_280,CSR Journey Feature Test 280,positive,csrj|feature
+252,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_281,CSR Journey Feature Test 281,positive,csrj|feature
+253,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_282,CSR Journey Feature Test 282,positive,csrj|feature
+254,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_283,CSR Journey Feature Test 283,positive,csrj|feature
+255,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_284,CSR Journey Feature Test 284,positive,csrj|feature
+256,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_285,CSR Journey Feature Test 285,positive,csrj|feature
+257,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_286,CSR Journey Feature Test 286,positive,csrj|feature
+258,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_287,CSR Journey Feature Test 287,positive,csrj|feature
+259,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_288,CSR Journey Feature Test 288,positive,csrj|feature
+260,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_289,CSR Journey Feature Test 289,positive,csrj|feature
+261,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_290,CSR Journey Feature Test 290,positive,csrj|feature
+262,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_291,CSR Journey Feature Test 291,positive,csrj|feature
+263,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_292,CSR Journey Feature Test 292,positive,csrj|feature
+264,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_296,CSR Journey Feature Test 296,positive,csrj|feature
+265,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_297,CSR Journey Feature Test 297,positive,csrj|feature
+266,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_298,CSR Journey Feature Test 298,positive,csrj|feature
+267,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_299,CSR Journey Feature Test 299,positive,csrj|feature
+268,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_300,CSR Journey Feature Test 300,positive,csrj|feature
+269,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_301,CSR Journey Feature Test 301,positive,csrj|feature
+270,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_302,CSR Journey Feature Test 302,positive,csrj|feature
+271,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_303,CSR Journey Feature Test 303,positive,csrj|feature
+272,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_304,CSR Journey Feature Test 304,positive,csrj|feature
+273,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_305,CSR Journey Feature Test 305,positive,csrj|feature
+274,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_306,CSR Journey Feature Test 306,positive,csrj|feature
+275,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_307,CSR Journey Feature Test 307,positive,csrj|feature
+276,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_308,CSR Journey Feature Test 308,positive,csrj|feature
+277,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_309,CSR Journey Feature Test 309,positive,csrj|feature
+278,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_310,CSR Journey Feature Test 310,positive,csrj|feature
+279,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_311,CSR Journey Feature Test 311,positive,csrj|feature
+280,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_312,CSR Journey Feature Test 312,positive,csrj|feature
+281,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_313,CSR Journey Feature Test 313,positive,csrj|feature
+282,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_314,CSR Journey Feature Test 314,positive,csrj|feature
+283,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_315,CSR Journey Feature Test 315,positive,csrj|feature
+284,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_316,CSR Journey Feature Test 316,positive,csrj|feature
+285,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_317,CSR Journey Feature Test 317,positive,csrj|feature
+286,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_318,CSR Journey Feature Test 318,positive,csrj|feature
+287,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_319,CSR Journey Feature Test 319,positive,csrj|feature
+288,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_320,CSR Journey Feature Test 320,positive,csrj|feature
+289,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_321,CSR Journey Feature Test 321,positive,csrj|feature
+290,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_322,CSR Journey Feature Test 322,positive,csrj|feature
+291,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_323,CSR Journey Feature Test 323,positive,csrj|feature
+292,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_324,CSR Journey Feature Test 324,positive,csrj|feature
+293,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_325,CSR Journey Feature Test 325,positive,csrj|feature
+294,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_326,CSR Journey Feature Test 326,positive,csrj|feature
+295,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_327,CSR Journey Feature Test 327,positive,csrj|feature
+296,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_328,CSR Journey Feature Test 328,positive,csrj|feature
+297,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_329,CSR Journey Feature Test 329,positive,csrj|feature
+298,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_330,CSR Journey Feature Test 330,positive,csrj|feature
+299,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_331,CSR Journey Feature Test 331,positive,csrj|feature
+300,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_332,CSR Journey Feature Test 332,positive,csrj|feature
+301,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_333,CSR Journey Feature Test 333,positive,csrj|feature
+302,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_334,CSR Journey Feature Test 334,positive,csrj|feature
+303,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_335,CSR Journey Feature Test 335,positive,csrj|feature
+304,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_336,CSR Journey Feature Test 336,positive,csrj|feature
+305,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_337,CSR Journey Feature Test 337,positive,csrj|feature
+306,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_339,CSR Journey Feature Test 339,positive,csrj|feature
+307,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_340,CSR Journey Feature Test 340,positive,csrj|feature
+308,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_341,CSR Journey Feature Test 341,positive,csrj|feature
+309,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_342,CSR Journey Feature Test 342,positive,csrj|feature
+310,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_343,CSR Journey Feature Test 343,positive,csrj|feature
+311,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_344,CSR Journey Feature Test 344,positive,csrj|feature
+312,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_345,CSR Journey Feature Test 345,positive,csrj|feature
+313,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_346,CSR Journey Feature Test 346,positive,csrj|feature
+314,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_347,CSR Journey Feature Test 347,positive,csrj|feature
+315,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_348,CSR Journey Feature Test 348,positive,csrj|feature
+316,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_349,CSR Journey Feature Test 349,positive,csrj|feature
+317,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_350,CSR Journey Feature Test 350,positive,csrj|feature
+318,CSR Journey Feature,tests/csr_journey_feature_tests.robot,TC_CSRJ_351,CSR Journey Feature Test 351,positive,csrj|feature

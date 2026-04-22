@@ -454,6 +454,55 @@ def organize_report_folder(report_folder):
         print(f"  Organized {moved} stray file(s) into subfolders.")
 
 
+def patch_html_screenshot_refs(report_folder):
+    """
+    Rewrite `selenium-screenshot-N.png` references in log.html / combined_log.html
+    to the renamed module-subfolder paths.
+
+    STCReportListener moves each PNG from the report root into the module subfolder
+    with a new name (e.g. TC_CSRJ_100_step_01_PASS.png) and records the old→new
+    mapping in `.stc_ss_rename_map.json`. Robot's log.html, however, embeds the
+    original filename — so after the move the inline images are broken links.
+    This post-processing step rewrites those references to the new paths.
+    """
+    map_path = os.path.join(report_folder, ".stc_ss_rename_map.json")
+    if not os.path.isfile(map_path):
+        return
+    try:
+        with open(map_path, "r", encoding="utf-8") as fh:
+            rename_map = json.load(fh) or {}
+    except (OSError, json.JSONDecodeError):
+        return
+    if not rename_map:
+        return
+
+    candidates = ["log.html", "combined_log.html", "report.html", "combined_report.html"]
+    patched_any = False
+    for fname in candidates:
+        fpath = os.path.join(report_folder, fname)
+        if not os.path.isfile(fpath):
+            continue
+        try:
+            with open(fpath, "r", encoding="utf-8") as fh:
+                html = fh.read()
+        except OSError:
+            continue
+        changed = False
+        for old_name, new_rel in rename_map.items():
+            if old_name in html:
+                html = html.replace(old_name, new_rel)
+                changed = True
+        if changed:
+            try:
+                with open(fpath, "w", encoding="utf-8") as fh:
+                    fh.write(html)
+                patched_any = True
+            except OSError as exc:
+                print(f"  WARNING: could not patch {fpath}: {exc}")
+    if patched_any:
+        print(f"  Patched screenshot refs in log.html / combined_log.html.")
+
+
 def merge_reports(outputs, report_folder):
     if not outputs:
         print("\nNo outputs to merge.")
@@ -815,6 +864,11 @@ def main():
 
     collect_stray_artifacts(report_folder)  # catch anything rebot may have created
     organize_report_folder(report_folder)
+
+    try:
+        patch_html_screenshot_refs(report_folder)
+    except Exception as exc:
+        print(f"  WARNING: HTML screenshot patch failed: {exc}")
 
     try:
         generate_pdf_report(report_folder, args)

@@ -44,13 +44,13 @@ TC_CC_001 Navigate To ManageAccount Page
 TC_CC_002 Verify Create Cost Center Button Visible
     [Documentation]    Verifies the Create Cost Center button is visible on ManageAccount page
     ...                for a user with RW permission and RoleWisePermissionOfCostCenter() = true.
-    [Tags]    positive    smoke    cost-center    permission
+    [Tags]    positive    smoke    cost-center
     TC_CC_002
 
 TC_CC_003 Open Create Cost Center Form
     [Documentation]    Clicks Create Cost Center button and verifies the form page loads
     ...                with URL containing /CreateCostCenter.
-    [Tags]    positive    smoke    cost-center    form
+    [Tags]    positive    smoke    cost-center
     TC_CC_003
 
 # ══════════════════════════════════════════════════════════════════════
@@ -59,19 +59,19 @@ TC_CC_003 Open Create Cost Center Form
 TC_CC_004 Verify All Form Fields Present
     [Documentation]    Verifies Parent Account dropdown, Account Name input, Comment input,
     ...                Submit button, and Close button are all visible on the form.
-    [Tags]    positive    cost-center    form    ui
+    [Tags]    positive    cost-center
     TC_CC_004
 
 TC_CC_005 Verify Parent Account TreeView Has Nodes
     [Documentation]    Verifies the Parent Account TreeView dropdown opens and has at least one
     ...                selectable node (e.g. KSA_OPCO).
-    [Tags]    positive    cost-center    form    dropdown
+    [Tags]    positive    cost-center
     TC_CC_005
 
 TC_CC_006 Verify Submit Button Is Present And Enabled
     [Documentation]    Verifies the Submit button (input type=button) is visible and enabled
     ...                on the Create Cost Center form.
-    [Tags]    positive    cost-center    form    ui
+    [Tags]    positive    cost-center
     TC_CC_006
 
 # ══════════════════════════════════════════════════════════════════════
@@ -120,13 +120,13 @@ TC_CC_013 Submit With Only Spaces In Account Name
     [Documentation]    Enters only whitespace in Account Name and clicks Submit.
     ...                Expects either a validation error or the spaces to be stripped
     ...                by removeSpecialChar, resulting in empty name error.
-    [Tags]    negative    cost-center    validation    edge
+    [Tags]    negative    cost-center    validation
     TC_CC_013
 
 TC_CC_014 Duplicate Cost Center Name
     [Documentation]    Attempts to create a Cost Center with a name that may already exist.
     ...                Expects an error toast from the API (errorCode != 200).
-    [Tags]    negative    cost-center    validation    duplicate
+    [Tags]    negative    cost-center    validation
     TC_CC_014
 
 # ══════════════════════════════════════════════════════════════════════
@@ -141,7 +141,7 @@ TC_CC_015 Account Name Exceeds 100 Characters
 TC_CC_016 Account Name Exactly 100 Characters
     [Documentation]    Enters exactly 100 characters in Account Name. Verifies the full
     ...                value is accepted without truncation.
-    [Tags]    positive    cost-center    boundary    edge
+    [Tags]    positive    cost-center    boundary
     TC_CC_016
 
 TC_CC_017 Comment Exceeds 50 Characters
@@ -153,7 +153,7 @@ TC_CC_017 Comment Exceeds 50 Characters
 TC_CC_018 Comment Exactly 50 Characters
     [Documentation]    Enters exactly 50 characters in Comment. Verifies the full
     ...                value is accepted without truncation.
-    [Tags]    positive    cost-center    boundary    edge
+    [Tags]    positive    cost-center    boundary
     TC_CC_018
 
 # ══════════════════════════════════════════════════════════════════════
@@ -162,7 +162,7 @@ TC_CC_018 Comment Exactly 50 Characters
 TC_CC_020 Account Name With Semicolons Stripped
     [Documentation]    Enters Account Name containing semicolons.
     ...                Verifies semicolons are stripped by the input handler.
-    [Tags]    negative    cost-center    sanitization    edge
+    [Tags]    negative    cost-center
     TC_CC_020
 
 # ══════════════════════════════════════════════════════════════════════
@@ -171,19 +171,19 @@ TC_CC_020 Account Name With Semicolons Stripped
 TC_CC_021 Close Form Without Submitting
     [Documentation]    Fills all form fields then clicks Close. Verifies no submission
     ...                occurs and user is redirected back to ManageAccount.
-    [Tags]    negative    cost-center    cancel
+    [Tags]    negative    cost-center
     TC_CC_021
 
 TC_CC_022 Close Empty Form
     [Documentation]    Opens the Create Cost Center form and clicks Close without filling
     ...                any fields. Verifies redirect to ManageAccount.
-    [Tags]    negative    cost-center    cancel    edge
+    [Tags]    negative    cost-center
     TC_CC_022
 
 TC_CC_023 Close After Selecting Only Parent Account
     [Documentation]    Selects Parent Account only (no Account Name), then clicks Close.
     ...                Verifies form is discarded and user returns to ManageAccount.
-    [Tags]    negative    cost-center    cancel    edge
+    [Tags]    negative    cost-center
     TC_CC_023
 
 # ══════════════════════════════════════════════════════════════════════
@@ -192,19 +192,19 @@ TC_CC_023 Close After Selecting Only Parent Account
 TC_CC_024 Expand Billing Account And Verify Cost Center Tab
     [Documentation]    On ManageAccount page: tries expanding rows to find one with Cost Center
     ...                tab (tab9). Only accountTypeId=6 rows show this tab.
-    [Tags]    positive    cost-center    listing    tab
+    [Tags]    positive    cost-center
     TC_CC_024
 
 TC_CC_025 Open Cost Center Tab And Verify Grid Loads
     [Documentation]    Expands a Billing Account row with Cost Center tab, clicks it,
     ...                and verifies the CostCenterAccount nested grid renders.
-    [Tags]    positive    cost-center    listing    grid
+    [Tags]    positive    cost-center
     TC_CC_025
 
 TC_CC_026 Verify Edit Delete Buttons In Cost Center Grid
     [Documentation]    Opens the Cost Center tab and verifies Edit and Delete icons
     ...                are visible for Cost Center rows (RW permission + RoleWisePermission).
-    [Tags]    positive    cost-center    listing    permission
+    [Tags]    positive    cost-center
     TC_CC_026
 
 

@@ -47,12 +47,12 @@ TC_CSRJ_001 Navigate To CSR Journey Module Via Admin
 TC_CSRJ_E2E_Landing_Grids_And_Customer_Search
     [Documentation]    Single CSR Journey landing session: BU disabled without customer, customer search, Create Order rules,
     ...                APN table headers, usage/txn grids, order summary heading (merged legacy landing/grid cases).
-    [Tags]    positive    regression    csr-journey    e2e    landing
+    [Tags]    positive    regression    csr-journey    e2e
     CSRJ E2E Landing Grids And Customer Search Flow
 
 TC_CSRJ_E2E_Tariff_Plan_Search_In_Wizard
     [Documentation]    One wizard open: tariff plan dropdown search/filter and select (legacy TC_CSRJ_039).
-    [Tags]    positive    regression    csr-journey    tariff-plan    search
+    [Tags]    positive    regression    csr-journey    tariff-plan
     Go To CSR Journey Landing
     CSRJ E2E Tariff Plan Search On Standard Services
 
@@ -68,25 +68,25 @@ TC_CSRJ_004 Create CSR Journey End To End Standard Flow
 
 TC_CSRJ_E2E_Close_From_Each_Wizard_Step
     [Documentation]    Close from Standard Services, Additional Services, and Summary each redirect to landing (legacy 014–016).
-    [Tags]    negative    regression    csr-journey    close    e2e
+    [Tags]    negative    regression    csr-journey    e2e
     Go To CSR Journey Landing
     CSRJ E2E Close Wizard From Standard Additional And Summary
 
 TC_CSRJ_040 APN Type Conflict Should Show Error
     [Documentation]    Tariff + APN combo that already exists on the grid should show conflict when applicable.
-    [Tags]    negative    regression    csr-journey    apn-conflict    validation
+    [Tags]    negative    regression    csr-journey    validation
     [Setup]    Go To CSR Journey Landing
     CSRJ Verify APN Conflict When Existing CSR Grid Row
 
 TC_CSRJ_E2E_Post_Create_Grid_Popup_And_Overwrite
     [Documentation]    After TC_CSRJ_004: one landing visit — grid action icons, CSR summary popup, optional overwrite on Edit (legacy 023–026, 048, 049).
-    [Tags]    edge-case    regression    csr-journey    grid    e2e
+    [Tags]    edge-case    regression    csr-journey    e2e
     CSRJ E2E Post Create Grid Icons Popup And Overwrite
 
 TC_CSRJ_052 Modify CSR Journey Via Edit And Save
     [Documentation]    Independent test. Pass --variable MODIFY_CSR_DEVICE_PLAN:<name> to specify which CSR to modify.
     ...                Skipped (pass) when the variable is empty so a full CSR suite run stays green without modify data.
-    [Tags]    positive    regression    csr-journey    modify    edit
+    [Tags]    positive    regression    csr-journey
     [Setup]    Go To CSR Journey Landing
     ${mod}=    Strip String    ${MODIFY_CSR_DEVICE_PLAN}
     Pass Execution If    '${mod}' == ''    MODIFY_CSR_DEVICE_PLAN not set — skipping modify test.
@@ -99,7 +99,7 @@ TC_CSRJ_052 Modify CSR Journey Via Edit And Save
 TC_CSRJ_053 Edit CSR Journey Update Service Types And Save
     [Documentation]    Independent test. Pass --variable EDIT_CSR_DEVICE_PLAN:<name> to specify which CSR to edit.
     ...                Skipped (pass) when the variable is empty.
-    [Tags]    positive    regression    csr-journey    modify    edit    service-types
+    [Tags]    positive    regression    csr-journey
     [Setup]    Go To CSR Journey Landing
     ${ed}=    Strip String    ${EDIT_CSR_DEVICE_PLAN}
     Pass Execution If    '${ed}' == ''    EDIT_CSR_DEVICE_PLAN not set — skipping edit test.
@@ -111,7 +111,7 @@ TC_CSRJ_053 Edit CSR Journey Update Service Types And Save
 
 TC_CSRJ_054 Add Multiple Device Plans In Single CSR Journey
     [Documentation]    After TC_CSRJ_004: second device plan on same CSR (Save & Exit).
-    [Tags]    positive    regression    csr-journey    multiple-device-plans    device-plan
+    [Tags]    positive    regression    csr-journey    device-plan
     [Setup]    Go To CSR Journey Landing
     Select CSR Journey Customer
     Select CSR Journey Business Unit
@@ -134,7 +134,7 @@ TC_CSRJ_054 Add Multiple Device Plans In Single CSR Journey
 
 TC_CSRJ_055 Verify Multiple Device Plan Rows On Summary
     [Documentation]    After TC_CSRJ_054: Summary shows multiple device plan rows for CSR from TC_CSRJ_004.
-    [Tags]    positive    regression    csr-journey    multiple-device-plans    summary
+    [Tags]    positive    regression    csr-journey    summary
     [Setup]    Go To CSR Journey Landing
     Select CSR Journey Customer
     Select CSR Journey Business Unit
@@ -155,7 +155,7 @@ TC_CSRJ_055 Verify Multiple Device Plan Rows On Summary
 
 TC_CSRJ_004_Delete Delete CSR Created In Test Case 4
     [Documentation]    Deletes the CSR created in TC_CSRJ_004 (same Customer/BU and device plan alias).
-    [Tags]    positive    regression    csr-journey    delete    cleanup
+    [Tags]    positive    regression    csr-journey
     [Setup]    Go To CSR Journey Landing
     Select CSR Journey Customer
     Select CSR Journey Business Unit

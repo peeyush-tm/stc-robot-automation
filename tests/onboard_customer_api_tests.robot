@@ -24,42 +24,42 @@ TC_ONBOARD_001 Create Customer And Billing Account With All Fields
 
 TC_ONBOARD_002 Create Customer Without Optional UnifiedID
     [Documentation]    Sends request with unifiedID left empty (optional).
-    [Tags]    positive    onboard    optional-fields    api
+    [Tags]    positive    onboard    api
     TC_ONBOARD_002
 
 TC_ONBOARD_003 Create Customer Without Optional Address Lines 2 To 5
     [Documentation]    Only mandatory addressLine1 for customer address.
-    [Tags]    positive    onboard    optional-fields    api
+    [Tags]    positive    onboard    api
     TC_ONBOARD_003
 
 TC_ONBOARD_004 Create Customer Without Optional AlternateName
     [Documentation]    alternateName left empty.
-    [Tags]    positive    onboard    optional-fields    api
+    [Tags]    positive    onboard    api
     TC_ONBOARD_004
 
 TC_ONBOARD_005 Create Customer Without Optional TechContactPersonMobile
     [Documentation]    techContactPersonMobile empty.
-    [Tags]    positive    onboard    optional-fields    api
+    [Tags]    positive    onboard    api
     TC_ONBOARD_005
 
 TC_ONBOARD_006 Create Customer Without Optional TechContactPersonEmail
     [Documentation]    techContactPersonEmail empty.
-    [Tags]    positive    onboard    optional-fields    api
+    [Tags]    positive    onboard    api
     TC_ONBOARD_006
 
 TC_ONBOARD_007 Create Customer Without Optional LeadPersonOrAccManagerID
     [Documentation]    leadPersonOrAccManagerID empty.
-    [Tags]    positive    onboard    optional-fields    api
+    [Tags]    positive    onboard    api
     TC_ONBOARD_007
 
 TC_ONBOARD_008 Create Customer Without Optional Billing Address Lines 2 To 5
     [Documentation]    billingAddress lines 2-5 empty.
-    [Tags]    positive    onboard    optional-fields    api
+    [Tags]    positive    onboard    api
     TC_ONBOARD_008
 
 TC_ONBOARD_009 Create Customer With Only Mandatory Fields
     [Documentation]    All optional fields empty — minimal valid payload.
-    [Tags]    positive    onboard    mandatory-only    api
+    [Tags]    positive    onboard    api
     TC_ONBOARD_009
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -79,12 +79,12 @@ TC_ONBOARD_011 Missing CompanyName Should Return Error
 # Service accepts empty firstName / lastName (HTTP 200, no SOAP fault) — not rejected like other mandatory fields.
 TC_ONBOARD_012 Create Customer With Empty FirstName Should Succeed
     [Documentation]    firstName empty element — CMP onboard API still returns success (no SOAP fault).
-    [Tags]    positive    onboard    optional-fields    api
+    [Tags]    positive    onboard    api
     TC_ONBOARD_012
 
 TC_ONBOARD_013 Create Customer With Empty LastName Should Succeed
     [Documentation]    lastName empty element — CMP onboard API still returns success (no SOAP fault).
-    [Tags]    positive    onboard    optional-fields    api
+    [Tags]    positive    onboard    api
     TC_ONBOARD_013
 
 TC_ONBOARD_014 Missing IdentityNumber Should Return Error
@@ -148,12 +148,12 @@ TC_ONBOARD_020 Missing CustomerCountry Should Return Error
 
 TC_ONBOARD_021 Missing OrderNumber In Header Should Return Error
     [Documentation]    orderNumber in SOAP header empty.
-    [Tags]    negative    onboard    validation    header    api
+    [Tags]    negative    onboard    validation    api
     TC_ONBOARD_021
 
 TC_ONBOARD_022 Missing TaskID In Header Should Return Error
     [Documentation]    taskID in SOAP header empty.
-    [Tags]    negative    onboard    validation    header    api
+    [Tags]    negative    onboard    validation    api
     TC_ONBOARD_022
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -162,42 +162,42 @@ TC_ONBOARD_022 Missing TaskID In Header Should Return Error
 
 TC_ONBOARD_023 Invalid CustomerSegmentCode Should Return Error
     [Documentation]    Invalid customerSegmentCode value.
-    [Tags]    negative    onboard    validation    invalid    api
+    [Tags]    negative    onboard    validation    api
     TC_ONBOARD_023
 
 TC_ONBOARD_024 Invalid CustomerType Should Return Error
     [Documentation]    Invalid customerType value.
-    [Tags]    negative    onboard    validation    invalid    api
+    [Tags]    negative    onboard    validation    api
     TC_ONBOARD_024
 
 TC_ONBOARD_025 Invalid BillHierarchyFlag Should Return Error
     [Documentation]    Invalid billHierarchyFlag (not Y/N).
-    [Tags]    negative    onboard    validation    invalid    api
+    [Tags]    negative    onboard    validation    api
     TC_ONBOARD_025
 
 TC_ONBOARD_026 Invalid BillingAccountStatus Should Return Error
     [Documentation]    Invalid billingAccountStatus value.
-    [Tags]    negative    onboard    validation    invalid    api
+    [Tags]    negative    onboard    validation    api
     TC_ONBOARD_026
 
 TC_ONBOARD_027 Non Numeric MaxNumberIMSIs Still Returns Success
     [Documentation]    Non-numeric maxNumberIMSIs (e.g. ABC) — CMP returns HTTP 200 with no SOAP fault (no strict type rejection).
-    [Tags]    positive    onboard    invalid-input    api
+    [Tags]    positive    onboard    api
     TC_ONBOARD_027
 
 TC_ONBOARD_028 Invalid CustomerGenre Should Return Error
     [Documentation]    Invalid customerGenre.
-    [Tags]    negative    onboard    validation    invalid    api
+    [Tags]    negative    onboard    validation    api
     TC_ONBOARD_028
 
 TC_ONBOARD_029 Invalid Category Should Return Error
     [Documentation]    Invalid category value.
-    [Tags]    negative    onboard    validation    invalid    api
+    [Tags]    negative    onboard    validation    api
     TC_ONBOARD_029
 
 TC_ONBOARD_030 Invalid Tech Contact Email Still Returns Success
     [Documentation]    Malformed techContactPersonEmail — CMP returns HTTP 200 with no SOAP fault (no email-format validation at SOAP layer).
-    [Tags]    positive    onboard    invalid-input    api
+    [Tags]    positive    onboard    api
     TC_ONBOARD_030
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -207,22 +207,22 @@ TC_ONBOARD_030 Invalid Tech Contact Email Still Returns Success
 TC_ONBOARD_033 Duplicate CustomerReferenceNumber Should Return Error
     [Documentation]    Sends same request twice with identical customerReferenceNumber.
     ...                Second request should fail.
-    [Tags]    edge-case    onboard    duplicate    api
+    [Tags]    edge-case    onboard    api
     TC_ONBOARD_033
 
 TC_ONBOARD_034 Malformed XML Body Should Return Error
     [Documentation]    Sends malformed XML (missing closing tags).
-    [Tags]    edge-case    onboard    malformed    api
+    [Tags]    edge-case    onboard    api
     TC_ONBOARD_034
 
 TC_ONBOARD_035 Empty SOAP Body Should Return Error
     [Documentation]    Valid envelope but empty Body.
-    [Tags]    edge-case    onboard    empty-body    api
+    [Tags]    edge-case    onboard    api
     TC_ONBOARD_035
 
 TC_ONBOARD_036 Wrong SOAPAction Header Should Return Error
     [Documentation]    Incorrect SOAPAction header value.
-    [Tags]    edge-case    onboard    header    api
+    [Tags]    edge-case    onboard    api
     TC_ONBOARD_036
 
 TC_ONBOARD_037 MaxNumberIMSIs Zero Should Return Error Or Accept
@@ -242,7 +242,7 @@ TC_ONBOARD_039 Negative MaxNumberIMSIs Should Return Error
 
 TC_ONBOARD_040 Special Characters In CompanyName
     [Documentation]    Special characters in companyName.
-    [Tags]    edge-case    onboard    special-chars    api
+    [Tags]    edge-case    onboard    api
     TC_ONBOARD_040
 
 *** Keywords ***
