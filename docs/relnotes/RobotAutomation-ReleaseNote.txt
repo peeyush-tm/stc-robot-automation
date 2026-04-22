@@ -1,0 +1,73 @@
+###############################################################################################
+#                RobotAutomation Release notes for build 1.0 Q260401  22/04/2026              # 
+###############################################################################################
+
+Enhancements:
+-------------
+
+1.  Initial Release 
+
+     a) Reported/Identified By:
+        -----------------------
+         Engineering
+
+     b) Description:
+        -------------------------------
+		Base Release
+
+
+Bug fixes:
+----------
+-NA  
+
+Admin UI and Reports
+--------------------
+-NA
+
+DB Schema
+----------
+-NA	
+	
+Configuration
+--------------
+-NA
+
+API Section
+------------
+-NA
+
+MIB
+---
+-NA
+
+Scripts
+-------
+-NA
+
+Release contents
+----------------
+1. RPM
+
+Software configuration
+----------------------
+-NA
+
+User documentation
+------------------
+-NA
+
+Miscellaneous
+-------------
+-NA
+
+Q tag details
+--------------
+Q260401 
+       - Initial Release
+
+How to apply
+-------------
+
+How to Rollback:
+----------------
+
