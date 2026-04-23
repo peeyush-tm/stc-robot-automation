@@ -14,7 +14,9 @@ MANAGE_IP_WHITELIST_PATH = "/IPWhitelisting"
 CREATE_IP_WHITELIST_PATH = "/CreateIPWhitelisting"
 
 # ── Valid Rule Data ──────────────────────────────────────────────────
-VALID_SOURCE_IP = "10.10.10.1"
+# IP Whitelisting expects CIDR notation for Source Address IP (e.g. 10.10.10.1/32).
+# Plain IPs are rejected by the form with "InValid Ip".
+VALID_SOURCE_IP = "10.10.10.1/32"
 VALID_DESTINATION_ADDR = "192.168.0.1"
 VALID_PORT = "any"
 VALID_PORT_ENTER = "EnterPort"
