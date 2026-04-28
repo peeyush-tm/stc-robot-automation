@@ -327,11 +327,12 @@ Capture And Assign First Label
     ...    var span = document.querySelector('#assignBulkLabelPopup .form-groupcheck span.lableclass');
     ...    return span ? span.textContent.trim() : '';
     Should Not Be Empty    ${label_name}    msg=Could not capture label text from Tag Assignment modal.
-    Execute Javascript
-    ...    var cb = document.querySelector('#assignBulkLabelPopup .form-groupcheck input[type="checkbox"]');
-    ...    if (cb) { cb.click(); }
+    Wait Until Element Is Visible    xpath=//div[@id='assignBulkLabelPopup']//input[@type='checkbox']    10s
+    Click Element    xpath=//div[@id='assignBulkLabelPopup']//input[@type='checkbox']
     Sleep    0.5s
-    Click Element Via JS    ${LOC_LA_ASSIGN_BTN}
+    Wait Until Element Is Visible    ${LOC_LA_ASSIGN_BTN}    10s
+    Wait Until Element Is Enabled    ${LOC_LA_ASSIGN_BTN}    10s
+    Click Element    ${LOC_LA_ASSIGN_BTN}
     RETURN    ${label_name}
 
 Unassign Label In Tag Modal
@@ -341,11 +342,12 @@ Unassign Label In Tag Modal
     Select From List By Value    ${LOC_LA_TAG_ACTION_DD}    ${LA_TAG_ACTION_UNASSIGN}
     Sleep    1s
     Wait Until Element Is Visible    ${LOC_LA_FIRST_LABEL_SPAN}    15s
-    Execute Javascript
-    ...    var cb = document.querySelector('#assignBulkLabelPopup .form-groupcheck input[type="checkbox"]');
-    ...    if (cb) { cb.click(); }
+    Wait Until Element Is Visible    xpath=//div[@id='assignBulkLabelPopup']//input[@type='checkbox']    10s
+    Click Element    xpath=//div[@id='assignBulkLabelPopup']//input[@type='checkbox']
     Sleep    0.5s
-    Click Element Via JS    ${LOC_LA_UNASSIGN_BTN}
+    Wait Until Element Is Visible    ${LOC_LA_UNASSIGN_BTN}    10s
+    Wait Until Element Is Enabled    ${LOC_LA_UNASSIGN_BTN}    10s
+    Click Element    ${LOC_LA_UNASSIGN_BTN}
 
 Validate Tag Assignment Success And Modal Closed
     [Documentation]    Verifies success toast appears and the Tag Assignment modal closes.
