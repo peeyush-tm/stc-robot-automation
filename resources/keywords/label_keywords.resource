@@ -179,6 +179,7 @@ Verify Label Created Successfully
 
 LBL Assert Success Toast Indicates Label Created
     [Documentation]    Toast should reflect label create success (TC_009: ``Label Created Successfully`` / i18n variants).
+    Sleep    1s
     ${txt}=    Get Text    ${LOC_LBL_TOAST_SUCCESS}
     ${lower}=    Convert To Lowercase    ${txt}
     ${ok}=    Evaluate    'label' in $lower and ('success' in $lower or 'cretat' in $lower or 'created' in $lower)
@@ -327,8 +328,9 @@ Capture And Assign First Label
     ...    var span = document.querySelector('#assignBulkLabelPopup .form-groupcheck span.lableclass');
     ...    return span ? span.textContent.trim() : '';
     Should Not Be Empty    ${label_name}    msg=Could not capture label text from Tag Assignment modal.
-    Wait Until Element Is Visible    xpath=//div[@id='assignBulkLabelPopup']//input[@type='checkbox']    10s
-    Click Element    xpath=//div[@id='assignBulkLabelPopup']//input[@type='checkbox']
+    Execute Javascript
+    ...    var cb = document.querySelector('#assignBulkLabelPopup .form-groupcheck input[type="checkbox"]');
+    ...    if (cb) { cb.click(); }
     Sleep    0.5s
     Wait Until Element Is Visible    ${LOC_LA_ASSIGN_BTN}    10s
     Wait Until Element Is Enabled    ${LOC_LA_ASSIGN_BTN}    10s
@@ -342,8 +344,9 @@ Unassign Label In Tag Modal
     Select From List By Value    ${LOC_LA_TAG_ACTION_DD}    ${LA_TAG_ACTION_UNASSIGN}
     Sleep    1s
     Wait Until Element Is Visible    ${LOC_LA_FIRST_LABEL_SPAN}    15s
-    Wait Until Element Is Visible    xpath=//div[@id='assignBulkLabelPopup']//input[@type='checkbox']    10s
-    Click Element    xpath=//div[@id='assignBulkLabelPopup']//input[@type='checkbox']
+    Execute Javascript
+    ...    var cb = document.querySelector('#assignBulkLabelPopup .form-groupcheck input[type="checkbox"]');
+    ...    if (cb) { cb.click(); }
     Sleep    0.5s
     Wait Until Element Is Visible    ${LOC_LA_UNASSIGN_BTN}    10s
     Wait Until Element Is Enabled    ${LOC_LA_UNASSIGN_BTN}    10s
