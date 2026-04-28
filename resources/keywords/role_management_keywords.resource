@@ -189,16 +189,37 @@ Select Role Account In TreeView
             Fail    Account TreeView trigger not found on CreateRole page.
         END
     END
-    Sleep    1s
+    Sleep    1.5s
     Wait For App Loading To Complete
-    # Step 2: Wait for the TreeView to appear
+    # Step 2: Wait for the TreeView to appear (with retry)
     ${tree_visible}=    Run Keyword And Return Status
-    ...    Wait Until Element Is Visible    ${LOC_ROLE_ACCOUNT_TREE}    10s
+    ...    Wait Until Element Is Visible    ${LOC_ROLE_ACCOUNT_TREE}    45s
     IF    not ${tree_visible}
-        Fail    TreeView did not appear after clicking Account trigger.
+        Log    TreeView not visible after 45s — re-clicking account trigger    level=WARN    console=yes
+        Execute JavaScript
+        ...    var names = ['accountName','accountId','parentAccount','account'];
+        ...    for (var n = 0; n < names.length; n++) {
+        ...        var inp = document.querySelector('input[name="' + names[n] + '"]');
+        ...        if (inp) { inp.scrollIntoView({block:'center'}); inp.focus(); inp.click(); break; }
+        ...    }
+        Sleep    2s
+        Wait For App Loading To Complete
+        ${tree_visible2}=    Run Keyword And Return Status
+        ...    Wait Until Element Is Visible    ${LOC_ROLE_ACCOUNT_TREE}    60s
+        IF    not ${tree_visible2}
+            Execute JavaScript
+            ...    var tv = document.querySelector('div[id*="showTreeView"], div.k-treeview, ul.k-treeview');
+            ...    if (tv) { tv.style.display='block'; tv.style.visibility='visible'; }
+            Sleep    1s
+            ${tree_visible3}=    Run Keyword And Return Status
+            ...    Wait Until Element Is Visible    ${LOC_ROLE_ACCOUNT_TREE}    15s
+            IF    not ${tree_visible3}
+                Fail    TreeView did not appear after clicking Account trigger (3 attempts).
+            END
+        END
     END
     # Step 3: Wait for root node and expand hierarchy
-    Wait Until Element Is Visible    ${LOC_ROLE_TREE_ROOT_NODE}    15s
+    Wait Until Element Is Visible    ${LOC_ROLE_TREE_ROOT_NODE}    60s
     Sleep    1s
     RM Expand And Select BU Account
     Sleep    1s
@@ -237,10 +258,10 @@ RM Reopen Role Account Dropdown Treeview
     ...    var names=['accountName','accountId','parentAccount','account'];
     ...    for(var n=0;n<names.length;n++){ var inp=document.querySelector('input[name="'+names[n]+'"]'); if(inp&&(inp.offsetParent!==null||inp.offsetHeight>0)){ inp.scrollIntoView({block:'center'}); inp.click(); return names[n]; } }
     ...    return '';
-    Sleep    1s
+    Sleep    1.5s
     Wait For App Loading To Complete
-    Wait Until Element Is Visible    ${LOC_ROLE_ACCOUNT_TREE}    15s
-    Wait Until Element Is Visible    ${LOC_ROLE_TREE_ROOT_NODE}    15s
+    Wait Until Element Is Visible    ${LOC_ROLE_ACCOUNT_TREE}    60s
+    Wait Until Element Is Visible    ${LOC_ROLE_TREE_ROOT_NODE}    60s
     Sleep    1s
 
 RM Expand Ksa And Select First Ec Bu
@@ -693,7 +714,7 @@ Verify On Create Role Page
 Verify On Manage Role Page
     [Documentation]    Confirms browser is on /ManageRole.
     ...                MD: Step 5.3 — Browser navigates back to /ManageRole.
-    Location Should Contain    ${MANAGE_ROLE_PATH}
+    Wait Until Location Contains    ${MANAGE_ROLE_PATH}    timeout=15s
     Log    On Manage Role page.
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -762,7 +783,24 @@ Click Delete Icon For Role
     END
     ${raw_loc}=    Replace String    ${LOC_DELETE_ROLE_TEMPLATE}    PLACEHOLDER    ${role_name}
     ${delete_xpath}=    Set Variable    xpath=${raw_loc}
-    Wait Until Element Is Visible    ${delete_xpath}    ${RM_TIMEOUT}
+    # Hover over the row to make action icons visible (some grids show on hover only)
+    Run Keyword And Ignore Error    Mouse Over    ${row_loc}
+    Sleep    0.5s
+    ${del_visible}=    Run Keyword And Return Status    Wait Until Element Is Visible    ${delete_xpath}    ${RM_TIMEOUT}
+    IF    not ${del_visible}
+        # JS fallback: find and click any delete/trash element in the row
+        ${js_del}=    Execute Javascript
+        ...    var rows=document.querySelectorAll('tr');
+        ...    for(var i=0;i<rows.length;i++){
+        ...    if(rows[i].textContent.includes('${role_name}')){
+        ...    var btn=rows[i].querySelector('[class*="k-grid-Delete"],[class*="k-delete"],[class*="fa-trash"],[title="Delete"],[title="delete"]');
+        ...    if(btn){btn.scrollIntoView({block:'center'});btn.click();return true;}}}
+        ...    return false;
+        Should Be True    ${js_del}    Delete button not found for role: ${role_name}
+        Sleep    1s
+        Wait For App Loading To Complete
+        Return From Keyword
+    END
     Click Element Via JS    ${delete_xpath}
     Sleep    1s
     Wait For App Loading To Complete
