@@ -332,9 +332,7 @@ Capture And Assign First Label
     ...    var span = document.querySelector('#assignBulkLabelPopup .form-groupcheck span.lableclass');
     ...    return span ? span.textContent.trim() : '';
     Should Not Be Empty    ${label_name}    msg=Could not capture label text from Tag Assignment modal.
-    Execute Javascript
-    ...    var cb = document.querySelector('#assignBulkLabelPopup .form-groupcheck input[type="checkbox"]');
-    ...    if (cb) { cb.checked = true; cb.dispatchEvent(new Event('change', {bubbles:true})); cb.dispatchEvent(new Event('click', {bubbles:true})); }
+    Click Element    ${LOC_LA_FIRST_LABEL_SPAN}
     Sleep    1s
     Click Element Via JS    ${LOC_LA_ASSIGN_BTN}
     RETURN    ${label_name}
@@ -346,9 +344,7 @@ Unassign Label In Tag Modal
     Select From List By Value    ${LOC_LA_TAG_ACTION_DD}    ${LA_TAG_ACTION_UNASSIGN}
     Sleep    1s
     Wait Until Element Is Visible    ${LOC_LA_FIRST_LABEL_SPAN}    15s
-    Execute Javascript
-    ...    var cb = document.querySelector('#assignBulkLabelPopup .form-groupcheck input[type="checkbox"]');
-    ...    if (cb) { cb.checked = true; cb.dispatchEvent(new Event('change', {bubbles:true})); cb.dispatchEvent(new Event('click', {bubbles:true})); }
+    Click Element    ${LOC_LA_FIRST_LABEL_SPAN}
     Sleep    1s
     Click Element Via JS    ${LOC_LA_UNASSIGN_BTN}
 
