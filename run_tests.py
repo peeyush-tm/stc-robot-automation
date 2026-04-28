@@ -73,6 +73,24 @@ STC_REPORT_FOLDER_ENV = "STC_REPORT_FOLDER"
 LISTENER_PATH = os.path.join(ROOT_DIR, "libraries", "STCReportListener.py")
 
 
+def _setup_linux_chrome_env(env):
+    """On Linux servers with no display, auto-configure headless Chrome binary and libs."""
+    import platform
+    if platform.system() != "Linux":
+        return
+    # Only set if not already configured by the user
+    if not env.get("STC_CHROME_BINARY"):
+        headless_shell = os.path.join(ROOT_DIR, "config", "browser", "headless-shell", "headless_shell")
+        if os.path.isfile(headless_shell):
+            env["STC_CHROME_BINARY"] = headless_shell
+    if not env.get("LD_LIBRARY_PATH"):
+        libs_flat = os.path.join(ROOT_DIR, "config", "browser", "libs", "flat")
+        if os.path.isdir(libs_flat):
+            env["LD_LIBRARY_PATH"] = libs_flat
+        elif "LD_LIBRARY_PATH" in os.environ:
+            env["LD_LIBRARY_PATH"] = os.environ["LD_LIBRARY_PATH"]
+
+
 def _child_env(report_folder, suite_path=""):
     env = os.environ.copy()
     # Only set debug log for Rule Engine suites — not needed for others
@@ -82,6 +100,7 @@ def _child_env(report_folder, suite_path=""):
         env[DEBUG_SESSION_LOG_ENV] = os.path.join(debug_dir, DEBUG_SESSION_LOG_NAME)
     # Expose report folder so STCReportListener can find it inside the subprocess.
     env[STC_REPORT_FOLDER_ENV] = report_folder
+    _setup_linux_chrome_env(env)
     return env
 SEED_FILE            = os.path.join(ROOT_DIR, "variables", ".run_seed.json")
 E2E_SUITE            = os.path.join(ROOT_DIR, "tests", "e2e_flow.robot")
