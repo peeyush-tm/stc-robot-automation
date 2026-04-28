@@ -332,9 +332,13 @@ Capture And Assign First Label
     ...    var span = document.querySelector('#assignBulkLabelPopup .form-groupcheck span.lableclass');
     ...    return span ? span.textContent.trim() : '';
     Should Not Be Empty    ${label_name}    msg=Could not capture label text from Tag Assignment modal.
-    Click Element    ${LOC_LA_FIRST_LABEL_SPAN}
+    Execute Javascript
+    ...    var items = document.querySelectorAll('#assignBulkLabelPopup .form-groupcheck');
+    ...    if (items.length > 0) { items[0].click(); }
     Sleep    1s
-    Click Element Via JS    ${LOC_LA_ASSIGN_BTN}
+    Execute Javascript
+    ...    var btn = document.querySelector('#assignBulkLabelPopup button.btn-custom-color');
+    ...    if (btn) { btn.click(); }
     RETURN    ${label_name}
 
 Unassign Label In Tag Modal
@@ -344,9 +348,13 @@ Unassign Label In Tag Modal
     Select From List By Value    ${LOC_LA_TAG_ACTION_DD}    ${LA_TAG_ACTION_UNASSIGN}
     Sleep    1s
     Wait Until Element Is Visible    ${LOC_LA_FIRST_LABEL_SPAN}    15s
-    Click Element    ${LOC_LA_FIRST_LABEL_SPAN}
+    Execute Javascript
+    ...    var items = document.querySelectorAll('#assignBulkLabelPopup .form-groupcheck');
+    ...    if (items.length > 0) { items[0].click(); }
     Sleep    1s
-    Click Element Via JS    ${LOC_LA_UNASSIGN_BTN}
+    Execute Javascript
+    ...    var btns = document.querySelectorAll('#assignBulkLabelPopup button.btn-custom-color');
+    ...    if (btns.length > 0) { btns[btns.length-1].click(); }
 
 Validate Tag Assignment Success And Modal Closed
     [Documentation]    Verifies success toast appears and the Tag Assignment modal closes.
