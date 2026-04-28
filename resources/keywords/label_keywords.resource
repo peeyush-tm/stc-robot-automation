@@ -334,8 +334,8 @@ Capture And Assign First Label
     Should Not Be Empty    ${label_name}    msg=Could not capture label text from Tag Assignment modal.
     Execute Javascript
     ...    var cb = document.querySelector('#assignBulkLabelPopup .form-groupcheck input[type="checkbox"]');
-    ...    if (cb) { cb.click(); }
-    Sleep    0.5s
+    ...    if (cb) { var s = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'checked').set; s.call(cb,true); cb.dispatchEvent(new Event('change',{bubbles:true})); }
+    Sleep    1s
     Click Element Via JS    ${LOC_LA_ASSIGN_BTN}
     RETURN    ${label_name}
 
@@ -348,8 +348,8 @@ Unassign Label In Tag Modal
     Wait Until Element Is Visible    ${LOC_LA_FIRST_LABEL_SPAN}    15s
     Execute Javascript
     ...    var cb = document.querySelector('#assignBulkLabelPopup .form-groupcheck input[type="checkbox"]');
-    ...    if (cb) { cb.click(); }
-    Sleep    0.5s
+    ...    if (cb) { var s = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'checked').set; s.call(cb,true); cb.dispatchEvent(new Event('change',{bubbles:true})); }
+    Sleep    1s
     Click Element Via JS    ${LOC_LA_UNASSIGN_BTN}
 
 Validate Tag Assignment Success And Modal Closed
