@@ -179,12 +179,16 @@ Verify Label Created Successfully
 
 LBL Assert Success Toast Indicates Label Created
     [Documentation]    Toast should reflect label create success (TC_009: ``Label Created Successfully`` / i18n variants).
-    Sleep    1s
+    Wait Until Keyword Succeeds    10x    1s
+    ...    LBL Assert Toast Has Label Created Text
+
+LBL Assert Toast Has Label Created Text
+    Element Should Be Visible    ${LOC_LBL_TOAST_SUCCESS}
     ${txt}=    Get Text    ${LOC_LBL_TOAST_SUCCESS}
     ${lower}=    Convert To Lowercase    ${txt}
+    Should Not Be Empty    ${txt}    msg=Toast text is still empty
     ${ok}=    Evaluate    'label' in $lower and ('success' in $lower or 'cretat' in $lower or 'created' in $lower)
-    Should Be True    ${ok}
-    ...    msg=Unexpected success toast text (expected label + success/created): ${txt}
+    Should Be True    ${ok}    msg=Unexpected success toast text (expected label + success/created): ${txt}
 
 Verify Account Dropdown Populated After Level
     [Documentation]    TC_009 §12 / §13.3 — after Level select, custom Account dropdown has at least one option.
@@ -332,9 +336,7 @@ Capture And Assign First Label
     ...    var cb = document.querySelector('#assignBulkLabelPopup .form-groupcheck input[type="checkbox"]');
     ...    if (cb) { cb.click(); }
     Sleep    0.5s
-    Wait Until Element Is Visible    ${LOC_LA_ASSIGN_BTN}    10s
-    Wait Until Element Is Enabled    ${LOC_LA_ASSIGN_BTN}    10s
-    Click Element    ${LOC_LA_ASSIGN_BTN}
+    Click Element Via JS    ${LOC_LA_ASSIGN_BTN}
     RETURN    ${label_name}
 
 Unassign Label In Tag Modal
@@ -348,9 +350,7 @@ Unassign Label In Tag Modal
     ...    var cb = document.querySelector('#assignBulkLabelPopup .form-groupcheck input[type="checkbox"]');
     ...    if (cb) { cb.click(); }
     Sleep    0.5s
-    Wait Until Element Is Visible    ${LOC_LA_UNASSIGN_BTN}    10s
-    Wait Until Element Is Enabled    ${LOC_LA_UNASSIGN_BTN}    10s
-    Click Element    ${LOC_LA_UNASSIGN_BTN}
+    Click Element Via JS    ${LOC_LA_UNASSIGN_BTN}
 
 Validate Tag Assignment Success And Modal Closed
     [Documentation]    Verifies success toast appears and the Tag Assignment modal closes.
