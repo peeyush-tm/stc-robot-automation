@@ -332,13 +332,18 @@ Capture And Assign First Label
     ...    var span = document.querySelector('#assignBulkLabelPopup .form-groupcheck span.lableclass');
     ...    return span ? span.textContent.trim() : '';
     Should Not Be Empty    ${label_name}    msg=Could not capture label text from Tag Assignment modal.
-    Execute Javascript
-    ...    var items = document.querySelectorAll('#assignBulkLabelPopup .form-groupcheck');
-    ...    if (items.length > 0) { items[0].click(); }
+    ${is_enabled_before}=    Run Keyword And Return Status    Element Should Be Enabled    ${LOC_LA_ASSIGN_BTN}
+    Click Element Via JS    ${LOC_LA_FIRST_LABEL_SPAN}
     Sleep    1s
-    Execute Javascript
-    ...    var btn = document.querySelector('#assignBulkLabelPopup button.btn-custom-color');
-    ...    if (btn) { btn.click(); }
+    ${is_enabled_after}=    Run Keyword And Return Status    Element Should Be Enabled    ${LOC_LA_ASSIGN_BTN}
+    Log    Assign btn enabled before=${is_enabled_before} after=${is_enabled_after}    console=yes
+    IF    not ${is_enabled_after}
+        Execute Javascript
+        ...    var cb = document.querySelector('#assignBulkLabelPopup input[type="checkbox"]');
+        ...    if (cb) { cb.checked = true; ['change','input','click'].forEach(e => cb.dispatchEvent(new Event(e,{bubbles:true,cancelable:true}))); }
+        Sleep    1s
+    END
+    Click Element Via JS    ${LOC_LA_ASSIGN_BTN}
     RETURN    ${label_name}
 
 Unassign Label In Tag Modal
@@ -348,13 +353,13 @@ Unassign Label In Tag Modal
     Select From List By Value    ${LOC_LA_TAG_ACTION_DD}    ${LA_TAG_ACTION_UNASSIGN}
     Sleep    1s
     Wait Until Element Is Visible    ${LOC_LA_FIRST_LABEL_SPAN}    15s
-    Execute Javascript
-    ...    var items = document.querySelectorAll('#assignBulkLabelPopup .form-groupcheck');
-    ...    if (items.length > 0) { items[0].click(); }
+    Click Element Via JS    ${LOC_LA_FIRST_LABEL_SPAN}
     Sleep    1s
     Execute Javascript
-    ...    var btns = document.querySelectorAll('#assignBulkLabelPopup button.btn-custom-color');
-    ...    if (btns.length > 0) { btns[btns.length-1].click(); }
+    ...    var cb = document.querySelector('#assignBulkLabelPopup input[type="checkbox"]');
+    ...    if (cb) { cb.checked = true; ['change','input','click'].forEach(e => cb.dispatchEvent(new Event(e,{bubbles:true,cancelable:true}))); }
+    Sleep    0.5s
+    Click Element Via JS    ${LOC_LA_UNASSIGN_BTN}
 
 Validate Tag Assignment Success And Modal Closed
     [Documentation]    Verifies success toast appears and the Tag Assignment modal closes.
