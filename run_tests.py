@@ -83,11 +83,22 @@ def _child_env(report_folder, suite_path=""):
     # Expose report folder so STCReportListener can find it inside the subprocess.
     env[STC_REPORT_FOLDER_ENV] = report_folder
     return env
-SEED_FILE       = os.path.join(ROOT_DIR, "variables", ".run_seed.json")
-E2E_SUITE       = os.path.join(ROOT_DIR, "tests", "e2e_flow.robot")
-E2E_USAGE_SUITE = os.path.join(ROOT_DIR, "tests", "e2e_flow_with_usage.robot")
-CRUD_SUITE      = os.path.join(ROOT_DIR, "tests", "role_user_crud_tests.robot")
-SANITY_SUITE    = os.path.join(ROOT_DIR, "tests", "sanity_tests.robot")
+SEED_FILE            = os.path.join(ROOT_DIR, "variables", ".run_seed.json")
+E2E_SUITE            = os.path.join(ROOT_DIR, "tests", "e2e_flow.robot")
+E2E_USAGE_SUITE      = os.path.join(ROOT_DIR, "tests", "e2e_flow_with_usage.robot")
+E2E_PLAN_SUITE       = os.path.join(ROOT_DIR, "tests", "e2e_flow_with_usage_plans.robot")
+E2E_PLAN_CSV         = os.path.join(ROOT_DIR, "testdata", "e2e_usage_plans.csv")
+CRUD_SUITE           = os.path.join(ROOT_DIR, "tests", "role_user_crud_tests.robot")
+SANITY_SUITE         = os.path.join(ROOT_DIR, "tests", "sanity_tests.robot")
+
+
+def auto_generate_e2e_plan_tests():
+    """Regenerate e2e_flow_with_usage_plans.robot from testdata/e2e_usage_plans.csv."""
+    try:
+        from generate_e2e_plan_tests import generate
+        generate(csv_path=E2E_PLAN_CSV, robot_path=E2E_PLAN_SUITE)
+    except Exception as exc:
+        print(f"  WARNING: Could not auto-generate e2e plan tests: {exc}")
 
 
 def clear_seed():
@@ -101,6 +112,25 @@ def create_report_folder(label=""):
     folder = os.path.join(REPORTS_DIR, folder_name)
     os.makedirs(folder, exist_ok=True)
     return folder
+
+
+def write_run_info(report_folder, args, tag=""):
+    """Write run_info.json so send_report.py can read client/env/tag/triggered_by."""
+    timestamp = os.path.basename(report_folder).split("_")[0] + "_" + "_".join(os.path.basename(report_folder).split("_")[1:3])
+    triggered_by = os.environ.get("TRIGGERED_BY", "Manual (Server)")
+    info = {
+        "timestamp": timestamp,
+        "client": "STC",
+        "env": getattr(args, "env", "qe") or "qe",
+        "tag": tag,
+        "module": getattr(args, "suite", "") or "",
+        "triggered_by": triggered_by,
+    }
+    try:
+        with open(os.path.join(report_folder, "run_info.json"), "w", encoding="utf-8") as f:
+            json.dump(info, f, indent=2)
+    except Exception as exc:
+        print(f"  WARNING: Could not write run_info.json: {exc}")
 
 
 def resolve_rerunfailed_xml(args, suite_index, suite_rel_path):
@@ -204,13 +234,25 @@ def suite_has_tag_matching_include(suite_rel_path, include_pattern):
         return True
 
 
+def enumerate_datadriven_tests(datadriven_file):
+    """Read a testdata CSV and return list of tc_id values it will generate."""
+    path = os.path.join(ROOT_DIR, datadriven_file.replace("/", os.sep))
+    if not os.path.isfile(path):
+        return []
+    with open(path, newline="", encoding="utf-8") as f:
+        return [r["tc_id"].strip() for r in csv.DictReader(f) if r.get("tc_id", "").strip()]
+
+
 def resolve_suites_from_tasks(tasks, suite_filter=None, api_only=False, ui_only=False, skip_modules=None):
+    """Returns list of (suite_file, tc_ids_or_None) tuples.
+    tc_ids is a list for data-driven suites, None for regular suites."""
     skip_set = {s.strip().lower() for s in (skip_modules or [])}
-    seen = set()
-    suites = []
+    seen = {}   # suite_file -> list[tc_id] or None
+    order = []
     for row in tasks:
         suite_file = row.get("suite_file", "").strip()
         module = row.get("module", "").strip()
+        is_dd = row.get("is_datadriven", "no").strip().lower() == "yes"
         if not suite_file:
             continue
         if module.lower() in skip_set:
@@ -223,12 +265,16 @@ def resolve_suites_from_tasks(tasks, suite_filter=None, api_only=False, ui_only=
         if ui_only and is_api:
             continue
         if suite_file not in seen:
-            seen.add(suite_file)
-            suites.append(suite_file)
-    return suites
+            seen[suite_file] = [] if is_dd else None
+            order.append(suite_file)
+        if is_dd:
+            tc_id = row.get("test_case_id", "").strip()
+            if tc_id and tc_id not in seen[suite_file]:
+                seen[suite_file].append(tc_id)
+    return [(sf, seen[sf]) for sf in order]
 
 
-def build_robot_command(suite_path, report_folder, index, args, is_api=False):
+def build_robot_command(suite_path, report_folder, index, args, is_api=False, tc_ids=None):
     cmd = [sys.executable, "-m", "robot"]
 
     output_name = f"output_{index}_{os.path.splitext(os.path.basename(suite_path))[0]}.xml"
@@ -253,6 +299,11 @@ def build_robot_command(suite_path, report_folder, index, args, is_api=False):
 
     for t in args.test or []:
         cmd += ["--test", t]
+
+    # Data-driven suites: inject --test per tc_id only when no explicit --test filter given
+    if tc_ids and not args.test:
+        for tc_id in tc_ids:
+            cmd += ["--test", tc_id]
 
     for pat in getattr(args, "skip_test", None) or []:
         cmd += ["--prerunmodifier",
@@ -307,9 +358,9 @@ def build_e2e_command(report_folder, args, suite_path=None):
 
 def run_suites(suites, report_folder, args):
     outputs = []
-    for idx, suite_path in enumerate(suites, start=1):
+    for idx, (suite_path, tc_ids) in enumerate(suites, start=1):
         is_api = "API_" in os.path.basename(suite_path)
-        cmd = build_robot_command(suite_path, report_folder, idx, args, is_api)
+        cmd = build_robot_command(suite_path, report_folder, idx, args, is_api, tc_ids=tc_ids)
 
         print(f"\n{'='*60}")
         print(f"  Running [{idx}/{len(suites)}]: {suite_path}")
@@ -533,6 +584,8 @@ def merge_reports(outputs, report_folder):
         "--output", dst_output,
         "--log", dst_log,
         "--report", dst_report,
+        "--reporttitle", "Test Execution Automation Report",
+        "--logtitle", "Test Execution Automation Report",
     ] + valid_outputs
 
     skipped = len(outputs) - len(valid_outputs)
@@ -752,6 +805,10 @@ def main():
             report_folder = create_report_folder()
     is_e2e = args.e2e or args.e2e_with_usage
 
+    # Write run_info.json for send_report.py
+    tag = getattr(args, "include", "") or ""
+    write_run_info(report_folder, args, tag=tag)
+
     print(f"\n{'='*60}")
     print(f"  STC Automation — Test Runner")
     print(f"{'='*60}")
@@ -809,7 +866,9 @@ def main():
                 print(f"  WARNING: CRUD suite exited with code {crud_result.returncode}")
     else:
         if args.suites:
-            suites = args.suites
+            if any("e2e_flow_with_usage_plans" in s for s in args.suites):
+                auto_generate_e2e_plan_tests()
+            suites = [(s, None) for s in args.suites]
         elif args.suite or args.tasks or args.api or args.ui:
             tasks = read_tasks()
             suites = resolve_suites_from_tasks(
@@ -819,6 +878,8 @@ def main():
                 ui_only=args.ui,
                 skip_modules=args.skip_suite,
             )
+            if any("e2e_flow_with_usage_plans" in s for s, _ in suites):
+                auto_generate_e2e_plan_tests()
         else:
             tasks = read_tasks()
             if tasks:
@@ -833,7 +894,7 @@ def main():
 
         if args.include:
             before = len(suites)
-            suites = [s for s in suites if suite_has_tag_matching_include(s, args.include)]
+            suites = [(s, tc) for s, tc in suites if suite_has_tag_matching_include(s, args.include)]
             skipped = before - len(suites)
             if skipped:
                 print(
@@ -848,8 +909,9 @@ def main():
 
         print(f"  Mode        : Suite Runner")
         print(f"  Suites ({len(suites)}):")
-        for s in suites:
-            print(f"    - {s}")
+        for s, tc_ids in suites:
+            suffix = f" ({len(tc_ids)} data rows)" if tc_ids else ""
+            print(f"    - {s}{suffix}")
         print(f"{'='*60}")
 
         outputs = run_suites(suites, report_folder, args)
