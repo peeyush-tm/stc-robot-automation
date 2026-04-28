@@ -332,17 +332,10 @@ Capture And Assign First Label
     ...    var span = document.querySelector('#assignBulkLabelPopup .form-groupcheck span.lableclass');
     ...    return span ? span.textContent.trim() : '';
     Should Not Be Empty    ${label_name}    msg=Could not capture label text from Tag Assignment modal.
-    ${is_enabled_before}=    Run Keyword And Return Status    Element Should Be Enabled    ${LOC_LA_ASSIGN_BTN}
-    Click Element Via JS    ${LOC_LA_FIRST_LABEL_SPAN}
-    Sleep    1s
-    ${is_enabled_after}=    Run Keyword And Return Status    Element Should Be Enabled    ${LOC_LA_ASSIGN_BTN}
-    Log    Assign btn enabled before=${is_enabled_before} after=${is_enabled_after}    console=yes
-    IF    not ${is_enabled_after}
-        Execute Javascript
-        ...    var cb = document.querySelector('#assignBulkLabelPopup input[type="checkbox"]');
-        ...    if (cb) { cb.checked = true; ['change','input','click'].forEach(e => cb.dispatchEvent(new Event(e,{bubbles:true,cancelable:true}))); }
-        Sleep    1s
-    END
+    Execute Javascript
+    ...    var cb = document.querySelector('#assignBulkLabelPopup .form-groupcheck input[type="checkbox"]');
+    ...    if (cb) { cb.click(); }
+    Sleep    0.5s
     Click Element Via JS    ${LOC_LA_ASSIGN_BTN}
     RETURN    ${label_name}
 
@@ -353,11 +346,9 @@ Unassign Label In Tag Modal
     Select From List By Value    ${LOC_LA_TAG_ACTION_DD}    ${LA_TAG_ACTION_UNASSIGN}
     Sleep    1s
     Wait Until Element Is Visible    ${LOC_LA_FIRST_LABEL_SPAN}    15s
-    Click Element Via JS    ${LOC_LA_FIRST_LABEL_SPAN}
-    Sleep    1s
     Execute Javascript
-    ...    var cb = document.querySelector('#assignBulkLabelPopup input[type="checkbox"]');
-    ...    if (cb) { cb.checked = true; ['change','input','click'].forEach(e => cb.dispatchEvent(new Event(e,{bubbles:true,cancelable:true}))); }
+    ...    var cb = document.querySelector('#assignBulkLabelPopup .form-groupcheck input[type="checkbox"]');
+    ...    if (cb) { cb.click(); }
     Sleep    0.5s
     Click Element Via JS    ${LOC_LA_UNASSIGN_BTN}
 
