@@ -256,7 +256,7 @@ E2E Create SIM Range
 E2E Validate SIM Range In Grid
     [Documentation]    Delegates to the shared Validate SIM Range Grid Row keyword.
     [Arguments]    ${pool_name}    ${iccid_from}    ${iccid_to}    ${imsi_from}    ${imsi_to}
-    Validate SIM Range Grid Row    ${pool_name}    ${iccid_from}    ${iccid_to}    ${imsi_from}    ${imsi_to}    10
+    Validate SIM Range Grid Row    ${pool_name}    ${iccid_from}    ${iccid_to}    ${imsi_from}    ${imsi_to}    ${EXPECTED_POOL_COUNT}
 
 # ═══════════════════════════════════════════════════════════════════════
 #  STEP 5: SIM PRODUCT TYPE (UI)
@@ -1006,6 +1006,53 @@ E2E Validate Usage In UI
 #  STEP 18: CREATE SECOND CSR JOURNEY (DIFFERENT TARIFF/APN/DEVICE PLAN)
 #  Uses same account as E2E; different APN type (Private) and device plan alias.
 # ═══════════════════════════════════════════════════════════════════════
+E2E Create CSR Journey With Specific Plans
+    [Documentation]    Creates CSR Journey selecting tariff/bundle by name and Private APN by created name.
+    ...                Uses CSRJ_DEFAULT_TARIFF_PLAN, CSRJ_DEFAULT_BUNDLE_PLAN, VALID_APN_NAME (Private type).
+    [Arguments]    ${ec_name}    ${bu_name}
+    Ensure Session Is Active
+    Navigate To Module Page    ${BASE_URL}ManageDevices
+    Wait For App Loading To Complete
+    Navigate To CSR Journey Module
+    Select CSR Journey Customer By Name    ${ec_name}
+    Select CSR Journey Business Unit By Name    ${bu_name}
+    Verify Create Order Button Visible
+    Click Create Order
+    Verify Standard Services Screen Loaded
+    Select Tariff Plan By Name    ${CSRJ_DEFAULT_TARIFF_PLAN}
+    Wait For App Loading To Complete    timeout=30s
+    Sleep    1s
+    csr_journey_keywords.Select APN Type    ${CSRJ_APN_TYPE_PRIVATE}
+    Click Add APNs
+    Select First Available APN And Save    ${VALID_APN_NAME}
+    Click Fetch Device Plan
+    Wait Until Element Is Visible    ${LOC_SS_BUNDLE_PLAN_DD}    ${CSRJ_TIMEOUT}
+    Wait Until Element Is Enabled    ${LOC_SS_BUNDLE_PLAN_DD}    ${CSRJ_TIMEOUT}
+    Wait For Bundle Plan Options To Load
+    ${bundle_ok}=    Run Keyword And Return Status
+    ...    Select From List By Value    ${LOC_SS_BUNDLE_PLAN_DD}    ${CSRJ_DEFAULT_BUNDLE_PLAN}
+    IF    not ${bundle_ok}
+        Log    Bundle "${CSRJ_DEFAULT_BUNDLE_PLAN}" not found by value — selecting first available.    level=WARN    console=yes
+        Select Bundle Plan First Option
+    END
+    ${bundle_label}=    Get Selected List Label    ${LOC_SS_BUNDLE_PLAN_DD}
+    Log    [RESULT] Bundle Plan selected: ${bundle_label}    console=yes
+    Enter Random Device Plan Alias
+    Fill And Save Service Plan
+    Click Save On Standard Services Device Plan
+    Click Next On Standard Services
+    Verify Additional Services Screen Loaded
+    Click Next On Additional Services
+    Verify Summary Screen Loaded
+    Click Save And Exit
+    Verify CSR Journey Success Toast
+    Verify Redirected To CSR Journey Landing
+    Set Suite Variable    ${E2E_CSR1_TARIFF_PLAN}    ${CSRJ_DEFAULT_TARIFF_PLAN}
+    Set Suite Variable    ${E2E_CSR1_APN_TYPE}        ${CSRJ_APN_TYPE_PRIVATE}
+    Set Suite Variable    ${E2E_CSR1_APN_NAME}        ${VALID_APN_NAME}
+    Set Suite Variable    ${E2E_CSR1_BUNDLE_PLAN}     ${bundle_label}
+    Log    E2E CSR Journey created — Tariff: "${CSRJ_DEFAULT_TARIFF_PLAN}", APN: "${VALID_APN_NAME}" (Private), Bundle: "${bundle_label}"    console=yes
+
 E2E Create Second CSR Journey With Different Plan
     [Documentation]    Creates a second CSR Journey for the same EC/BU using config variables:
     ...                CSRJ_DEFAULT_TARIFF_PLAN_2, CSRJ_DEFAULT_APN_TYPE_2,
@@ -1104,3 +1151,66 @@ E2E Perform Device Plan Change On One Activated SIM And Validate
     Log    Step 19: Validating Device Plan column shows "${expected_dp}" for IMSI ${imsi} after 6 min wait.    console=yes
     Verify Device Plan After Change    ${imsi}    ${expected_dp}
     Log    E2E DP change complete: IMSI ${imsi} changed "${dp1}" → "${dp2}". Verified in grid: "${expected_dp}".    console=yes
+
+# ═══════════════════════════════════════════════════════════════════════
+#  E2E SUSPEND / RESUME — single IMSI state change with 5 min wait
+# ═══════════════════════════════════════════════════════════════════════
+E2E Change SIM State
+    [Documentation]    Navigates to Manage Devices, searches for the given IMSI, selects it,
+    ...                performs a state change from ${from_state} to ${to_state},
+    ...                waits for success toast, then waits 5 minutes for async processing.
+    [Arguments]    ${bu_name}    ${imsi}    ${from_state}    ${to_state}
+    Ensure Session Is Active
+    Go To    ${MANAGE_DEVICES_URL_E2E}
+    Wait For Loading Overlay To Disappear
+    Wait Until Element Is Visible    ${LOC_DSC_GRID}    timeout=30s
+    Reset Grid To Default View
+    Sleep    0.3s
+    Wait For Loading Overlay To Disappear
+    Search Device By IMSI    ${imsi}
+    Wait Until Element Is Visible    ${LOC_DSC_GRID_ROWS}    timeout=30s
+    ${state_col}=    Get Column Index By Header Text    ${STATE_COLUMN_HEADER}
+    ${actual_state}=    Get Cell Value By Row And Column    1    ${state_col}
+    Should Be Equal As Strings    ${actual_state}    ${from_state}
+    ...    Expected IMSI ${imsi} to be in "${from_state}" but grid shows "${actual_state}".
+    Select Device By Row Index    ${0}
+    Select Change State Action
+    Select Target State And Submit    ${to_state}
+    Fill Popup And Submit    ${from_state}    ${to_state}
+    ${toast_ok}=    Run Keyword And Return Status
+    ...    Wait Until Element Is Visible    ${LOC_DSC_TOAST_SUCCESS}    timeout=30s
+    IF    ${toast_ok}
+        ${toast_text}=    Get Text    ${LOC_DSC_TOAST_SUCCESS}
+        Log    Success toast: ${toast_text}    console=yes
+    ELSE
+        Log    No success toast within 30s — proceeding.    level=WARN
+    END
+    ${popup_gone}=    Run Keyword And Return Status
+    ...    Wait Until Element Is Not Visible    ${LOC_DSC_POPUP}    timeout=15s
+    IF    not ${popup_gone}
+        Run Keyword And Ignore Error    Click Element Via JS    ${LOC_DSC_POPUP_X_BTN}
+        Sleep    1s
+    END
+    Capture Page Screenshot    e2e_state_change_${from_state}_to_${to_state}_${imsi}.png
+    Log    State change ${from_state} → ${to_state} submitted for IMSI ${imsi}. Waiting 5 min...    console=yes
+    Sleep    300s
+    Wait For Loading Overlay To Disappear
+
+# ═══════════════════════════════════════════════════════════════════════
+#  SIT-ONLY: POLLING KEYWORDS (used by TC_E2E_SIT_001/002)
+# ═══════════════════════════════════════════════════════════════════════
+E2E Verify Order Status In History
+    [Documentation]    Single-attempt check: navigates to Order History, filters by BU+order,
+    ...                and asserts status equals expected. Used with Wait Until Keyword Succeeds
+    ...                for SIT polling (cron-driven completion).
+    [Arguments]    ${bu_name}    ${order_id}    ${expected_status}
+    Validate Order Status In Order History    ${order_id}    ${expected_status}
+
+E2E Verify At Least One SIM In State
+    [Documentation]    Single-attempt check: navigates to Manage Devices, filters by BU + state,
+    ...                and asserts at least one SIM row is visible. Used with Wait Until Keyword
+    ...                Succeeds for SIT polling (cron-driven InActive transition).
+    [Arguments]    ${bu_name}    ${expected_state}
+    Navigate To Manage Devices And Filter BU    ${bu_name}
+    Apply SIM State Filter    ${expected_state}
+    Wait Until Element Is Visible    xpath=//div[@id='gridData']//tr[contains(@class,'k-master-row')]    timeout=15s

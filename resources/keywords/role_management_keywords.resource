@@ -161,64 +161,57 @@ Select Role Account In TreeView
     ...                target BU account: ${DEFAULT_OPCO_ACCOUNT} → ${DEFAULT_EC_ACCOUNT} → ${DEFAULT_BU_ACCOUNT}.
     ...                Same hierarchical expansion as Create User TreeView.
     Sleep    1s
-    # Step 1: Try to find and click the account dropdown trigger
-    ${clicked}=    Execute JavaScript
-    ...    var names = ['accountName','accountId','parentAccount','account'];
-    ...    for (var n = 0; n < names.length; n++) {
-    ...        var inp = document.querySelector('input[name="' + names[n] + '"]');
-    ...        if (inp && (inp.offsetParent !== null || inp.offsetHeight > 0)) {
-    ...            inp.scrollIntoView({block:'center'}); inp.click(); return names[n];
-    ...        }
+    # Wait for the account input to appear before anything else
+    Wait Until Element Is Visible    ${LOC_INPUT_ROLE_NAME}    30s
+    Sleep    0.5s
+    # Step 1: Dump all inputs on page for debug
+    ${form_inputs}=    Execute JavaScript
+    ...    var inputs = document.querySelectorAll('input, select');
+    ...    var result = [];
+    ...    for (var i = 0; i < inputs.length; i++) {
+    ...        var el = inputs[i];
+    ...        result.push(el.tagName + ' name=' + (el.name||'') + ' id=' + (el.id||'') + ' type=' + (el.type||'') + ' visible=' + (el.offsetHeight > 0));
     ...    }
-    ...    var labels = document.querySelectorAll('label');
-    ...    for (var l = 0; l < labels.length; l++) {
-    ...        if (labels[l].textContent.trim().match(/^Account/i)) {
-    ...            var fg = labels[l].closest('.form-group') || labels[l].parentElement;
-    ...            var inp2 = fg ? fg.querySelector('input, [class*="select"]') : null;
-    ...            if (inp2) { inp2.scrollIntoView({block:'center'}); inp2.click(); return 'label_' + labels[l].textContent.trim(); }
-    ...        }
-    ...    }
-    ...    return '';
-    Log    Account trigger click result: ${clicked}
-    IF    '${clicked}' == '${EMPTY}'
-        ${fallback_visible}=    Run Keyword And Return Status
-        ...    Wait Until Element Is Visible    ${LOC_ROLE_ACCOUNT_DROPDOWN}    10s
-        IF    ${fallback_visible}
-            Click Element Via JS    ${LOC_ROLE_ACCOUNT_DROPDOWN}
-        ELSE
-            Fail    Account TreeView trigger not found on CreateRole page.
-        END
-    END
-    Sleep    1.5s
-    Wait For App Loading To Complete
-    # Step 2: Wait for the TreeView to appear (with retry)
-    ${tree_visible}=    Run Keyword And Return Status
-    ...    Wait Until Element Is Visible    ${LOC_ROLE_ACCOUNT_TREE}    45s
-    IF    not ${tree_visible}
-        Log    TreeView not visible after 45s — re-clicking account trigger    level=WARN    console=yes
+    ...    return result.join(' | ');
+    Log    CreateRole page inputs: ${form_inputs}    console=yes
+    # Step 2: Scroll to and Selenium-click the account dropdown (native events trigger treeview)
+    ${dropdown_visible}=    Run Keyword And Return Status
+    ...    Wait Until Element Is Visible    ${LOC_ROLE_ACCOUNT_DROPDOWN}    15s
+    IF    ${dropdown_visible}
+        Scroll To Element Via JS    ${LOC_ROLE_ACCOUNT_DROPDOWN}
+        Sleep    0.5s
+        Click Element    ${LOC_ROLE_ACCOUNT_DROPDOWN}
+    ELSE
         Execute JavaScript
-        ...    var names = ['accountName','accountId','parentAccount','account'];
-        ...    for (var n = 0; n < names.length; n++) {
-        ...        var inp = document.querySelector('input[name="' + names[n] + '"]');
-        ...        if (inp) { inp.scrollIntoView({block:'center'}); inp.focus(); inp.click(); break; }
-        ...    }
-        Sleep    2s
-        Wait For App Loading To Complete
+        ...    var inp = document.querySelector('input[name="accountId"]') || document.querySelector('input[name="accountName"]');
+        ...    if (inp) { inp.scrollIntoView({block:'center'}); inp.click(); }
+    END
+    Sleep    1s
+    # Step 3: Wait directly for TreeView — do NOT wait for app loading here
+    # (the treeview load itself causes a loading overlay; waiting for it to clear first breaks the flow)
+    ${tree_visible}=    Run Keyword And Return Status
+    ...    Wait Until Element Is Visible    ${LOC_ROLE_ACCOUNT_TREE}    60s
+    IF    not ${tree_visible}
+        # Overlay may have blocked — force-remove it and retry click
+        Execute JavaScript    var ov=document.querySelector('.loading-overlay,.overlay,.spinner-overlay,[class*="loading"]'); if(ov){ov.style.display='none';}
+        Sleep    0.5s
+        Click Element    ${LOC_ROLE_ACCOUNT_DROPDOWN}
+        Sleep    1s
         ${tree_visible2}=    Run Keyword And Return Status
         ...    Wait Until Element Is Visible    ${LOC_ROLE_ACCOUNT_TREE}    60s
         IF    not ${tree_visible2}
-            Execute JavaScript
-            ...    var tv = document.querySelector('div[id*="showTreeView"], div.k-treeview, ul.k-treeview');
-            ...    if (tv) { tv.style.display='block'; tv.style.visibility='visible'; }
-            Sleep    1s
-            ${tree_visible3}=    Run Keyword And Return Status
-            ...    Wait Until Element Is Visible    ${LOC_ROLE_ACCOUNT_TREE}    15s
-            IF    not ${tree_visible3}
-                Fail    TreeView did not appear after clicking Account trigger (3 attempts).
-            END
+            ${dom_state}=    Execute JavaScript
+            ...    var tvs = document.querySelectorAll('div[id^="showTreeView"], div.k-treeview');
+            ...    var info = [];
+            ...    for (var i = 0; i < tvs.length; i++) {
+            ...        info.push('id=' + (tvs[i].id||'none') + ' h=' + tvs[i].offsetHeight + ' display=' + getComputedStyle(tvs[i]).display + ' visibility=' + getComputedStyle(tvs[i]).visibility);
+            ...    }
+            ...    return info.length > 0 ? info.join(' | ') : 'NO treeview divs found in DOM';
+            Log    TreeView DOM state: ${dom_state}    level=WARN    console=yes
+            Fail    TreeView did not appear after clicking Account trigger. DOM: ${dom_state}
         END
     END
-    # Step 3: Wait for root node and expand hierarchy
+    # Step 4: Wait for root node and expand hierarchy
     Wait Until Element Is Visible    ${LOC_ROLE_TREE_ROOT_NODE}    60s
     Sleep    1s
     RM Expand And Select BU Account
@@ -254,18 +247,26 @@ RM Reopen Role Account Dropdown Treeview
     Run Keyword And Ignore Error
     ...    Execute Javascript    document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
     Sleep    0.5s
-    ${re}=    Execute Javascript
-    ...    var names=['accountName','accountId','parentAccount','account'];
-    ...    for(var n=0;n<names.length;n++){ var inp=document.querySelector('input[name="'+names[n]+'"]'); if(inp&&(inp.offsetParent!==null||inp.offsetHeight>0)){ inp.scrollIntoView({block:'center'}); inp.click(); return names[n]; } }
-    ...    return '';
-    Sleep    1.5s
-    Wait For App Loading To Complete
+    ${dropdown_visible}=    Run Keyword And Return Status
+    ...    Wait Until Element Is Visible    ${LOC_ROLE_ACCOUNT_DROPDOWN}    10s
+    IF    ${dropdown_visible}
+        Scroll To Element Via JS    ${LOC_ROLE_ACCOUNT_DROPDOWN}
+        Sleep    0.3s
+        Click Element    ${LOC_ROLE_ACCOUNT_DROPDOWN}
+    ELSE
+        Execute Javascript
+        ...    var inp = document.querySelector('input[name="accountId"]') || document.querySelector('input[name="accountName"]');
+        ...    if(inp){ inp.scrollIntoView({block:'center'}); inp.click(); }
+    END
+    Sleep    1s
     Wait Until Element Is Visible    ${LOC_ROLE_ACCOUNT_TREE}    60s
     Wait Until Element Is Visible    ${LOC_ROLE_TREE_ROOT_NODE}    60s
     Sleep    1s
 
 RM Expand Ksa And Select First Ec Bu
-    [Documentation]    Last resort: OPCO root → first child EC → first BU checkbox (Create Role tree).
+    [Documentation]    Last resort: OPCO root → first child EC → first BU checkbox.
+    ...                Captures the actual EC/BU names selected and writes them to the seed file
+    ...                so all other modules/suites use the same real accounts throughout the flow.
     RM Clear Account Tree Search If Present
     ${root_expand}=    Run Keyword And Return Status
     ...    Wait Until Element Is Visible    ${LOC_ROLE_TREE_ROOT_EXPAND}    5s
@@ -277,41 +278,55 @@ RM Expand Ksa And Select First Ec Bu
     RM Expand Tree Node By Name    ${DEFAULT_OPCO_ACCOUNT}
     Sleep    2s
     Wait For App Loading To Complete    timeout=40s
-    ${ec_exp}=    Execute Javascript
-    ...    var root=document.querySelector('div[id^="showTreeView"]')||document.querySelector('.k-treeview');if(!root)return false;
+    # Expand first EC under OPCO and capture its name
+    ${ec_name}=    Execute Javascript
+    ...    var root=document.querySelector('div[id^="showTreeView"]')||document.querySelector('.k-treeview');if(!root)return '';
     ...    var ksaLi=null;
     ...    root.querySelectorAll('span.k-in').forEach(function(sp){
     ...    var t=sp.textContent.trim().toUpperCase();
     ...    if(t.indexOf('KSA')>=0&&t.indexOf('OPCO')>=0) ksaLi=sp.closest('li.k-item');
     ...    });
-    ...    if(!ksaLi) return false;
-    ...    var ul=ksaLi.querySelector(':scope > ul'); if(!ul) return false;
-    ...    var ecLi=ul.querySelector(':scope > li.k-item'); if(!ecLi) return false;
+    ...    if(!ksaLi){ var items=root.querySelectorAll('li.k-item > ul > li.k-item'); if(items.length) ksaLi=items[0].closest('li.k-item').parentElement.closest('li.k-item'); }
+    ...    if(!ksaLi) return '';
+    ...    var ul=ksaLi.querySelector(':scope > ul'); if(!ul) return '';
+    ...    var ecLi=ul.querySelector(':scope > li.k-item'); if(!ecLi) return '';
+    ...    var ecSpan=ecLi.querySelector('span.k-in'); var ecName=ecSpan?ecSpan.textContent.trim():'';
     ...    var ic=ecLi.querySelector('span.k-i-expand, span.k-i-plus, span.k-plus, span.k-i-arrow-60-right');
-    ...    if(ic){ ic.click(); return true; }
-    ...    return true;
+    ...    if(ic){ ic.click(); }
+    ...    return ecName;
+    Log    First-EC heuristic: expanding EC '${ec_name}'    console=yes
     Sleep    2s
     Wait For App Loading To Complete    timeout=40s
-    ${bu_ok}=    Execute Javascript
-    ...    var root=document.querySelector('div[id^="showTreeView"]')||document.querySelector('.k-treeview');if(!root)return false;
+    # Select first BU and capture its name
+    ${bu_name}=    Execute Javascript
+    ...    var root=document.querySelector('div[id^="showTreeView"]')||document.querySelector('.k-treeview');if(!root)return '';
     ...    var boxes=root.querySelectorAll('li.k-item input[type=checkbox], li.k-item input.k-checkbox');
     ...    for(var i=boxes.length-1;i>=0;i--){
     ...    var li=boxes[i].closest('li.k-item');
-    ...    if(li&&li.querySelector('span.k-in')){ boxes[i].click(); return true; }
+    ...    var sp=li?li.querySelector('span.k-in'):null;
+    ...    if(sp){ boxes[i].click(); return sp.textContent.trim(); }
     ...    }
-    ...    return false;
-    Should Be True    ${bu_ok}    Could not pick a BU under ${DEFAULT_OPCO_ACCOUNT} (first-EC heuristic).
+    ...    return '';
+    Should Not Be Empty    ${bu_name}    Could not pick a BU under ${DEFAULT_OPCO_ACCOUNT} (first-EC heuristic).
+    Log    First-EC heuristic: selected EC='${ec_name}' BU='${bu_name}'    console=yes
+    # Write discovered accounts to seed so ALL modules use these real accounts
+    Run Keyword And Ignore Error
+    ...    Write Seed Value    DEFAULT_EC_ACCOUNT    ${ec_name}
+    Run Keyword And Ignore Error
+    ...    Write Seed Value    DEFAULT_BU_ACCOUNT    ${bu_name}
+    Set Global Variable    ${DEFAULT_EC_ACCOUNT}    ${ec_name}
+    Set Global Variable    ${DEFAULT_BU_ACCOUNT}    ${bu_name}
 
 RM Expand And Select BU Account
     [Documentation]    Expand OPCO → EC → BU. Tries RM_EC_/RM_BU_; config default EC/BU; then first EC/BU heuristic.
     ${ok}=    Run Keyword And Return Status    RM Expand Select Bu Pair    ${RM_EC_ACCOUNT_NAME}    ${RM_BU_ACCOUNT_NAME}
     IF    not ${ok}
         Log    Role account tree: could not use EC '${RM_EC_ACCOUNT_NAME}' — retrying ${DEFAULT_EC_ACCOUNT} / ${DEFAULT_BU_ACCOUNT}    level=WARN    console=yes
-        RM Reopen Role Account Dropdown Treeview
+        # DO NOT reopen treeview — it's still open after failed expansion; just try again directly
         ${ok2}=    Run Keyword And Return Status    RM Expand Select Bu Pair    ${DEFAULT_EC_ACCOUNT}    ${DEFAULT_BU_ACCOUNT}
         IF    not ${ok2}
-            Log    Role account tree: default EC/BU fallback failed — using first EC/BU under ${DEFAULT_OPCO_ACCOUNT}    level=WARN    console=yes
-            RM Reopen Role Account Dropdown Treeview
+            Log    Role account tree: default EC/BU fallback failed — using first EC/BU heuristic    level=WARN    console=yes
+            # Still don't reopen — treeview should still be visible; use first-EC heuristic directly
             RM Expand Ksa And Select First Ec Bu
         END
     END
@@ -657,19 +672,17 @@ Click Role Close Button
     [Documentation]    Clicks Close/Back button on Create Role form.
     Wait For Loading Overlay To Disappear
     ${seen}=    Run Keyword And Return Status    Wait Until Element Is Visible    ${LOC_BTN_CLOSE_ROLE}    8s
-    IF    not ${seen}
-        ${js_close}=    Execute Javascript
-        ...    var els=document.querySelectorAll('button,a,input[type="button"],input[type="submit"]');
-        ...    for(var i=0;i<els.length;i++){
-        ...    var t=(els[i].textContent||els[i].value||'').replace(/\\s+/g,' ').trim();
-        ...    var tl=t.toLowerCase();
-        ...    if(tl==='close'||tl.indexOf('close')===0){ els[i].scrollIntoView({block:'center'}); els[i].click(); return true;}
-        ...    }
-        ...    return false;
-        Should Be True    ${js_close}    Close control not found on Create Role form.
+    IF    ${seen}
+        Scroll To Element Via JS    ${LOC_BTN_CLOSE_ROLE}
+        Sleep    0.3s
+        # Use Selenium native click — JS click doesn't trigger href navigation on <a> tags
+        ${native_ok}=    Run Keyword And Return Status    Click Element    ${LOC_BTN_CLOSE_ROLE}
+        IF    not ${native_ok}
+            Click Element Via JS    ${LOC_BTN_CLOSE_ROLE}
+        END
     ELSE
-        Run Keyword And Ignore Error    Scroll To Element Via JS    ${LOC_BTN_CLOSE_ROLE}
-        Click Element Via JS    ${LOC_BTN_CLOSE_ROLE}
+        # Try JS window.location fallback
+        Execute Javascript    window.location.href='/ManageRole';
     END
     Sleep    1s
     Wait For App Loading To Complete

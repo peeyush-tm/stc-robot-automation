@@ -22,53 +22,53 @@ Test Teardown     Handle Test Teardown
 TC_APN_001 Create Private APN With Static IPV4 Successfully
     [Documentation]    Navigate Service > APN, create a Private APN with Static IPV4.
     ...                Verify: success toast, redirect to /ManageAPN, grid visible.
-    [Tags]    smoke    regression    positive    apn
+    [Tags]    smoke    regression    positive    apn    TC_APN_001
     TC_APN_001
 
 TC_APN_002 Create Public APN With Dynamic IPV4 Successfully
     [Documentation]    Create a Public APN with Dynamic IPV4 allocation.
     ...                Verify: success toast, redirect to /ManageAPN.
-    [Tags]    regression    positive    apn
+    [Tags]    regression    positive    apn    TC_APN_002
     TC_APN_002
 
 TC_APN_003 Create Private APN With IPV6 Successfully
     [Documentation]    Create a Private APN with IPV6 addressing and Dynamic allocation.
     ...                Verify: success toast, redirect to /ManageAPN.
-    [Tags]    regression    positive    apn
+    [Tags]    regression    positive    apn    TC_APN_003
     TC_APN_003
 
 TC_APN_004 Create APN With IPV4 And IPV6 Dual Stack Successfully
     [Documentation]    Create a Private APN with IPV4 & IPV6 dual-stack.
     ...                Verify: success toast, redirect to /ManageAPN.
-    [Tags]    regression    positive    apn
+    [Tags]    regression    positive    apn    TC_APN_004
     TC_APN_004
 
 TC_APN_005 Create APN With Secondary Details
     [Documentation]    Create Private APN with Secondary Details (HLR APN ID, MCC, MNC, Profile ID).
     ...                Verify: success toast, redirect to /ManageAPN.
-    [Tags]    regression    positive    apn
+    [Tags]    regression    positive    apn    TC_APN_005
     TC_APN_005
 
 TC_APN_006 Create APN With QoS Details
     [Documentation]    Create Private APN with QoS 2G/3G and LTE bandwidth details.
     ...                Verify: success toast, redirect to /ManageAPN.
-    [Tags]    regression    positive    apn
+    [Tags]    regression    positive    apn    TC_APN_006
     TC_APN_006
 
 TC_APN_007 Verify Create APN Page Elements Are Visible
     [Documentation]    Navigate to Create APN page and verify all Primary Details fields are present.
-    [Tags]    smoke    regression    positive    apn
+    [Tags]    smoke    regression    positive    apn    TC_APN_007
     TC_APN_007
 
 TC_APN_008 Verify IP Allocation Type Appears After IP Address Type Selection
     [Documentation]    Verify IP Allocation Type dropdown only appears after selecting IP Address Type.
-    [Tags]    regression    positive    apn
+    [Tags]    regression    positive    apn    TC_APN_008
     TC_APN_008
 
 TC_APN_009 Verify Cancel Button Redirects To Manage APN
     [Documentation]    Click Cancel on Create APN page.
     ...                Verify: redirected to /ManageAPN listing.
-    [Tags]    regression    positive    apn    navigation
+    [Tags]    regression    positive    apn    TC_APN_009
     TC_APN_009
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -78,25 +78,25 @@ TC_APN_009 Verify Cancel Button Redirects To Manage APN
 TC_APN_010 Submit With No Fields Filled Should Show Error
     [Documentation]    Click Submit without filling any field.
     ...                Verify: validation error displayed, still on Create APN page.
-    [Tags]    regression    negative    apn
+    [Tags]    regression    negative    apn    TC_APN_010
     TC_APN_010
 
 TC_APN_011 Missing APN Name Should Show Error
     [Documentation]    Fill all mandatory fields except APN Name, click Submit.
     ...                Verify: validation error, still on Create APN page.
-    [Tags]    regression    negative    apn
+    [Tags]    regression    negative    apn    TC_APN_011
     TC_APN_011
 
 TC_APN_012 Missing APN ID Should Show Error
     [Documentation]    Fill all mandatory fields except APN ID, click Submit.
     ...                Verify: validation error, still on Create APN page.
-    [Tags]    regression    negative    apn
+    [Tags]    regression    negative    apn    TC_APN_012
     TC_APN_012
 
 TC_APN_013 Missing APN Type Should Show Error
     [Documentation]    Leave APN Type as default (-Select-), fill other fields, click Submit.
     ...                Verify: validation error, still on Create APN page.
-    [Tags]    regression    negative    apn
+    [Tags]    regression    negative    apn    TC_APN_013
     Login And Navigate To Create APN
     Enter APN ID    ${VALID_APN_ID}
     Enter APN Name    ${VALID_APN_NAME}
@@ -107,13 +107,13 @@ TC_APN_013 Missing APN Type Should Show Error
 TC_APN_014 Missing IP Address Type Should Show Error
     [Documentation]    Fill all mandatory fields except IP Address Type, click Submit.
     ...                Verify: validation error, still on Create APN page.
-    [Tags]    regression    negative    apn
+    [Tags]    regression    negative    apn    TC_APN_014
     TC_APN_014
 
 TC_APN_015 Missing IP Allocation Type Should Show Error
     [Documentation]    Select IP Address Type but leave IP Allocation as default, click Submit.
     ...                Verify: validation error, still on Create APN page.
-    [Tags]    regression    negative    apn
+    [Tags]    regression    negative    apn    TC_APN_015
     TC_APN_015
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -123,21 +123,21 @@ TC_APN_015 Missing IP Allocation Type Should Show Error
 TC_APN_016 APN ID Exceeding 19 Digits Should Show Error
     [Documentation]    Enter a 20-digit APN ID value.
     ...                Verify: validation error for max length, still on Create APN page.
-    [Tags]    regression    negative    apn    boundary
+    [Tags]    regression    negative    apn    TC_APN_016
     TC_APN_016
 
 TC_APN_017 Duplicate APN Name Should Show Error
     [Documentation]    Submit with an APN Name that already exists.
     ...                Verify: error toast (409 conflict) or validation error.
     ...                If the app accepts it, a warning is logged (server-side validation gap).
-    [Tags]    regression    negative    apn
+    [Tags]    regression    negative    apn    TC_APN_017
     TC_APN_017
 
 TC_APN_018 SQL Injection In APN Name Should Be Rejected
     [Documentation]    Enter SQL injection payload in APN Name field.
     ...                Verify: validation error or error toast.
     ...                If the app accepts it, a warning is logged (server-side validation gap).
-    [Tags]    regression    negative    security    apn
+    [Tags]    regression    negative    apn    TC_APN_018
     Login And Navigate To Create APN
     ${sql_apn_id}=    Evaluate    str(int("${VALID_APN_ID}") + 800)
     Fill Primary Details    ${APN_TYPE_PRIVATE}    ${sql_apn_id}    ${SQL_INJECTION_APN_NAME}
@@ -150,14 +150,14 @@ TC_APN_019 Special Characters In APN Name Should Be Rejected
     [Documentation]    Enter special characters in APN Name field.
     ...                Verify: validation error or error toast.
     ...                If the app accepts it, a warning is logged (server-side validation gap).
-    [Tags]    regression    negative    security    apn
+    [Tags]    regression    negative    apn    TC_APN_019
     TC_APN_019
 
 TC_APN_020 HLR APN ID Exceeding 19 Digits Should Show Error
     [Documentation]    Enter a 20-digit HLR APN ID in Secondary Details.
     ...                Verify: validation error for max length.
     ...                If the app accepts it, a warning is logged (server-side validation gap).
-    [Tags]    regression    negative    apn    boundary
+    [Tags]    regression    negative    apn    TC_APN_020
     TC_APN_020
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -167,13 +167,13 @@ TC_APN_020 HLR APN ID Exceeding 19 Digits Should Show Error
 TC_APN_021 Direct Access To Create APN Without Login Should Redirect
     [Documentation]    Navigate directly to /CreateAPN without authenticating.
     ...                Verify: application redirects back to the login page.
-    [Tags]    regression    negative    security    apn    navigation
+    [Tags]    regression    negative    apn    TC_APN_021
     TC_APN_021
 
 TC_APN_022 Direct Access To Manage APN Without Login Should Redirect
     [Documentation]    Navigate directly to /ManageAPN without authenticating.
     ...                Verify: application redirects back to the login page.
-    [Tags]    regression    negative    security    apn    navigation
+    [Tags]    regression    negative    apn    TC_APN_022
     TC_APN_022
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -185,55 +185,55 @@ TC_APN_023 Verify APN List Page Loads With Correct Columns
     ...                columns: APN NAME, APN ID, ACCOUNT, APN TYPE, SHARED, STATUS, EQOSID,
     ...                IPV4 ALLOCATION TYPE, IPV6 ALLOCATION TYPE, HSS PROFILE ID, DESCRIPTION,
     ...                CREATION DATE. Pagination shows total count.
-    [Tags]    feature    regression    positive    apn
+    [Tags]    regression    positive    apn    TC_APN_023
     TC_APN_023
 
 TC_APN_024 Verify Search Filters APN Records
     [Documentation]    Enter a valid APN name in the search box and verify only matching records
     ...                are displayed. Clear search to restore full list.
-    [Tags]    feature    regression    positive    apn
+    [Tags]    regression    positive    apn    TC_APN_024
     TC_APN_024
 
 TC_APN_025 Verify Pagination Controls Navigate Correctly
     [Documentation]    Click next page, previous page, change page size dropdown, navigate to last page.
     ...                Verify correct records displayed per page and page counter updates accurately.
-    [Tags]    feature    regression    positive    apn
+    [Tags]    regression    positive    apn    TC_APN_025
     TC_APN_025
 
 TC_APN_026 Verify CSV Export Downloads File
     [Documentation]    Click the CSV/Export icon on the APN list page and verify a file download initiates.
     ...                Downloaded CSV should contain APN records with correct column headers.
-    [Tags]    feature    regression    positive    apn
+    [Tags]    regression    positive    apn    TC_APN_026
     TC_APN_026
 
 TC_APN_027 Verify Column Sorting Ascending And Descending
     [Documentation]    Click column header sort on APN NAME, APN ID, STATUS, EQOSID columns.
     ...                Verify ascending on first click, descending on second click.
-    [Tags]    feature    regression    positive    apn
+    [Tags]    regression    positive    apn    TC_APN_027
     TC_APN_027
 
 TC_APN_028 Verify Column Filter Applies And Clears Correctly
     [Documentation]    Click filter icon next to APN NAME column, enter filter value, apply filter.
     ...                Verify only matching records shown. Clear filter to restore full list.
-    [Tags]    feature    regression    positive    apn
+    [Tags]    regression    positive    apn    TC_APN_028
     TC_APN_028
 
 TC_APN_029 Verify APN Record Can Be Deleted
     [Documentation]    Click delete icon on an APN row with status 'Not In Use', confirm deletion.
     ...                Verify confirmation dialog, success notification, and record removed from list.
-    [Tags]    feature    regression    positive    apn
+    [Tags]    regression    positive    apn    TC_APN_029
     TC_APN_029
 
 TC_APN_030 Verify Edit Icon Opens Pre-populated APN Form
     [Documentation]    Click edit icon on an APN row and verify the edit form opens with all existing
     ...                APN details pre-filled. Modified value can be saved successfully.
-    [Tags]    feature    regression    positive    apn
+    [Tags]    regression    positive    apn    TC_APN_030
     TC_APN_030
 
 TC_APN_031 Verify Create APN Button Navigates To Create Form
     [Documentation]    From the APN list page, click 'Create APN' button and verify navigation to
     ...                /CreateAPN page. Form displays Primary Details section with all required fields.
-    [Tags]    feature    regression    positive    apn    navigation
+    [Tags]    regression    positive    apn    TC_APN_031
     TC_APN_031
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -243,43 +243,43 @@ TC_APN_031 Verify Create APN Button Navigates To Create Form
 TC_APN_032 Verify APN Type Public Dropdown Options
     [Documentation]    Verify APN Type dropdown shows options: -Select-, Public, Private.
     ...                After selecting 'Public', field displays 'Public' and Account field adapts.
-    [Tags]    feature    regression    positive    apn
+    [Tags]    regression    positive    apn    TC_APN_032
     TC_APN_032
 
 TC_APN_033 Verify APN Type Private Dropdown With Account Options
     [Documentation]    After selecting 'Private', Account field shows appropriate account options.
     ...                Form adapts based on APN type selection.
-    [Tags]    feature    regression    positive    apn
+    [Tags]    regression    positive    apn    TC_APN_033
     TC_APN_033
 
 TC_APN_034 Verify All IP Address Type Options Are Selectable
     [Documentation]    Verify IP Address Type dropdown displays: -Select-, IPV4 & IPV6, IPV6, IPV4.
     ...                Select IPV4 and verify selected value is saved correctly.
-    [Tags]    feature    regression    positive    apn
+    [Tags]    regression    positive    apn    TC_APN_034
     TC_APN_034
 
 TC_APN_035 Verify All APN Service Type Options Are Selectable
     [Documentation]    Verify APN Service Type dropdown displays: -Select-, M2M, M2MGCT.
     ...                Each option is selectable and retained in field after selection.
-    [Tags]    feature    regression    positive    apn
+    [Tags]    regression    positive    apn    TC_APN_035
     TC_APN_035
 
 TC_APN_036 Verify Roaming Toggle Can Be Enabled And Disabled
     [Documentation]    Verify Roaming toggle default state (ON), click to toggle OFF, click to toggle ON.
     ...                State is reflected correctly in the form.
-    [Tags]    feature    regression    positive    apn
+    [Tags]    regression    positive    apn    TC_APN_036
     TC_APN_036
 
 TC_APN_037 Verify Secondary Details Section Expands With Fields
     [Documentation]    Click '+' icon next to 'Secondary Details (Optional)' and verify fields:
     ...                HLR APN ID, MCC, MNC, HSS Profile Id. All are optional. Section can collapse.
-    [Tags]    feature    regression    positive    apn
+    [Tags]    regression    positive    apn    TC_APN_037
     TC_APN_037
 
 TC_APN_038 Verify Quality Of Service Section Expands With Fields
     [Documentation]    Click '+' next to 'Quality of Service' and verify QoS-related fields appear.
     ...                Fields can be filled or left empty (optional).
-    [Tags]    feature    regression    positive    apn
+    [Tags]    regression    positive    apn    TC_APN_038
     TC_APN_038
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -289,19 +289,19 @@ TC_APN_038 Verify Quality Of Service Section Expands With Fields
 TC_APN_039 Duplicate APN ID Should Show Error
     [Documentation]    Create an APN using an existing APN ID from the APN list.
     ...                Verify error message indicating APN ID already exists.
-    [Tags]    regression    negative    apn
+    [Tags]    regression    negative    apn    TC_APN_039
     TC_APN_039
 
 TC_APN_040 APN ID With Non-Numeric Characters Should Be Rejected
     [Documentation]    Enter alphabetic/special characters in APN Id field.
     ...                Verify field rejects non-numeric input or shows validation error.
-    [Tags]    regression    negative    apn    boundary
+    [Tags]    regression    negative    apn    TC_APN_040
     TC_APN_040
 
 TC_APN_041 Verify Auto Created APNs Visible In APN List
     [Documentation]    Search for 'auto-apn' in the APN list and verify auto-created APNs are visible
     ...                with correct attributes: APN Type, Account, Status, EQOSID.
-    [Tags]    regression    positive    apn
+    [Tags]    regression    positive    apn    TC_APN_041
     TC_APN_041
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -311,38 +311,38 @@ TC_APN_041 Verify Auto Created APNs Visible In APN List
 TC_APN_042 Verify IP Allocation Static Shows Subnet Mask Section
     [Documentation]    Select IP Allocation Type = Static and verify 'IP Allocation Type' dropdown
     ...                is visible with 'Static' option. Subnet mask section appears after selection.
-    [Tags]    feature    regression    positive    apn
+    [Tags]    regression    positive    apn    TC_APN_042
     TC_APN_042
 
 TC_APN_043 Verify Dynamic IP Allocation Hides Subnet Section
     [Documentation]    Select 'Dynamic' from IP Allocation Type and verify subnet mask section
     ...                is not required. Form allows submission without subnet mask entries.
-    [Tags]    feature    regression    positive    apn
+    [Tags]    regression    positive    apn    TC_APN_043
     TC_APN_043
 
 TC_APN_044 Verify Subnet Mask Section Expands For Static Allocation
     [Documentation]    Select IP Allocation Type = Static, expand Subnet mask section.
     ...                Verify IPV4/IPV6 Subnets sub-sections with CSV Upload and Add Subnet mask options.
-    [Tags]    feature    regression    positive    apn
+    [Tags]    regression    positive    apn    TC_APN_044
     TC_APN_044
 
 TC_APN_045 Create Public APN With Static Dual Stack Subnets E2E
     [Documentation]    End-to-end: create Public APN with Static IP Allocation and both IPV4 & IPV6 subnets.
     ...                APN Type: Public, IP Address Type: IPV4 & IPV6, IP Allocation: Static.
     ...                Verify: success notification, APN appears in list with correct attributes.
-    [Tags]    regression    positive    apn    e2e
+    [Tags]    regression    positive    apn    e2e    TC_APN_045
     TC_APN_045
 
 TC_APN_046 Static IP Without Subnet Mask Should Show Validation Error
     [Documentation]    Fill all Primary Details with IP Allocation Type = Static but do NOT add subnet masks.
     ...                Verify form does not submit and validation error is displayed.
-    [Tags]    regression    negative    apn    boundary
+    [Tags]    regression    negative    apn    TC_APN_046
     TC_APN_046
 
 TC_APN_047 Verify Subnet Section Matches Selected IP Address Type
     [Documentation]    When IPV4 only: only IPV4 Subnets shown. When IPV6 only: only IPV6 Subnets.
     ...                When IPV4 & IPV6: both sections shown in the Subnet mask area.
-    [Tags]    feature    regression    positive    apn
+    [Tags]    regression    positive    apn    TC_APN_047
     TC_APN_047
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -352,43 +352,43 @@ TC_APN_047 Verify Subnet Section Matches Selected IP Address Type
 TC_APN_048 Verify IPV4 Subnet Mask Manual Entry And Calculate
     [Documentation]    Enter valid IPV4 subnet mask 10.45.223.45 with prefix /30, click Calculate.
     ...                Verify Host Address Range auto-populates and Total Host IPV4 count updates.
-    [Tags]    feature    regression    positive    apn
+    [Tags]    regression    positive    apn    TC_APN_048
     TC_APN_048
 
 TC_APN_049 Verify Invalid IPV4 Address Shows Validation Error
     [Documentation]    Enter invalid IPV4 address '999.999.999.999', select prefix, click Calculate.
     ...                Verify validation error displayed and Host Address Range remains empty.
-    [Tags]    regression    negative    apn    boundary
+    [Tags]    regression    negative    apn    TC_APN_049
     TC_APN_049
 
 TC_APN_050 Verify IPV4 Prefix Dropdown Contains Valid CIDR Options
     [Documentation]    Expand subnet mask, check IPV4 prefix dropdown lists valid CIDR values
     ...                (/24, /25, /26, /27, /28, /29, /30, /31, /32).
-    [Tags]    feature    regression    positive    apn
+    [Tags]    regression    positive    apn    TC_APN_050
     TC_APN_050
 
 TC_APN_051 Verify Multiple IPV4 Subnet Masks Can Be Added
     [Documentation]    Add first IPV4 subnet and calculate, then add second IPV4 subnet and calculate.
     ...                Both rows visible with own host ranges. Total Host IPV4 reflects sum.
-    [Tags]    feature    regression    positive    apn
+    [Tags]    regression    positive    apn    TC_APN_051
     TC_APN_051
 
 TC_APN_052 Verify Delete Icon Removes IPV4 Subnet Mask Row
     [Documentation]    Add an IPV4 subnet mask entry, click red delete icon.
     ...                Verify row removed and Total Host IPV4 count updates.
-    [Tags]    feature    regression    positive    apn
+    [Tags]    regression    positive    apn    TC_APN_052
     TC_APN_052
 
 TC_APN_053 Verify CSV Upload Imports IPV4 Subnet Entries
     [Documentation]    Click CSV Upload in IPV4 Subnets, upload valid CSV file.
     ...                Verify subnet entries populated as rows with host ranges.
-    [Tags]    feature    regression    positive    apn
+    [Tags]    regression    positive    apn    TC_APN_053
     TC_APN_053
 
 TC_APN_054 Verify Invalid CSV Upload Shows Error For IPV4 Subnets
     [Documentation]    Upload an invalid/wrongly-formatted CSV for IPV4 subnets.
     ...                Verify error message shown and no invalid data imported.
-    [Tags]    regression    negative    apn
+    [Tags]    regression    negative    apn    TC_APN_054
     TC_APN_054
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -398,35 +398,35 @@ TC_APN_054 Verify Invalid CSV Upload Shows Error For IPV4 Subnets
 TC_APN_055 Verify IPV6 Subnet Mask Entry And Calculate
     [Documentation]    Enter valid IPV6 address fd8c:42b7:1000:0000:0 with prefix /63, click Calculate.
     ...                Verify Host Address Range auto-populates and Total Host IPV6 count updates.
-    [Tags]    feature    regression    positive    apn
+    [Tags]    regression    positive    apn    TC_APN_055
     TC_APN_055
 
 TC_APN_056 Verify Invalid IPV6 Address Shows Validation Error
     [Documentation]    Enter invalid IPV6 address, select prefix, click Calculate.
     ...                Verify validation error and Host Address Range remains empty.
-    [Tags]    regression    negative    apn    boundary
+    [Tags]    regression    negative    apn    TC_APN_056
     TC_APN_056
 
 TC_APN_057 Verify IPV6 Prefix Dropdown Contains Valid CIDR Options
     [Documentation]    Check IPV6 prefix dropdown lists valid CIDR values (/48, /56, /60, /62, /63, /64, /128 etc.).
-    [Tags]    feature    regression    positive    apn
+    [Tags]    regression    positive    apn    TC_APN_057
     TC_APN_057
 
 TC_APN_058 Verify Multiple IPV6 Subnet Masks Can Be Added
     [Documentation]    Add first and second IPV6 subnets. Both rows visible with correct host ranges.
     ...                Total Host IPV6 reflects combined total.
-    [Tags]    feature    regression    positive    apn
+    [Tags]    regression    positive    apn    TC_APN_058
     TC_APN_058
 
 TC_APN_059 Verify Delete Icon Removes IPV6 Subnet Row
     [Documentation]    Add IPV6 subnet entry, click red delete icon. Verify row removed and count updates.
-    [Tags]    feature    regression    positive    apn
+    [Tags]    regression    positive    apn    TC_APN_059
     TC_APN_059
 
 TC_APN_060 Verify CSV Upload Imports IPV6 Subnet Entries
     [Documentation]    Click CSV Upload in IPV6 Subnets, upload valid IPV6 CSV file.
     ...                Verify IPV6 subnet entries appear as rows with host ranges.
-    [Tags]    feature    regression    positive    apn
+    [Tags]    regression    positive    apn    TC_APN_060
     TC_APN_060
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -436,31 +436,31 @@ TC_APN_060 Verify CSV Upload Imports IPV6 Subnet Entries
 TC_APN_061 Verify Total Host IPV4 Count Sums Correctly
     [Documentation]    Add one IPV4 subnet (/30=2 hosts), note total. Add another (/30=2 hosts).
     ...                Verify Total Host IPV4 count = 4. Updates dynamically on add/remove.
-    [Tags]    feature    regression    positive    apn
+    [Tags]    regression    positive    apn    TC_APN_061
     TC_APN_061
 
 TC_APN_062 Verify Total Host IPV6 Count Sums Correctly
     [Documentation]    Add one IPV6 subnet (/63=2 hosts), note total. Add another and verify
     ...                Total Host IPV6 reflects correct cumulative count.
-    [Tags]    feature    regression    positive    apn
+    [Tags]    regression    positive    apn    TC_APN_062
     TC_APN_062
 
 TC_APN_063 Verify Subnet Section Collapse Expand Retains Data
     [Documentation]    Expand subnet section, enter data, collapse with '-' icon, re-expand with '+'.
     ...                Verify previously entered subnet data is retained.
-    [Tags]    feature    regression    positive    apn
+    [Tags]    regression    positive    apn    TC_APN_063
     TC_APN_063
 
 TC_APN_064 Verify Change Prefix And Recalculate Updates Host Range
     [Documentation]    Add IPV4 subnet with /30, calculate (2 hosts). Change prefix to /29,
     ...                recalculate. Verify Host Address Range and Total Host count update.
-    [Tags]    feature    regression    positive    apn
+    [Tags]    regression    positive    apn    TC_APN_064
     TC_APN_064
 
 TC_APN_065 Verify Edge CIDR Values For IPV4 Subnet Boundaries
     [Documentation]    Enter 192.168.1.0 with /32 (single host), then change to /24 (254 hosts).
     ...                Verify host address range boundaries computed correctly.
-    [Tags]    regression    positive    apn    boundary
+    [Tags]    regression    positive    apn    TC_APN_065
     TC_APN_065
 
 *** Keywords ***

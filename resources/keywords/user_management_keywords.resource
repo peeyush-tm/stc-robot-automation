@@ -228,12 +228,12 @@ Select Account In TreeView
         Should Not Be Empty    ${clicked}    Account TreeView trigger not found on CreateUser page. Form inputs: ${form_inputs}
     END
     Sleep    1s
-    Wait For App Loading To Complete
-    # Step 4: Wait for the TreeView to become visible
+    # Step 4: Wait directly for TreeView — skip Wait For App Loading here
+    # (clicking the account input triggers a loading overlay for treeview data;
+    #  calling Wait For App Loading kills it after 10s before treeview appears)
     ${tree_visible}=    Run Keyword And Return Status
-    ...    Wait Until Element Is Visible    ${LOC_UM_ACCOUNT_TREEVIEW}    10s
+    ...    Wait Until Element Is Visible    ${LOC_UM_ACCOUNT_TREEVIEW}    60s
     IF    not ${tree_visible}
-        # Log the DOM state for debugging
         ${dom_state}=    Execute JavaScript
         ...    var tvs = document.querySelectorAll('div[id^="showTreeView"], div.k-treeview');
         ...    var info = [];
@@ -241,11 +241,11 @@ Select Account In TreeView
         ...        info.push('id=' + (tvs[i].id||'none') + ' visible=' + (tvs[i].offsetHeight > 0) + ' display=' + getComputedStyle(tvs[i]).display);
         ...    }
         ...    return info.length > 0 ? info.join(' | ') : 'NO treeview divs found in DOM';
-        Log    TreeView DOM state after click: ${dom_state}    level=WARN
+        Log    TreeView DOM state after click: ${dom_state}    level=WARN    console=yes
         Fail    TreeView did not appear after clicking Account trigger. DOM state: ${dom_state}
     END
     # Step 5: Wait for root node and expand hierarchy
-    Wait Until Element Is Visible    ${LOC_UM_ACCOUNT_ROOT_NODE}    15s
+    Wait Until Element Is Visible    ${LOC_UM_ACCOUNT_ROOT_NODE}    60s
     Sleep    1s
     UM Expand And Select BU Account
     Sleep    1s
@@ -287,13 +287,13 @@ UM Reopen Account Dropdown Treeview
     ...    for(var n=0;n<names.length;n++){ var i=document.querySelector('input[name="'+names[n]+'"]'); if(i&&(i.offsetParent!==null||i.offsetHeight>0)){ i.scrollIntoView({block:'center'}); i.click(); return names[n]; } }
     ...    return '';
     Sleep    1s
-    Wait For App Loading To Complete
-    Wait Until Element Is Visible    ${LOC_UM_ACCOUNT_TREEVIEW}    15s
-    Wait Until Element Is Visible    ${LOC_UM_ACCOUNT_ROOT_NODE}    15s
+    Wait Until Element Is Visible    ${LOC_UM_ACCOUNT_TREEVIEW}    60s
+    Wait Until Element Is Visible    ${LOC_UM_ACCOUNT_ROOT_NODE}    60s
     Sleep    1s
 
 UM Expand Ksa And Select First Ec Bu
-    [Documentation]    Last resort when named EC/BU are missing on this env: OPCO → first child EC → first BU checkbox.
+    [Documentation]    Last resort: OPCO root → first child EC → first BU checkbox.
+    ...                Captures actual EC/BU names and writes to seed so all modules use same accounts.
     UM Clear Account Tree Search If Present
     ${root_expand}=    Run Keyword And Return Status
     ...    Wait Until Element Is Visible    ${LOC_UM_ACCOUNT_ROOT_EXPAND}    5s
@@ -305,42 +305,50 @@ UM Expand Ksa And Select First Ec Bu
     UM Expand Tree Node By Name    ${DEFAULT_OPCO_ACCOUNT}
     Sleep    2s
     Wait For App Loading To Complete    timeout=40s
-    ${ec_exp}=    Execute Javascript
-    ...    var root=document.querySelector('div[id^="showTreeView"]')||document.querySelector('.k-treeview');if(!root)return false;
+    ${ec_name}=    Execute Javascript
+    ...    var root=document.querySelector('div[id^="showTreeView"]')||document.querySelector('.k-treeview');if(!root)return '';
     ...    var ksaLi=null;
     ...    root.querySelectorAll('span.k-in').forEach(function(sp){
     ...    var t=sp.textContent.trim().toUpperCase();
     ...    if(t.indexOf('KSA')>=0&&t.indexOf('OPCO')>=0) ksaLi=sp.closest('li.k-item');
     ...    });
-    ...    if(!ksaLi) return false;
-    ...    var ul=ksaLi.querySelector(':scope > ul'); if(!ul) return false;
-    ...    var ecLi=ul.querySelector(':scope > li.k-item'); if(!ecLi) return false;
+    ...    if(!ksaLi){ var items=root.querySelectorAll('li.k-item > ul > li.k-item'); if(items.length) ksaLi=items[0].closest('li.k-item').parentElement.closest('li.k-item'); }
+    ...    if(!ksaLi) return '';
+    ...    var ul=ksaLi.querySelector(':scope > ul'); if(!ul) return '';
+    ...    var ecLi=ul.querySelector(':scope > li.k-item'); if(!ecLi) return '';
+    ...    var ecSpan=ecLi.querySelector('span.k-in'); var ecName=ecSpan?ecSpan.textContent.trim():'';
     ...    var ic=ecLi.querySelector('span.k-i-expand, span.k-i-plus, span.k-plus, span.k-i-arrow-60-right');
-    ...    if(ic){ ic.click(); return true; }
-    ...    return true;
+    ...    if(ic){ ic.click(); }
+    ...    return ecName;
+    Log    First-EC heuristic: expanding EC '${ec_name}'    console=yes
     Sleep    2s
     Wait For App Loading To Complete    timeout=40s
-    ${bu_ok}=    Execute Javascript
-    ...    var root=document.querySelector('div[id^="showTreeView"]')||document.querySelector('.k-treeview');if(!root)return false;
+    ${bu_name}=    Execute Javascript
+    ...    var root=document.querySelector('div[id^="showTreeView"]')||document.querySelector('.k-treeview');if(!root)return '';
     ...    var boxes=root.querySelectorAll('li.k-item input[type=checkbox], li.k-item input.k-checkbox');
     ...    for(var i=boxes.length-1;i>=0;i--){
     ...    var li=boxes[i].closest('li.k-item');
-    ...    if(li&&li.querySelector('span.k-in')){ boxes[i].click(); return true; }
+    ...    var sp=li?li.querySelector('span.k-in'):null;
+    ...    if(sp){ boxes[i].click(); return sp.textContent.trim(); }
     ...    }
-    ...    return false;
-    Should Be True    ${bu_ok}    Could not pick a BU under ${DEFAULT_OPCO_ACCOUNT} (first-EC heuristic).
+    ...    return '';
+    Should Not Be Empty    ${bu_name}    Could not pick a BU under ${DEFAULT_OPCO_ACCOUNT} (first-EC heuristic).
+    Log    First-EC heuristic: selected EC='${ec_name}' BU='${bu_name}'    console=yes
+    Run Keyword And Ignore Error    Write Seed Value    DEFAULT_EC_ACCOUNT    ${ec_name}
+    Run Keyword And Ignore Error    Write Seed Value    DEFAULT_BU_ACCOUNT    ${bu_name}
+    Set Global Variable    ${DEFAULT_EC_ACCOUNT}    ${ec_name}
+    Set Global Variable    ${DEFAULT_BU_ACCOUNT}    ${bu_name}
 
 UM Expand And Select BU Account
     [Documentation]    Expand OPCO → EC → BU. Tries UM_EC_/UM_BU_ from seed/env; then config default EC/BU;
     ...                then first EC/BU under OPCO when this tenant has different account names.
+    ...                Does NOT reopen treeview between attempts — tree stays open after failed expansion.
     ${ok}=    Run Keyword And Return Status    UM Expand Select Bu Pair    ${UM_EC_ACCOUNT_NAME}    ${UM_BU_ACCOUNT_NAME}
     IF    not ${ok}
         Log    Account tree: could not use EC '${UM_EC_ACCOUNT_NAME}' — retrying ${DEFAULT_EC_ACCOUNT} / ${DEFAULT_BU_ACCOUNT}    level=WARN    console=yes
-        UM Reopen Account Dropdown Treeview
         ${ok2}=    Run Keyword And Return Status    UM Expand Select Bu Pair    ${DEFAULT_EC_ACCOUNT}    ${DEFAULT_BU_ACCOUNT}
         IF    not ${ok2}
-            Log    Account tree: default EC/BU fallback failed — using first EC/BU under ${DEFAULT_OPCO_ACCOUNT}    level=WARN    console=yes
-            UM Reopen Account Dropdown Treeview
+            Log    Account tree: default EC/BU fallback failed — using first EC/BU heuristic    level=WARN    console=yes
             UM Expand Ksa And Select First Ec Bu
         END
     END
@@ -815,19 +823,15 @@ Click Close Form Button
     ...                MD: Buttons — Close: Cancels and closes the form without saving
     Wait For Loading Overlay To Disappear
     ${seen}=    Run Keyword And Return Status    Wait Until Element Is Visible    ${LOC_BTN_CLOSE_FORM}    8s
-    IF    not ${seen}
-        ${js_close}=    Execute Javascript
-        ...    var els=document.querySelectorAll('button,a,input[type="button"],input[type="submit"]');
-        ...    for(var i=0;i<els.length;i++){
-        ...    var t=(els[i].textContent||els[i].value||'').replace(/\\s+/g,' ').trim();
-        ...    var tl=t.toLowerCase();
-        ...    if(tl==='close'||tl.indexOf('close')===0){ els[i].scrollIntoView({block:'center'}); els[i].click(); return true;}
-        ...    }
-        ...    return false;
-        Should Be True    ${js_close}    Close control not found on Create User form.
+    IF    ${seen}
+        Scroll To Element Via JS    ${LOC_BTN_CLOSE_FORM}
+        Sleep    0.3s
+        ${native_ok}=    Run Keyword And Return Status    Click Element    ${LOC_BTN_CLOSE_FORM}
+        IF    not ${native_ok}
+            Click Element Via JS    ${LOC_BTN_CLOSE_FORM}
+        END
     ELSE
-        Run Keyword And Ignore Error    Scroll To Element Via JS    ${LOC_BTN_CLOSE_FORM}
-        Click Element Via JS    ${LOC_BTN_CLOSE_FORM}
+        Execute Javascript    window.history.back();
     END
     Sleep    1s
     Wait For App Loading To Complete
@@ -917,7 +921,7 @@ Verify On Create User Page After Invalid Submit
 
 Verify On Manage User Page
     [Documentation]    Confirms the browser is on the Manage User page.
-    Location Should Contain    ${MANAGE_USER_PATH}
+    Wait Until Location Contains    ${MANAGE_USER_PATH}    timeout=15s
     Log    On Manage User page.
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -959,7 +963,23 @@ Click Delete Icon For User
     END
     ${delete_loc}=    Replace String    ${LOC_DELETE_ICON_TEMPLATE}    PLACEHOLDER    ${username}
     ${delete_xpath}=    Set Variable    xpath=${delete_loc}
-    Wait Until Element Is Visible    ${delete_xpath}    ${UM_TIMEOUT}
+    # Hover over the row to reveal action icons (some grids show on hover only)
+    Run Keyword And Ignore Error    Mouse Over    ${row_loc}
+    Sleep    0.5s
+    ${del_visible}=    Run Keyword And Return Status    Wait Until Element Is Visible    ${delete_xpath}    ${UM_TIMEOUT}
+    IF    not ${del_visible}
+        ${js_del}=    Execute Javascript
+        ...    var rows=document.querySelectorAll('tr');
+        ...    for(var i=0;i<rows.length;i++){
+        ...    if(rows[i].textContent.includes('${username}')){
+        ...    var btn=rows[i].querySelector('[class*="k-grid-Delete"],[class*="k-delete"],[class*="fa-trash"],[title="Delete"],[title="delete"]');
+        ...    if(btn){btn.scrollIntoView({block:'center'});btn.click();return true;}}}
+        ...    return false;
+        Should Be True    ${js_del}    Delete button not found for user: ${username}
+        Sleep    1s
+        Wait For App Loading To Complete
+        Return From Keyword
+    END
     Click Element Via JS    ${delete_xpath}
     Sleep    1s
     Wait For App Loading To Complete

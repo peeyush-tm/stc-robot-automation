@@ -23,46 +23,46 @@ TC_IPP_001 E2E Create IP Pool With Public APN
     [Documentation]    Full 2-step flow: Login > IP Pooling > Create > fill form >
     ...                Click Create (Step 1) > Verify IP Details > Submit (Step 2) >
     ...                Verify success toast and redirect to listing.
-    [Tags]    smoke    regression    positive    ip_pool
+    [Tags]    smoke    regression    positive    TC_IPP_001
     TC_IPP_001
 
 TC_IPP_002 Verify IP Pool Listing Page Loads
     [Documentation]    Navigate to IP Pooling listing and verify grid is visible.
-    [Tags]    smoke    regression    positive    ip_pool
+    [Tags]    smoke    regression    positive    TC_IPP_002
     TC_IPP_002
 
 TC_IPP_003 Verify Create IP Pool Form Elements Visible
     [Documentation]    Navigate to Create IP Pool and verify APN Type, Number of IPs, Create button visible.
-    [Tags]    smoke    regression    positive    ip_pool
+    [Tags]    smoke    regression    positive    TC_IPP_003
     TC_IPP_003
 
 TC_IPP_004 Verify IP Details Panel After Clicking Create
     [Documentation]    Fill form, click Create (Step 1), verify IP Details panel appears.
-    [Tags]    regression    positive    ip_pool
+    [Tags]    regression    positive    TC_IPP_004
     TC_IPP_004
 
 TC_IPP_005 Verify Pool Count In IP Details Panel
     [Documentation]    Fill form with 5 IPs, click Create, verify Generated/Requested
     ...                counts match in the IP Details panel.
-    [Tags]    regression    positive    ip_pool
+    [Tags]    regression    positive    TC_IPP_005
     TC_IPP_005
 
 TC_IPP_006 Cancel Before Submit Redirects To Listing
     [Documentation]    Fill form, click Create to get IP Details, then click Close
     ...                before Submit. Verify redirect to listing page.
-    [Tags]    regression    positive    ip_pool    navigation
+    [Tags]    regression    positive    TC_IPP_006
     TC_IPP_006
 
 TC_IPP_007 Verify APN Dropdown Populates After Account And Type
     [Documentation]    Select Account and APN Type, verify APN dropdown becomes
     ...                enabled and has options.
-    [Tags]    regression    positive    ip_pool
+    [Tags]    regression    positive    TC_IPP_007
     TC_IPP_007
 
 TC_IPP_008 Verify Close Button On Create Page Redirects
     [Documentation]    On Create IP Pool form (before clicking Create), click Close.
     ...                Verify redirect to listing page.
-    [Tags]    regression    positive    ip_pool    navigation
+    [Tags]    regression    positive    TC_IPP_008
     TC_IPP_008
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -72,53 +72,53 @@ TC_IPP_008 Verify Close Button On Create Page Redirects
 TC_IPP_009 Create With No Fields Filled Should Show Error
     [Documentation]    Click Create without filling any field. Verify error or
     ...                validation prevents submission.
-    [Tags]    regression    negative    ip_pool
+    [Tags]    regression    negative    TC_IPP_009
     TC_IPP_009
 
 TC_IPP_010 Create Without Account Should Show Error
     [Documentation]    Fill APN Type, Number of IPs, APN but skip Account.
     ...                Verify error or validation.
-    [Tags]    regression    negative    ip_pool
+    [Tags]    regression    negative    TC_IPP_010
     TC_IPP_010
 
 TC_IPP_011 Create Without APN Type Should Show Error
     [Documentation]    Fill Account, Number of IPs but leave APN Type default.
     ...                Verify error or validation.
-    [Tags]    regression    negative    ip_pool
+    [Tags]    regression    negative    TC_IPP_011
     TC_IPP_011
 
 TC_IPP_012 Create Without Number Of IPs Should Show Error
     [Documentation]    Fill Account, APN Type, APN but leave Number of IPs empty.
     ...                Verify error or validation.
-    [Tags]    regression    negative    ip_pool
+    [Tags]    regression    negative    TC_IPP_012
     TC_IPP_012
 
 TC_IPP_013 Create Without APN Selected Should Show Error
     [Documentation]    Fill Account, APN Type, Number of IPs but do not select APN.
     ...                Verify error or validation.
-    [Tags]    regression    negative    ip_pool
+    [Tags]    regression    negative    TC_IPP_013
     TC_IPP_013
 
 TC_IPP_014 Create With Zero IPs Should Show Error
     [Documentation]    Enter 0 as Number of IPs. Verify error or validation.
-    [Tags]    regression    negative    ip_pool    boundary
+    [Tags]    regression    negative    TC_IPP_014
     TC_IPP_014
 
 TC_IPP_015 Create With Non Numeric IPs Should Show Error
     [Documentation]    Enter "abc" as Number of IPs. Verify error or validation.
-    [Tags]    regression    negative    ip_pool    boundary
+    [Tags]    regression    negative    TC_IPP_015
     TC_IPP_015
 
 TC_IPP_016 Direct Access To Create IP Pool Without Login
     [Documentation]    Navigate directly to /CreateIPPooling without authenticating.
     ...                Verify: application redirects back to the login page.
-    [Tags]    regression    negative    security    ip_pool    navigation
+    [Tags]    regression    negative    TC_IPP_016
     TC_IPP_016
 
 TC_IPP_017 Direct Access To IP Pool List Without Login
     [Documentation]    Navigate directly to /manageIPPooling without authenticating.
     ...                Verify: application redirects back to the login page.
-    [Tags]    regression    negative    security    ip_pool    navigation
+    [Tags]    regression    negative    TC_IPP_017
     TC_IPP_017
 
 

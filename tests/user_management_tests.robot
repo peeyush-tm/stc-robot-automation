@@ -23,32 +23,32 @@ Test Teardown     Run Keyword If Test Failed    Capture Page Screenshot
 TC_USER_001 Navigate To Manage User Page Via Admin Sidebar
     [Documentation]    MD: Steps 1-3. Login and navigate to Admin > User.
     ...                Verify /ManageUser URL and page heading "Users".
-    [Tags]    positive    user-management    navigation    smoke
+    [Tags]    positive    user-management    smoke    TC_USER_001
     Verify Manage User Page Loaded
 
 TC_USER_002 Verify Manage User Grid Loads With Data
     [Documentation]    MD: Grid Columns on Manage User Page.
     ...                Verify the Kendo grid is visible and column headers render.
-    [Tags]    positive    user-management
+    [Tags]    positive    user-management    TC_USER_002
     Verify Manage User Grid Loaded
 
 TC_USER_003 Verify Manage User Grid Columns
     [Documentation]    MD: Grid Columns â€” USER NAME, USER TYPE, USER CATEGORY, ACCOUNT,
     ...                LOCK STATUS, GROUP, ROLE & ACCESS, FIRST NAME, LAST NAME,
     ...                PRIMARY PHONE, EMAIL ADDRESS.
-    [Tags]    positive    user-management
+    [Tags]    positive    user-management    TC_USER_003
     Verify Manage User Grid Loaded
     Verify Manage User Grid Columns
 
 TC_USER_004 Verify Manage User Grid Has Pagination
     [Documentation]    MD: Kendo Grid with pagination.
-    [Tags]    positive    user-management
+    [Tags]    positive    user-management    TC_USER_004
     Wait Until Element Is Visible    ${LOC_MANAGE_USER_PAGINATION}    ${UM_TIMEOUT}
     Log    Pagination visible on Manage User grid.
 
 TC_USER_005 Verify Create User Button Is Visible
     [Documentation]    MD: Step 5 â€” "Create User" button visible on Manage User page.
-    [Tags]    positive    user-management
+    [Tags]    positive    user-management    TC_USER_005
     Wait Until Element Is Visible    ${LOC_BTN_CREATE_USER}    ${UM_TIMEOUT}
     Log    Create User button is visible.
 
@@ -58,7 +58,7 @@ TC_USER_005 Verify Create User Button Is Visible
 
 TC_USER_006 Open Create User Form
     [Documentation]    MD: Step 5 â€” Click "Create User" â†’ /CreateUser opens.
-    [Tags]    positive    user-management
+    [Tags]    positive    user-management    TC_USER_006
     Open Create User Form
     Verify Create User Form Loaded
 
@@ -66,13 +66,13 @@ TC_USER_007 Verify All Create User Form Fields Present
     [Documentation]    MD: Form Field Reference â€” All mandatory fields rendered:
     ...                Account, Username, First Name, Last Name, Primary Phone,
     ...                Email Address, Confirm Email Address, Role, Country, Time Zone, OTP.
-    [Tags]    positive    user-management
+    [Tags]    positive    user-management    TC_USER_007
     Open Create User Form
     Verify All Form Fields Present
 
 TC_USER_008 Verify Submit And Close Buttons Present
     [Documentation]    MD: Buttons on Create User Form â€” Submit and Close buttons.
-    [Tags]    positive    user-management
+    [Tags]    positive    user-management    TC_USER_008
     Open Create User Form
     Verify Create User Form Loaded
     Wait Until Element Is Visible    ${LOC_BTN_SUBMIT}    ${UM_TIMEOUT}
@@ -88,7 +88,7 @@ TC_USER_009 Create User With All Required Fields
     ...                Open form â†’ Fill Account, Username, First Name, Last Name,
     ...                Primary Phone, Email, Confirm Email, Role, Country, Time Zone,
     ...                OTP SMS â†’ Submit â†’ Verify success toast â†’ Verify user in grid.
-    [Tags]    positive    user-management    e2e    smoke
+    [Tags]    positive    user-management    e2e    smoke    TC_USER_009
     Open Create User Form
     Verify Create User Form Loaded
     Fill User Creation Form
@@ -99,7 +99,7 @@ TC_USER_009 Create User With All Required Fields
 
 TC_USER_010 Create User With Email OTP Channel
     [Documentation]    MD: Step 16 â€” Select Email OTP checkbox instead of SMS.
-    [Tags]    positive    user-management
+    [Tags]    positive    user-management    TC_USER_010
     ${username}=    Set Variable    emailotp${SUFFIX}
     Open Create User Form
     Verify Create User Form Loaded
@@ -121,7 +121,7 @@ TC_USER_010 Create User With Email OTP Channel
 
 TC_USER_011 Create User With Both SMS And Email OTP Channels
     [Documentation]    MD: Step 16 â€” Select both SMS and Email OTP channels.
-    [Tags]    positive    user-management
+    [Tags]    positive    user-management    TC_USER_011
     Open Create User Form
     Verify Create User Form Loaded
     Select User Category
@@ -147,7 +147,7 @@ TC_USER_011 Create User With Both SMS And Email OTP Channels
 TC_USER_012 Search User In Grid By Username
     [Documentation]    MD: TC_002 Step 2 â€” Locate user in grid using search.
     ...                Search for the user created in TC_USER_009.
-    [Tags]    positive    user-management
+    [Tags]    positive    user-management    TC_USER_012
     Search User In Grid    ${TEST_USERNAME}
     ${loc}=    Set Variable    xpath=//td[contains(text(),'${TEST_USERNAME}')]
     ${found}=    Run Keyword And Return Status
@@ -169,7 +169,7 @@ TC_USER_013 Delete User And Verify Removal
     ...                Verify dialog heading "Delete User" â†’ Verify body text â†’
     ...                Click OK â†’ Verify toast "User Deleted Successfully" â†’
     ...                Verify user no longer in grid.
-    [Tags]    positive    user-management    e2e    smoke
+    [Tags]    positive    user-management    e2e    smoke    TC_USER_013
     Delete User End To End    ${TEST_USERNAME}
 
 # â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
@@ -179,7 +179,7 @@ TC_USER_013 Delete User And Verify Removal
 TC_USER_014 Close Create User Form Without Saving
     [Documentation]    MD: Buttons â€” Close: Cancels and closes the form without saving.
     ...                Open form â†’ Click Close â†’ Verify redirected to Manage User.
-    [Tags]    positive    user-management
+    [Tags]    positive    user-management    TC_USER_014
     Open Create User Form
     Verify Create User Form Loaded
     Click Close Form Button
@@ -187,7 +187,7 @@ TC_USER_014 Close Create User Form Without Saving
 
 TC_USER_015 Close Form After Filling Fields Should Not Create User
     [Documentation]    Fill form partially â†’ Close â†’ Verify user NOT created.
-    [Tags]    positive    user-management
+    [Tags]    positive    user-management    TC_USER_015
     Open Create User Form
     Verify Create User Form Loaded
     Fill Username    closetest${SUFFIX}
@@ -203,7 +203,7 @@ TC_USER_015 Close Form After Filling Fields Should Not Create User
 
 TC_USER_016 Submit Without Filling Any Field
     [Documentation]    MD: All mandatory fields empty â€” expects validation errors or rejection.
-    [Tags]    negative    user-management    validation
+    [Tags]    negative    user-management    TC_USER_016
     Open Create User Form
     Verify Create User Form Loaded
     Click Submit Button
@@ -213,7 +213,7 @@ TC_USER_016 Submit Without Filling Any Field
 TC_USER_017 Submit Without Selecting Account
     [Documentation]    MD: Form Field Reference â€” Account is Required.
     ...                Fill all fields except Account â†’ Submit â†’ expects error.
-    [Tags]    negative    user-management    validation
+    [Tags]    negative    user-management    TC_USER_017
     Open Create User Form
     Verify Create User Form Loaded
     Fill Username    noacct${SUFFIX}
@@ -233,7 +233,7 @@ TC_USER_017 Submit Without Selecting Account
 TC_USER_018 Submit Without Username
     [Documentation]    MD: Username â€” Required, min 5, max 50.
     ...                Leave username empty â†’ Submit â†’ expects error.
-    [Tags]    negative    user-management    validation
+    [Tags]    negative    user-management    TC_USER_018
     Open Create User Form
     Verify Create User Form Loaded
     Select User Category
@@ -253,7 +253,7 @@ TC_USER_018 Submit Without Username
 
 TC_USER_019 Submit Without First Name
     [Documentation]    MD: First Name â€” Required.
-    [Tags]    negative    user-management    validation
+    [Tags]    negative    user-management    TC_USER_019
     Open Create User Form
     Verify Create User Form Loaded
     Select User Category
@@ -273,7 +273,7 @@ TC_USER_019 Submit Without First Name
 
 TC_USER_020 Submit Without Last Name
     [Documentation]    MD: Last Name â€” Required.
-    [Tags]    negative    user-management    validation
+    [Tags]    negative    user-management    TC_USER_020
     Open Create User Form
     Verify Create User Form Loaded
     Select User Category
@@ -293,7 +293,7 @@ TC_USER_020 Submit Without Last Name
 
 TC_USER_021 Submit Without Primary Phone
     [Documentation]    MD: Primary Phone â€” Required, min 5, max 16 digits.
-    [Tags]    negative    user-management    validation
+    [Tags]    negative    user-management    TC_USER_021
     Open Create User Form
     Verify Create User Form Loaded
     Select User Category
@@ -313,7 +313,7 @@ TC_USER_021 Submit Without Primary Phone
 
 TC_USER_022 Submit Without Email Address
     [Documentation]    MD: Email Address â€” Required, valid email format.
-    [Tags]    negative    user-management    validation
+    [Tags]    negative    user-management    TC_USER_022
     Open Create User Form
     Verify Create User Form Loaded
     Select User Category
@@ -332,7 +332,7 @@ TC_USER_022 Submit Without Email Address
 
 TC_USER_023 Submit Without Confirm Email Address
     [Documentation]    MD: Confirm Email Address â€” Required, must match Email.
-    [Tags]    negative    user-management    validation
+    [Tags]    negative    user-management    TC_USER_023
     Open Create User Form
     Verify Create User Form Loaded
     Select User Category
@@ -352,7 +352,7 @@ TC_USER_023 Submit Without Confirm Email Address
 
 TC_USER_024 Submit Without Selecting Role
     [Documentation]    MD: Role â€” Required.
-    [Tags]    negative    user-management    validation
+    [Tags]    negative    user-management    TC_USER_024
     Open Create User Form
     Verify Create User Form Loaded
     Select User Category
@@ -372,7 +372,7 @@ TC_USER_024 Submit Without Selecting Role
 
 TC_USER_025 Submit Without Selecting Country
     [Documentation]    MD: Country â€” Required.
-    [Tags]    negative    user-management    validation
+    [Tags]    negative    user-management    TC_USER_025
     Open Create User Form
     Verify Create User Form Loaded
     Select User Category
@@ -392,7 +392,7 @@ TC_USER_025 Submit Without Selecting Country
 
 TC_USER_026 Submit Without Selecting Time Zone
     [Documentation]    MD: Time Zone â€” Required (unless Local Time = Yes).
-    [Tags]    negative    user-management    validation
+    [Tags]    negative    user-management    TC_USER_026
     Open Create User Form
     Verify Create User Form Loaded
     Select User Category
@@ -413,7 +413,7 @@ TC_USER_026 Submit Without Selecting Time Zone
 TC_USER_027 Submit Without Selecting Any OTP Channel
     [Documentation]    MD: OTP Delivery Channel â€” At least one required.
     ...                Uncheck all OTP checkboxes â†’ Submit â†’ expects error.
-    [Tags]    negative    user-management    validation
+    [Tags]    negative    user-management    TC_USER_027
     Open Create User Form
     Verify Create User Form Loaded
     Select User Category
@@ -438,7 +438,7 @@ TC_USER_027 Submit Without Selecting Any OTP Channel
 
 TC_USER_028 Username Less Than 5 Characters
     [Documentation]    MD: Username â€” min 5 chars. Enter 3 chars â†’ expects error.
-    [Tags]    negative    user-management    validation    boundary
+    [Tags]    negative    user-management    TC_USER_028
     Open Create User Form
     Verify Create User Form Loaded
     Select User Category
@@ -459,7 +459,7 @@ TC_USER_028 Username Less Than 5 Characters
 
 TC_USER_029 Username More Than 50 Characters
     [Documentation]    MD: Username â€” max 50 chars. Enter 51 chars â†’ expects error.
-    [Tags]    negative    user-management    validation    boundary
+    [Tags]    negative    user-management    TC_USER_029
     Open Create User Form
     Verify Create User Form Loaded
     Select User Category
@@ -480,7 +480,7 @@ TC_USER_029 Username More Than 50 Characters
 
 TC_USER_030 Phone Less Than 5 Digits
     [Documentation]    MD: Primary Phone â€” min 5 digits. Enter 4 digits â†’ expects error.
-    [Tags]    negative    user-management    validation    boundary
+    [Tags]    negative    user-management    TC_USER_030
     Open Create User Form
     Verify Create User Form Loaded
     Select User Category
@@ -501,7 +501,7 @@ TC_USER_030 Phone Less Than 5 Digits
 
 TC_USER_031 Phone More Than 16 Digits
     [Documentation]    MD: Primary Phone â€” max 16 digits. Enter 17 digits â†’ expects error.
-    [Tags]    negative    user-management    validation    boundary
+    [Tags]    negative    user-management    TC_USER_031
     Open Create User Form
     Verify Create User Form Loaded
     Select User Category
@@ -522,7 +522,7 @@ TC_USER_031 Phone More Than 16 Digits
 
 TC_USER_032 Phone With Non Numeric Characters
     [Documentation]    MD: Primary Phone â€” Numeric only. Enter alphanumeric â†’ expects error.
-    [Tags]    negative    user-management    validation
+    [Tags]    negative    user-management    TC_USER_032
     Open Create User Form
     Verify Create User Form Loaded
     Select User Category
@@ -544,7 +544,7 @@ TC_USER_032 Phone With Non Numeric Characters
 TC_USER_033 Invalid Email Format
     [Documentation]    MD: Email Address â€” Required, valid email format.
     ...                Enter 'not-an-email' â†’ expects error.
-    [Tags]    negative    user-management    validation
+    [Tags]    negative    user-management    TC_USER_033
     Open Create User Form
     Verify Create User Form Loaded
     Select User Category
@@ -566,7 +566,7 @@ TC_USER_033 Invalid Email Format
 TC_USER_034 Mismatched Confirm Email
     [Documentation]    MD: Confirm Email Address â€” must match Email Address.
     ...                Enter different email in confirm field â†’ expects error.
-    [Tags]    negative    user-management    validation
+    [Tags]    negative    user-management    TC_USER_034
     Open Create User Form
     Verify Create User Form Loaded
     Select User Category
@@ -588,7 +588,7 @@ TC_USER_034 Mismatched Confirm Email
 TC_USER_035 Duplicate Username Should Show Error
     [Documentation]    MD: Username â€” Must be unique in the system.
     ...                Create user, then try creating again with same username â†’ expects error.
-    [Tags]    negative    user-management    validation
+    [Tags]    negative    user-management    TC_USER_035
     Open Create User Form
     Verify Create User Form Loaded
     Fill User Creation Form    username=dup${SUFFIX}    email=dup${SUFFIX}@mailinator.com
@@ -608,7 +608,7 @@ TC_USER_035 Duplicate Username Should Show Error
 TC_USER_036 Cancel Delete Confirmation Should Keep User
     [Documentation]    MD: Confirmation Dialog â€” Cancel button.
     ...                Click Delete â†’ dialog appears â†’ Click Cancel â†’ user remains in grid.
-    [Tags]    negative    user-management
+    [Tags]    negative    user-management    TC_USER_036
     # First create a user to test delete cancel
     Open Create User Form
     Verify Create User Form Loaded
@@ -633,7 +633,7 @@ TC_USER_036 Cancel Delete Confirmation Should Keep User
 
 TC_USER_037 Username Exactly 5 Characters
     [Documentation]    MD: Username â€” min 5 chars. Boundary: exactly 5 should succeed.
-    [Tags]    edge-case    user-management    boundary
+    [Tags]    user-management    TC_USER_037
     Open Create User Form
     Verify Create User Form Loaded
     Fill User Creation Form    username=${USERNAME_EXACTLY_5}    email=ex5${SUFFIX}@mailinator.com
@@ -649,7 +649,7 @@ TC_USER_037 Username Exactly 5 Characters
 
 TC_USER_038 Username Exactly 50 Characters
     [Documentation]    MD: Username â€” max 50 chars. Boundary: exactly 50 should succeed.
-    [Tags]    edge-case    user-management    boundary
+    [Tags]    user-management    TC_USER_038
     Open Create User Form
     Verify Create User Form Loaded
     Fill User Creation Form    username=${USERNAME_EXACTLY_50}    email=ex50${SUFFIX}@mailinator.com
@@ -665,7 +665,7 @@ TC_USER_038 Username Exactly 50 Characters
 
 TC_USER_039 Phone Exactly 5 Digits
     [Documentation]    MD: Primary Phone â€” min 5 digits. Boundary: exactly 5 should succeed.
-    [Tags]    edge-case    user-management    boundary
+    [Tags]    user-management    TC_USER_039
     Open Create User Form
     Verify Create User Form Loaded
     Fill User Creation Form    username=ph5${SUFFIX}    phone=${PHONE_EXACTLY_5}
@@ -682,7 +682,7 @@ TC_USER_039 Phone Exactly 5 Digits
 
 TC_USER_040 Phone Exactly 16 Digits
     [Documentation]    MD: Primary Phone â€” max 16 digits. Boundary: exactly 16 should succeed.
-    [Tags]    edge-case    user-management    boundary
+    [Tags]    user-management    TC_USER_040
     Open Create User Form
     Verify Create User Form Loaded
     Fill User Creation Form    username=ph16${SUFFIX}    phone=${PHONE_EXACTLY_16}
@@ -699,7 +699,7 @@ TC_USER_040 Phone Exactly 16 Digits
 
 TC_USER_041 Whitespace Only Username
     [Documentation]    MD: Username â€” Required. Enter only spaces â†’ expects error.
-    [Tags]    edge-case    user-management    validation
+    [Tags]    user-management    TC_USER_041
     Open Create User Form
     Verify Create User Form Loaded
     Select User Category
@@ -721,7 +721,7 @@ TC_USER_041 Whitespace Only Username
 TC_USER_042 Whitespace Only First Name
     [Documentation]    MD: First Name â€” Required, Trimmed whitespace.
     ...                Enter only spaces â†’ expects error.
-    [Tags]    edge-case    user-management    validation
+    [Tags]    user-management    TC_USER_042
     Open Create User Form
     Verify Create User Form Loaded
     Select User Category
@@ -743,7 +743,7 @@ TC_USER_042 Whitespace Only First Name
 TC_USER_043 Whitespace Only Last Name
     [Documentation]    MD: Last Name â€” Required, Trimmed whitespace.
     ...                Enter only spaces â†’ expects error.
-    [Tags]    edge-case    user-management    validation
+    [Tags]    user-management    TC_USER_043
     Open Create User Form
     Verify Create User Form Loaded
     Select User Category
@@ -764,7 +764,7 @@ TC_USER_043 Whitespace Only Last Name
 
 TC_USER_044 Special Characters In Username
     [Documentation]    MD: Username â€” Enter special chars â†’ expects error or acceptance.
-    [Tags]    edge-case    user-management    validation
+    [Tags]    user-management    TC_USER_044
     Open Create User Form
     Verify Create User Form Loaded
     Select User Category
@@ -791,7 +791,7 @@ TC_USER_044 Special Characters In Username
 TC_USER_045 Verify Delete Confirmation Dialog Elements
     [Documentation]    MD: Confirmation Dialog Reference â€” heading, body, OK, Cancel buttons.
     ...                Create temp user â†’ Click Delete â†’ Verify all dialog elements â†’ Cancel.
-    [Tags]    edge-case    user-management
+    [Tags]    user-management    TC_USER_045
     Open Create User Form
     Verify Create User Form Loaded
     Fill User Creation Form    username=dlgtest${SUFFIX}    email=dlgtest${SUFFIX}@mailinator.com

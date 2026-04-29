@@ -23,38 +23,38 @@ TC_SR_001 Create SIM Range Via ICCID IMSI Successfully
     [Documentation]    Full E2E: Login > Admin > SIM Range > Create > fill form > add ICCID range >
     ...                add IMSI range > verify Pool Count > Submit > verify success toast, redirect,
     ...                and validate ICCID/IMSI columns and pool name in the listing grid.
-    [Tags]    smoke    regression    positive    sim_range
+    [Tags]    smoke    regression    positive    TC_SR_001
     TC_SR_001
 
 TC_SR_002 Verify Create SIM Range Page Elements Visible
     [Documentation]    Navigate to Create SIM Range and verify all primary fields are present.
-    [Tags]    smoke    regression    positive    sim_range
+    [Tags]    smoke    regression    positive    TC_SR_002
     TC_SR_002
 
 TC_SR_003 Verify Pool Count Auto Calculated After Adding Ranges
     [Documentation]    Add ICCID and IMSI ranges, verify Pool Count auto-calculates to 10.
-    [Tags]    regression    positive    sim_range
+    [Tags]    regression    positive    TC_SR_003
     TC_SR_003
 
 TC_SR_004 Verify Cancel Button Redirects To SIM Range List
     [Documentation]    Click Close on Create SIM Range page.
     ...                Verify: redirected to /SIMRange listing.
-    [Tags]    regression    positive    sim_range    navigation
+    [Tags]    regression    positive    TC_SR_004
     TC_SR_004
 
 TC_SR_005 Verify ICCID IMSI Tab Selection Shows Grid
     [Documentation]    Navigate to SIM Range list and verify ICCID/IMSI tab loads the grid.
-    [Tags]    regression    positive    sim_range
+    [Tags]    regression    positive    TC_SR_005
     TC_SR_005
 
 TC_SR_006 Verify ICCID Range Grid Shows Entry After Adding
     [Documentation]    Add an ICCID range and verify the grid shows at least one row.
-    [Tags]    regression    positive    sim_range
+    [Tags]    regression    positive    TC_SR_006
     TC_SR_006
 
 TC_SR_007 Verify IMSI Range Grid Shows Entry After Adding
     [Documentation]    Add an IMSI range and verify the grid shows at least one row.
-    [Tags]    regression    positive    sim_range
+    [Tags]    regression    positive    TC_SR_007
     TC_SR_007
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -63,28 +63,28 @@ TC_SR_007 Verify IMSI Range Grid Shows Entry After Adding
 
 TC_SR_008 Submit Button Disabled When Pool Name Empty
     [Documentation]    Leave Pool Name blank, fill other fields. Submit should be disabled.
-    [Tags]    regression    negative    sim_range
+    [Tags]    regression    negative    TC_SR_008
     TC_SR_008
 
 TC_SR_009 Submit Button Disabled When Account Not Selected
     [Documentation]    Fill form; clear Account to placeholder (app may pre-select default).
     ...                Submit should be disabled without a real account.
-    [Tags]    regression    negative    sim_range
+    [Tags]    regression    negative    TC_SR_009
     TC_SR_009
 
 TC_SR_010 Submit Button Disabled When Description Empty
     [Documentation]    Fill form but leave Description blank. Submit should be disabled.
-    [Tags]    regression    negative    sim_range
+    [Tags]    regression    negative    TC_SR_010
     TC_SR_010
 
 TC_SR_011 Submit Button Disabled When No ICCID Range Added
     [Documentation]    Fill form fields but skip adding ICCID range. Submit should be disabled.
-    [Tags]    regression    negative    sim_range
+    [Tags]    regression    negative    TC_SR_011
     TC_SR_011
 
 TC_SR_012 Submit Button Disabled When ICCID And IMSI Counts Mismatch
     [Documentation]    Add 10-count ICCID but 5-count IMSI. Submit should be disabled or show error.
-    [Tags]    regression    negative    sim_range
+    [Tags]    regression    negative    TC_SR_012
     TC_SR_012
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -93,22 +93,22 @@ TC_SR_012 Submit Button Disabled When ICCID And IMSI Counts Mismatch
 
 TC_SR_013 ICCID From Greater Than To Should Show Error
     [Documentation]    Enter ICCID From > ICCID To in popup. Submit should be blocked or error shown.
-    [Tags]    regression    negative    sim_range    boundary
+    [Tags]    regression    negative    TC_SR_013
     TC_SR_013
 
 TC_SR_014 ICCID Too Short Should Keep Popup Submit Disabled
     [Documentation]    Enter ICCID value shorter than 17 digits. Popup Submit should stay disabled.
-    [Tags]    regression    negative    sim_range    boundary
+    [Tags]    regression    negative    TC_SR_014
     TC_SR_014
 
 TC_SR_015 IMSI From Greater Than To Should Show Error
     [Documentation]    Enter IMSI From > IMSI To in popup. Submit should be blocked or error shown.
-    [Tags]    regression    negative    sim_range    boundary
+    [Tags]    regression    negative    TC_SR_015
     TC_SR_015
 
 TC_SR_016 IMSI Too Short Should Keep Popup Submit Disabled
     [Documentation]    Enter IMSI value shorter than 15 digits. Popup Submit should stay disabled.
-    [Tags]    regression    negative    sim_range    boundary
+    [Tags]    regression    negative    TC_SR_016
     TC_SR_016
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -117,17 +117,17 @@ TC_SR_016 IMSI Too Short Should Keep Popup Submit Disabled
 
 TC_SR_017 SQL Injection In Pool Name Should Be Rejected
     [Documentation]    Enter SQL injection in Pool Name. Verify error or app handles safely.
-    [Tags]    regression    negative    security    sim_range
+    [Tags]    regression    negative    TC_SR_017
     TC_SR_017
 
 TC_SR_018 Special Characters In Pool Name Should Be Rejected
     [Documentation]    Enter special characters in Pool Name. Verify error or app handles safely.
-    [Tags]    regression    negative    security    sim_range
+    [Tags]    regression    negative    TC_SR_018
     TC_SR_018
 
 TC_SR_019 Pool Name Exceeding Max Length Should Be Rejected
     [Documentation]    Enter 51-character Pool Name (max is 50). Verify truncation or error.
-    [Tags]    regression    negative    sim_range    boundary
+    [Tags]    regression    negative    TC_SR_019
     TC_SR_019
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -137,13 +137,13 @@ TC_SR_019 Pool Name Exceeding Max Length Should Be Rejected
 TC_SR_020 Direct Access To Create SIM Range Without Login Should Redirect
     [Documentation]    Navigate directly to /CreateSIMRange without authenticating.
     ...                Verify: application redirects back to the login page.
-    [Tags]    regression    negative    security    sim_range    navigation
+    [Tags]    regression    negative    TC_SR_020
     TC_SR_020
 
 TC_SR_021 Direct Access To SIM Range Without Login Should Redirect
     [Documentation]    Navigate directly to /SIMRange without authenticating.
     ...                Verify: application redirects back to the login page.
-    [Tags]    regression    negative    security    sim_range    navigation
+    [Tags]    regression    negative    TC_SR_021
     TC_SR_021
 
 *** Keywords ***

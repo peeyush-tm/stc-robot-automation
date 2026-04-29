@@ -20,13 +20,13 @@ Test Teardown     Handle Test Teardown
 TC_LOGIN_001 Valid Credentials Should Login Successfully
     [Documentation]    Enter valid username and password, fetch captcha from DB and enter it,
     ...                click Login. Verify: error message absent, post-login landmark visible.
-    [Tags]    smoke    regression    positive    login
+    [Tags]    smoke    regression    positive    login    TC_LOGIN_001
     TC_LOGIN_001
 
 TC_LOGIN_002 Logout Should Redirect To Login Page
     [Documentation]    Login with valid credentials, then logout.
     ...                Verify: login page elements (username, password, login button) reappear.
-    [Tags]    smoke    regression    positive    login
+    [Tags]    smoke    regression    positive    login    TC_LOGIN_002
     TC_LOGIN_002
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -36,37 +36,37 @@ TC_LOGIN_002 Logout Should Redirect To Login Page
 TC_LOGIN_005 Invalid Username Should Show Error
     [Documentation]    Enter an invalid username with a valid password.
     ...                Verify: "Authorization Failure" error displayed.
-    [Tags]    regression    negative    login
+    [Tags]    regression    negative    login    TC_LOGIN_005
     TC_LOGIN_005
 
 TC_LOGIN_006 Invalid Password Should Show Error
     [Documentation]    Enter the valid username with an invalid password.
     ...                Verify: "Authorization Failure" error displayed.
-    [Tags]    regression    negative    login
+    [Tags]    regression    negative    login    TC_LOGIN_006
     TC_LOGIN_006
 
 TC_LOGIN_007 Both Invalid Username And Password Should Show Error
     [Documentation]    Enter both invalid username and invalid password.
     ...                Verify: "Authorization Failure" error displayed.
-    [Tags]    regression    negative    login
+    [Tags]    regression    negative    login    TC_LOGIN_007
     TC_LOGIN_007
 
 TC_LOGIN_008 Empty Username Field Should Show Error
     [Documentation]    Leave username empty, enter a valid password.
     ...                Verify: "Username is required" inline field validation displayed.
-    [Tags]    regression    negative    login
+    [Tags]    regression    negative    login    TC_LOGIN_008
     TC_LOGIN_008
 
 TC_LOGIN_009 Empty Password Field Should Show Error
     [Documentation]    Enter valid username, leave password empty.
     ...                Verify: "Password Required" field validation displayed.
-    [Tags]    regression    negative    login
+    [Tags]    regression    negative    login    TC_LOGIN_009
     TC_LOGIN_009
 
 TC_LOGIN_010 All Fields Empty Should Show Error
     [Documentation]    Leave username, password, and captcha fields all empty.
     ...                Verify: both "Username is required" and "Password Required" displayed.
-    [Tags]    regression    negative    login
+    [Tags]    regression    negative    login    TC_LOGIN_010
     TC_LOGIN_010
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -76,13 +76,13 @@ TC_LOGIN_010 All Fields Empty Should Show Error
 TC_LOGIN_011 Empty Captcha Should Show Error
     [Documentation]    Enter valid credentials but leave captcha field empty.
     ...                Verify: "Please Enter Captcha" toast error displayed.
-    [Tags]    regression    negative    login
+    [Tags]    regression    negative    login    TC_LOGIN_011
     TC_LOGIN_011
 
 TC_LOGIN_012 Incorrect Captcha Should Show Error
     [Documentation]    Enter valid credentials with a deliberately wrong captcha value.
     ...                Verify: "Invalid Captcha" error displayed.
-    [Tags]    regression    negative    login
+    [Tags]    regression    negative    login    TC_LOGIN_012
     TC_LOGIN_012
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -92,7 +92,7 @@ TC_LOGIN_012 Incorrect Captcha Should Show Error
 TC_LOGIN_015 Whitespace Only Username Should Show Error
     [Documentation]    Enter whitespace-only input in the username field.
     ...                Verify: error displayed — "Authorization Failure" or "Username is required".
-    [Tags]    regression    negative    login
+    [Tags]    regression    negative    login    TC_LOGIN_015
     TC_LOGIN_015
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -102,7 +102,7 @@ TC_LOGIN_015 Whitespace Only Username Should Show Error
 TC_LOGIN_016 Direct Access To ManageDevices Without Login Should Redirect
     [Documentation]    Navigate directly to /ManageDevices without authenticating.
     ...                Verify: application redirects back to the login page.
-    [Tags]    regression    negative    security    login    navigation
+    [Tags]    regression    negative    login    TC_LOGIN_016
     TC_LOGIN_016
 
 *** Keywords ***

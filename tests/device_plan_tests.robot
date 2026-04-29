@@ -24,69 +24,69 @@ Test Teardown     Handle Test Teardown
 #  Account: billingAccountDONTUSE_005
 # ═══════════════════════════════════════════════════════════════════════
 
-TC_CDP_002 Change Device Plan On Activated SIM
+TC_DP_002 Change Device Plan On Activated SIM
     [Documentation]    Filter account + Activated, validate initial state and device plan (DP1),
     ...                change to DP2, wait 5 min, search IMSI to verify DP2 in grid.
-    [Tags]    smoke    regression    positive    device_plan
-    TC_CDP_002
+    [Tags]    smoke    regression    positive    TC_DP_002
+    TC_DP_002
 
-TC_CDP_003 Change Device Plan On TestActive SIM
+TC_DP_003 Change Device Plan On TestActive SIM
     [Documentation]    Filter account + TestActive, validate initial state and device plan (DP1),
     ...                change to DP2, wait 5 min, search IMSI to verify DP2 in grid.
-    [Tags]    regression    positive    device_plan
-    TC_CDP_003
+    [Tags]    regression    positive    TC_DP_003
+    TC_DP_003
 
-TC_CDP_004 Change Device Plan On Suspended SIM
+TC_DP_004 Change Device Plan On Suspended SIM
     [Documentation]    Filter account + Suspended, validate initial state and device plan (DP1),
     ...                change to DP2, wait 5 min, search IMSI to verify DP2 in grid.
-    [Tags]    regression    positive    device_plan
-    TC_CDP_004
+    [Tags]    regression    positive    TC_DP_004
+    TC_DP_004
 
 # ═══════════════════════════════════════════════════════════════════════
 #  POSITIVE — POPUP UI VERIFICATION
 # ═══════════════════════════════════════════════════════════════════════
 
-TC_CDP_005 Verify Change Device Plan Popup Opens
+TC_DP_005 Verify Change Device Plan Popup Opens
     [Documentation]    Select an Activated device, choose Change Device Plan, select a plan,
     ...                verify the popup modal appears with Reason dropdown visible.
-    [Tags]    regression    positive    device_plan
-    TC_CDP_005
+    [Tags]    regression    positive    TC_DP_005
+    TC_DP_005
 
-TC_CDP_006 Close Popup Without Submitting Should Not Change Plan
+TC_DP_006 Close Popup Without Submitting Should Not Change Plan
     [Documentation]    Open device plan change popup, close without proceeding,
     ...                search same IMSI and verify Device Plan is unchanged.
-    [Tags]    regression    positive    device_plan
-    TC_CDP_006
+    [Tags]    regression    positive    TC_DP_006
+    TC_DP_006
 
 # ═══════════════════════════════════════════════════════════════════════
 #  NEGATIVE — BLOCKED TRANSITIONS
 # ═══════════════════════════════════════════════════════════════════════
 
-TC_CDP_007 Change Device Plan On Terminate SIM Should Be Blocked
+TC_DP_007 Change Device Plan On Terminate SIM Should Be Blocked
     [Documentation]    For a Terminated SIM, Device Plan action should be blocked at some
     ...                stage — either dropdown not available, no plans in the plan dropdown,
     ...                submit button disabled, error toast, or popup doesn't open.
-    [Tags]    regression    negative    device_plan
-    TC_CDP_007
+    [Tags]    regression    negative    TC_DP_007
+    TC_DP_007
 
-TC_CDP_008 No Device Selected Should Not Allow Action
+TC_DP_008 No Device Selected Should Not Allow Action
     [Documentation]    Without selecting any device, Change Device Plan should be blocked.
-    [Tags]    regression    negative    device_plan
-    TC_CDP_008
+    [Tags]    regression    negative    TC_DP_008
+    TC_DP_008
 
-TC_CDP_009 Proceed Without Selecting Reason Should Be Blocked
+TC_DP_009 Proceed Without Selecting Reason Should Be Blocked
     [Documentation]    Open popup but skip reason selection; Proceed button should be disabled.
-    [Tags]    regression    negative    device_plan
-    TC_CDP_009
+    [Tags]    regression    negative    TC_DP_009
+    TC_DP_009
 
-TC_CDP_010 No Plan Selected Should Not Open Popup
+TC_DP_010 No Plan Selected Should Not Open Popup
     [Documentation]    Select "Change Device Plan" from action dropdown but do not select any
     ...                plan from the device plan dropdown — popup should not open.
-    [Tags]    regression    negative    device_plan
-    TC_CDP_010
+    [Tags]    regression    negative    TC_DP_010
+    TC_DP_010
 
 *** Keywords ***
-TC_CDP_002
+TC_DP_002
     Login And Navigate To Manage Devices DP
     IF    '${DP_PINNED_IMSI_ACTIVATED}' != '${EMPTY}'
         ${imsi}    ${dp1}    ${dp2}=    Perform Full Device Plan Change For IMSI    ${DP_PINNED_IMSI_ACTIVATED}    ${EMPTY}
@@ -96,19 +96,19 @@ TC_CDP_002
     Verify DP Change Success And Wait
     Verify Device Plan After Change    ${imsi}    ${dp2}
 
-TC_CDP_003
+TC_DP_003
     Login And Navigate To Manage Devices DP
     ${imsi}    ${dp1}    ${dp2}=    Perform Full Device Plan Change    ${DP_FILTER_TEST_ACTIVE}    ${DP_STATE_TEST_ACTIVE}
     Verify DP Change Success And Wait
     Verify Device Plan After Change    ${imsi}    ${dp2}
 
-TC_CDP_004
+TC_DP_004
     Login And Navigate To Manage Devices DP
     ${imsi}    ${dp1}    ${dp2}=    Perform Full Device Plan Change    ${DP_FILTER_SUSPENDED}    ${DP_STATE_SUSPENDED}
     Verify DP Change Success And Wait
     Verify Device Plan After Change    ${imsi}    ${dp2}
 
-TC_CDP_005
+TC_DP_005
     Login And Navigate To Manage Devices DP
     ${row_idx}=    Filter DP Grid By Account And State    ${DP_ACCOUNT_NAME}    ${DP_FILTER_ACTIVATED}
     Select DP Device By Row Index    ${row_idx}
@@ -123,7 +123,7 @@ TC_CDP_005
     Log    Popup opened with Reason dropdown visible. DP1=${dp1}, DP2=${dp2}.    console=yes
     Close DP Popup Without Submitting
 
-TC_CDP_006
+TC_DP_006
     Login And Navigate To Manage Devices DP
     ${row_idx}=    Filter DP Grid By Account And State    ${DP_ACCOUNT_NAME}    ${DP_FILTER_ACTIVATED}
     ${imsi_col}=    Get DP Column Index By Header Text    ${DP_IMSI_COLUMN}
@@ -141,7 +141,7 @@ TC_CDP_006
     END
     Verify Device Plan Unchanged    ${imsi}    ${original_plan}
 
-TC_CDP_007
+TC_DP_007
     Login And Navigate To Manage Devices DP
     ${row_idx}=    Filter DP Grid By Account And State    ${DP_ACCOUNT_NAME}    Terminate
     Select DP Device By Row Index    ${row_idx}
@@ -196,7 +196,7 @@ TC_CDP_007
         Log    Device Plan action was accessible for Terminated SIM — test records this behaviour.    level=WARN
     END
 
-TC_CDP_008
+TC_DP_008
     Login And Navigate To Manage Devices DP
     ${action_enabled}=    Run Keyword And Return Status
     ...    Wait Until Element Is Enabled    ${LOC_DP_ACTION_DROP}    timeout=5s
@@ -219,7 +219,7 @@ TC_CDP_008
         Log    Action dropdown is disabled — correctly blocked.    console=yes
     END
 
-TC_CDP_009
+TC_DP_009
     Login And Navigate To Manage Devices DP
     ${row_idx}=    Filter DP Grid By Account And State    ${DP_ACCOUNT_NAME}    ${DP_FILTER_ACTIVATED}
     Select DP Device By Row Index    ${row_idx}
@@ -240,7 +240,7 @@ TC_CDP_009
         Log    Popup did not open.    level=WARN
     END
 
-TC_CDP_010
+TC_DP_010
     Login And Navigate To Manage Devices DP
     ${row_idx}=    Filter DP Grid By Account And State    ${DP_ACCOUNT_NAME}    ${DP_FILTER_ACTIVATED}
     Select DP Device By Row Index    ${row_idx}

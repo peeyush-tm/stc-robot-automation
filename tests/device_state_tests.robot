@@ -23,141 +23,141 @@ Test Teardown     Handle Test Teardown
 #  Account: billingAccountDONTUSE_005
 # ═══════════════════════════════════════════════════════════════════════
 
-TC_DSC_002 TestActive To Activated
+TC_DS_002 TestActive To Activated
     [Documentation]    Filter account + TestActive, validate initial state is TestActive,
     ...                change to Activated, wait 5 min, search IMSI to verify Activated.
-    [Tags]    smoke    regression    positive    device_state
-    TC_DSC_002
+    [Tags]    smoke    regression    positive    TC_DS_002
+    TC_DS_002
 
-TC_DSC_003 TestActive To Suspended
+TC_DS_003 TestActive To Suspended
     [Documentation]    Filter account + TestActive, validate initial state is TestActive,
     ...                change to Suspended, wait 5 min, search IMSI to verify Suspended.
-    [Tags]    regression    positive    device_state
-    TC_DSC_003
+    [Tags]    regression    positive    TC_DS_003
+    TC_DS_003
 
-TC_DSC_004 Activated To Suspended
+TC_DS_004 Activated To Suspended
     [Documentation]    Filter account + Activated, validate initial state is Activated,
     ...                change to Suspended, wait 5 min, search IMSI to verify Suspended.
-    [Tags]    regression    positive    device_state
-    TC_DSC_004
+    [Tags]    regression    positive    TC_DS_004
+    TC_DS_004
 
-TC_DSC_005 Activated To Terminate
+TC_DS_005 Activated To Terminate
     [Documentation]    Filter account + Activated, validate initial state is Activated,
     ...                change to Terminate, wait 5 min, search IMSI to verify Terminate.
-    [Tags]    regression    positive    device_state
-    TC_DSC_005
+    [Tags]    regression    positive    TC_DS_005
+    TC_DS_005
 
-TC_DSC_006 Suspended To Terminate
+TC_DS_006 Suspended To Terminate
     [Documentation]    Filter account + Suspended, validate initial state is Suspended,
     ...                change to Terminate, wait 5 min, search IMSI to verify Terminate.
-    [Tags]    regression    positive    device_state
-    TC_DSC_006
+    [Tags]    regression    positive    TC_DS_006
+    TC_DS_006
 
-TC_DSC_007 InActive To Activated
+TC_DS_007 InActive To Activated
     [Documentation]    Filter account + InActive, validate initial state is InActive,
     ...                change to Activated, wait 5 min, search IMSI to verify Activated.
-    [Tags]    regression    positive    device_state
-    TC_DSC_007
+    [Tags]    regression    positive    TC_DS_007
+    TC_DS_007
 
-TC_DSC_008 InActive To TestActive
+TC_DS_008 InActive To TestActive
     [Documentation]    Filter account + InActive, validate initial state is InActive,
     ...                change to TestActive, wait 5 min, search IMSI to verify TestActive.
-    [Tags]    regression    positive    device_state
-    TC_DSC_008
+    [Tags]    regression    positive    TC_DS_008
+    TC_DS_008
 
 # ═══════════════════════════════════════════════════════════════════════
 #  POSITIVE — POPUP UI VERIFICATION
 # ═══════════════════════════════════════════════════════════════════════
 
-TC_DSC_009 Verify State Change Popup Opens
+TC_DS_009 Verify State Change Popup Opens
     [Documentation]    Select a device, choose Change State, click Submit,
     ...                verify the popup modal appears.
-    [Tags]    regression    positive    device_state
-    TC_DSC_009
+    [Tags]    regression    positive    TC_DS_009
+    TC_DS_009
 
-TC_DSC_010 Close Popup Without Submitting Should Not Change State
+TC_DS_010 Close Popup Without Submitting Should Not Change State
     [Documentation]    Open state change popup, close without proceeding,
     ...                search the same device by IMSI and verify state unchanged.
-    [Tags]    regression    positive    device_state
-    TC_DSC_010
+    [Tags]    regression    positive    TC_DS_010
+    TC_DS_010
 
 # ═══════════════════════════════════════════════════════════════════════
 #  NEGATIVE — INVALID STATE TRANSITIONS
 # ═══════════════════════════════════════════════════════════════════════
 
-TC_DSC_011 Activated To TestActive Should Be Blocked
+TC_DS_011 Activated To TestActive Should Be Blocked
     [Documentation]    Attempt invalid transition Activated → TestActive; expect blocked.
-    [Tags]    regression    negative    device_state
-    TC_DSC_011
+    [Tags]    regression    negative    TC_DS_011
+    TC_DS_011
 
-TC_DSC_012 Activated To TestReady Should Be Blocked
+TC_DS_012 Activated To TestReady Should Be Blocked
     [Documentation]    Attempt invalid transition Activated → TestReady; expect blocked.
-    [Tags]    regression    negative    device_state
-    TC_DSC_012
+    [Tags]    regression    negative    TC_DS_012
+    TC_DS_012
 
-TC_DSC_013 Suspended To TestActive Should Be Blocked
+TC_DS_013 Suspended To TestActive Should Be Blocked
     [Documentation]    Attempt invalid transition Suspended → TestActive; expect blocked.
-    [Tags]    regression    negative    device_state
-    TC_DSC_013
+    [Tags]    regression    negative    TC_DS_013
+    TC_DS_013
 
 # ═══════════════════════════════════════════════════════════════════════
 #  NEGATIVE — UI VALIDATION
 # ═══════════════════════════════════════════════════════════════════════
 
-TC_DSC_014 No Device Selected Should Not Allow Action
+TC_DS_014 No Device Selected Should Not Allow Action
     [Documentation]    Without selecting any device, Change State should be blocked.
-    [Tags]    regression    negative    device_state
-    TC_DSC_014
+    [Tags]    regression    negative    TC_DS_014
+    TC_DS_014
 
-TC_DSC_015 Proceed Without Selecting Reason Should Be Blocked
+TC_DS_015 Proceed Without Selecting Reason Should Be Blocked
     [Documentation]    Open popup but skip reason; Proceed should be disabled.
-    [Tags]    regression    negative    device_state
-    TC_DSC_015
+    [Tags]    regression    negative    TC_DS_015
+    TC_DS_015
 
 *** Keywords ***
-TC_DSC_002
+TC_DS_002
     Login And Navigate To Manage Devices DSC
     ${imsi}=    Perform Full State Change    ${FILTER_LABEL_TEST_ACTIVE}    ${STATE_TEST_ACTIVE}    ${STATE_ACTIVATED}
     Verify State Change Success And Wait
     Verify Device State After Change    ${imsi}    ${STATE_ACTIVATED}
 
-TC_DSC_003
+TC_DS_003
     Login And Navigate To Manage Devices DSC
     ${imsi}=    Perform Full State Change    ${FILTER_LABEL_TEST_ACTIVE}    ${STATE_TEST_ACTIVE}    ${STATE_SUSPENDED}
     Verify State Change Success And Wait
     Verify Device State After Change    ${imsi}    ${STATE_SUSPENDED}
 
-TC_DSC_004
+TC_DS_004
     Login And Navigate To Manage Devices DSC
     ${imsi}=    Perform Full State Change    ${FILTER_LABEL_ACTIVATED}    ${STATE_ACTIVATED}    ${STATE_SUSPENDED}
     Verify State Change Success And Wait
     Verify Device State After Change    ${imsi}    ${STATE_SUSPENDED}
 
-TC_DSC_005
+TC_DS_005
     Login And Navigate To Manage Devices DSC
     ${imsi}=    Perform Full State Change    ${FILTER_LABEL_ACTIVATED}    ${STATE_ACTIVATED}    ${STATE_TERMINATE}
     Verify State Change Success And Wait
     Verify Device State After Change    ${imsi}    ${STATE_TERMINATE}
 
-TC_DSC_006
+TC_DS_006
     Login And Navigate To Manage Devices DSC
     ${imsi}=    Perform Full State Change    ${FILTER_LABEL_SUSPENDED}    ${STATE_SUSPENDED}    ${STATE_TERMINATE}
     Verify State Change Success And Wait
     Verify Device State After Change    ${imsi}    ${STATE_TERMINATE}
 
-TC_DSC_007
+TC_DS_007
     Login And Navigate To Manage Devices DSC
     ${imsi}=    Perform Full State Change    ${FILTER_LABEL_INACTIVE}    ${STATE_INACTIVE}    ${STATE_ACTIVATED}
     Verify State Change Success And Wait
     Verify Device State After Change    ${imsi}    ${STATE_ACTIVATED}
 
-TC_DSC_008
+TC_DS_008
     Login And Navigate To Manage Devices DSC
     ${imsi}=    Perform Full State Change    ${FILTER_LABEL_INACTIVE}    ${STATE_INACTIVE}    ${STATE_TEST_ACTIVE}
     Verify State Change Success And Wait
     Verify Device State After Change    ${imsi}    ${STATE_TEST_ACTIVE}
 
-TC_DSC_009
+TC_DS_009
     Login And Navigate To Manage Devices DSC
     ${row_idx}=    Filter Grid By Account And State    ${DSC_ACCOUNT_NAME}    ${FILTER_LABEL_ACTIVATED}
     Select Device By Row Index    ${row_idx}
@@ -174,7 +174,7 @@ TC_DSC_009
         Log    Popup did not open (error toast: ${error}).    level=WARN
     END
 
-TC_DSC_010
+TC_DS_010
     Login And Navigate To Manage Devices DSC
     ${row_idx}=    Filter Grid By Account And State    ${DSC_ACCOUNT_NAME}    ${FILTER_LABEL_ACTIVATED}
     ${state_col}=    Get Column Index By Header Text    ${STATE_COLUMN_HEADER}
@@ -199,28 +199,28 @@ TC_DSC_010
     Should Be Equal As Strings    ${current_state}    ${original_state}
     ...    State should not change after closing popup. Expected "${original_state}" but got "${current_state}".
 
-TC_DSC_011
+TC_DS_011
     Login And Navigate To Manage Devices DSC
     ${row_idx}=    Filter Grid By Account And State    ${DSC_ACCOUNT_NAME}    ${FILTER_LABEL_ACTIVATED}
     Select Device By Row Index    ${row_idx}
     Select Change State Action
     Attempt Invalid Transition And Verify Blocked    ${STATE_TEST_ACTIVE}
 
-TC_DSC_012
+TC_DS_012
     Login And Navigate To Manage Devices DSC
     ${row_idx}=    Filter Grid By Account And State    ${DSC_ACCOUNT_NAME}    ${FILTER_LABEL_ACTIVATED}
     Select Device By Row Index    ${row_idx}
     Select Change State Action
     Attempt Invalid Transition And Verify Blocked    ${STATE_TEST_READY}
 
-TC_DSC_013
+TC_DS_013
     Login And Navigate To Manage Devices DSC
     ${row_idx}=    Filter Grid By Account And State    ${DSC_ACCOUNT_NAME}    ${FILTER_LABEL_SUSPENDED}
     Select Device By Row Index    ${row_idx}
     Select Change State Action
     Attempt Invalid Transition And Verify Blocked    ${STATE_TEST_ACTIVE}
 
-TC_DSC_014
+TC_DS_014
     Login And Navigate To Manage Devices DSC
     ${action_enabled}=    Run Keyword And Return Status
     ...    Wait Until Element Is Enabled    ${LOC_DSC_ACTION_DROP}    timeout=5s
@@ -243,7 +243,7 @@ TC_DSC_014
         Log    Action dropdown is disabled — correctly blocked.    console=yes
     END
 
-TC_DSC_015
+TC_DS_015
     Login And Navigate To Manage Devices DSC
     ${row_idx}=    Filter Grid By Account And State    ${DSC_ACCOUNT_NAME}    ${FILTER_LABEL_ACTIVATED}
     Select Device By Row Index    ${row_idx}

@@ -38,19 +38,19 @@ Test Teardown     Run Keyword If Test Failed    Capture Page Screenshot
 # ══════════════════════════════════════════════════════════════════════
 TC_CC_001 Navigate To ManageAccount Page
     [Documentation]    Verifies ManageAccount page is loaded and the grid is visible.
-    [Tags]    positive    smoke    cost-center    navigation
+    [Tags]    positive    smoke    cost-center    TC_CC_001
     TC_CC_001
 
 TC_CC_002 Verify Create Cost Center Button Visible
     [Documentation]    Verifies the Create Cost Center button is visible on ManageAccount page
     ...                for a user with RW permission and RoleWisePermissionOfCostCenter() = true.
-    [Tags]    positive    smoke    cost-center
+    [Tags]    positive    smoke    cost-center    TC_CC_002
     TC_CC_002
 
 TC_CC_003 Open Create Cost Center Form
     [Documentation]    Clicks Create Cost Center button and verifies the form page loads
     ...                with URL containing /CreateCostCenter.
-    [Tags]    positive    smoke    cost-center
+    [Tags]    positive    smoke    cost-center    TC_CC_003
     TC_CC_003
 
 # ══════════════════════════════════════════════════════════════════════
@@ -59,19 +59,19 @@ TC_CC_003 Open Create Cost Center Form
 TC_CC_004 Verify All Form Fields Present
     [Documentation]    Verifies Parent Account dropdown, Account Name input, Comment input,
     ...                Submit button, and Close button are all visible on the form.
-    [Tags]    positive    cost-center
+    [Tags]    positive    cost-center    TC_CC_004
     TC_CC_004
 
 TC_CC_005 Verify Parent Account TreeView Has Nodes
     [Documentation]    Verifies the Parent Account TreeView dropdown opens and has at least one
     ...                selectable node (e.g. KSA_OPCO).
-    [Tags]    positive    cost-center
+    [Tags]    positive    cost-center    TC_CC_005
     TC_CC_005
 
 TC_CC_006 Verify Submit Button Is Present And Enabled
     [Documentation]    Verifies the Submit button (input type=button) is visible and enabled
     ...                on the Create Cost Center form.
-    [Tags]    positive    cost-center
+    [Tags]    positive    cost-center    TC_CC_006
     TC_CC_006
 
 # ══════════════════════════════════════════════════════════════════════
@@ -80,19 +80,19 @@ TC_CC_006 Verify Submit Button Is Present And Enabled
 TC_CC_007 Create Cost Center With All Fields
     [Documentation]    End-to-end: select Parent Account, enter Account Name and Comment,
     ...                click Submit. Verify success toast and redirect to ManageAccount.
-    [Tags]    positive    smoke    regression    cost-center    e2e
+    [Tags]    positive    smoke    regression    cost-center    e2e    TC_CC_007
     TC_CC_007
 
 TC_CC_008 Create Cost Center Without Comment
     [Documentation]    Creates a Cost Center with only mandatory fields (Parent Account + Account Name).
     ...                Comment is optional and left blank. Verifies success.
-    [Tags]    positive    regression    cost-center    e2e
+    [Tags]    positive    regression    cost-center    e2e    TC_CC_008
     TC_CC_008
 
 TC_CC_009 Verify No Validation Errors With Valid Data
     [Documentation]    Fills all fields with valid data and verifies no validation errors
     ...                are displayed before submission.
-    [Tags]    positive    cost-center    validation
+    [Tags]    positive    cost-center    TC_CC_009
     TC_CC_009
 
 # ══════════════════════════════════════════════════════════════════════
@@ -101,32 +101,32 @@ TC_CC_009 Verify No Validation Errors With Valid Data
 TC_CC_010 Submit With Empty Account Name
     [Documentation]    Selects Parent Account but leaves Account Name blank.
     ...                Clicks Submit and verifies Joi validation error on Account Name.
-    [Tags]    negative    cost-center    validation
+    [Tags]    negative    cost-center    TC_CC_010
     TC_CC_010
 
 TC_CC_011 Submit Without Selecting Parent Account
     [Documentation]    Enters Account Name but does NOT select Parent Account.
     ...                Clicks Submit and verifies Joi validation error on Parent Account.
-    [Tags]    negative    cost-center    validation
+    [Tags]    negative    cost-center    TC_CC_011
     TC_CC_011
 
 TC_CC_012 Submit With Both Mandatory Fields Empty
     [Documentation]    Does not fill any field. Clicks Submit and verifies both
     ...                Parent Account and Account Name validation errors (abortEarly: false).
-    [Tags]    negative    cost-center    validation
+    [Tags]    negative    cost-center    TC_CC_012
     TC_CC_012
 
 TC_CC_013 Submit With Only Spaces In Account Name
     [Documentation]    Enters only whitespace in Account Name and clicks Submit.
     ...                Expects either a validation error or the spaces to be stripped
     ...                by removeSpecialChar, resulting in empty name error.
-    [Tags]    negative    cost-center    validation
+    [Tags]    negative    cost-center    TC_CC_013
     TC_CC_013
 
 TC_CC_014 Duplicate Cost Center Name
     [Documentation]    Attempts to create a Cost Center with a name that may already exist.
     ...                Expects an error toast from the API (errorCode != 200).
-    [Tags]    negative    cost-center    validation
+    [Tags]    negative    cost-center    TC_CC_014
     TC_CC_014
 
 # ══════════════════════════════════════════════════════════════════════
@@ -135,25 +135,25 @@ TC_CC_014 Duplicate Cost Center Name
 TC_CC_015 Account Name Exceeds 100 Characters
     [Documentation]    Enters 101 characters in Account Name. Verifies the input is
     ...                truncated to 100 characters by maxLength attribute.
-    [Tags]    negative    cost-center    boundary
+    [Tags]    negative    cost-center    TC_CC_015
     TC_CC_015
 
 TC_CC_016 Account Name Exactly 100 Characters
     [Documentation]    Enters exactly 100 characters in Account Name. Verifies the full
     ...                value is accepted without truncation.
-    [Tags]    positive    cost-center    boundary
+    [Tags]    positive    cost-center    TC_CC_016
     TC_CC_016
 
 TC_CC_017 Comment Exceeds 50 Characters
     [Documentation]    Enters 51 characters in Comment. Verifies the input is
     ...                truncated to 50 characters by maxLength attribute.
-    [Tags]    negative    cost-center    boundary
+    [Tags]    negative    cost-center    TC_CC_017
     TC_CC_017
 
 TC_CC_018 Comment Exactly 50 Characters
     [Documentation]    Enters exactly 50 characters in Comment. Verifies the full
     ...                value is accepted without truncation.
-    [Tags]    positive    cost-center    boundary
+    [Tags]    positive    cost-center    TC_CC_018
     TC_CC_018
 
 # ══════════════════════════════════════════════════════════════════════
@@ -162,7 +162,7 @@ TC_CC_018 Comment Exactly 50 Characters
 TC_CC_020 Account Name With Semicolons Stripped
     [Documentation]    Enters Account Name containing semicolons.
     ...                Verifies semicolons are stripped by the input handler.
-    [Tags]    negative    cost-center
+    [Tags]    negative    cost-center    TC_CC_020
     TC_CC_020
 
 # ══════════════════════════════════════════════════════════════════════
@@ -171,19 +171,19 @@ TC_CC_020 Account Name With Semicolons Stripped
 TC_CC_021 Close Form Without Submitting
     [Documentation]    Fills all form fields then clicks Close. Verifies no submission
     ...                occurs and user is redirected back to ManageAccount.
-    [Tags]    negative    cost-center
+    [Tags]    negative    cost-center    TC_CC_021
     TC_CC_021
 
 TC_CC_022 Close Empty Form
     [Documentation]    Opens the Create Cost Center form and clicks Close without filling
     ...                any fields. Verifies redirect to ManageAccount.
-    [Tags]    negative    cost-center
+    [Tags]    negative    cost-center    TC_CC_022
     TC_CC_022
 
 TC_CC_023 Close After Selecting Only Parent Account
     [Documentation]    Selects Parent Account only (no Account Name), then clicks Close.
     ...                Verifies form is discarded and user returns to ManageAccount.
-    [Tags]    negative    cost-center
+    [Tags]    negative    cost-center    TC_CC_023
     TC_CC_023
 
 # ══════════════════════════════════════════════════════════════════════
@@ -192,19 +192,19 @@ TC_CC_023 Close After Selecting Only Parent Account
 TC_CC_024 Expand Billing Account And Verify Cost Center Tab
     [Documentation]    On ManageAccount page: tries expanding rows to find one with Cost Center
     ...                tab (tab9). Only accountTypeId=6 rows show this tab.
-    [Tags]    positive    cost-center
+    [Tags]    positive    cost-center    TC_CC_024
     TC_CC_024
 
 TC_CC_025 Open Cost Center Tab And Verify Grid Loads
     [Documentation]    Expands a Billing Account row with Cost Center tab, clicks it,
     ...                and verifies the CostCenterAccount nested grid renders.
-    [Tags]    positive    cost-center
+    [Tags]    positive    cost-center    TC_CC_025
     TC_CC_025
 
 TC_CC_026 Verify Edit Delete Buttons In Cost Center Grid
     [Documentation]    Opens the Cost Center tab and verifies Edit and Delete icons
     ...                are visible for Cost Center rows (RW permission + RoleWisePermission).
-    [Tags]    positive    cost-center
+    [Tags]    positive    cost-center    TC_CC_026
     TC_CC_026
 
 

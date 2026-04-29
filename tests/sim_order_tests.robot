@@ -22,40 +22,40 @@ Test Teardown     Handle Test Teardown
 TC_SO_001 E2E Create SIM Order Successfully
     [Documentation]    Full E2E: Login > Live Order > Create SIM Order > fill Step 1 >
     ...                fill Step 2 > Preview > T&C > Submit > verify success toast and redirect.
-    [Tags]    smoke    regression    positive    sim_order
+    [Tags]    smoke    regression    positive    TC_SO_001
     TC_SO_001
 
 TC_SO_002 Verify Live Order Grid Loads After Login
     [Documentation]    Navigate to Live Order and verify the Kendo grid container is visible.
     ...                Data rows may or may not exist depending on environment state.
-    [Tags]    smoke    regression    positive    sim_order
+    [Tags]    smoke    regression    positive    TC_SO_002
     TC_SO_002
 
 TC_SO_003 Verify Create SIM Order Wizard Elements Visible
     [Documentation]    Navigate to Create SIM Order and verify all 3 wizard step tabs
     ...                and Order Details pane are visible.
-    [Tags]    smoke    regression    positive    sim_order
+    [Tags]    smoke    regression    positive    TC_SO_003
     TC_SO_003
 
 TC_SO_004 Verify Wizard Previous Button Navigates Back
     [Documentation]    Fill Step 1, advance to Step 2, click Previous, verify Step 1 is visible again.
-    [Tags]    regression    positive    sim_order    navigation
+    [Tags]    regression    positive    TC_SO_004
     TC_SO_004
 
 TC_SO_005 Verify Preview Page Shows Order And Shipping Summary
     [Documentation]    Fill Step 1 and Step 2, advance to Preview, verify both summary sections visible.
-    [Tags]    regression    positive    sim_order
+    [Tags]    regression    positive    TC_SO_005
     TC_SO_005
 
 TC_SO_006 Verify Close Button On Preview Redirects To Live Order
     [Documentation]    Fill wizard up to Preview, click Close, verify redirect to /LiveOrder.
-    [Tags]    regression    positive    sim_order    navigation
+    [Tags]    regression    positive    TC_SO_006
     TC_SO_006
 
 TC_SO_007 Verify Search Functionality On Live Order Grid
     [Documentation]    Navigate to Live Order, enter search text, verify search executes
     ...                and grid updates (may return 0 rows if search term not found).
-    [Tags]    regression    positive    sim_order
+    [Tags]    regression    positive    TC_SO_007
     TC_SO_007
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -66,13 +66,13 @@ TC_SO_008 Cancel Order With Valid Reason And Remarks
     [Documentation]    Open Cancel modal for the first grid row, fill reason and remarks,
     ...                click Proceed, verify the cancel action completes.
     ...                Skips if no orders exist in the grid.
-    [Tags]    regression    positive    sim_order
+    [Tags]    regression    positive    TC_SO_008
     TC_SO_008
 
 TC_SO_009 Close Cancel Modal Without Proceeding
     [Documentation]    Open Cancel modal, close it without submitting, verify modal closes
     ...                and grid is still visible. Skips if no orders exist.
-    [Tags]    regression    positive    sim_order
+    [Tags]    regression    positive    TC_SO_009
     TC_SO_009
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -82,51 +82,51 @@ TC_SO_009 Close Cancel Modal Without Proceeding
 TC_SO_010 Next Blocked When Account Not Selected
     [Documentation]    Fill Step 1 but skip Account selection. Clicking Next should be
     ...                blocked or show a validation error.
-    [Tags]    regression    negative    sim_order
+    [Tags]    regression    negative    TC_SO_010
     TC_SO_010
 
 TC_SO_011 Next Blocked When SIM Type Not Selected
     [Documentation]    Fill Step 1 but skip SIM Type selection. Clicking Next should be
     ...                blocked or show a validation error.
-    [Tags]    regression    negative    sim_order
+    [Tags]    regression    negative    TC_SO_011
     TC_SO_011
 
 TC_SO_012 Quantity Zero Should Show Error Or Block Next
     [Documentation]    Enter 0 as quantity. Clicking Next should be blocked or show error.
-    [Tags]    regression    negative    sim_order    boundary
+    [Tags]    regression    negative    TC_SO_012
     TC_SO_012
 
 TC_SO_013 Quantity Negative Should Show Error Or Block Next
     [Documentation]    Enter -1 as quantity. Clicking Next should be blocked or show error.
-    [Tags]    regression    negative    sim_order    boundary
+    [Tags]    regression    negative    TC_SO_013
     TC_SO_013
 
 TC_SO_014 Quantity Non Numeric Should Show Error Or Block Next
     [Documentation]    Enter "abc" as quantity. Clicking Next should be blocked or show error.
-    [Tags]    regression    negative    sim_order    boundary
+    [Tags]    regression    negative    TC_SO_014
     TC_SO_014
 
 TC_SO_015 Next Blocked On Step 2 When Address Line 1 Empty
     [Documentation]    Fill Step 1 completely, advance to Step 2, leave Address Line 1 empty.
     ...                Clicking Next to Preview should be blocked or show error.
-    [Tags]    regression    negative    sim_order
+    [Tags]    regression    negative    TC_SO_015
     TC_SO_015
 
 TC_SO_016 Submit Without Accepting Terms Should Be Blocked
     [Documentation]    Complete Steps 1 and 2, advance to Preview, try to submit
     ...                without checking the T&C checkbox.
-    [Tags]    regression    negative    sim_order
+    [Tags]    regression    negative    TC_SO_016
     TC_SO_016
 
 TC_SO_017 SQL Injection In Quantity Field
     [Documentation]    Enter SQL injection string in Quantity. Verify error or safe handling.
-    [Tags]    regression    negative    security    sim_order
+    [Tags]    regression    negative    TC_SO_017
     TC_SO_017
 
 TC_SO_018 Special Characters In Address Fields
     [Documentation]    Enter special characters in address fields and attempt to proceed.
     ...                Verify the app handles them safely (error, sanitization, or acceptance).
-    [Tags]    regression    negative    security    sim_order
+    [Tags]    regression    negative    TC_SO_018
     TC_SO_018
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -137,7 +137,7 @@ TC_SO_019 Cancel Order With Empty Reason Should Be Blocked
     [Documentation]    Open Cancel modal, leave Reason blank, click Proceed.
     ...                Verify the proceed is blocked or an error is shown.
     ...                Skips if no orders exist in the grid.
-    [Tags]    regression    negative    sim_order
+    [Tags]    regression    negative    TC_SO_019
     TC_SO_019
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -147,13 +147,13 @@ TC_SO_019 Cancel Order With Empty Reason Should Be Blocked
 TC_SO_020 Direct Access To Create SIM Order Without Login Should Redirect
     [Documentation]    Navigate directly to /CreateSIMOrder without authenticating.
     ...                Verify: application redirects back to the login page.
-    [Tags]    regression    negative    security    sim_order    navigation
+    [Tags]    regression    negative    TC_SO_020
     TC_SO_020
 
 TC_SO_021 Direct Access To Live Order Without Login Should Redirect
     [Documentation]    Navigate directly to /LiveOrder without authenticating.
     ...                Verify: application redirects back to the login page.
-    [Tags]    regression    negative    security    sim_order    navigation
+    [Tags]    regression    negative    TC_SO_021
     TC_SO_021
 
 

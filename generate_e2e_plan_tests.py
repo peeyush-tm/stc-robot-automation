@@ -1,3 +1,38 @@
+#!/usr/bin/env python3
+"""
+Generate tests/e2e_flow_with_usage_plans.robot from testdata/e2e_usage_plans.csv.
+
+Each CSV row produces 6 Robot test cases:
+    <tc_id> Step 01 Onboard EC And BU
+    <tc_id> Step 02 Create APN And CSR Journey
+    <tc_id> Step 03 SIM Range And Product Type
+    <tc_id> Step 04 Create And Process SIM Order
+    <tc_id> Step 05 Activate SIMs And Perform Usage
+    <tc_id> Step 06 Generate Invoice
+
+Auto-runs before every execution via run_tests.py.
+"""
+
+import csv
+import os
+import sys
+
+ROOT_DIR   = os.path.dirname(os.path.abspath(__file__))
+CSV_PATH   = os.path.join(ROOT_DIR, "testdata", "e2e_usage_plans.csv")
+ROBOT_PATH = os.path.join(ROOT_DIR, "tests", "e2e_flow_with_usage_plans.robot")
+
+STEPS = [
+    ("01", "Onboard EC And BU",                  "E2E Step 01 Onboard    {tc_id}"),
+    ("02", "Create APN And CSR Journey",         "E2E Step 02 APN And CSR"),
+    ("03", "SIM Range And Product Type",         "E2E Step 03 SIM Range And Product Type"),
+    ("04", "Create And Process SIM Order",       "E2E Step 04 SIM Order And Processing"),
+    ("05", "Activate SIMs And Perform Usage",    "E2E Step 05 Activate And Usage"),
+    ("06", "Generate Invoice",                   "E2E Step 06 Invoice"),
+    ("07", "Create Second CSR Journey",          "E2E Step 07 Second CSR Journey"),
+    ("08", "Device Plan Change And Validate",    "E2E Step 08 Device Plan Change"),
+]
+
+SETTINGS = """\
 *** Settings ***
 Documentation     E2E Flow With Usage — Plan-Duration Matrix (step-per-phase per plan).
 ...
@@ -32,6 +67,9 @@ Suite Teardown    Close All Browsers
 Test Setup        Ensure Session Is Active
 Test Teardown     Run Keyword If Test Failed    Capture Page Screenshot
 
+"""
+
+VARIABLES = """\
 *** Variables ***
 ${E2E_EC_NAME}              ${EMPTY}
 ${E2E_BU_NAME}              ${EMPTY}
@@ -42,151 +80,9 @@ ${E2E_ACTIVATED_IMSIS}      ${EMPTY}
 ${E2E_IMSI_DATA}            ${EMPTY}
 ${PLAN_SIM_QUANTITY}        ${2}
 
-*** Test Cases ***
-# =======================================================
-#  TC_E2EU_YEARLY
-# =======================================================
-TC_E2EU_YEARLY Step 01 Onboard EC And BU
-    [Tags]    e2e    e2e-with-usage    plan-duration    regression
-    E2E Step 01 Onboard    TC_E2EU_YEARLY
+"""
 
-TC_E2EU_YEARLY Step 02 Create APN And CSR Journey
-    [Tags]    e2e    e2e-with-usage    plan-duration    regression
-    E2E Step 02 APN And CSR
-
-TC_E2EU_YEARLY Step 03 SIM Range And Product Type
-    [Tags]    e2e    e2e-with-usage    plan-duration    regression
-    E2E Step 03 SIM Range And Product Type
-
-TC_E2EU_YEARLY Step 04 Create And Process SIM Order
-    [Tags]    e2e    e2e-with-usage    plan-duration    regression
-    E2E Step 04 SIM Order And Processing
-
-TC_E2EU_YEARLY Step 05 Activate SIMs And Perform Usage
-    [Tags]    e2e    e2e-with-usage    plan-duration    regression
-    E2E Step 05 Activate And Usage
-
-TC_E2EU_YEARLY Step 06 Generate Invoice
-    [Tags]    e2e    e2e-with-usage    plan-duration    regression
-    E2E Step 06 Invoice
-
-TC_E2EU_YEARLY Step 07 Create Second CSR Journey
-    [Tags]    e2e    e2e-with-usage    plan-duration    regression
-    E2E Step 07 Second CSR Journey
-
-TC_E2EU_YEARLY Step 08 Device Plan Change And Validate
-    [Tags]    e2e    e2e-with-usage    plan-duration    regression
-    E2E Step 08 Device Plan Change
-
-
-# =======================================================
-#  TC_E2EU_HALFYEARLY
-# =======================================================
-TC_E2EU_HALFYEARLY Step 01 Onboard EC And BU
-    [Tags]    e2e    e2e-with-usage    plan-duration    regression
-    E2E Step 01 Onboard    TC_E2EU_HALFYEARLY
-
-TC_E2EU_HALFYEARLY Step 02 Create APN And CSR Journey
-    [Tags]    e2e    e2e-with-usage    plan-duration    regression
-    E2E Step 02 APN And CSR
-
-TC_E2EU_HALFYEARLY Step 03 SIM Range And Product Type
-    [Tags]    e2e    e2e-with-usage    plan-duration    regression
-    E2E Step 03 SIM Range And Product Type
-
-TC_E2EU_HALFYEARLY Step 04 Create And Process SIM Order
-    [Tags]    e2e    e2e-with-usage    plan-duration    regression
-    E2E Step 04 SIM Order And Processing
-
-TC_E2EU_HALFYEARLY Step 05 Activate SIMs And Perform Usage
-    [Tags]    e2e    e2e-with-usage    plan-duration    regression
-    E2E Step 05 Activate And Usage
-
-TC_E2EU_HALFYEARLY Step 06 Generate Invoice
-    [Tags]    e2e    e2e-with-usage    plan-duration    regression
-    E2E Step 06 Invoice
-
-TC_E2EU_HALFYEARLY Step 07 Create Second CSR Journey
-    [Tags]    e2e    e2e-with-usage    plan-duration    regression
-    E2E Step 07 Second CSR Journey
-
-TC_E2EU_HALFYEARLY Step 08 Device Plan Change And Validate
-    [Tags]    e2e    e2e-with-usage    plan-duration    regression
-    E2E Step 08 Device Plan Change
-
-
-# =======================================================
-#  TC_E2EU_QUARTERLY
-# =======================================================
-TC_E2EU_QUARTERLY Step 01 Onboard EC And BU
-    [Tags]    e2e    e2e-with-usage    plan-duration    regression
-    E2E Step 01 Onboard    TC_E2EU_QUARTERLY
-
-TC_E2EU_QUARTERLY Step 02 Create APN And CSR Journey
-    [Tags]    e2e    e2e-with-usage    plan-duration    regression
-    E2E Step 02 APN And CSR
-
-TC_E2EU_QUARTERLY Step 03 SIM Range And Product Type
-    [Tags]    e2e    e2e-with-usage    plan-duration    regression
-    E2E Step 03 SIM Range And Product Type
-
-TC_E2EU_QUARTERLY Step 04 Create And Process SIM Order
-    [Tags]    e2e    e2e-with-usage    plan-duration    regression
-    E2E Step 04 SIM Order And Processing
-
-TC_E2EU_QUARTERLY Step 05 Activate SIMs And Perform Usage
-    [Tags]    e2e    e2e-with-usage    plan-duration    regression
-    E2E Step 05 Activate And Usage
-
-TC_E2EU_QUARTERLY Step 06 Generate Invoice
-    [Tags]    e2e    e2e-with-usage    plan-duration    regression
-    E2E Step 06 Invoice
-
-TC_E2EU_QUARTERLY Step 07 Create Second CSR Journey
-    [Tags]    e2e    e2e-with-usage    plan-duration    regression
-    E2E Step 07 Second CSR Journey
-
-TC_E2EU_QUARTERLY Step 08 Device Plan Change And Validate
-    [Tags]    e2e    e2e-with-usage    plan-duration    regression
-    E2E Step 08 Device Plan Change
-
-
-# =======================================================
-#  TC_E2EU_MONTHLY
-# =======================================================
-TC_E2EU_MONTHLY Step 01 Onboard EC And BU
-    [Tags]    e2e    e2e-with-usage    plan-duration    regression
-    E2E Step 01 Onboard    TC_E2EU_MONTHLY
-
-TC_E2EU_MONTHLY Step 02 Create APN And CSR Journey
-    [Tags]    e2e    e2e-with-usage    plan-duration    regression
-    E2E Step 02 APN And CSR
-
-TC_E2EU_MONTHLY Step 03 SIM Range And Product Type
-    [Tags]    e2e    e2e-with-usage    plan-duration    regression
-    E2E Step 03 SIM Range And Product Type
-
-TC_E2EU_MONTHLY Step 04 Create And Process SIM Order
-    [Tags]    e2e    e2e-with-usage    plan-duration    regression
-    E2E Step 04 SIM Order And Processing
-
-TC_E2EU_MONTHLY Step 05 Activate SIMs And Perform Usage
-    [Tags]    e2e    e2e-with-usage    plan-duration    regression
-    E2E Step 05 Activate And Usage
-
-TC_E2EU_MONTHLY Step 06 Generate Invoice
-    [Tags]    e2e    e2e-with-usage    plan-duration    regression
-    E2E Step 06 Invoice
-
-TC_E2EU_MONTHLY Step 07 Create Second CSR Journey
-    [Tags]    e2e    e2e-with-usage    plan-duration    regression
-    E2E Step 07 Second CSR Journey
-
-TC_E2EU_MONTHLY Step 08 Device Plan Change And Validate
-    [Tags]    e2e    e2e-with-usage    plan-duration    regression
-    E2E Step 08 Device Plan Change
-
-
+KEYWORDS = """\
 *** Keywords ***
 Get Plan Data From CSV
     [Arguments]    ${tc_id}
@@ -360,3 +256,60 @@ E2E Step 08 Device Plan Change
     E2E Perform Device Plan Change On One Activated SIM And Validate    ${E2E_BU_NAME}
     Log    [RESULT] Device plan change completed and validated    console=yes
     Log    STEP 08 COMPLETE    console=yes
+"""
+
+
+def read_plans(csv_path):
+    plans = []
+    with open(csv_path, newline="", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            tc_id = row.get("tc_id", "").strip()
+            tags  = row.get("tags",  "").strip()
+            if tc_id:
+                plans.append({"tc_id": tc_id, "tags": tags})
+    return plans
+
+
+def build_test_cases(plans):
+    lines = ["*** Test Cases ***\n"]
+    for plan in plans:
+        tc_id = plan["tc_id"]
+        raw_tags = plan["tags"] or f"e2e    e2e-with-usage    {tc_id}    plan-duration    regression"
+        tag_tokens = [t for t in raw_tags.split() if t]
+        tags_line = "    ".join(tag_tokens)
+        lines.append(f"# {'='*55}\n")
+        lines.append(f"#  {tc_id}\n")
+        lines.append(f"# {'='*55}\n")
+        for step_nn, step_name, keyword in STEPS:
+            kw_call = keyword.format(tc_id=tc_id)
+            lines.append(f"{tc_id} Step {step_nn} {step_name}\n")
+            lines.append(f"    [Tags]    {tags_line}\n")
+            lines.append(f"    {kw_call}\n")
+            lines.append("\n")
+        lines.append("\n")
+    return "".join(lines)
+
+
+def generate(csv_path=CSV_PATH, robot_path=ROBOT_PATH):
+    if not os.path.isfile(csv_path):
+        print(f"ERROR: CSV not found: {csv_path}", file=sys.stderr)
+        sys.exit(1)
+
+    plans = read_plans(csv_path)
+    if not plans:
+        print(f"ERROR: No valid rows found in {csv_path}", file=sys.stderr)
+        sys.exit(1)
+
+    content = SETTINGS + VARIABLES + build_test_cases(plans) + KEYWORDS
+
+    with open(robot_path, "w", encoding="utf-8", newline="\n") as f:
+        f.write(content)
+
+    print(f"Generated {len(plans)} plan(s) x {len(STEPS)} steps = {len(plans) * len(STEPS)} test cases")
+    for p in plans:
+        print(f"  + {p['tc_id']}")
+    print(f"Written to: {robot_path}")
+
+
+if __name__ == "__main__":
+    generate()

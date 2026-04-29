@@ -19,11 +19,11 @@ Test Teardown     Handle Test Teardown
 #  POSITIVE TEST CASES
 # ═══════════════════════════════════════════════════════════════════════
 
-TC_015_001 Create Report Happy Path And Validate Grid
+TC_RPT_001 Create Report Happy Path And Validate Grid
     [Documentation]    Create Data Usage report (DAY, OPCO, CSV). Verify success toast,
     ...                redirect to /Report, wait for grid, filter by report name,
     ...                validate first row REPORT NAME and Delete/Download icons.
-    [Tags]    smoke    regression    positive    report
+    [Tags]    smoke    regression    positive    report    TC_RPT_001
     Navigate To Reports Page
     Open Create Report Form
     Select Report Category    ${REPORT_CATEGORY_NAME}
@@ -38,9 +38,9 @@ TC_015_001 Create Report Happy Path And Validate Grid
     Validate First Row Report Name    ${REPORT_CATEGORY_NAME}
     Validate Delete And Download Icons In First Row
 
-TC_015_002 Create Report And Download File
+TC_RPT_002 Create Report And Download File
     [Documentation]    Create report, then click Download in first row and verify no error.
-    [Tags]    regression    positive    report
+    [Tags]    regression    positive    report    TC_RPT_002
     Navigate To Reports Page
     Open Create Report Form
     Select Report Category    ${REPORT_CATEGORY_NAME}
@@ -53,9 +53,9 @@ TC_015_002 Create Report And Download File
     Verify Report Created Successfully And Grid Visible
     Download Report From First Row And Verify Click    ${REPORT_CATEGORY_NAME}
 
-TC_015_003 Create Report With Send Email
+TC_RPT_003 Create Report With Send Email
     [Documentation]    Create report with Send Email enabled and one recipient.
-    [Tags]    regression    positive    report
+    [Tags]    regression    positive    report    TC_RPT_003
     Navigate To Reports Page
     Open Create Report Form
     Select Report Category    ${REPORT_CATEGORY_NAME}
@@ -69,9 +69,9 @@ TC_015_003 Create Report With Send Email
     Submit Create Report Form
     Verify Report Created Successfully
 
-TC_015_004 Create Report Weekly View
+TC_RPT_004 Create Report Weekly View
     [Documentation]    Create Data Usage report with WEEK view criterion.
-    [Tags]    regression    positive    report
+    [Tags]    regression    positive    report    TC_RPT_004
     Navigate To Reports Page
     Open Create Report Form
     Select Report Category    ${REPORT_CATEGORY_NAME}
@@ -84,9 +84,9 @@ TC_015_004 Create Report Weekly View
     Submit Create Report Form
     Verify Report Created Successfully
 
-TC_015_005 Create Report Monthly View
+TC_RPT_005 Create Report Monthly View
     [Documentation]    Create Data Usage report with MONTH view criterion.
-    [Tags]    regression    positive    report
+    [Tags]    regression    positive    report    TC_RPT_005
     Navigate To Reports Page
     Open Create Report Form
     Select Report Category    ${REPORT_CATEGORY_NAME}
@@ -98,9 +98,9 @@ TC_015_005 Create Report Monthly View
     Submit Create Report Form
     Verify Report Created Successfully
 
-TC_015_006 Create Report PDF Format
+TC_RPT_006 Create Report PDF Format
     [Documentation]    Create Data Usage report in PDF format.
-    [Tags]    regression    positive    report
+    [Tags]    regression    positive    report    TC_RPT_006
     Navigate To Reports Page
     Open Create Report Form
     Select Report Category    ${REPORT_CATEGORY_NAME}
@@ -112,9 +112,9 @@ TC_015_006 Create Report PDF Format
     Submit Create Report Form
     Verify Report Created Successfully
 
-TC_015_007 Create Report XLSX Format
+TC_RPT_007 Create Report XLSX Format
     [Documentation]    Create Data Usage report in XLSX format.
-    [Tags]    regression    positive    report
+    [Tags]    regression    positive    report    TC_RPT_007
     Navigate To Reports Page
     Open Create Report Form
     Select Report Category    ${REPORT_CATEGORY_NAME}
@@ -126,9 +126,9 @@ TC_015_007 Create Report XLSX Format
     Submit Create Report Form
     Verify Report Created Successfully
 
-TC_015_008 Close Button Redirects To Report Listing
+TC_RPT_008 Close Button Redirects To Report Listing
     [Documentation]    Fill form partially, click Close; verify redirect to /Report.
-    [Tags]    regression    positive    report    navigation
+    [Tags]    regression    positive    report    TC_RPT_008
     Navigate To Reports Page
     Open Create Report Form
     Select Report Category    ${REPORT_CATEGORY_NAME}
@@ -143,9 +143,9 @@ TC_015_008 Close Button Redirects To Report Listing
 #  NEGATIVE TEST CASES
 # ═══════════════════════════════════════════════════════════════════════
 
-TC_015_NEG_01 No Report Category Should Show Error
+TC_RPT_009 No Report Category Should Show Error
     [Documentation]    Submit without selecting Report Category; expect validation error.
-    [Tags]    regression    negative    report
+    [Tags]    regression    negative    report    TC_RPT_009
     Navigate To Reports Page
     Open Create Report Form
     Select Report Format    ${REPORT_FORMAT_VALUE}
@@ -153,9 +153,9 @@ TC_015_NEG_01 No Report Category Should Show Error
     Verify Validation Error Report Category
     Verify Still On Create Report Page
 
-TC_015_NEG_02 No View Criterion Should Show Error
+TC_RPT_010 No View Criterion Should Show Error
     [Documentation]    Select Report Category but not View Criterion; expect validation error.
-    [Tags]    regression    negative    report
+    [Tags]    regression    negative    report    TC_RPT_010
     Navigate To Reports Page
     Open Create Report Form
     Select Report Category    ${REPORT_CATEGORY_NAME}
@@ -164,9 +164,9 @@ TC_015_NEG_02 No View Criterion Should Show Error
     Verify Validation Error View Criterion
     Verify Still On Create Report Page
 
-TC_015_NEG_03 No Display Level Should Show Error
+TC_RPT_011 No Display Level Should Show Error
     [Documentation]    Select category and view criterion but not Display Level; expect error.
-    [Tags]    regression    negative    report
+    [Tags]    regression    negative    report    TC_RPT_011
     Navigate To Reports Page
     Open Create Report Form
     Select Report Category    ${REPORT_CATEGORY_NAME}
@@ -177,9 +177,9 @@ TC_015_NEG_03 No Display Level Should Show Error
     Verify Validation Error Display Level
     Verify Still On Create Report Page
 
-TC_015_NEG_04 No Report Format Should Show Error
+TC_RPT_012 No Report Format Should Show Error
     [Documentation]    Fill all except Report Format; expect validation error.
-    [Tags]    regression    negative    report
+    [Tags]    regression    negative    report    TC_RPT_012
     Navigate To Reports Page
     Open Create Report Form
     Select Report Category    ${REPORT_CATEGORY_NAME}
@@ -190,9 +190,9 @@ TC_015_NEG_04 No Report Format Should Show Error
     Verify Validation Error Report Format
     Verify Still On Create Report Page
 
-TC_015_NEG_05 Send Email Without Recipients Should Show Error
+TC_RPT_013 Send Email Without Recipients Should Show Error
     [Documentation]    Enable Send Email but add no recipient; expect error toast.
-    [Tags]    regression    negative    report
+    [Tags]    regression    negative    report    TC_RPT_013
     Navigate To Reports Page
     Open Create Report Form
     Select Report Category    ${REPORT_CATEGORY_NAME}
@@ -206,9 +206,9 @@ TC_015_NEG_05 Send Email Without Recipients Should Show Error
     Verify Error Toast Shown
     Verify Still On Create Report Page
 
-TC_015_NEG_06 Close Without Submit Redirects To Report
+TC_RPT_014 Close Without Submit Redirects To Report
     [Documentation]    Fill form, click Close; verify redirect to /Report, no success toast.
-    [Tags]    regression    negative    report
+    [Tags]    regression    negative    report    TC_RPT_014
     Navigate To Reports Page
     Open Create Report Form
     Select Report Category    ${REPORT_CATEGORY_NAME}

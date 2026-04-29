@@ -71,143 +71,160 @@ ${E2E_CSR2_DP_ALIAS}        ${EMPTY}
 #    8  Fetch EC/BU IDs from DB       17 Invoice API + download CSV
 # ═══════════════════════════════════════════════════════════════════════
 
-Step 1 Onboard EC And BU Account Via API
+TC_E2E_001 Onboard EC And BU Account Via API
     [Documentation]    Uses the same proven logic as TC_ONBOARD_001: sends createOnboardCustomer
     ...                SOAP request with all fields. Verifies HTTP 200, no SOAP fault.
     ...                Stores EC and BU names as suite variables for subsequent steps.
-    [Tags]    e2e    api    onboard
-    STEP_01
+    [Tags]    regression    e2e    TC_E2E_001    positive
+    TC_E2E_001
 
-Step 1b Verify Onboarded Account On UI
+TC_E2E_002 Verify Onboarded Account On UI
     [Documentation]    Waits 5 min for backend processing, then navigates to ManageAccount,
     ...                enables Show Customer Wise Data, and validates both EC and BU accounts.
     ...                If not found on first attempt, waits another 5 min, refreshes, and retries.
-    [Tags]    e2e    validation    onboard
-    STEP_01B
+    [Tags]    regression    e2e    TC_E2E_002    positive
+    TC_E2E_002
 
-Step 2 Create APN For Onboarded Account
+TC_E2E_003 Create APN For Onboarded Account
     [Documentation]    Creates a Private APN under the EC/BU onboarded in Step 1.
-    [Tags]    e2e    apn
-    STEP_02
+    [Tags]    regression    e2e    TC_E2E_003    positive
+    TC_E2E_003
 
-Step 3 Create CSR Journey For Onboarded Account
+TC_E2E_004 Create CSR Journey For Onboarded Account
     [Documentation]    Creates a CSR Journey (order) for the EC/BU onboarded in Step 1.
     ...                Goes through the full wizard: tariff plan, APN, device plan, service plan,
     ...                additional services, summary, and save.
     ...                Implementation: E2E Create CSR Journey → CSRJ Complete Create Wizard Save And Exit Like E2E
     ...                (csr_journey_keywords.resource). Deeper CSR UI regression: tests/csr_journey_tests.robot TC_CSRJ_004.
-    [Tags]    e2e    csr-journey
-    STEP_03
+    [Tags]    regression    e2e    TC_E2E_004    positive
+    TC_E2E_004
 
-Step 4 Create SIM Range With 10 ICCID IMSI
+TC_E2E_005 Create SIM Range With 10 ICCID IMSI
     [Documentation]    Creates a SIM Range with 10 ICCID/IMSI entries using the default account (KSA_OPCO).
-    [Tags]    e2e    sim-range
-    STEP_04
+    [Tags]    regression    e2e    TC_E2E_005    positive
+    TC_E2E_005
 
-Step 5 Create And Assign SIM Product Type
+TC_E2E_006 Create And Assign SIM Product Type
     [Documentation]    Creates a SIM Product Type with default account (KSA_OPCO),
     ...                then assigns the onboarded EC to it.
-    [Tags]    e2e    product-type
-    STEP_05
+    [Tags]    regression    e2e    TC_E2E_006    positive
+    TC_E2E_006
 
-Step 5b Expand EC And BU SIM Limits
+TC_E2E_007 Expand EC And BU SIM Limits
     [Documentation]    Before SIM Order: opens EC and BU accounts on ManageAccount,
     ...                navigates to Account Settings, and adds +10 to each Max IMSI /
     ...                Max SIM. Required so the BU has SIM capacity headroom.
-    [Tags]    e2e
-    STEP_05B
+    [Tags]    regression    e2e    TC_E2E_007    positive
+    TC_E2E_007
 
-Step 6 Create SIM Order
+TC_E2E_008 Create SIM Order
     [Documentation]    Creates a SIM Order with quantity 10 using the onboarded BU account
     ...                selected via treeview (KSA_OPCO > EC > BU).
-    [Tags]    e2e    sim-order
-    STEP_06
+    [Tags]    regression    e2e    TC_E2E_008    positive
+    TC_E2E_008
 
-Step 7 Capture Order ID From Live Order Grid
+TC_E2E_009 Capture Order ID From Live Order Grid
     [Documentation]    Navigates to the Live Order tab, searches for the BU account,
     ...                and captures the Order Number from the first matching row.
     ...                Stores it as a suite variable for all subsequent steps.
-    [Tags]    e2e
-    STEP_07
+    [Tags]    regression    e2e    TC_E2E_009    positive
+    TC_E2E_009
 
-Step 8 Fetch EC And BU Account IDs From Database
+TC_E2E_010 Fetch EC And BU Account IDs From Database
     [Documentation]    Connects to the STC database, queries for the EC and BU account
     ...                IDs by name, stores them, and closes the DB connection.
-    [Tags]    e2e
-    STEP_08
+    [Tags]    regression    e2e    TC_E2E_010    positive
+    TC_E2E_010
 
-Step 9 Run Create Order Script On Server
+TC_E2E_011 Run Create Order Script On Server
     [Documentation]    Connects to the order processing server via SSH and runs
     ...                start_createorder.sh. Waits for script completion.
-    [Tags]    e2e
-    STEP_09
+    ...                SKIPPED on SIT — cron job triggers order processing automatically.
+    [Tags]    regression    e2e    TC_E2E_011    positive    no_sit
+    TC_E2E_011
 
-Step 10 Validate Order Status New To In Progress
+TC_E2E_012 Validate Order Status New To In Progress
     [Documentation]    After start_createorder.sh completes, navigates to the Live Order
     ...                tab and validates the order status changed from New to In Progress.
-    ...                Retries up to 6 times with 30s between attempts.
-    [Tags]    e2e    validation
-    STEP_10
+    ...                SKIPPED on SIT — order progresses automatically via cron.
+    [Tags]    regression    e2e    TC_E2E_012    positive    no_sit
+    TC_E2E_012
 
-Step 11 Generate And Upload Response Files To Server
+TC_E2E_013 Generate And Upload Response Files To Server
     [Documentation]    Generates 3 response files (orderId.dsprsp, orderId.ordrsp,
     ...                orderId.pcsrsp) from templates by replacing 120326 with the
     ...                actual orderId. Uploads them to the server's order/input directory.
-    [Tags]    e2e
-    STEP_11
+    ...                SKIPPED on SIT — response files are handled automatically.
+    [Tags]    regression    e2e    TC_E2E_013    positive    no_sit
+    TC_E2E_013
 
-Step 12 Run Read Order Script On Server
+TC_E2E_014 Run Read Order Script On Server
     [Documentation]    Runs start_readorder.sh on the server to process the uploaded
     ...                response files. Closes the SSH connection after completion.
-    [Tags]    e2e
-    STEP_12
+    ...                SKIPPED on SIT — cron job runs read order automatically.
+    [Tags]    regression    e2e    TC_E2E_014    positive    no_sit
+    TC_E2E_014
 
-Step 13 Validate Order Status In Progress To Completed
+TC_E2E_015 Validate Order Status In Progress To Completed
     [Documentation]    After start_readorder.sh completes, navigates to the Order History
     ...                tab and validates the order status changed to Completed.
-    [Tags]    e2e    validation
-    STEP_13
+    ...                SKIPPED on SIT — replaced by TC_E2E_SIT_001 which polls until auto-complete.
+    [Tags]    regression    e2e    TC_E2E_015    positive    no_sit
+    TC_E2E_015
 
-Step 14 Validate SIMs In Warm State On Manage Devices
+TC_E2E_SIT_001 Wait For Order To Complete Automatically
+    [Documentation]    SIT only — polls Order History every 30s for up to 30 min until
+    ...                the order status reaches Completed (cron job drives this automatically).
+    [Tags]    regression    e2e    TC_E2E_SIT_001    positive    sit_only
+    TC_E2E_SIT_001
+
+TC_E2E_016 Validate SIMs In Warm State On Manage Devices
     [Documentation]    Navigates to Manage Devices page, applies BU account filter,
     ...                verifies all SIMs are in Warm state and row count >= 10.
-    [Tags]    e2e    manage-devices    validation
-    STEP_14
+    [Tags]    regression    e2e    TC_E2E_016    positive
+    TC_E2E_016
 
-Step 15 Update Order Status To Approved Via SOAP API
+TC_E2E_017 Update Order Status To Approved Via SOAP API
     [Documentation]    Calls SOAP API to update the SIM order status to Approved.
     ...                Uses the captured orderId from Step 7.
-    [Tags]    e2e    api
-    STEP_15
+    ...                SKIPPED on SIT — order approval and InActive transition are automatic.
+    [Tags]    regression    e2e    TC_E2E_017    positive    no_sit
+    TC_E2E_017
 
-Step 16 Activate 5 SIMs And Capture IMSIs
+TC_E2E_SIT_002 Wait For SIMs To Reach InActive State Automatically
+    [Documentation]    SIT only — polls Manage Devices every 30s for up to 30 min until
+    ...                SIMs transition to InActive state (cron job drives this automatically).
+    [Tags]    regression    e2e    TC_E2E_SIT_002    positive    sit_only
+    TC_E2E_SIT_002
+
+TC_E2E_018 Activate 5 SIMs And Capture IMSIs
     [Documentation]    Performs Device State Change on Manage Devices page to activate
     ...                5 SIMs from InActive to Activated state. After Step 15 approval,
     ...                SIMs are in InActive state. Captures all activated IMSIs for future use.
-    [Tags]    e2e
-    STEP_16
+    [Tags]    regression    e2e    TC_E2E_018    positive
+    TC_E2E_018
 
-Step 17 Generate Invoice And Download CSV
+TC_E2E_019 Generate Invoice And Download CSV
     [Documentation]    Calls Invoice API with BU account ID, waits for server-side
     ...                invoice generation, then downloads latest CSV from server
     ...                to the local billing/ folder.
-    [Tags]    e2e
-    STEP_17
+    [Tags]    regression    e2e    TC_E2E_019    positive
+    TC_E2E_019
 
-Step 18 Create Second CSR Journey With Different Plan
+TC_E2E_020 Create Second CSR Journey With Different Plan
     [Documentation]    Creates a second CSR Journey for the same account with different
     ...                tariff/APN/device plan so a different device plan is available for DP change.
-    [Tags]    e2e    csr-journey    device-plan
-    STEP_18
+    [Tags]    regression    e2e    TC_E2E_020    positive
+    TC_E2E_020
 
-Step 19 Perform Device Plan Change On One Activated SIM And Validate
+TC_E2E_021 Perform Device Plan Change On One Activated SIM And Validate
     [Documentation]    On Manage Devices, filters by BU + Activated, performs device plan
     ...                change on one SIM, waits 5 min, then verifies device plan updated in grid.
-    [Tags]    e2e    device-plan
-    STEP_19
+    [Tags]    regression    e2e    TC_E2E_021    positive
+    TC_E2E_021
 
 *** Keywords ***
-STEP_01
+TC_E2E_001
     Create Onboard API Session
     ${data}=    Generate Unique Test Data
     ${soap_body}=    Build Onboard Customer SOAP Envelope
@@ -235,7 +252,7 @@ STEP_01
     Log    EC Name : ${E2E_EC_NAME}    console=yes
     Log    BU Name : ${E2E_BU_NAME}    console=yes
 
-STEP_01B
+TC_E2E_002
     Should Not Be Empty    ${E2E_EC_NAME}    Step 1 must run first — EC name is empty.
     Should Not Be Empty    ${E2E_BU_NAME}    Step 1 must run first — BU name is empty.
     Log    Waiting 5 minutes for backend to process onboarded account...    console=yes
@@ -251,38 +268,38 @@ STEP_01B
         E2E Verify Account On UI    ${E2E_EC_NAME}    ${E2E_BU_NAME}
     END
 
-STEP_02
+TC_E2E_003
     Should Not Be Empty    ${E2E_EC_NAME}    Step 1 must run first — EC name is empty.
     E2E Create APN    ${E2E_EC_NAME}    ${E2E_BU_NAME}
 
-STEP_03
+TC_E2E_004
     Should Not Be Empty    ${E2E_EC_NAME}    Step 1 must run first — EC name is empty.
     E2E Create CSR Journey    ${E2E_EC_NAME}    ${E2E_BU_NAME}
 
-STEP_04
+TC_E2E_005
     E2E Create SIM Range
 
-STEP_05
+TC_E2E_006
     Should Not Be Empty    ${E2E_EC_NAME}    Step 1 must run first — EC name is empty.
     E2E Create Product Type And Assign EC    ${E2E_EC_NAME}
 
-STEP_05B
+TC_E2E_007
     Should Not Be Empty    ${E2E_EC_NAME}    Step 1 must run first — EC name is empty.
     Should Not Be Empty    ${E2E_BU_NAME}    Step 1 must run first — BU name is empty.
     E2E Expand EC And BU SIM Limits    ${E2E_EC_NAME}    ${E2E_BU_NAME}    10
 
-STEP_06
+TC_E2E_008
     Should Not Be Empty    ${E2E_EC_NAME}    Step 1 must run first — EC name is empty.
     Should Not Be Empty    ${E2E_BU_NAME}    Step 1 must run first — BU name is empty.
     E2E Create SIM Order    ${E2E_EC_NAME}    ${E2E_BU_NAME}
 
-STEP_07
+TC_E2E_009
     Should Not Be Empty    ${E2E_BU_NAME}    Step 1 must run first — BU name is empty.
     ${order_id}=    E2E Capture Order ID    ${E2E_BU_NAME}
     Set Suite Variable    ${E2E_ORDER_ID}    ${order_id}
     Log    Suite variable E2E_ORDER_ID set to: ${E2E_ORDER_ID}    console=yes
 
-STEP_08
+TC_E2E_010
     Should Not Be Empty    ${E2E_EC_NAME}    Step 1 must run first — EC name is empty.
     Should Not Be Empty    ${E2E_BU_NAME}    Step 1 must run first — BU name is empty.
     ${ec_id}    ${bu_id}=    E2E Fetch Account IDs From DB    ${E2E_EC_NAME}    ${E2E_BU_NAME}
@@ -290,38 +307,38 @@ STEP_08
     Set Suite Variable    ${E2E_BU_ID}    ${bu_id}
     Log    EC ID: ${E2E_EC_ID}, BU ID: ${E2E_BU_ID}    console=yes
 
-STEP_09
+TC_E2E_011
     Should Not Be Empty    ${E2E_ORDER_ID}    Step 7 must run first — Order ID is empty.
     ${output}=    E2E Run Create Order Script
     Log    Create order script completed for order ${E2E_ORDER_ID}    console=yes
 
-STEP_10
+TC_E2E_012
     Should Not Be Empty    ${E2E_ORDER_ID}    Step 7 must run first — Order ID is empty.
     E2E Validate Order Status New To In Progress    ${E2E_ORDER_ID}
 
-STEP_11
+TC_E2E_013
     Should Not Be Empty    ${E2E_ORDER_ID}    Step 7 must run first — Order ID is empty.
     E2E Generate And Upload Response Files    ${E2E_ORDER_ID}
 
-STEP_12
+TC_E2E_014
     Should Not Be Empty    ${E2E_ORDER_ID}    Step 7 must run first — Order ID is empty.
     ${output}=    E2E Run Read Order Script
     Log    Read order script completed for order ${E2E_ORDER_ID}    console=yes
 
-STEP_13
+TC_E2E_015
     Should Not Be Empty    ${E2E_ORDER_ID}    Step 7 must run first — Order ID is empty.
     E2E Validate Order Status Completed    ${E2E_ORDER_ID}
 
-STEP_14
+TC_E2E_016
     Should Not Be Empty    ${E2E_BU_NAME}    Step 1 must run first — BU name is empty.
     ${row_count}=    E2E Validate SIMs In Warm State    ${E2E_BU_NAME}
     Log    ${row_count} SIMs in Warm state for BU: ${E2E_BU_NAME}    console=yes
 
-STEP_15
+TC_E2E_017
     Should Not Be Empty    ${E2E_ORDER_ID}    Step 7 must run first — Order ID is empty.
     E2E Update Order Status To Approved    ${E2E_ORDER_ID}
 
-STEP_16
+TC_E2E_018
     Should Not Be Empty    ${E2E_BU_NAME}    Step 1 must run first — BU name is empty.
     ${activated_imsis}    ${imsi_data}=    E2E Activate SIMs And Capture IMSIs    ${E2E_BU_NAME}
     Set Suite Variable    @{E2E_ACTIVATED_IMSIS}    @{activated_imsis}
@@ -340,20 +357,37 @@ STEP_16
         Write Seed Value    e2e_second_activated_imsi    ${_second}
     END
 
-STEP_17
+TC_E2E_019
     ${bu_id_str}=    Convert To String    ${E2E_BU_ID}
     Should Not Be Empty    ${bu_id_str}    Step 8 must run first — BU ID is empty.
     ${local_path}    ${filename}=    E2E Generate And Download Invoice    ${bu_id_str}
     Set Suite Variable    ${E2E_INVOICE_PATH}    ${local_path}
     Log    Invoice downloaded: ${filename} → ${local_path}    console=yes
 
-STEP_18
+TC_E2E_020
     Should Not Be Empty    ${E2E_EC_NAME}    Step 1 must run first — EC name is empty.
     Should Not Be Empty    ${E2E_BU_NAME}    Step 1 must run first — BU name is empty.
     E2E Create Second CSR Journey With Different Plan    ${E2E_EC_NAME}    ${E2E_BU_NAME}
     Log    Step 18 complete: Second CSR Journey created (different APN/device plan).    console=yes
 
-STEP_19
+TC_E2E_021
     Should Not Be Empty    ${E2E_BU_NAME}    Step 1 must run first — BU name is empty.
     E2E Perform Device Plan Change On One Activated SIM And Validate    ${E2E_BU_NAME}
     Log    Step 19 complete: DP change performed and validated on one activated SIM.    console=yes
+
+TC_E2E_SIT_001
+    [Documentation]    Polls Order History every 30s for up to 30 min until order reaches Completed.
+    Should Not Be Empty    ${E2E_ORDER_ID}    Step 9 must run first — Order ID is empty.
+    Should Not Be Empty    ${E2E_BU_NAME}     Step 1 must run first — BU name is empty.
+    Log    SIT: Waiting for order ${E2E_ORDER_ID} to complete automatically (up to 30 min)...    console=yes
+    Wait Until Keyword Succeeds    60x    30s
+    ...    E2E Verify Order Status In History    ${E2E_BU_NAME}    ${E2E_ORDER_ID}    Completed
+    Log    SIT Step: Order ${E2E_ORDER_ID} reached Completed status.    console=yes
+
+TC_E2E_SIT_002
+    [Documentation]    Polls Manage Devices every 30s for up to 30 min until SIMs reach InActive state.
+    Should Not Be Empty    ${E2E_BU_NAME}    Step 1 must run first — BU name is empty.
+    Log    SIT: Waiting for SIMs to reach InActive state automatically (up to 30 min)...    console=yes
+    Wait Until Keyword Succeeds    60x    30s
+    ...    E2E Verify At Least One SIM In State    ${E2E_BU_NAME}    InActive
+    Log    SIT Step: SIMs reached InActive state.    console=yes

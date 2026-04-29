@@ -29,7 +29,7 @@ TC_VAS_001 Verify Edit Device Level VAS Charges Popup Opens
     ...                EXPECTED: Popup opens titled 'Edit Device Level VAS Charges' with fields:
     ...                Device Plan (dropdown, pre-filled), Vas Charge (dropdown, pre-filled),
     ...                End Date (calendar, empty), Amount (pre-filled).
-    [Tags]    feature    regression    vas
+    [Tags]    feature    regression    device-vas    TC_VAS_001
     Scroll To Device Level VAS Charges Section
     Click Edit Icon On First VAS Row
     Verify Edit Device Level VAS Popup Is Open
@@ -41,7 +41,7 @@ TC_VAS_002 Verify Device Plan Dropdown Is Pre-Filled In Edit VAS Popup
     ...                        2) Observe Device Plan field
     ...                EXPECTED: Device Plan dropdown shows the plan name (e.g., SIM-TEST-CSR).
     ...                Field may be read-only or editable as per business rules.
-    [Tags]    feature    regression    vas
+    [Tags]    feature    regression    device-vas    TC_VAS_002
     Open Edit Device Level VAS Popup
     Verify Device Plan Dropdown Is Pre Filled
 
@@ -51,7 +51,7 @@ TC_VAS_003 Verify Amount Field Is Editable For Override
     ...                        2) Enter new amount (e.g., 250.000000)
     ...                        3) Click Save
     ...                EXPECTED: Amount overridden. Row in Device Level VAS table updates to 250.000000 SAR.
-    [Tags]    feature    regression    vas
+    [Tags]    feature    regression    device-vas    TC_VAS_003
     Open Edit Device Level VAS Popup
     Override VAS Amount    250.000000
     Click Save In Edit VAS Popup
@@ -62,7 +62,7 @@ TC_VAS_004 Verify End Date Calendar Picker In Edit VAS Popup
     ...                STEPS: 1) Click End Date field
     ...                        2) Select a future date
     ...                EXPECTED: Selected date shown in End Date; saved correctly on clicking Save.
-    [Tags]    feature    regression    vas
+    [Tags]    feature    regression    device-vas    TC_VAS_004
     Open Edit Device Level VAS Popup
     Pick Future End Date In VAS Popup
     Verify End Date Is Displayed In VAS Popup
@@ -73,7 +73,7 @@ TC_VAS_005 Verify Save Persists The Edited VAS Charge
     ...                STEPS: 1) Change Amount to 250.000000
     ...                        2) Click Save
     ...                EXPECTED: Popup closes. Device Level VAS Charges row reflects 250.000000 SAR.
-    [Tags]    feature    regression    vas
+    [Tags]    feature    regression    device-vas    TC_VAS_005
     Open Edit Device Level VAS Popup
     Override VAS Amount    250.000000
     Click Save In Edit VAS Popup
@@ -85,7 +85,7 @@ TC_VAS_006 Verify Delete Icon Removes The VAS Charge Row
     ...                STEPS: 1) Click red delete (trash) icon on any Device Level VAS row
     ...                        2) Confirm deletion if prompted
     ...                EXPECTED: VAS charge row removed from table; Total charges update accordingly.
-    [Tags]    feature    regression    vas
+    [Tags]    feature    regression    device-vas    TC_VAS_006
     Note VAS Row Count Before Delete
     Click Delete Icon On First VAS Row
     Confirm VAS Delete If Prompted

@@ -1,0 +1,5 @@
+tc_id,tc_name,tags,tariff_plan,bundle_plan,tariff_plan_2,bundle_plan_2
+TC_E2EU_YEARLY,E2E Yearly Plan Duration Scenario,e2e e2e-with-usage plan-duration regression,TP1-QRA-070425_UNLIMITEDPAYG_1,RPP-QRA-070425_1,TP-111-NON-PRORATED,DP-111-NONPRORTAED
+TC_E2EU_HALFYEARLY,E2E Half-Yearly Plan Duration Scenario,e2e e2e-with-usage plan-duration regression,TP1-QRA-070425_UNLIMITEDPAYG_1,HALFYRLY-SIMPLAN-QRA-070425_1,TP-111-NON-PRORATED,DP-111-NONPRORTAED
+TC_E2EU_QUARTERLY,E2E Quarterly Plan Duration Scenario,e2e e2e-with-usage plan-duration regression,TP1-QRA-070425_UNLIMITEDPAYG_1,QUARTERLY-SIMPLAN-QRA-070425_1,TP-111-NON-PRORATED,DP-111-NONPRORTAED
+TC_E2EU_MONTHLY,E2E Monthly Plan Duration Scenario,e2e e2e-with-usage plan-duration regression,TP1-QRA-070425_UNLIMITEDPAYG_1,SIMPLAN-QRA-070425_1,TP-111-NON-PRORATED,DP-111-NONPRORTAED

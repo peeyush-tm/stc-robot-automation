@@ -22,7 +22,7 @@
   "BASE_URL": "https://10.121.77.45:8089/",
   "VALID_USERNAME": "ksa_opco",
   "VALID_PASSWORD": "Admin@1234",
-  "BROWSER": "headlesschrome",
+  "BROWSER": "chrome",
   "IMPLICIT_WAIT": "10",
   "PAGE_LOAD_TIMEOUT": "60",
   "DB_HOST": "10.121.77.45",

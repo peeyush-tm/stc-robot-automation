@@ -2,7 +2,7 @@
 
 Automated UI and API test suite for the **STC CMP (Connectivity Management Platform)** built with **Robot Framework** and **SeleniumLibrary**, covering end-to-end order lifecycles, CRUD operations on all CMP modules, and API-level subscriber onboarding.
 
-- **Total Test Cases:** 500+ (ordered in `tasks.csv`)
+- **Total Test Cases:** 658 (ordered in `tasks.csv`)
 - **Application:** STC CMP Web Application (React SPA)
 - **Framework:** Robot Framework + SeleniumLibrary + DatabaseLibrary + SSHLibrary + RequestsLibrary
 - **Language:** Python 3.9+
@@ -49,8 +49,8 @@ stc-automation/
 ├── tests/                         # Robot Framework test suites (31 files)
 │   ├── login_tests.robot
 │   ├── sanity_tests.robot                # 48 page-load sanity checks
-│   ├── e2e_flow.robot                    # E2E Flow A (17 steps)
-│   ├── e2e_flow_with_usage.robot         # E2E Flow B (20 steps + usage)
+│   ├── e2e_flow.robot                    # E2E Flow A (21 steps, TC_E2E_001-021)
+│   ├── e2e_flow_with_usage.robot         # E2E Flow B (23 steps, TC_E2EU_001-023)
 │   ├── payg_data_usage_tests.robot       # PAYG multi-scenario usage tests
 │   ├── csr_journey_feature_tests.robot   # 213 deep UI tests — CSR Journey wizard
 │   ├── manage_devices_feature_tests.robot # 43 UI tests — Manage Devices grid
@@ -122,8 +122,8 @@ python run_tests.py --suite "Label" --env qe
 
 ### E2E Flows
 ```bash
-python run_tests.py --e2e --env qe                    # Flow A: 17 steps
-python run_tests.py --e2e-with-usage --env qe          # Flow B: 20 steps + usage
+python run_tests.py --e2e --env qe                    # Flow A: 21 steps (TC_E2E_001-021)
+python run_tests.py --e2e-with-usage --env qe          # Flow B: 23 steps (TC_E2EU_001-023)
 python run_tests.py --e2e --with-crud --env qe          # E2E + Role/User CRUD
 ```
 
@@ -172,36 +172,33 @@ python run_tests.py --e2e --env qe --email
 
 ## Test Modules
 
-**30 suites, 800+ test cases.** Core modules cover end-to-end CMP flows. Feature suites provide deep UI coverage for specific pages.
+**30 suites, 658 test cases.** Core modules cover end-to-end CMP flows. Feature suites provide deep UI coverage for specific pages.
 
 ### Core Modules (25 suites)
 | # | Module | Suite File | Test Cases | Tags |
 |---|--------|-----------|------------|------|
 | 1 | Login | login_tests.robot | 12 | login, security |
 | 2 | Sanity | sanity_tests.robot | 48 | sanity, smoke |
-| 3 | Onboard Customer API | onboard_customer_api_tests.robot | 40 | api, soap, onboard |
-| 4 | APN | apn_tests.robot | 22 | apn, service |
+| 3 | Onboard Customer API | onboard_customer_api_tests.robot | 38 | onboard |
+| 4 | APN | apn_tests.robot | 65 | apn |
 | 5 | SIM Range | sim_range_tests.robot | 21 | sim-range |
 | 6 | SIM Range MSISDN | sim_range_msisdn_tests.robot | 26 | sim-range-msisdn |
 | 7 | SIM Order | sim_order_tests.robot | 21 | sim-order |
 | 8 | IP Pool | ip_pool_tests.robot | 17 | ip-pool |
 | 9 | IP Whitelist | ip_whitelist_tests.robot | 20 | ip-whitelist |
-| 10 | Device State | device_state_tests.robot | 16 | device-state |
-| 11 | Device Plan | device_plan_tests.robot | 11 | device-plan |
-| 12 | Cost Center | cost_center_tests.robot | 26 | cost-center |
-| 13 | CSR Journey | csr_journey_tests.robot | 56 | csr-journey |
-| 14 | Product Type | product_type_tests.robot | 18 | product-type |
-| 15 | Rule Engine | rule_engine_tests.robot | 28 | rule-engine |
-| 16 | Role Management | role_management_tests.robot | 33 | role-management |
-| 17 | User Management | user_management_tests.robot | 45 | user-management |
-| 18 | Label | label_tests.robot | 28 | label |
-| 19 | Report | report_tests.robot | 14 | report |
-| 20 | SIM Movement | sim_movement_tests.robot | 6 | sim-movement |
-| 21 | SIM Replacement | sim_replacement_tests.robot | 8 | sim-replacement |
-| 22 | PAYG Data Usage | payg_data_usage_tests.robot | 40+ | payg, usage |
-| 23 | E2E Flow A | e2e_flow.robot | 17 | e2e |
-| 24 | E2E Flow B | e2e_flow_with_usage.robot | 20 | e2e, usage |
-| 25 | Role/User CRUD | role_user_crud_tests.robot | 4 | crud |
+| 10 | Cost Center | cost_center_tests.robot | 25 | cost-center |
+| 11 | CSR Journey | csr_journey_tests.robot | 12 | csr-journey |
+| 12 | Product Type | product_type_tests.robot | 18 | product-type |
+| 13 | Rule Engine | rule_engine_tests.robot | 155 | rule-engine |
+| 14 | Role Management | role_management_tests.robot | 33 | role-management |
+| 15 | User Management | user_management_tests.robot | 45 | user-management |
+| 16 | Label | label_tests.robot | 28 | label |
+| 17 | Report | report_tests.robot | 14 | report |
+| 18 | SIM Movement | sim_movement_tests.robot | 6 | sim-movement |
+| 19 | SIM Replacement | sim_replacement_tests.robot | 6 | sim-replacement |
+| 20 | E2E Flow A | e2e_flow.robot | 21 | e2e |
+| 21 | E2E Flow B | e2e_flow_with_usage.robot | 23 | e2e |
+| 22 | Role/User CRUD | role_user_crud_tests.robot | 4 | crud |
 
 ### Feature Suites (5 suites — deep UI coverage per page)
 | # | Module | Suite File | Test Cases | Tags |
@@ -294,10 +291,41 @@ Variable resolution order: seed file > environment variable > config JSON > hard
 ## Conventions
 
 ### Naming
-- Test IDs: `TC_<MODULE>_<NNN>` (e.g., `TC_RE_001`, `TC_IPP_003`)
+- Test IDs: `TC_<MODULE>_<NNN>` (3-digit zero-padded, e.g., `TC_RE_001`, `TC_APN_012`)
 - Keywords: Title Case with spaces (e.g., `Fill Primary Details Tab`)
 - Variables: `UPPER_SNAKE_CASE` for constants, `lower_snake` for locals
 - Locators: `LOC_<MODULE>_<ELEMENT>` (e.g., `LOC_RE_RULE_NAME`)
+
+#### TC ID Module Codes
+| Code | Module |
+|------|--------|
+| `TC_LOGIN_` | Login |
+| `TC_SANITY_` | Sanity |
+| `TC_OCA_` | Onboard Customer API |
+| `TC_APN_` | APN |
+| `TC_SR_` | SIM Range |
+| `TC_SRM_` | SIM Range MSISDN |
+| `TC_SO_` | SIM Order |
+| `TC_IPP_` | IP Pool |
+| `TC_IPW_` | IP Whitelist |
+| `TC_CC_` | Cost Center |
+| `TC_CSRJ_` | CSR Journey |
+| `TC_PT_` | Product Type |
+| `TC_RE_` | Rule Engine |
+| `TC_RM_` | Role Management |
+| `TC_UM_` | User Management |
+| `TC_LBL_` | Label |
+| `TC_RPT_` | Report |
+| `TC_SMOV_` | SIM Movement |
+| `TC_SIMRPL_` | SIM Replacement |
+| `TC_E2E_` | E2E Flow A |
+| `TC_E2EU_` | E2E Flow B (with usage) |
+| `TC_RUCRD_` | Role/User CRUD |
+| `TC_MDEV_` | Manage Devices Feature |
+| `TC_DAPN_` | Device APN Feature |
+| `TC_VAS_` | Device VAS Charges Feature |
+| `TC_SETUP_` | Setup Prerequisite Feature |
+| `TC_CSRJF_` | CSR Journey Feature |
 
 ### Test Structure
 - Each test calls a keyword with matching TC ID

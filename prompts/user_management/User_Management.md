@@ -168,3 +168,129 @@ The **User Management** module allows administrators to create, search, and dele
 - Country and Time Zone dropdowns are Kendo dropdowns; keywords wait for options before selecting.
 - Delete confirmation is a Kendo Dialog; keyword waits for it and clicks the appropriate action button.
 - Boundary strings (5-char, 50-char, 5-digit, 16-digit) are pre-built in the variables file.
+
+---
+
+## HTML Locators Reference
+
+Use these locators directly in test automation or to generate new test cases for any framework.
+
+### Navigation
+
+| Element | HTML Attribute / XPath | Notes |
+|---------|------------------------|-------|
+| Admin sidebar icon | `xpath=//i[contains(@class,'admin-menu-icon')]` | Shared across admin modules |
+| User sub-tab | `xpath=//ul[@id='pageHeading']//a[contains(@href,'/ManageUser')]` | Top nav tab to `/ManageUser` |
+
+### Manage User Grid (List Page — `/ManageUser`)
+
+| Element | HTML Attribute / XPath | Notes |
+|---------|------------------------|-------|
+| Page heading | `xpath=//*[contains(text(),'Users')]` | Page title verification |
+| Grid container | `xpath=//div[contains(@class,'k-grid')]` | Kendo UI data grid |
+| Pagination bar | `xpath=//*[contains(@class,'k-pager-wrap')]` | Kendo pager controls |
+| Search input | `xpath=//input[@placeholder='Enter Search Text']` | Filters users in grid |
+| Create User button | `xpath=//a[@href='/CreateUser']` | Navigates to `/CreateUser` |
+| Grid row cell | `xpath=//td[contains(text(),'USERNAME')]` | Replace `USERNAME` to locate user row |
+| Delete icon (row) | `xpath=//tr[.//td[contains(.,'USERNAME')]]//*[contains(@class,'k-grid-Delete')]` | Replace `USERNAME`; falls back to `@title='Delete User'` or `.fa-trash` |
+
+### Create User Form (`/CreateUser`)
+
+| Element | HTML Name / XPath | Type | Notes |
+|---------|-------------------|------|-------|
+| Account dropdown trigger | `xpath=//input[@name='parentAccount']` | TreeView input | Also `//div[contains(@class,'account-tree-dropdown')]` |
+| Account tree container | `xpath=//div[contains(@id,'showTreeView')]` | Div | Appears after clicking account input |
+| Account tree root expand | `xpath=(//div[contains(@id,'showTreeView')]//span[contains(@class,'k-i-expand')])[1]` | Span | Expands root node |
+| Account root node | `xpath=(//div[contains(@id,'showTreeView')]//span[contains(@class,'k-in')])[1]` | Span | Click to select root account |
+| Account tree search | `xpath=//div[contains(@id,'showTreeView')]//input[contains(@class,'search-textbox')]` | Input | Filter accounts inside tree |
+| Username | `name="userName"` → `xpath=//input[@name='userName']` | Text input | 5–50 chars |
+| First Name | `name="firstName"` → `xpath=//input[@name='firstName']` | Text input | Required |
+| Last Name | `name="lastName"` → `xpath=//input[@name='lastName']` | Text input | Required |
+| Primary Phone | `name="telephoneNumber"` → `xpath=//input[@name='telephoneNumber']` | Text input | 5–16 digits, numeric only |
+| Email Address | `name="emailId"` → `xpath=//input[@name='emailId']` | Email input | Valid email format required |
+| Confirm Email | `name="confirmEmailId"` → `xpath=//input[@name='confirmEmailId']` | Email input | Must match Email Address |
+| User Category | `name="userAccountType"` → `xpath=//select[@name='userAccountType']` | Native select | Optional category dropdown |
+| Role dropdown | `xpath=//div[@data-testid='roleSelectedValueuet']//div[contains(@class,'selectBtn')]` | Custom dropdown | Click to open; then select option |
+| Country dropdown | `xpath=//div[@data-testid='countrySelectedValueuet']//div[contains(@class,'selectBtn')]` | Custom dropdown | Click to open; then select option |
+| Time Zone dropdown | `xpath=//div[@data-testid='timeZoneSelectedValueuet']//div[contains(@class,'selectBtn')]` | Custom dropdown | Click to open; then select option |
+| OTP – SMS checkbox | `name="sms"` → `xpath=//input[@name='sms']` | Checkbox | SMS delivery channel |
+| OTP – Email checkbox | `name="email"` → `xpath=//input[@name='email']` | Checkbox | Email delivery channel |
+| Submit button | `xpath=//a[contains(@class,'btn-custom-color') and normalize-space()='Submit']` | Anchor/button | Submits create form |
+| Close button | `xpath=//input[@type='button' and contains(@class,'btn-cancel-color') and @value='Close']` | Input button | Cancels; also `//a[contains(@href,'ManageUser')]` |
+
+### Delete Confirmation Dialog
+
+| Element | XPath | Notes |
+|---------|-------|-------|
+| Dialog container | `xpath=//div[contains(@class,'confirm-modal')]` | Also `//div[contains(@class,'modal') and contains(@class,'show')]` |
+| Dialog heading | `xpath=//div[contains(@class,'confirm-heading')]` | Title of delete dialog |
+| Dialog body | `xpath=//div[contains(@class,'confirm-body')]` | Confirmation message text |
+| OK / Confirm button | `xpath=//button[contains(text(),'OK')]` | Confirms deletion |
+| Cancel button | `xpath=//button[contains(text(),'Cancel')]` | Keeps user in grid |
+
+### Toast Notifications & Validation Errors
+
+| Element | XPath | Notes |
+|---------|-------|-------|
+| Success toast | `xpath=//*[contains(@class,'toast-success')]` | Also `Toastify__toast--success` |
+| Error toast | `xpath=//*[contains(@class,'toast-error')]` | Also `Toastify__toast--error` |
+| Toast message body | `xpath=//*[contains(@class,'toast-message')]` | Text of any toast |
+| Validation error | `xpath=//*[contains(@class,'alert-danger')]` | Also `.error-message`, `.field-validation-error` |
+
+### Raw HTML Element Summary (for framework-agnostic use)
+
+```html
+<!-- Navigation -->
+<i class="admin-menu-icon">                         <!-- Admin sidebar icon -->
+<ul id="pageHeading"><a href="/ManageUser">User</a> <!-- Top nav tab -->
+
+<!-- List Page Grid -->
+<div class="k-grid">                                <!-- User grid container -->
+<input placeholder="Enter Search Text">             <!-- Grid search filter -->
+<a href="/CreateUser" class="btn btn-custom-color">Create User</a>
+
+<!-- Create Form — Text Inputs -->
+<input name="parentAccount">                        <!-- Account TreeView trigger -->
+<input name="userName">                             <!-- Username (5–50 chars) -->
+<input name="firstName">                            <!-- First Name -->
+<input name="lastName">                             <!-- Last Name -->
+<input name="telephoneNumber">                      <!-- Primary Phone (5–16 digits) -->
+<input name="emailId">                              <!-- Email Address -->
+<input name="confirmEmailId">                       <!-- Confirm Email -->
+<select name="userAccountType">                     <!-- User Category (optional) -->
+
+<!-- Create Form — Custom Dropdowns (data-testid pattern) -->
+<div data-testid="roleSelectedValueuet">            <!-- Role dropdown container -->
+  <div class="selectBtn">...</div>                  <!-- Click to open -->
+</div>
+<div data-testid="countrySelectedValueuet">         <!-- Country dropdown container -->
+  <div class="selectBtn">...</div>
+</div>
+<div data-testid="timeZoneSelectedValueuet">        <!-- Time Zone dropdown container -->
+  <div class="selectBtn">...</div>
+</div>
+
+<!-- OTP Channels (checkboxes — multiple can be selected) -->
+<input type="checkbox" name="sms">                  <!-- SMS OTP channel -->
+<input type="checkbox" name="email">                <!-- Email OTP channel -->
+
+<!-- Buttons -->
+<a class="btn btn-custom-color cursor-pointer">Submit</a>
+<input type="button" class="btn-cancel-color" value="Close">
+
+<!-- Delete -->
+<a class="k-grid-Delete">                           <!-- Delete icon in grid row -->
+<div class="confirm-modal">                         <!-- Confirmation dialog -->
+<button>OK</button>                                 <!-- Confirm delete -->
+<button>Cancel</button>                             <!-- Cancel delete -->
+```
+
+### Dropdown Option XPath Pattern
+
+For **Role**, **Country**, and **Time Zone** custom dropdowns, after clicking the trigger (`selectBtn`), options appear as:
+
+```xpath
+//div[@data-testid='roleSelectedValueuet']//div[contains(@class,'selectDropdown')]//div[contains(@class,'option') and normalize-space()='OPTION_TEXT']
+```
+
+Replace `roleSelectedValueuet` with `countrySelectedValueuet` or `timeZoneSelectedValueuet` as needed.

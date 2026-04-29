@@ -134,3 +134,112 @@ The **Role Management** module allows administrators to create, view, search, an
 - Delete confirmation is a Kendo Dialog; keyword waits for it and clicks the correct button.
 - The "own role" guard (TC_ROLE_027) depends on the logged-in user's role matching the role being deleted — test data must set this up correctly.
 - Boundary strings for 250 and 500 characters are pre-built in the variables file.
+
+---
+
+## HTML Locators Reference
+
+Use these locators directly in test automation or to generate new test cases for any framework.
+
+### Navigation
+
+| Element | HTML Attribute / XPath | Notes |
+|---------|------------------------|-------|
+| Admin sidebar icon | `xpath=//i[contains(@class,'admin-menu-icon')]` | Same icon used across all admin modules |
+| Role & Access tab | `xpath=//a[@href='/ManageRole']` | Top nav link; navigates to `/ManageRole` |
+
+### Manage Role Grid (List Page — `/ManageRole`)
+
+| Element | HTML Attribute / XPath | Notes |
+|---------|------------------------|-------|
+| Grid container | `xpath=//div[contains(@class,'k-grid')]` | Kendo UI grid |
+| Column headers | `xpath=//th[@role='columnheader']` | All column header cells |
+| Pagination bar | `xpath=//*[contains(@class,'k-pager-wrap')]` | Kendo pager |
+| Search input | `xpath=//input[@name='searchValue']` | Filter roles by name; also `//input[@placeholder='Enter Search Text']` |
+| Create Role button | `xpath=//a[contains(@href,'/CreateRole')]` | Navigates to `/CreateRole` |
+| Grid row cell | `xpath=//td[contains(text(),'ROLE_NAME')]` | Replace `ROLE_NAME` with actual role name to locate row |
+| Delete icon (row) | `xpath=//tr[.//td[contains(.,'ROLE_NAME')]]//*[contains(@class,'k-grid-Delete')]` | Replace `ROLE_NAME`; falls back to `@title='Delete'` or `.fa-trash` |
+
+### Create Role Form (`/CreateRole`)
+
+| Element | HTML Name / XPath | Type | Notes |
+|---------|-------------------|------|-------|
+| Account dropdown trigger | `xpath=//input[@name='accountName']` | TreeView input | Also `//div[contains(@class,'TreeViewDropdown')]//input` |
+| Account tree container | `xpath=//div[contains(@id,'showTreeView')]` | Div | Appears after clicking account input |
+| Tree root expand icon | `xpath=(//div[contains(@id,'showTreeView')]//span[contains(@class,'k-i-expand')])[1]` | Span | Expands root node |
+| Tree root node | `xpath=(//div[contains(@id,'showTreeView')]//span[contains(@class,'k-in')])[1]` | Span | Click to select root account |
+| Role Name | `name="roleName"` → `xpath=//input[@name='roleName']` | Text input | Max 250 chars |
+| Description | `name="roleDescription"` → `xpath=//input[@name='roleDescription']` | Text input | Optional; max 500 chars |
+| Data Masking checkbox | `name="accountCheckbox"` → `xpath=//input[@name='accountCheckbox']` | Checkbox | Applies data masking to role |
+| Submit button | `xpath=//a[contains(@class,'btn-custom-color') and normalize-space()='Submit']` | Anchor/button | Submits create form |
+| Close button | `xpath=//input[@type='button' and contains(@class,'btn-cancel-color') and @value='Close']` | Input button | Cancels without saving; also `//a[contains(@href,'ManageRole')]` |
+
+### Permissions Table
+
+| Element | HTML Name / XPath | Notes |
+|---------|-------------------|-------|
+| Permissions wrapper | `xpath=//div[contains(@class,'gc-module-selector-wrapper')]` | Contains all module permission rows |
+| Module permission tables | `xpath=//table[contains(@class,'gc-module-selector-table')]` | One per module group |
+| View permission checkbox (per row) | `name="js-role-view"` → `xpath=//input[@name='js-role-view']` | One per module row |
+| Edit permission checkbox (per row) | `name="js-role-edit"` → `xpath=//input[@name='js-role-edit']` | One per module row |
+| View All header checkbox | `name="js-role-viewheader"` → `xpath=//input[@name='js-role-viewheader']` | Selects all View checkboxes |
+| Edit All header checkbox | `name="js-role-editheader"` → `xpath=//input[@name='js-role-editheader']` | Selects all Edit checkboxes |
+| Permission popup (Tab) | `xpath=//*[@id='openPermissionPopup']` | Opens permission detail popup |
+| Ticketing popup | `xpath=//*[@id='openTicketingPopup']` | Ticketing-specific permissions |
+| Notification popup | `xpath=//*[@id='openNotificationPopup']` | Notification permissions |
+| Roles & Triggers popup | `xpath=//*[@id='openRolesTriggersPopup']` | Role trigger settings |
+| Popup Save button | `xpath=//div[contains(@class,'modal') and contains(@class,'show')]//button[contains(text(),'Save')]` | Inside any permission popup |
+
+### Delete Confirmation Dialog
+
+| Element | XPath | Notes |
+|---------|-------|-------|
+| Dialog container | `xpath=//div[contains(@class,'confirm-modal')]` | Also `//div[contains(@class,'modal') and contains(@class,'show')]` |
+| Dialog body | `xpath=//div[contains(@class,'confirm-body')]` | Confirmation message text |
+| Confirm / OK button | `xpath=//button[normalize-space()='OK']` | Also `//button[contains(text(),'Yes')]` |
+| Cancel button | `xpath=//button[contains(text(),'Cancel')]` | Keeps role in grid |
+
+### Toast Notifications & Validation Errors
+
+| Element | XPath | Notes |
+|---------|-------|-------|
+| Success toast | `xpath=//*[contains(@class,'toast-success')]` | Also `Toastify__toast--success` |
+| Error toast | `xpath=//*[contains(@class,'toast-error')]` | Also `Toastify__toast--error` |
+| Toast message body | `xpath=//*[contains(@class,'toast-message')]` | Text content of any toast |
+| Validation error | `xpath=//*[contains(@class,'alert-danger')]` | Also `.error-message`, `.field-validation-error` |
+
+### Raw HTML Element Summary (for framework-agnostic use)
+
+```html
+<!-- Navigation -->
+<i class="admin-menu-icon">                    <!-- Admin sidebar icon -->
+<a href="/ManageRole">Role &amp; Access</a>    <!-- Top nav tab -->
+
+<!-- List Page Grid -->
+<div class="k-grid">                           <!-- Role grid container -->
+<input name="searchValue" placeholder="Enter Search Text">   <!-- Search -->
+<a href="/CreateRole" class="btn btn-custom-color">Create Role</a>
+
+<!-- Create Form -->
+<input name="accountName">                     <!-- Account TreeView trigger -->
+<input name="roleName">                        <!-- Role Name (max 250) -->
+<input name="roleDescription">                 <!-- Description (max 500, optional) -->
+<input type="checkbox" name="accountCheckbox"> <!-- Data Masking -->
+
+<!-- Permissions Table -->
+<div class="gc-module-selector-wrapper">       <!-- Permissions container -->
+<input name="js-role-view">                    <!-- View permission per row -->
+<input name="js-role-edit">                    <!-- Edit permission per row -->
+<input name="js-role-viewheader">              <!-- View All header toggle -->
+<input name="js-role-editheader">              <!-- Edit All header toggle -->
+
+<!-- Buttons -->
+<a class="btn btn-custom-color cursor-pointer">Submit</a>
+<input type="button" class="btn-cancel-color" value="Close">
+
+<!-- Delete -->
+<a class="k-grid-Delete">                      <!-- Delete icon in grid row -->
+<div class="confirm-modal">                    <!-- Confirmation dialog -->
+<button>OK</button>                            <!-- Confirm delete -->
+<button>Cancel</button>                        <!-- Cancel delete -->
+```

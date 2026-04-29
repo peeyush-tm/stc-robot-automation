@@ -23,52 +23,52 @@ TC_SRM_001 Create MSISDN SIM Range Happy Path
     [Documentation]    Full E2E: Login > Admin > SIM Range > MSISDN tab > Create >
     ...                fill header > add MSISDN range > verify Pool Count > Submit >
     ...                verify success toast and redirect.
-    [Tags]    smoke    regression    positive    sim_range
+    [Tags]    smoke    regression    positive    TC_SRM_001
     TC_SRM_001
 
 TC_SRM_002 Verify MSISDN Tab Selection Shows Grid
     [Documentation]    Navigate to SIM Range and verify the MSISDN tab loads the grid.
-    [Tags]    smoke    regression    positive    sim_range
+    [Tags]    smoke    regression    positive    TC_SRM_002
     TC_SRM_002
 
 TC_SRM_003 Verify Create MSISDN SIM Range Page Elements Visible
     [Documentation]    Navigate to Create SIM Range (MSISDN) and verify all primary fields are present.
-    [Tags]    smoke    regression    positive    sim_range
+    [Tags]    smoke    regression    positive    TC_SRM_003
     TC_SRM_003
 
 TC_SRM_004 Verify Assets Type Is Hidden For MSISDN Flow
     [Documentation]    When navigating via ?currentTab=1, Assets Type dropdown should be hidden.
-    [Tags]    regression    positive    sim_range
+    [Tags]    regression    positive    TC_SRM_004
     TC_SRM_004
 
 TC_SRM_005 Verify Pool Count Auto Calculated After Adding MSISDN Range
     [Documentation]    Add a MSISDN range and verify Pool Count auto-calculates.
-    [Tags]    regression    positive    sim_range
+    [Tags]    regression    positive    TC_SRM_005
     TC_SRM_005
 
 TC_SRM_006 Verify Pool Count Is Zero Before Adding MSISDN Range
     [Documentation]    On the Create form, Pool Count should be 0 before any range is added.
-    [Tags]    regression    positive    sim_range
+    [Tags]    regression    positive    TC_SRM_006
     TC_SRM_006
 
 TC_SRM_007 Verify Pool Count Field Is Disabled
     [Documentation]    Pool Count should always be read-only (disabled).
-    [Tags]    regression    positive    sim_range
+    [Tags]    regression    positive    TC_SRM_007
     TC_SRM_007
 
 TC_SRM_008 Verify MSISDN Range Grid Shows Entry After Adding
     [Documentation]    Add a MSISDN range and verify the grid shows at least one row.
-    [Tags]    regression    positive    sim_range
+    [Tags]    regression    positive    TC_SRM_008
     TC_SRM_008
 
 TC_SRM_009 Verify Cancel Button Redirects To SIM Range List
     [Documentation]    Click Close on Create MSISDN SIM Range page and verify redirect to /SIMRange.
-    [Tags]    regression    positive    sim_range    navigation
+    [Tags]    regression    positive    TC_SRM_009
     TC_SRM_009
 
 TC_SRM_010 Verify SIM Category Selection For MSISDN
     [Documentation]    If SIM Category dropdown is visible, verify it accepts a selection.
-    [Tags]    regression    positive    sim_range
+    [Tags]    regression    positive    TC_SRM_010
     TC_SRM_010
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -78,23 +78,23 @@ TC_SRM_010 Verify SIM Category Selection For MSISDN
 TC_SRM_011 Submit Disabled When Pool Name Empty
     [Documentation]    Leave Pool Name blank, fill all other fields and add range.
     ...                Submit should be disabled.
-    [Tags]    regression    negative    sim_range
+    [Tags]    regression    negative    TC_SRM_011
     TC_SRM_011
 
 TC_SRM_012 Submit Disabled When Account Not Selected
     [Documentation]    Fill form but skip Account selection. Submit should be disabled.
-    [Tags]    regression    negative    sim_range
+    [Tags]    regression    negative    TC_SRM_012
     TC_SRM_012
 
 TC_SRM_013 Submit Disabled When Description Empty
     [Documentation]    Fill form but leave Description blank. Submit should be disabled.
-    [Tags]    regression    negative    sim_range
+    [Tags]    regression    negative    TC_SRM_013
     TC_SRM_013
 
 TC_SRM_014 Submit Disabled When No MSISDN Range Added
     [Documentation]    Fill all header fields but do not add any MSISDN range.
     ...                Pool Count stays "0" and Submit should be disabled.
-    [Tags]    regression    negative    sim_range
+    [Tags]    regression    negative    TC_SRM_014
     TC_SRM_014
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -103,34 +103,34 @@ TC_SRM_014 Submit Disabled When No MSISDN Range Added
 
 TC_SRM_015 MSISDN From Greater Than To Should Show Error
     [Documentation]    Enter MSISDN From > MSISDN To. Popup Submit should trigger error toast.
-    [Tags]    regression    negative    sim_range    boundary
+    [Tags]    regression    negative    TC_SRM_015
     TC_SRM_015
 
 TC_SRM_016 MSISDN From Below 10 Digits Keeps Popup Submit Disabled
     [Documentation]    Enter MSISDN From with fewer than 10 digits. Popup Submit should stay disabled.
-    [Tags]    regression    negative    sim_range    boundary
+    [Tags]    regression    negative    TC_SRM_016
     TC_SRM_016
 
 TC_SRM_017 MSISDN To Below 10 Digits Keeps Popup Submit Disabled
     [Documentation]    Enter MSISDN To with fewer than 10 digits. Popup Submit should stay disabled.
-    [Tags]    regression    negative    sim_range    boundary
+    [Tags]    regression    negative    TC_SRM_017
     TC_SRM_017
 
 TC_SRM_018 Overlapping MSISDN Range Should Show Error
     [Documentation]    Add a valid MSISDN range, then attempt to add an overlapping range.
     ...                Expect error toast.
-    [Tags]    regression    negative    sim_range    boundary
+    [Tags]    regression    negative    TC_SRM_018
     TC_SRM_018
 
 TC_SRM_019 MSISDN Input Exceeding 15 Digits Gets Truncated
     [Documentation]    Enter a 16-digit number in MSISDN From. Verify it is truncated to 15 digits.
-    [Tags]    regression    negative    sim_range    boundary
+    [Tags]    regression    negative    TC_SRM_019
     TC_SRM_019
 
 TC_SRM_020 Close MSISDN Popup Without Submitting Clears Fields
     [Documentation]    Open MSISDN popup, enter values, click Close. Popup should close and
     ...                no range row should be added.
-    [Tags]    regression    negative    sim_range
+    [Tags]    regression    negative    TC_SRM_020
     TC_SRM_020
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -139,22 +139,22 @@ TC_SRM_020 Close MSISDN Popup Without Submitting Clears Fields
 
 TC_SRM_021 SQL Injection In Pool Name Should Be Rejected
     [Documentation]    Enter SQL injection in Pool Name. Verify error or app handles safely.
-    [Tags]    regression    negative    security    sim_range
+    [Tags]    regression    negative    TC_SRM_021
     TC_SRM_021
 
 TC_SRM_022 Special Characters In Pool Name Should Be Rejected
     [Documentation]    Enter special characters in Pool Name. Verify error or app handles safely.
-    [Tags]    regression    negative    security    sim_range
+    [Tags]    regression    negative    TC_SRM_022
     TC_SRM_022
 
 TC_SRM_023 Pool Name Exceeding Max Length Should Be Rejected
     [Documentation]    Enter 51-character Pool Name (max is 50). Verify truncation or error.
-    [Tags]    regression    negative    sim_range    boundary
+    [Tags]    regression    negative    TC_SRM_023
     TC_SRM_023
 
 TC_SRM_024 Description Exceeding Max Length Should Be Rejected
     [Documentation]    Enter 501-character Description (max is 500). Verify truncation or error.
-    [Tags]    regression    negative    sim_range    boundary
+    [Tags]    regression    negative    TC_SRM_024
     TC_SRM_024
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -164,13 +164,13 @@ TC_SRM_024 Description Exceeding Max Length Should Be Rejected
 TC_SRM_025 Direct Access To Create MSISDN SIM Range Without Login
     [Documentation]    Navigate directly to /CreateSIMRange?currentTab=1 without login.
     ...                Verify redirect to login page.
-    [Tags]    regression    negative    security    sim_range    navigation
+    [Tags]    regression    negative    TC_SRM_025
     TC_SRM_025
 
 TC_SRM_026 Direct Access To SIM Range MSISDN Tab Without Login
     [Documentation]    Navigate directly to /SIMRange?currentTab=1 without login.
     ...                Verify redirect to login page.
-    [Tags]    regression    negative    security    sim_range    navigation
+    [Tags]    regression    negative    TC_SRM_026
     TC_SRM_026
 
 

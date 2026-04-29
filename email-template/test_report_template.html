@@ -1,0 +1,202 @@
+<!--
+STC CMP Automation — Test Report Email Template
+Fixed 680px layout — identical rendering in Outlook, Gmail, and mobile.
+-->
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body style="margin:0; padding:0; font-family: 'Segoe UI', Arial, sans-serif; background:#f5f6fa;">
+
+<!--[if mso]>
+<table width="680" cellpadding="0" cellspacing="0" border="0" align="center" style="width:680px;"><tr><td width="680">
+<![endif]-->
+
+<table align="center" width="680" cellpadding="0" cellspacing="0" border="0" style="background:#ffffff; width:680px; min-width:680px; max-width:680px;">
+
+  <!-- Invisible spacer — forces exact width in all email clients -->
+  <tr>
+    <td width="680" style="width:680px; height:0; line-height:0; font-size:0; overflow:hidden;">
+      <div style="width:680px; height:0; line-height:0; font-size:0;">&nbsp;</div>
+    </td>
+  </tr>
+
+  <!-- Header -->
+  <tr>
+    <td width="680" style="width:680px; padding:24px 24px 20px; background-color:#1a237e;">
+      <div style="color:#ffffff; font-size:20px; font-weight:700;">Test Execution Report</div>
+      <div style="color:#ffffff; font-size:16px; font-weight:700; margin-top:6px;">Project: STC CMP Automation Suite</div>
+      <div style="color:#ffffff; font-size:14px; font-weight:700; margin-top:6px;">Client: {CLIENT}</div>
+    </td>
+  </tr>
+
+  <!-- Status Bar -->
+  <tr>
+    <td width="680" style="width:680px; padding:14px 24px; background:#f8f9fc; border-bottom:1px solid #e8eaf0;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td>
+            <div style="font-size:16px; font-weight:700; color:#1a237e;">{TEST_TYPE}</div>
+            <div style="font-size:12px; color:#6b7280; margin-top:4px;">
+              Started: <strong style="color:#374151;">{START_TIME}</strong>
+              <span style="color:#d1d5db;"> | </span>
+              Triggered: <strong style="color:#374151;">{TRIGGERED_BY}</strong>
+            </div>
+          </td>
+          <td width="80" align="right" valign="top">
+            <div style="padding:3px 10px; border-radius:4px; font-size:11px; font-weight:800; letter-spacing:0.5px; background:{STATUS_BG}; color:{STATUS_COLOR}; border:1px solid {STATUS_COLOR}; display:inline-block;">{STATUS}</div>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <!-- Stats Row -->
+  <tr>
+    <td width="680" style="width:680px; padding:20px 24px 16px;">
+      <table width="632" cellpadding="0" cellspacing="0" border="0" style="width:632px; table-layout:fixed;">
+        <tr>
+          <!-- Left: Total + Pass/Fail/Skip -->
+          <td width="379" style="width:379px;" valign="middle">
+            <table width="379" cellpadding="0" cellspacing="0" border="0" style="width:379px;">
+              <tr>
+                <td width="80" align="center" valign="middle" style="width:80px;">
+                  <div style="font-size:42px; font-weight:700; color:#1a237e; line-height:1;">{TOTAL}</div>
+                  <div style="font-size:9px; color:#6b7280; text-transform:uppercase; letter-spacing:1px; margin-top:3px;">TOTAL</div>
+                </td>
+                <td valign="middle" style="padding-left:20px;">
+                  <div style="margin-bottom:8px;">
+                    <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#27ae60; vertical-align:middle;"></span>
+                    <strong style="font-size:13px; color:#374151; margin-left:8px;">PASSED</strong>
+                    <span style="font-size:14px; font-weight:700; color:#27ae60; margin-left:12px;">{PASSED}</span>
+                    <span style="font-size:12px; color:#6b7280; margin-left:6px;">({PASS_PCT}%)</span>
+                  </div>
+                  <div style="margin-bottom:8px;">
+                    <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#e74c3c; vertical-align:middle;"></span>
+                    <strong style="font-size:13px; color:#374151; margin-left:8px;">FAILED</strong>
+                    <span style="font-size:14px; font-weight:700; color:#e74c3c; margin-left:16px;">{FAILED}</span>
+                    <span style="font-size:12px; color:#6b7280; margin-left:6px;">({FAIL_PCT}%)</span>
+                  </div>
+                  <div>
+                    <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#f39c12; vertical-align:middle;"></span>
+                    <strong style="font-size:13px; color:#374151; margin-left:8px;">SKIPPED</strong>
+                    <span style="font-size:14px; font-weight:700; color:#f39c12; margin-left:10px;">{SKIPPED_DISPLAY}</span>
+                    <span style="font-size:12px; color:#6b7280; margin-left:6px;">{SKIPPED_PCT_DISPLAY}</span>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </td>
+          <!-- Right: Pass Rate + Env -->
+          <td width="253" style="width:253px;" align="center" valign="middle">
+            <table width="253" cellpadding="0" cellspacing="0" border="0" style="width:253px;" align="center">
+              <tr>
+                <td align="center">
+                  <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:16px 12px; text-align:center; width:229px;">
+                    <div style="font-size:32px; font-weight:800; color:#16a34a; line-height:1; text-align:center;">{PASS_PCT}%</div>
+                    <div style="font-size:9px; color:#6b7280; text-transform:uppercase; letter-spacing:1px; margin-top:5px; text-align:center;">Pass Rate</div>
+                    <div style="font-size:10px; color:#16a34a; margin-top:6px; font-weight:600; text-align:center;">{TREND_ARROW} {TREND_TEXT}</div>
+                  </div>
+                  <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:8px 10px; margin-top:8px; text-align:center; width:229px;">
+                    <div style="font-size:10px; color:#1a237e; text-transform:uppercase; letter-spacing:0.5px; font-weight:700; text-align:center;">{ENV_LABEL}</div>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <!-- Execution Distribution -->
+  <tr>
+    <td width="680" style="width:680px; padding:0 24px 12px;">
+      <div style="border:1px solid #e8eaf0; border-radius:6px; padding:10px 12px;">
+        <div style="font-size:9px; color:#6b7280; text-transform:uppercase; letter-spacing:0.5px; font-weight:600; margin-bottom:6px;">Execution Distribution</div>
+        <div style="width:100%; height:10px; background:#e5e7eb; border-radius:5px; overflow:hidden;">
+          <div style="height:100%; width:{PASS_PCT}%; background:#27ae60; float:left;"></div>
+          <div style="height:100%; width:{FAIL_PCT}%; background:#e74c3c; float:left;"></div>
+          <div style="height:100%; width:{SKIP_PCT}%; background:#f39c12; float:left;"></div>
+        </div>
+        <div style="font-size:10px; color:#6b7280; margin-top:4px;">
+          <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#27ae60; vertical-align:middle;"></span> Passed ({PASS_PCT}%)
+          &nbsp;&nbsp;
+          <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#e74c3c; vertical-align:middle;"></span> Failed ({FAIL_PCT}%)
+          &nbsp;&nbsp;
+          <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#f39c12; vertical-align:middle;"></span> Skipped ({SKIP_PCT}%)
+        </div>
+      </div>
+    </td>
+  </tr>
+
+  <!-- Execution Time -->
+  <tr>
+    <td width="680" style="width:680px; padding:0 24px 16px;">
+      <div style="border:1px solid #e8eaf0; border-radius:6px; padding:10px 12px;">
+        <div style="font-size:9px; color:#6b7280; text-transform:uppercase; letter-spacing:0.5px; font-weight:600; margin-bottom:4px;">Execution Time</div>
+        <span style="font-size:18px; font-weight:800; color:#1a237e;">{DURATION_SMART}</span>
+        <span style="font-size:12px; font-weight:700; color:{DURATION_LABEL_COLOR}; margin-left:8px;">({DURATION_LABEL})</span>
+        <div style="font-size:11px; color:#6b7280; margin-top:3px;">
+          Avg/Test: <strong style="color:#374151;">{DURATION_AVG}</strong>
+          <span style="margin-left:12px;">{DURATION_COMPARE}</span>
+        </div>
+      </div>
+    </td>
+  </tr>
+
+  <!-- Metadata -->
+  <tr>
+    <td width="680" style="width:680px; padding:0 24px 16px;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #e8eaf0; padding-top:10px;">
+        <tr>
+          <td style="padding:4px 0; width:140px; color:#6b7280; text-transform:uppercase; font-size:10px; letter-spacing:0.5px; font-weight:600;">App Environment</td>
+          <td style="padding:4px 0; font-size:12px; color:#1f2937; font-weight:500;">{ENV_LABEL}</td>
+        </tr>
+        <tr>
+          <td style="padding:4px 0; color:#6b7280; text-transform:uppercase; font-size:10px; letter-spacing:0.5px; font-weight:600;">Test Type</td>
+          <td style="padding:4px 0; font-size:12px; color:#1f2937; font-weight:500;">{TEST_TYPE}</td>
+        </tr>
+        <tr>
+          <td style="padding:4px 0; color:#6b7280; text-transform:uppercase; font-size:10px; letter-spacing:0.5px; font-weight:600;">Browser</td>
+          <td style="padding:4px 0; font-size:12px; color:#1f2937; font-weight:500;">Linux, Headless Chrome 108</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <!-- Risk Assessment -->
+  <tr>
+    <td width="680" style="width:680px; padding:0 24px;">{RISK_SECTION}</td>
+  </tr>
+
+  <!-- Failed Tests -->
+  <tr>
+    <td width="680" style="width:680px; padding:0 24px;">{FAILED_TESTS_TABLE}</td>
+  </tr>
+
+  <!-- Download note -->
+  <tr>
+    <td width="680" style="width:680px; padding:12px 24px 20px;">
+      <p style="font-size:11px; color:#6b7280; margin:0; font-style:italic;">For the complete report with screenshots, download the attached <strong>report.html</strong>.</p>
+    </td>
+  </tr>
+
+  <!-- Footer -->
+  <tr>
+    <td width="680" style="width:680px; padding:16px 24px; text-align:center; background:#f8f9fc; border-top:1px solid #e8eaf0;">
+      <div style="font-size:10px; color:#9ca3af;">This report was auto-generated by <strong>STC CMP Automation Suite</strong>. You were added as a recipient by the <strong>Airlinq QA</strong> team. To unsubscribe, contact the QA team lead.</div>
+      <div style="margin-top:10px; font-size:9px; color:#9ca3af; text-transform:uppercase; letter-spacing:1px;">POWERED BY</div>
+      <div style="font-size:14px; font-weight:700; color:#4facfe; margin-top:4px; letter-spacing:1px;"><strong>AIRLINQ AUTOMATION</strong></div>
+    </td>
+  </tr>
+
+</table>
+
+<!--[if mso]>
+</td></tr></table>
+<![endif]-->
+
+</body>
+</html>

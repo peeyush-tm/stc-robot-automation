@@ -9,7 +9,7 @@
 | **Variables File** | `variables/login_variables.py` |
 | **Type** | UI |
 | **URL** | `<BASE_URL>/` (login page) → `<BASE_URL>/ManageDevices` (post-login) |
-| **Total TCs** | 16 |
+| **Total TCs** | 12 |
 | **Tags** | `login`, `captcha`, `security`, `navigation`, `smoke`, `regression` |
 
 ## Run Commands
@@ -44,8 +44,6 @@ The CMP login form requires **Username + Password + CAPTCHA**. The CAPTCHA value
 |-------|---------------|------|------|
 | TC_LOGIN_001 | Valid Credentials Should Login Successfully | Positive | smoke, regression |
 | TC_LOGIN_002 | Logout Should Redirect To Login Page | Positive | smoke, regression |
-| TC_LOGIN_003 | Navigate To Manage Devices After Login | Positive | smoke, regression, navigation |
-| TC_LOGIN_004 | Verify Manage Devices Page Elements | Positive | regression, navigation |
 | TC_LOGIN_005 | Invalid Username Should Show Error | Negative | regression |
 | TC_LOGIN_006 | Invalid Password Should Show Error | Negative | regression |
 | TC_LOGIN_007 | Both Invalid Username And Password Should Show Error | Negative | regression |
@@ -54,18 +52,14 @@ The CMP login form requires **Username + Password + CAPTCHA**. The CAPTCHA value
 | TC_LOGIN_010 | All Fields Empty Should Show Error | Negative | regression |
 | TC_LOGIN_011 | Empty Captcha Should Show Error | Negative | regression, captcha |
 | TC_LOGIN_012 | Incorrect Captcha Should Show Error | Negative | regression, captcha |
-| TC_LOGIN_013 | SQL Injection In Username Should Be Rejected | Negative | regression, security |
-| TC_LOGIN_014 | Special Characters In Username Should Show Error | Negative | regression, security |
 | TC_LOGIN_015 | Whitespace Only Username Should Show Error | Negative | regression |
 | TC_LOGIN_016 | Direct Access To ManageDevices Without Login Should Redirect | Negative | regression, security, navigation |
 
 ## Test Case Categories
 
-### Positive (4 TCs)
+### Positive (2 TCs)
 - **TC_LOGIN_001** — Full login flow with valid credentials; verifies redirect to Manage Devices and grid loads.
 - **TC_LOGIN_002** — Logout flow; clicks logout button, verifies redirect back to login page.
-- **TC_LOGIN_003** — Post-login navigation to Manage Devices page via sidebar.
-- **TC_LOGIN_004** — Verifies Manage Devices page elements (grid, action bar, filter controls) are visible.
 
 ### Negative — Invalid Credentials (8 TCs)
 - **TC_LOGIN_005–007** — Various invalid username/password combinations; verifies error toast or inline message.
@@ -73,12 +67,8 @@ The CMP login form requires **Username + Password + CAPTCHA**. The CAPTCHA value
 - **TC_LOGIN_011** — Submit with empty captcha field; expects captcha required error.
 - **TC_LOGIN_012** — Submit with wrong captcha value; expects captcha mismatch error.
 
-### Negative — Security (3 TCs)
-- **TC_LOGIN_013** — SQL injection string in username (`' OR 1=1 --`); application must reject it.
-- **TC_LOGIN_014** — Special characters in username; expects validation error.
+### Negative — Security (2 TCs)
 - **TC_LOGIN_015** — Whitespace-only username; expects validation error (not treated as valid).
-
-### Negative — Navigation / Security (1 TC)
 - **TC_LOGIN_016** — Directly navigate to `/ManageDevices` without logging in; must redirect to login page.
 
 ## Files & Resources

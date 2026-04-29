@@ -119,13 +119,15 @@ Open Test Browser
         ${hw}=    Evaluate    __import__('os').environ.get('STC_CHROME_HEADED_WINDOW_SIZE','1680,945')
         ${wmax}=    Evaluate    __import__('os').environ.get('STC_CHROME_HEADED_MAXIMIZED','0')
         ${blk}=    Evaluate    __import__('os').environ.get('STC_CHROME_BLOCK_IMAGES','0')
+        Call Method    ${chrome_options}    add_argument    --start-maximized
         Call Method    ${chrome_options}    add_argument    --ignore-certificate-errors
         Call Method    ${chrome_options}    add_argument    --allow-insecure-localhost
+        Call Method    ${chrome_options}    add_argument    --allow-running-insecure-content
+        Evaluate    $chrome_options.add_argument('--unsafely-treat-insecure-origin-as-secure=https://10.121.77.45:8089')
+        Call Method    ${chrome_options}    add_argument    --test-type
+        Call Method    ${chrome_options}    add_argument    --disable-web-security
         Call Method    ${chrome_options}    add_argument    --disable-extensions
         Call Method    ${chrome_options}    add_argument    --disable-dev-shm-usage
-        Call Method    ${chrome_options}    add_argument    --disable-background-networking
-        Call Method    ${chrome_options}    add_argument    --disable-gpu
-        Call Method    ${chrome_options}    add_argument    --disable-gpu-compositing
         Call Method    ${chrome_options}    add_argument    --no-sandbox
         Call Method    ${chrome_options}    add_argument    --mute-audio
         Call Method    ${chrome_options}    add_argument    --no-first-run
@@ -153,16 +155,14 @@ Open Test Browser
         # Set script timeout to 120s so long JS polls (rule creation, async waits) don't abort at 30s default
         ${sl}=    Get Library Instance    SeleniumLibrary
         Evaluate    $sl.driver.set_script_timeout(120)
-        # Don't Maximize — Chrome 147 rejects set_window_size when window state is 'maximized'.
-        # Explicit set_window_size gives a deterministic viewport across local/CI.
-        ${cw}=    Evaluate    __import__('os').environ.get('STC_CHROME_HEADED_WINDOW_SIZE','1680,945')
-        ${cw_w}=    Evaluate    int("${cw}".split(",")[0])
-        ${cw_h}=    Evaluate    int("${cw}".split(",")[1])
-        Evaluate    $sl.driver.set_window_size(${cw_w}, ${cw_h})
+        Evaluate    $sl.driver.maximize_window()
         ${chrome_actual}=    Execute Javascript    return JSON.stringify({w: window.innerWidth, h: window.innerHeight});
-        Log    CHROME VIEWPORT: target=${cw_w}x${cw_h}, actual=${chrome_actual}    console=yes
+        Log    CHROME VIEWPORT (maximized): actual=${chrome_actual}    console=yes
         Install Global Page Size Limiter
         Go To Url With Connection Retries    ${url}
+        ${page_title}=    Execute Javascript    return document.title || '(no title)';
+        ${page_url}=    Execute Javascript    return location.href;
+        Log    PAGE AFTER OPEN: title=${page_title} url=${page_url}    console=yes    level=WARN
         Inject Grid Oom Patch Into Current Page
     ELSE IF    '${browser}' == 'firefox'
         Open Browser    about:blank    ${browser}

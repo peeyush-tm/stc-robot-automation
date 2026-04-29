@@ -9,7 +9,7 @@
 | **Variables File** | `variables/apn_variables.py` |
 | **Type** | UI |
 | **URLs** | `<BASE_URL>/ManageAPN` (list), `<BASE_URL>/CreateAPN` (create form) |
-| **Total TCs** | 22 |
+| **Total TCs** | 65 |
 | **Tags** | `apn`, `qos`, `boundary`, `security`, `navigation`, `smoke`, `regression` |
 
 ## Run Commands
@@ -55,6 +55,49 @@ The **Create APN** module allows users to create Access Point Names (APNs) with 
 | TC_APN_020 | HLR APN ID Exceeding 19 Digits Should Show Error | Negative | regression, apn, boundary |
 | TC_APN_021 | Direct Access To Create APN Without Login Should Redirect | Negative | regression, security, apn, navigation |
 | TC_APN_022 | Direct Access To Manage APN Without Login Should Redirect | Negative | regression, security, apn, navigation |
+| TC_APN_023 | Verify APN List Page Loads With Correct Columns | Positive | regression, apn |
+| TC_APN_024 | Verify Search Filters APN Records | Positive | regression, apn |
+| TC_APN_025 | Verify Pagination Controls Navigate Correctly | Positive | regression, apn |
+| TC_APN_026 | Verify CSV Export Downloads File | Positive | regression, apn |
+| TC_APN_027 | Verify Column Sorting Ascending And Descending | Positive | regression, apn |
+| TC_APN_028 | Verify Column Filter Applies And Clears Correctly | Positive | regression, apn |
+| TC_APN_029 | Verify APN Record Can Be Deleted | Positive | regression, apn |
+| TC_APN_030 | Verify Edit Icon Opens Pre-populated APN Form | Positive | regression, apn |
+| TC_APN_031 | Verify Create APN Button Navigates To Create Form | Positive | regression, apn |
+| TC_APN_032 | Verify APN Type Public Dropdown Options | Positive | regression, apn |
+| TC_APN_033 | Verify APN Type Private Dropdown With Account Options | Positive | regression, apn |
+| TC_APN_034 | Verify All IP Address Type Options Are Selectable | Positive | regression, apn |
+| TC_APN_035 | Verify All APN Service Type Options Are Selectable | Positive | regression, apn |
+| TC_APN_036 | Verify Roaming Toggle Can Be Enabled And Disabled | Positive | regression, apn |
+| TC_APN_037 | Verify Secondary Details Section Expands With Fields | Positive | regression, apn |
+| TC_APN_038 | Verify Quality Of Service Section Expands With Fields | Positive | regression, apn |
+| TC_APN_039 | Duplicate APN ID Should Show Error | Negative | regression, apn |
+| TC_APN_040 | APN ID With Non-Numeric Characters Should Be Rejected | Negative | regression, apn |
+| TC_APN_041 | Verify Auto Created APNs Visible In APN List | Positive | regression, apn |
+| TC_APN_042 | Verify IP Allocation Static Shows Subnet Mask Section | Positive | regression, apn |
+| TC_APN_043 | Verify Dynamic IP Allocation Hides Subnet Section | Positive | regression, apn |
+| TC_APN_044 | Verify Subnet Mask Section Expands For Static Allocation | Positive | regression, apn |
+| TC_APN_045 | Create Public APN With Static Dual Stack Subnets E2E | Positive | regression, apn |
+| TC_APN_046 | Static IP Without Subnet Mask Should Show Validation Error | Negative | regression, apn |
+| TC_APN_047 | Verify Subnet Section Matches Selected IP Address Type | Positive | regression, apn |
+| TC_APN_048 | Verify IPV4 Subnet Mask Manual Entry And Calculate | Positive | regression, apn |
+| TC_APN_049 | Verify Invalid IPV4 Address Shows Validation Error | Negative | regression, apn |
+| TC_APN_050 | Verify IPV4 Prefix Dropdown Contains Valid CIDR Options | Positive | regression, apn |
+| TC_APN_051 | Verify Multiple IPV4 Subnet Masks Can Be Added | Positive | regression, apn |
+| TC_APN_052 | Verify Delete Icon Removes IPV4 Subnet Mask Row | Positive | regression, apn |
+| TC_APN_053 | Verify CSV Upload Imports IPV4 Subnet Entries | Positive | regression, apn |
+| TC_APN_054 | Verify Invalid CSV Upload Shows Error For IPV4 Subnets | Negative | regression, apn |
+| TC_APN_055 | Verify IPV6 Subnet Mask Entry And Calculate | Positive | regression, apn |
+| TC_APN_056 | Verify Invalid IPV6 Address Shows Validation Error | Negative | regression, apn |
+| TC_APN_057 | Verify IPV6 Prefix Dropdown Contains Valid CIDR Options | Positive | regression, apn |
+| TC_APN_058 | Verify Multiple IPV6 Subnet Masks Can Be Added | Positive | regression, apn |
+| TC_APN_059 | Verify Delete Icon Removes IPV6 Subnet Row | Positive | regression, apn |
+| TC_APN_060 | Verify CSV Upload Imports IPV6 Subnet Entries | Positive | regression, apn |
+| TC_APN_061 | Verify Total Host IPV4 Count Sums Correctly | Positive | regression, apn |
+| TC_APN_062 | Verify Total Host IPV6 Count Sums Correctly | Positive | regression, apn |
+| TC_APN_063 | Verify Subnet Section Collapse Expand Retains Data | Positive | regression, apn |
+| TC_APN_064 | Verify Change Prefix And Recalculate Updates Host Range | Positive | regression, apn |
+| TC_APN_065 | Verify Edge CIDR Values For IPV4 Subnet Boundaries | Positive | regression, apn, boundary |
 
 ## Test Case Categories
 

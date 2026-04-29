@@ -146,7 +146,18 @@ Select Custom Dropdown Option
         Clear Element Text    ${search_input_locator}
         Input Text    ${search_input_locator}    ${search_text}
     END
-    Wait Until Element Is Visible    ${options_locator}    timeout=10s
+    ${opts_visible}=    Run Keyword And Return Status
+    ...    Wait Until Element Is Visible    ${options_locator}    timeout=30s
+    IF    not ${opts_visible}
+        # Retry: click button again in case dropdown closed
+        Execute Javascript    arguments[0].click();    ARGUMENTS    ${btn_el}
+        IF    "${search_text}" != "${EMPTY}" and "${search_input_locator}" != "${EMPTY}"
+            Wait Until Element Is Visible    ${search_input_locator}    timeout=8s
+            Clear Element Text    ${search_input_locator}
+            Input Text    ${search_input_locator}    ${search_text}
+        END
+        Wait Until Element Is Visible    ${options_locator}    timeout=30s
+    END
     ${all_options}=    Get WebElements    ${options_locator}
     ${target_index}=    Evaluate    ${index} - 1
     ${option_el}=    Set Variable    ${all_options}[${target_index}]

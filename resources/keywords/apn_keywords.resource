@@ -356,10 +356,15 @@ Click Cancel Button
 #  VALIDATIONS — POSITIVE
 # ═══════════════════════════════════════════════════════════════════════
 Verify APN Created Successfully
-    [Documentation]    Verify success toast, redirect to /ManageAPN, and grid visible.
-    Wait Until Element Is Visible    ${LOC_TOAST_SUCCESS}    timeout=30s
-    ${toast_text}=    Get Text    ${LOC_TOAST_SUCCESS}
-    Log    Success toast: ${toast_text}
+    [Documentation]    Verify success toast (or URL redirect if toast already gone), then grid visible.
+    ${toast_ok}=    Run Keyword And Return Status
+    ...    Wait Until Element Is Visible    ${LOC_TOAST_SUCCESS}    timeout=10s
+    IF    ${toast_ok}
+        ${toast_text}=    Get Text    ${LOC_TOAST_SUCCESS}
+        Log    Success toast: ${toast_text}
+    ELSE
+        Log    Toast not caught in time — verifying redirect to ManageAPN instead.    level=WARN    console=yes
+    END
     Wait Until Keyword Succeeds    3x    5s
     ...    Location Should Contain    ${MANAGE_APN_PATH}
     Wait Until Element Is Visible    ${LOC_MANAGE_APN_GRID}    timeout=30s

@@ -12,10 +12,11 @@ Resource    ../locators/login_locators.resource
 #  LOGIN — Suite Setup
 # ═══════════════════════════════════════════════════════════════════════
 Login For Sanity Suite
-    [Documentation]    Opens browser, logs in, sets up sanity report folder, waits for post-login page.
-    ...                If SANITY_REPORT_DIR is passed via --variable (e.g. from run_tests.py),
-    ...                that folder is used directly (all RF output already goes there).
-    ...                Otherwise a new STC_Sanity_Automation/<timestamp>/ folder is created.
+    [Documentation]    Opens browser, sets up sanity report folder, and handles login.
+    ...                Headed mode  : opens browser, prompts user to log in manually
+    ...                               (supports captcha + OTP). Waits up to 5 min for
+    ...                               ManageDevices grid to load before proceeding.
+    ...                Headless mode: falls back to automated login (no visible window).
     ${dir_passed}=    Run Keyword And Return Status
     ...    Should Not Be Empty    ${SANITY_REPORT_DIR}
     IF    not ${dir_passed}
@@ -31,11 +32,45 @@ Login For Sanity Suite
     Set Suite Variable    ${SANITY_CSV_PATH}    ${csv_path}
     Set Suite Variable    ${SANITY_TC_COUNTER}    ${0}
     Log    Sanity output folder: ${SANITY_REPORT_DIR}
-    Open Browser And Navigate    ${BASE_URL}    ${BROWSER}
-    Login With Credentials    ${VALID_USERNAME}    ${VALID_PASSWORD}
-    Wait Until Element Is Visible    ${LOC_MD_GRID_DATA}          timeout=45s
-    Wait Until Element Is Visible    ${LOC_POST_LOGIN_LANDMARK}   timeout=30s
-    Log    Sanity Suite: Login successful.
+    ${is_headless}=    Evaluate    '${BROWSER}'.lower() == 'headlesschrome'
+    ${is_sit}=        Evaluate    '${ENV}'.lower() == 'sit'
+    IF    ${is_sit} and not ${is_headless}
+        Log    SIT + headed mode — manual login required.    console=yes
+        Manual Login For Sanity Suite
+    ELSE
+        Log    Automated login (env=${ENV}, browser=${BROWSER}).    console=yes
+        Open Browser And Navigate    ${BASE_URL}    ${BROWSER}
+        Login With Credentials    ${VALID_USERNAME}    ${VALID_PASSWORD}
+        Wait Until Element Is Visible    ${LOC_MD_GRID_DATA}          timeout=45s
+        Wait Until Element Is Visible    ${LOC_POST_LOGIN_LANDMARK}   timeout=30s
+    END
+    Log    Sanity Suite: Login successful — proceeding with automation.    console=yes
+
+Manual Login For Sanity Suite
+    [Documentation]    Opens a headed browser, navigates to the login page, and waits for
+    ...                the user to manually enter credentials (username, password, captcha)
+    ...                and complete OTP if prompted. Automation resumes once ManageDevices
+    ...                grid is fully loaded (up to 5 minutes wait).
+    Open Test Browser    about:blank    ${BROWSER}
+    Log    \n╔══════════════════════════════════════════════════════════════╗    console=yes
+    Log    ║  MANUAL LOGIN REQUIRED                                       ║    console=yes
+    Log    ║                                                              ║    console=yes
+    Log    ║  Please open the following URL in the browser:               ║    console=yes
+    Log    ║  ${BASE_URL}                                                 ║    console=yes
+    Log    ║                                                              ║    console=yes
+    Log    ║  Then complete the following steps:                          ║    console=yes
+    Log    ║  1. Enter your Username                                      ║    console=yes
+    Log    ║  2. Enter your Password                                      ║    console=yes
+    Log    ║  3. Enter the Captcha text                                   ║    console=yes
+    Log    ║  4. Click Login                                              ║    console=yes
+    Log    ║  5. Enter OTP (if prompted) and submit                       ║    console=yes
+    Log    ║                                                              ║    console=yes
+    Log    ║  Automation will continue once ManageDevices loads.          ║    console=yes
+    Log    ║  Waiting up to 5 minutes...                                  ║    console=yes
+    Log    ╚══════════════════════════════════════════════════════════════╝    console=yes
+    Wait Until Element Is Visible    ${LOC_MD_GRID_DATA}          timeout=300s
+    Wait Until Element Is Visible    ${LOC_POST_LOGIN_LANDMARK}   timeout=60s
+    Log    Manual login completed — ManageDevices grid loaded. Starting sanity automation.    console=yes
 
 # ═══════════════════════════════════════════════════════════════════════
 #  PAGE NAVIGATION
@@ -54,8 +89,15 @@ Navigate To Page
         Run Keyword And Ignore Error    Close All Browsers
         Force Kill Chrome Processes
         Open Test Browser    ${BASE_URL}    ${BROWSER}
-        Login With Credentials    ${VALID_USERNAME}    ${VALID_PASSWORD}
-        Verify Login Success
+        ${is_headless}=    Evaluate    '${BROWSER}'.lower() == 'headlesschrome'
+        ${is_sit}=        Evaluate    '${ENV}'.lower() == 'sit'
+        IF    ${is_sit} and not ${is_headless}
+            Log    Browser crashed — please log in manually again.    level=WARN    console=yes
+            Manual Login For Sanity Suite
+        ELSE
+            Login With Credentials    ${VALID_USERNAME}    ${VALID_PASSWORD}
+            Verify Login Success
+        END
         Go To    ${full_url}
     END
     Wait For App Loading To Complete    timeout=${SANITY_PAGE_LOAD_WAIT}

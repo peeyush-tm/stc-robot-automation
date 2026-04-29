@@ -38,10 +38,10 @@ CRUD Suite Setup
 # ═══════════════════════════════════════════════════════════════════════
 
 *** Test Cases ***
-TC_CRUD_001 Create Role
+TC_RUCRD_001 Create Role
     [Documentation]    Create a new role with account, name, description and permissions.
     ...                Verify success toast and role visible in the grid.
-    [Tags]    positive    crud    role-management    smoke
+    [Tags]    positive    crud    role-management    smoke    TC_RUCRD_001
     [Setup]    Navigate To Manage Role Page
     Open Create Role Form
     Fill Role Creation Form With Permissions    role_name=${CRUD_ROLE_NAME}
@@ -50,25 +50,25 @@ TC_CRUD_001 Create Role
     Refresh Manage Role Page
     Verify Role In Grid    ${CRUD_ROLE_NAME}
     Capture Page Screenshot    crud_role_created_verified.png
-    Log    TC_CRUD_001 PASS: Role '${CRUD_ROLE_NAME}' created and verified in grid.    console=yes
+    Log    TC_RUCRD_001 PASS: Role '${CRUD_ROLE_NAME}' created and verified in grid.    console=yes
 
-TC_CRUD_002 Delete Created Role
-    [Documentation]    Search for the role created in TC_CRUD_001, delete it and verify removal.
+TC_RUCRD_002 Delete Created Role
+    [Documentation]    Search for the role created in TC_RUCRD_001, delete it and verify removal.
     ...                Verify success toast and role no longer in grid.
-    [Tags]    positive    crud    role-management    smoke
+    [Tags]    positive    crud    role-management    smoke    TC_RUCRD_002
     [Setup]    Navigate To Manage Role Page
     Delete Role End To End    ${CRUD_ROLE_NAME}
-    Log    TC_CRUD_002 PASS: Role '${CRUD_ROLE_NAME}' deleted and confirmed removed.    console=yes
+    Log    TC_RUCRD_002 PASS: Role '${CRUD_ROLE_NAME}' deleted and confirmed removed.    console=yes
 
 # ═══════════════════════════════════════════════════════════════════════
 #  USER — CREATE & DELETE (Positive E2E)
 # ═══════════════════════════════════════════════════════════════════════
 
-TC_CRUD_003 Create User
+TC_RUCRD_003 Create User
     [Documentation]    Create a new user with all required fields (account, username, name,
     ...                phone, email, role, country, timezone, OTP SMS).
     ...                Verify success toast and user visible in grid.
-    [Tags]    positive    crud    user-management    smoke
+    [Tags]    positive    crud    user-management    smoke    TC_RUCRD_003
     [Setup]    Navigate To Manage User Page
     Open Create User Form
     Verify Create User Form Loaded
@@ -80,12 +80,12 @@ TC_CRUD_003 Create User
     Navigate Back To Manage User Page
     Verify User In Grid    ${CRUD_USERNAME}
     Capture Page Screenshot    crud_user_created_verified.png
-    Log    TC_CRUD_003 PASS: User '${CRUD_USERNAME}' created and verified in grid.    console=yes
+    Log    TC_RUCRD_003 PASS: User '${CRUD_USERNAME}' created and verified in grid.    console=yes
 
-TC_CRUD_004 Delete Created User
-    [Documentation]    Search for the user created in TC_CRUD_003, delete it and verify removal.
+TC_RUCRD_004 Delete Created User
+    [Documentation]    Search for the user created in TC_RUCRD_003, delete it and verify removal.
     ...                Verify delete success toast and user no longer in grid.
-    [Tags]    positive    crud    user-management    smoke
+    [Tags]    positive    crud    user-management    smoke    TC_RUCRD_004
     [Setup]    Navigate To Manage User Page
     Delete User End To End    ${CRUD_USERNAME}
-    Log    TC_CRUD_004 PASS: User '${CRUD_USERNAME}' deleted and confirmed removed.    console=yes
+    Log    TC_RUCRD_004 PASS: User '${CRUD_USERNAME}' deleted and confirmed removed.    console=yes

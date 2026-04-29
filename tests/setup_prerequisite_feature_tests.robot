@@ -38,7 +38,7 @@ TC_SETUP_001 Verify Create SIM Product Type And Assign To Customer
     ...                EXPECTED: 1) Click on SIM Product Type succeeds.
     ...                          2) SIM Product created successfully.
     ...                          3) SIM Product Type assigned successfully.
-    [Tags]    feature    regression
+    [Tags]    feature    regression    setup    TC_SETUP_001
     Navigate To Product Type Module
     Open Create Product Type Form
     Fill All Mandatory Fields With Defaults
@@ -53,7 +53,7 @@ TC_SETUP_002 Verify SIM Order Created Successfully
     [Documentation]    PRE: Access of SIM Order page.
     ...                STEPS: 1) Create SIM Order.
     ...                EXPECTED: SIM Order created successfully.
-    [Tags]    feature    regression    sim-order
+    [Tags]    feature    regression    setup    TC_SETUP_002
     Navigate To Live Order Via Sidebar
     Click Create SIM Order Button
     Complete Create SIM Order Flow
@@ -63,7 +63,7 @@ TC_SETUP_003 Verify SIM State Changed From Warm To Inactive
     [Documentation]    PRE: Change SIM state from Warm to Test-Ready preceding step.
     ...                STEPS: 1) Change state to Inactive.
     ...                EXPECTED: SIM state changed successfully.
-    [Tags]    feature    regression    device-state
+    [Tags]    feature    regression    setup    TC_SETUP_003
     Navigate To Manage Devices
     Perform Full State Change    Warm    Warm    InActive
     Verify State Change Success And Wait
@@ -72,7 +72,7 @@ TC_SETUP_004 Verify IP Pool Creation (Static APN Pre-Requisite)
     [Documentation]    PRE: Static APN should be created.
     ...                STEPS: 1) Create IP Pool.
     ...                EXPECTED: IP Pool created successfully.
-    [Tags]    feature    regression    ip-pool
+    [Tags]    feature    regression    setup    TC_SETUP_004
     Navigate To IP Pooling Via Service
     Click Create IP Pool Button
     Fill IP Pool Form
