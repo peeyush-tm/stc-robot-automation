@@ -1,10 +1,29 @@
-robotframework
-robotframework-seleniumlibrary
-robotframework-requests
-robotframework-databaselibrary
-robotframework-sshlibrary
-pymysql
-reportlab>=4.0.0,<4.1
-python-docx>=1.0.0
-openpyxl>=3.1.0
-requests
+# ─────────────────────────────────────────────────────────────────────────────
+# STC Automation Framework — Python Dependencies
+# Install: pip install -r requirements.txt
+# Python: 3.9+ recommended (tested on 3.11)
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Robot Framework core ──────────────────────────────────────────────────────
+robotframework==7.0.1
+
+# ── Browser automation ────────────────────────────────────────────────────────
+robotframework-seleniumlibrary==6.3.0
+selenium==4.18.1
+
+# ── HTTP / REST ───────────────────────────────────────────────────────────────
+robotframework-requests==0.9.7
+requests==2.31.0
+
+# ── SSH (used in E2E invoice/order scripts) ───────────────────────────────────
+robotframework-sshlibrary==3.8.0
+
+# ── Database (MySQL via pymysql) ──────────────────────────────────────────────
+robotframework-databaselibrary==1.4.4
+PyMySQL==1.1.0
+
+# ── PDF report generation ─────────────────────────────────────────────────────
+reportlab==4.1.0
+
+# ── Data-driven testing ───────────────────────────────────────────────────────
+robotframework-datadriver==1.11.2
