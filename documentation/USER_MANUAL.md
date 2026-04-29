@@ -553,6 +553,6 @@ pip install -r requirements.txt   # only if requirements changed
 
 ---
 
-**Maintained by:** STC Automation Team — Airlinq  
+**Maintained by:** Akshit Shukla — Airlinq  
 **Automation Server:** 10.221.86.73 · Path: `/opt/Automation/STC`  
 **Last updated:** 2026-04-29
