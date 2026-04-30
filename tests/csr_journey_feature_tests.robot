@@ -193,7 +193,7 @@ TC_CSRJ_117 Verify Field Accepts Special Characters
 
 TC_CSRJ_118 Verify Maximum Character Limit
     [Documentation]    Enter text exceeding max limit — system restricts or shows validation.
-    [Tags]    regression    negative    TC_CSRJ_118
+    [Tags]    feature    regression    negative    TC_CSRJ_118
     Navigate To Standard Services With Tariff And APN
     ${long_text}=    Evaluate    'A' * 200
     Clear And Input Text Into Field    ${LOC_SS_DEVICE_PLAN_INPUT}    ${long_text}
@@ -203,7 +203,7 @@ TC_CSRJ_118 Verify Maximum Character Limit
 
 TC_CSRJ_119 Verify Minimum Character Requirement
     [Documentation]    Enter very short name (1 character) and save — validation message if below min.
-    [Tags]    regression    negative    TC_CSRJ_119
+    [Tags]    feature    regression    negative    TC_CSRJ_119
     Navigate To Standard Services With Tariff And APN
     Clear And Input Text Into Field    ${LOC_SS_DEVICE_PLAN_INPUT}    A
     Log    Single character entered — checking validation on proceed.
@@ -211,7 +211,7 @@ TC_CSRJ_119 Verify Minimum Character Requirement
 
 TC_CSRJ_120 Verify Mandatory Field Validation
     [Documentation]    Leave Device Plan Name empty, click Save — error message for required field.
-    [Tags]    regression    negative    TC_CSRJ_120
+    [Tags]    feature    regression    negative    TC_CSRJ_120
     Navigate To Standard Services With Tariff And APN
     Clear Element Text    ${LOC_SS_DEVICE_PLAN_INPUT}
     Log    Device Plan Name left empty — mandatory field validation expected on save.
@@ -219,7 +219,7 @@ TC_CSRJ_120 Verify Mandatory Field Validation
 
 TC_CSRJ_121 Verify Trimming Of Leading Trailing Spaces
     [Documentation]    Enter value with spaces (e.g., ' Plan1 ') — spaces trimmed or handled.
-    [Tags]    regression    TC_CSRJ_121
+    [Tags]    feature    regression    TC_CSRJ_121
     Navigate To Standard Services With Tariff And APN
     Clear And Input Text Into Field    ${LOC_SS_DEVICE_PLAN_INPUT}    ${SPACE}Plan1${SPACE}
     ${val}=    Get Value    ${LOC_SS_DEVICE_PLAN_INPUT}
@@ -228,7 +228,7 @@ TC_CSRJ_121 Verify Trimming Of Leading Trailing Spaces
 
 TC_CSRJ_122 Verify Duplicate Plan Name Validation
     [Documentation]    Enter an existing plan name and save — error for duplicate.
-    [Tags]    regression    negative    TC_CSRJ_122
+    [Tags]    feature    regression    negative    TC_CSRJ_122
     Navigate To Standard Services With Tariff And APN
     Clear And Input Text Into Field    ${LOC_SS_DEVICE_PLAN_INPUT}    ExistingPlan
     Log    Duplicate plan name entered — validation expected on save.
@@ -245,7 +245,7 @@ TC_CSRJ_123 Verify Copy Paste Functionality
 
 TC_CSRJ_124 Verify Special Input Only Spaces
     [Documentation]    Enter only spaces and save — validation error displayed.
-    [Tags]    regression    negative    TC_CSRJ_124
+    [Tags]    feature    regression    negative    TC_CSRJ_124
     Navigate To Standard Services With Tariff And APN
     Clear And Input Text Into Field    ${LOC_SS_DEVICE_PLAN_INPUT}    ${SPACE}${SPACE}${SPACE}
     Log    Only spaces entered — validation expected.
@@ -627,7 +627,7 @@ TC_CSRJ_171 Verify Adding Account VAS Charge With Mandatory Fields
 
 TC_CSRJ_172 Verify VAS Mandatory Fields Validation
     [Documentation]    Try saving without filling mandatory fields — error shown.
-    [Tags]    regression    negative    TC_CSRJ_172
+    [Tags]    feature    regression    negative    TC_CSRJ_172
     Navigate To Standard Services With Tariff And APN
     CSRJ Try Empty Save Account VAS Modal And Close
     Close Wizard Without Saving
@@ -694,7 +694,7 @@ TC_CSRJ_185 Verify Account Level Discount
 
 TC_CSRJ_186 Verify Discount Mandatory Fields Validation
     [Documentation]    Try adding discount without mandatory fields — error shown.
-    [Tags]    regression    negative    TC_CSRJ_186
+    [Tags]    feature    regression    negative    TC_CSRJ_186
     Navigate To Additional Services With Prereqs
     Click Add Discount Button
     Wait Until Element Is Visible    ${LOC_AS_DISCOUNT_MODAL}    ${CSRJ_TIMEOUT}
@@ -992,7 +992,7 @@ TC_CSRJ_233 Verify Override Default Settings
 
 TC_CSRJ_234 Verify Validation If Mandatory Service Disabled
     [Documentation]    Disable mandatory service, click Save — validation error shown.
-    [Tags]    regression    negative    TC_CSRJ_234
+    [Tags]    feature    regression    negative    TC_CSRJ_234
     Open SP Modal Light
     Log    Mandatory service validation tested — behavior depends on business rules.
     Close Service Plan Modal
@@ -1210,7 +1210,7 @@ TC_CSRJ_260 Verify Adding Multiple Discounts
 
 TC_CSRJ_261 Verify Duplicate Discount Names
     [Documentation]    Add discounts with same name but different values — handled per business rules.
-    [Tags]    regression    TC_CSRJ_261
+    [Tags]    feature    regression    TC_CSRJ_261
     Navigate To Additional Services With Prereqs
     Fill And Save Discount
     Log    Duplicate discount name handling tested.
@@ -1561,7 +1561,7 @@ TC_CSRJ_323 Verify Message Order And Timing
 
 TC_CSRJ_324 Verify Error Message On Failure
     [Documentation]    Appropriate error message if operation fails.
-    [Tags]    regression    negative    TC_CSRJ_324
+    [Tags]    feature    regression    negative    TC_CSRJ_324
     Log    Error handling — verified by existing TC_CSRJ_040 conflict test.
 
 TC_CSRJ_325 Verify Success Messages Sequence
@@ -1604,7 +1604,7 @@ TC_CSRJ_328 Verify Different APN And IP In Second Row
 
 TC_CSRJ_329 Verify Save Without Selecting APN Shows Error
     [Documentation]    Open APN popup, do not select APN, click Save — validation error.
-    [Tags]    regression    apn    negative    TC_CSRJ_329
+    [Tags]    feature    regression    apn    negative    TC_CSRJ_329
     Open Wizard To Standard Services Light
     Click Add APNs
     Wait Until Element Is Visible    ${LOC_APN_MODAL}    ${CSRJ_TIMEOUT}
@@ -1628,7 +1628,7 @@ TC_CSRJ_330 Verify IP Preference Dropdown Options
 
 TC_CSRJ_331 Verify Duplicate APN Selection Across Rows
     [Documentation]    Select same APN in both rows — validation error or handled per rules.
-    [Tags]    regression    apn    negative    TC_CSRJ_331
+    [Tags]    feature    regression    apn    negative    TC_CSRJ_331
     Open Wizard To Standard Services Light
     Click Add APNs
     Wait Until Element Is Visible    ${LOC_APN_MODAL}    ${CSRJ_TIMEOUT}

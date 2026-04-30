@@ -3087,7 +3087,8 @@ Navigate To Standard Services With Tariff And APN
             END
         END
     END
-    # Full navigation needed
+    # Full navigation needed — delete all existing CSRs first to free tariff plans
+    CSRJ Cleanup All Existing CSRs From Grid
     Go To CSR Journey Landing
     Select CSR Journey Customer
     Select CSR Journey Business Unit
