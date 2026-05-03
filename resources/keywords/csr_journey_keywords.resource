@@ -2125,30 +2125,7 @@ Go To CSR Journey Landing
         Log    CSR Journey listing already open.    console=yes
         RETURN
     END
-    ${csr_tab_visible}=    Run Keyword And Return Status    Wait Until Element Is Visible    ${LOC_CSR_JOURNEY_NAV}    5s
-    IF    ${csr_tab_visible}
-        Scroll To Element Via JS    ${LOC_CSR_JOURNEY_NAV}
-        Wait Until Element Is Visible    ${LOC_CSR_JOURNEY_NAV}    ${CSRJ_TIMEOUT}
-        Click Element Via JS    ${LOC_CSR_JOURNEY_NAV}
-    ELSE
-        Scroll To Element Via JS    ${LOC_ADMIN_ICON}
-        Wait Until Element Is Visible    ${LOC_ADMIN_ICON}    ${CSRJ_TIMEOUT}
-        Click Element Via JS    ${LOC_ADMIN_ICON}
-        Wait Until Keyword Succeeds    ${CSRJ_RETRY_COUNT}    ${CSRJ_RETRY_INTERVAL}
-        ...    Location Should Contain    ManageUser
-        Wait For App Loading To Complete
-        Brief UI Settle Short
-        ${tab_after_admin}=    Run Keyword And Return Status    Wait Until Element Is Visible    ${LOC_CSR_JOURNEY_NAV}    ${CSRJ_TIMEOUT}
-        IF    ${tab_after_admin}
-            Scroll To Element Via JS    ${LOC_CSR_JOURNEY_NAV}
-            Click Element Via JS    ${LOC_CSR_JOURNEY_NAV}
-        ELSE
-            Scroll To Element Via JS    ${LOC_CSR_JOURNEY_NAV_SIDEBAR}
-            Wait Until Element Is Visible    ${LOC_CSR_JOURNEY_NAV_SIDEBAR}    ${CSRJ_TIMEOUT}
-            Click Element Via JS    ${LOC_CSR_JOURNEY_NAV_SIDEBAR}
-        END
-    END
-    Wait For CSR Journey Page Loaded
+    Navigate To CSR Journey Module
     Log    CSR Journey listing loaded (tab/sidebar navigation).    console=yes
 
 Login And Navigate To CSR Journey
