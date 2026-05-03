@@ -123,3 +123,27 @@ def load_environment_config_from_json(env):
     _set_csr_apn_modal_locators(builtin, apn)
     testdata_path = os.path.join(root, "data", env)
     builtin.set_suite_variable("${TESTDATA_PATH}", testdata_path)
+
+
+def update_config_value(key, value, env=None):
+    """Update a single key in config/<env>.json on disk, atomically.
+
+    Reads the JSON, mutates the key, writes back via os.replace (atomic on POSIX/Windows).
+    Resolves env from STC_AUTOMATION_ENV when not provided. Returns the written value as str.
+    """
+    if env is None or not str(env).strip():
+        env = os.environ.get(STC_AUTOMATION_ENV, "dev")
+    env = str(env).strip().lower()
+    root = _project_root()
+    config_path = os.path.join(root, "config", f"{env}.json")
+    if not os.path.isfile(config_path):
+        config_path = os.path.join(root, "config", "dev.json")
+    with open(config_path, encoding="utf-8") as f:
+        data = json.load(f)
+    data[str(key)] = str(value)
+    tmp_path = config_path + ".tmp"
+    with open(tmp_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+        f.write("\n")
+    os.replace(tmp_path, config_path)
+    return str(value)

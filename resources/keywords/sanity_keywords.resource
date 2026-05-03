@@ -35,16 +35,16 @@ Login For Sanity Suite
     ${is_headless}=    Evaluate    '${BROWSER}'.lower() == 'headlesschrome'
     ${is_sit}=        Evaluate    '${ENV}'.lower() == 'sit'
     IF    ${is_sit} and not ${is_headless}
-        Log    SIT + headed mode — manual login required.    console=yes
+        Log To Console    SIT + headed mode — manual login required.
         Manual Login For Sanity Suite
     ELSE
-        Log    Automated login (env=${ENV}, browser=${BROWSER}).    console=yes
+        Log To Console    Automated login (env=${ENV}, browser=${BROWSER}).
         Open Browser And Navigate    ${BASE_URL}    ${BROWSER}
         Login With Credentials    ${VALID_USERNAME}    ${VALID_PASSWORD}
         Wait Until Element Is Visible    ${LOC_MD_GRID_DATA}          timeout=45s
         Wait Until Element Is Visible    ${LOC_POST_LOGIN_LANDMARK}   timeout=30s
     END
-    Log    Sanity Suite: Login successful — proceeding with automation.    console=yes
+    Log To Console    Sanity Suite: Login successful — proceeding with automation.
 
 Manual Login For Sanity Suite
     [Documentation]    Opens a headed browser, navigates to the login page, and waits for
@@ -52,25 +52,26 @@ Manual Login For Sanity Suite
     ...                and complete OTP if prompted. Automation resumes once ManageDevices
     ...                grid is fully loaded (up to 5 minutes wait).
     Open Test Browser    about:blank    ${BROWSER}
-    Log    \n╔══════════════════════════════════════════════════════════════╗    console=yes
-    Log    ║  MANUAL LOGIN REQUIRED                                       ║    console=yes
-    Log    ║                                                              ║    console=yes
-    Log    ║  Please open the following URL in the browser:               ║    console=yes
-    Log    ║  ${BASE_URL}                                                 ║    console=yes
-    Log    ║                                                              ║    console=yes
-    Log    ║  Then complete the following steps:                          ║    console=yes
-    Log    ║  1. Enter your Username                                      ║    console=yes
-    Log    ║  2. Enter your Password                                      ║    console=yes
-    Log    ║  3. Enter the Captcha text                                   ║    console=yes
-    Log    ║  4. Click Login                                              ║    console=yes
-    Log    ║  5. Enter OTP (if prompted) and submit                       ║    console=yes
-    Log    ║                                                              ║    console=yes
-    Log    ║  Automation will continue once ManageDevices loads.          ║    console=yes
-    Log    ║  Waiting up to 5 minutes...                                  ║    console=yes
-    Log    ╚══════════════════════════════════════════════════════════════╝    console=yes
+    Execute Javascript    window.location.href = '${BASE_URL}'
+    Log To Console    \n╔══════════════════════════════════════════════════════════════╗
+    Log To Console    ║  MANUAL LOGIN REQUIRED                                       ║
+    Log To Console    ║                                                              ║
+    Log To Console    ║  Browser navigating to: ${BASE_URL}                          ║
+    Log To Console    ║  If you see an SSL warning, click Advanced then Proceed.     ║
+    Log To Console    ║                                                              ║
+    Log To Console    ║  Please complete the following steps:                        ║
+    Log To Console    ║  1. Enter your Username                                      ║
+    Log To Console    ║  2. Enter your Password                                      ║
+    Log To Console    ║  3. Enter the Captcha text                                   ║
+    Log To Console    ║  4. Click Login                                              ║
+    Log To Console    ║  5. Enter OTP (if prompted) and submit                       ║
+    Log To Console    ║                                                              ║
+    Log To Console    ║  Automation will continue once ManageDevices loads.          ║
+    Log To Console    ║  Waiting up to 5 minutes...                                  ║
+    Log To Console    ╚══════════════════════════════════════════════════════════════╝
     Wait Until Element Is Visible    ${LOC_MD_GRID_DATA}          timeout=300s
     Wait Until Element Is Visible    ${LOC_POST_LOGIN_LANDMARK}   timeout=60s
-    Log    Manual login completed — ManageDevices grid loaded. Starting sanity automation.    console=yes
+    Log To Console    Manual login completed — ManageDevices grid loaded. Starting sanity automation.
 
 # ═══════════════════════════════════════════════════════════════════════
 #  PAGE NAVIGATION

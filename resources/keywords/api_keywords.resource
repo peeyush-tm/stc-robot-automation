@@ -100,14 +100,33 @@ Send Onboard Customer Request
     [Documentation]    Sends the SOAP request to createOnboardCustomer endpoint.
     ...                Returns the response object.
     [Arguments]    ${soap_body}
+    Log To Console    \n══════════════════════════════════════════════════════════════════════
+    Log To Console    SOAP REQUEST: CustomerOnboardOperations.createOnboardCustomer
+    Log To Console    ══════════════════════════════════════════════════════════════════════
+    Log To Console    Method        : POST
+    Log To Console    URL           : ${ONBOARD_API_URL}
+    Log To Console    Headers       : Content-Type=text/xml;charset=UTF-8
+    Log To Console     ${SPACE * 14}: Authorization=${ONBOARD_AUTH_HEADER}
+    Log To Console     ${SPACE * 14}: SOAPAction=${ONBOARD_SOAP_ACTION}
+    Log To Console    ── Body ─────────────────────────────────────────────────────────────
+    Log To Console    ${soap_body}
+    Log To Console    ──────────────────────────────────────────────────────────────────────
     ${headers}=    Create Dictionary
     ...    Content-Type=text/xml;charset=UTF-8
     ...    Authorization=${ONBOARD_AUTH_HEADER}
     ...    SOAPAction=${ONBOARD_SOAP_ACTION}
+    ${start}=    Evaluate    __import__('time').time()
     ${response}=    POST On Session    onboard    url=${ONBOARD_API_URL}
     ...    data=${soap_body}    headers=${headers}    expected_status=any
-    Log    Response Status: ${response.status_code}
-    Log    Response Body: ${response.text}
+    ${elapsed}=    Evaluate    round(__import__('time').time() - ${start}, 3)
+    Log To Console    \n══════════════════════════════════════════════════════════════════════
+    Log To Console    SOAP RESPONSE: CustomerOnboardOperations.createOnboardCustomer
+    Log To Console    ══════════════════════════════════════════════════════════════════════
+    Log To Console    Status        : ${response.status_code}
+    Log To Console    Elapsed       : ${elapsed}s
+    Log To Console    ── Body ─────────────────────────────────────────────────────────────
+    Log To Console    ${response.text}
+    Log To Console    ══════════════════════════════════════════════════════════════════════\n
     RETURN    ${response}
 
 # ═══════════════════════════════════════════════════════════════════════

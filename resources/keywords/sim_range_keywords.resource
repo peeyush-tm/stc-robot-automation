@@ -1,5 +1,6 @@
 *** Settings ***
 Library     SeleniumLibrary
+Library     ../../libraries/ConfigLoader.py
 Resource    browser_keywords.resource
 Resource    login_keywords.resource
 Resource    ../locators/sim_range_locators.resource
@@ -710,6 +711,60 @@ Verify SIM Range Created Successfully
     Should Not Contain    ${current_url}    CreateSIMRange
     Wait Until Element Is Visible    ${LOC_SR_GRID}    timeout=30s
     Log    SIM Range created — redirected to SIM Range listing.
+    Run Keyword And Ignore Error    Advance SIM Range Cursors After ICCID IMSI Creation
+
+Advance SIM Range Cursors After ICCID IMSI Creation
+    [Documentation]    Called automatically by ``Verify SIM Range Created Successfully`` after a successful
+    ...                ICCID/IMSI submission. Advances ICCID/IMSI cursors in ``config/<env>.json`` and the
+    ...                Robot suite variables. The new FROM = just-used TO + 1 (consumes whatever pool was
+    ...                actually submitted, e.g. 1 for SIM Replacement, 5 for E2E). The new TO is recomputed
+    ...                from the **configured** ``SIM_RANGE_POOL_COUNT`` so the next creation defaults back to
+    ...                the standard pool size.
+    ${used_iccid_from}=    Set Variable    ${VALID_ICCID_FROM}
+    ${used_iccid_to}=      Set Variable    ${VALID_ICCID_TO}
+    ${used_imsi_from}=     Set Variable    ${VALID_IMSI_FROM}
+    ${used_imsi_to}=       Set Variable    ${VALID_IMSI_TO}
+    ${default_pool}=       Convert To Integer    ${SIM_RANGE_POOL_COUNT}
+    ${new_iccid_from}=     Evaluate        str(int($used_iccid_to) + 1)
+    ${new_iccid_to}=       Evaluate        str(int($new_iccid_from) + ${default_pool} - 1)
+    ${new_imsi_from}=      Evaluate        str(int($used_imsi_to) + 1)
+    ${new_imsi_to}=        Evaluate        str(int($new_imsi_from) + ${default_pool} - 1)
+    Update Config Value    SIM_RANGE_ICCID_FROM    ${new_iccid_from}
+    Update Config Value    SIM_RANGE_ICCID_TO      ${new_iccid_to}
+    Update Config Value    SIM_RANGE_IMSI_FROM     ${new_imsi_from}
+    Update Config Value    SIM_RANGE_IMSI_TO       ${new_imsi_to}
+    Set Suite Variable    ${VALID_ICCID_FROM}    ${new_iccid_from}
+    Set Suite Variable    ${VALID_ICCID_TO}      ${new_iccid_to}
+    Set Suite Variable    ${VALID_IMSI_FROM}     ${new_imsi_from}
+    Set Suite Variable    ${VALID_IMSI_TO}       ${new_imsi_to}
+    Log    SIM range cursor advanced — next ICCID=${new_iccid_from}-${new_iccid_to}, IMSI=${new_imsi_from}-${new_imsi_to}    console=yes
+
+Advance SIM Range Cursor After MSISDN Creation
+    [Documentation]    Called by ``Verify MSISDN SIM Range Created Successfully`` after a successful MSISDN
+    ...                submission. Advances MSISDN cursor: new FROM = just-used TO + 1; new TO recomputed from
+    ...                the configured ``SIM_RANGE_MSISDN_POOL_COUNT`` so the next creation defaults back to the
+    ...                standard pool size.
+    ${used_from}=    Set Variable    ${VALID_MSISDN_FROM}
+    ${used_to}=      Set Variable    ${VALID_MSISDN_TO}
+    ${default_pool}=    Convert To Integer    ${SIM_RANGE_MSISDN_POOL_COUNT}
+    ${new_from}=     Evaluate        str(int($used_to) + 1)
+    ${new_to}=       Evaluate        str(int($new_from) + ${default_pool} - 1)
+    Update Config Value    SIM_RANGE_MSISDN_FROM    ${new_from}
+    Update Config Value    SIM_RANGE_MSISDN_TO      ${new_to}
+    Set Suite Variable    ${VALID_MSISDN_FROM}    ${new_from}
+    Set Suite Variable    ${VALID_MSISDN_TO}      ${new_to}
+    Log    MSISDN cursor advanced — next MSISDN=${new_from}-${new_to}    console=yes
+
+Verify MSISDN SIM Range Created Successfully
+    [Documentation]    MSISDN-specific success path: waits for success toast then redirect to /SIMRange,
+    ...                and advances the MSISDN FROM/TO cursor automatically. Use this in place of inline
+    ...                toast/redirect assertions whenever an MSISDN range submission needs to be verified.
+    Wait Until Element Is Visible    ${LOC_SR_TOAST_SUCCESS}    timeout=30s
+    ${toast_text}=    Get Text    ${LOC_SR_TOAST_SUCCESS}
+    Log    MSISDN range success toast: ${toast_text}
+    Wait Until Keyword Succeeds    3x    5s
+    ...    Location Should Contain    ${SIM_RANGE_PATH}
+    Run Keyword And Ignore Error    Advance SIM Range Cursor After MSISDN Creation
 
 Verify On SIM Range Listing Page
     [Documentation]    Confirms the current page is /SIMRange with the grid visible.

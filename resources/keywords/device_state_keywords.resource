@@ -638,19 +638,34 @@ Verify State Change Success And Wait
     Wait For Loading Overlay To Disappear
 
 Verify Device State After Change
-    [Documentation]    Resets the grid, searches for the device by IMSI, and verifies
-    ...                that the SIM State column shows the expected new state.
-    [Arguments]    ${imsi}    ${expected_state}
-    Reset Grid To Default View
-    Sleep    0.3s
-    Wait For Loading Overlay To Disappear
-    Search Device By IMSI    ${imsi}
-    Wait Until Element Is Visible    ${LOC_DSC_GRID_ROWS}    timeout=30s
-    ${state_col}=    Get Column Index By Header Text    ${STATE_COLUMN_HEADER}
-    ${actual_state}=    Get Cell Value By Row And Column    1    ${state_col}
-    Should Be Equal As Strings    ${actual_state}    ${expected_state}
-    ...    Expected SIM state "${expected_state}" but grid shows "${actual_state}" for IMSI ${imsi}.
-    Log    VERIFIED: IMSI ${imsi} state is now "${actual_state}".    console=yes
+    [Documentation]    Resets the grid, searches for the device by IMSI, and verifies that the
+    ...                SIM State column shows ``${expected_state}``. If the grid does not yet
+    ...                reflect the expected state, retries every ``${interval}`` (default 30s)
+    ...                for up to ``${retries}`` attempts (default 10 → ~5 minutes total). Use this
+    ...                after a UI state-change action + SOAP ResponseHandler so any backend lag
+    ...                doesn't fail the assertion on the first read.
+    [Arguments]    ${imsi}    ${expected_state}    ${retries}=10    ${interval}=30s
+    ${state_col}=    Set Variable    ${None}
+    ${actual_state}=    Set Variable    ${EMPTY}
+    FOR    ${i}    IN RANGE    ${retries}
+        ${attempt}=    Evaluate    ${i} + 1
+        Log To Console    [verify state attempt ${attempt}/${retries}] expecting "${expected_state}" for IMSI ${imsi}
+        Reset Grid To Default View
+        Sleep    0.3s
+        Wait For Loading Overlay To Disappear
+        Search Device By IMSI    ${imsi}
+        Wait Until Element Is Visible    ${LOC_DSC_GRID_ROWS}    timeout=30s
+        ${state_col}=    Get Column Index By Header Text    ${STATE_COLUMN_HEADER}
+        ${actual_state}=    Get Cell Value By Row And Column    1    ${state_col}
+        IF    "${actual_state}" == "${expected_state}"
+            Log To Console    ✓ VERIFIED: IMSI ${imsi} state is now "${actual_state}".
+            RETURN
+        END
+        Log To Console    State is "${actual_state}" — sleeping ${interval} before retry...
+        Sleep    ${interval}
+    END
+    Fail
+    ...    Expected SIM state "${expected_state}" but grid shows "${actual_state}" for IMSI ${imsi} after ${retries} attempts (~${retries} × ${interval} elapsed).
 
 Attempt Invalid Transition And Verify Blocked
     [Documentation]    Tries to select an invalid target state. Passes if the state is not

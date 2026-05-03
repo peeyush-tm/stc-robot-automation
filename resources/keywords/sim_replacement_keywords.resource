@@ -34,28 +34,33 @@ SR Create Sim Ranges Iccid Imsi And Msisdn For Replacement Ec
     Should Not Be Empty    ${SIMR_EC_ACCOUNT_NAME}
     ...    msg=SIMR_EC_ACCOUNT_NAME required; run SR Ensure EC Account For Sim Replacement Order first.
     Ensure Session Is Active
+    # Pool count = 1 for replacement prep: force suite vars TO = FROM so the central advance
+    # mechanism (triggered inside Verify SIM Range Created Successfully) consumes only 1 SIM
+    # then resets the next TO using the configured default SIM_RANGE_POOL_COUNT.
+    ${used_iccid}=     Set Variable    ${VALID_ICCID_FROM}
+    ${used_imsi}=      Set Variable    ${VALID_IMSI_FROM}
+    ${used_msisdn}=    Set Variable    ${VALID_MSISDN_FROM}
+    Set Suite Variable    ${VALID_ICCID_TO}     ${used_iccid}
+    Set Suite Variable    ${VALID_IMSI_TO}      ${used_imsi}
+    Set Suite Variable    ${VALID_MSISDN_TO}    ${used_msisdn}
     Navigate To Module Page    ${CREATE_SIM_RANGE_URL}
     Wait Until Element Is Visible    ${LOC_SR_POOL_NAME}    timeout=30s
-    # Pool count = 1: keep From/To identical for ICCID + IMSI
     Fill SIM Range With ICCID And IMSI
-    ...    iccid_from=${VALID_ICCID_FROM}    iccid_to=${VALID_ICCID_FROM}
-    ...    imsi_from=${VALID_IMSI_FROM}      imsi_to=${VALID_IMSI_FROM}
+    ...    iccid_from=${used_iccid}    iccid_to=${used_iccid}
+    ...    imsi_from=${used_imsi}      imsi_to=${used_imsi}
     Verify Pool Count    1
     Submit SIM Range Form
     Verify SIM Range Created Successfully
     Log    SIM Replacement prep: ICCID/IMSI range pool="${VALID_POOL_NAME}" for EC="${SIMR_EC_ACCOUNT_NAME}"    console=yes
-    Validate SIM Range Grid Row    ${VALID_POOL_NAME}    ${VALID_ICCID_FROM}    ${VALID_ICCID_FROM}
-    ...    ${VALID_IMSI_FROM}    ${VALID_IMSI_FROM}    1
+    Validate SIM Range Grid Row    ${VALID_POOL_NAME}    ${used_iccid}    ${used_iccid}
+    ...    ${used_imsi}    ${used_imsi}    1
     Navigate To Module Page    ${CREATE_SIM_RANGE_MSISDN_URL}
     Wait Until Element Is Visible    ${LOC_SR_POOL_NAME}    timeout=30s
     Fill MSISDN SIM Range With Ranges    ${MSISDN_POOL_NAME}    ${MSISDN_DESCRIPTION}
-    ...    ${VALID_MSISDN_FROM}    ${VALID_MSISDN_FROM}
+    ...    ${used_msisdn}    ${used_msisdn}
     Verify MSISDN Grid Has Rows    expected_min=1
     Submit SIM Range Form
-    # MSISDN create redirects to /SIMRange with MSISDN tab active; ManageSIMRangeGrid can be hidden.
-    Wait Until Element Is Visible    ${LOC_SR_TOAST_SUCCESS}    timeout=30s
-    Wait Until Keyword Succeeds    3x    5s
-    ...    Location Should Contain    ${SIM_RANGE_PATH}
+    Verify MSISDN SIM Range Created Successfully
     Log    SIM Replacement prep: MSISDN range pool="${MSISDN_POOL_NAME}" for EC="${SIMR_EC_ACCOUNT_NAME}"    console=yes
 
 SR Ensure Sim Limits For Ec And Bu Before Replacement

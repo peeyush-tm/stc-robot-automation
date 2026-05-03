@@ -430,6 +430,107 @@ Download Report From First Row And Verify Click
     Log    Download triggered successfully; user remains on Report page.
 
 # ═══════════════════════════════════════════════════════════════════════
+#  ACCOUNT SELECTION — Customer / Business Unit display level
+# ═══════════════════════════════════════════════════════════════════════
+Select Account For Report
+    [Documentation]    Sets the Account field on Create Report when display level requires a
+    ...                Customer (EC) or Business Unit (BU) selection. Tries native <select>,
+    ...                then click-and-pick custom dropdown by visible text.
+    [Arguments]    ${account_name}
+    Should Not Be Empty    ${account_name}    msg=Select Account For Report: account_name is empty
+    Sleep    1s
+    Wait For Loading Overlay To Disappear
+    ${result}=    Execute JavaScript
+    ...    var lbl = Array.from(document.querySelectorAll('label')).find(function(l){
+    ...        return (l.innerText||'').replace('*','').trim()==='Account';
+    ...    });
+    ...    if (!lbl) return 'ERR:NO_LABEL';
+    ...    var container = lbl.parentElement || lbl.closest('.form-group, .row, div');
+    ...    if (!container) return 'ERR:NO_CONTAINER';
+    ...    // Strategy 1: native select
+    ...    var sel = container.querySelector('select[name="account"]') || container.querySelector('select');
+    ...    if (sel) {
+    ...        var opt = Array.from(sel.options).find(function(o){
+    ...            var t=(o.text||'').trim(); return t==='${account_name}' || t.indexOf('${account_name}')>=0 || o.value==='${account_name}';
+    ...        });
+    ...        if (opt) {
+    ...            var setter=Object.getOwnPropertyDescriptor(window.HTMLSelectElement.prototype,'value').set;
+    ...            setter.call(sel,opt.value);
+    ...            sel.dispatchEvent(new Event('change',{bubbles:true}));
+    ...            sel.dispatchEvent(new Event('input',{bubbles:true}));
+    ...            return 'OK:SELECT:'+opt.value;
+    ...        }
+    ...    }
+    ...    return 'PENDING';
+    Log    Select Account For Report (select strategy): ${result}    console=yes
+    IF    '${result}'.startswith('OK:')
+        RETURN
+    END
+    IF    '${result}'.startswith('ERR:')
+        Fail    Select Account For Report failed (no Account field) — ${result}
+    END
+    # Strategy 2: custom dropdown — click trigger, search, pick option
+    ${click_ok}=    Run Keyword And Return Status    Execute JavaScript
+    ...    var lbl = Array.from(document.querySelectorAll('label')).find(function(l){
+    ...        return (l.innerText||'').replace('*','').trim()==='Account';
+    ...    });
+    ...    if (!lbl) return false;
+    ...    var container = lbl.parentElement;
+    ...    var trigger = container.querySelector('.selectBtn, .dropdown-toggle, [class*="select"], .react-select__control, button');
+    ...    if (trigger) { trigger.click(); return true; }
+    ...    var inp = container.querySelector('input[type="text"], input:not([type])');
+    ...    if (inp) { inp.click(); inp.focus(); return true; }
+    ...    return false;
+    Sleep    0.5s
+    ${picked}=    Execute JavaScript
+    ...    var opts = document.querySelectorAll('li, .react-select__option, .dropdown-item, [role="option"]');
+    ...    for (var i=0; i<opts.length; i++){
+    ...        var t=(opts[i].innerText||opts[i].textContent||'').trim();
+    ...        if (t==='${account_name}' || t.indexOf('${account_name}')>=0) {
+    ...            opts[i].scrollIntoView({block:'center'}); opts[i].click(); return 'OK:'+t;
+    ...        }
+    ...    }
+    ...    return 'ERR:NOT_FOUND_IN_OPTIONS';
+    Log    Select Account For Report (dropdown strategy): ${picked}    console=yes
+    IF    not '${picked}'.startswith('OK:')
+        Fail    Could not select account "${account_name}" from Report Account field — ${picked}
+    END
+    Sleep    0.5s
+    Wait For Loading Overlay To Disappear
+
+# ═══════════════════════════════════════════════════════════════════════
+#  E2E ORCHESTRATOR — Create + Download a single report
+# ═══════════════════════════════════════════════════════════════════════
+E2E Create And Download One Report
+    [Documentation]    Full single-report flow: Create Report page → fill fields for the given
+    ...                ``${display_level}`` (OPCO, Customer, Business Unit) and ``${account_name}``
+    ...                → submit → wait for Completed → download → assert no error toast.
+    ...                For OPCO, ``${account_name}`` is ignored (auto-selects KSA_OPCO).
+    [Arguments]    ${display_level}    ${account_name}=${EMPTY}
+    Log To Console    \n══════════════════════════════════════════════════════════════════════
+    Log To Console    Creating Usage Report — display_level="${display_level}" account="${account_name}"
+    Log To Console    ══════════════════════════════════════════════════════════════════════
+    Login And Navigate To Create Report
+    Select Report Category    ${REPORT_CATEGORY_NAME}
+    Select View Criterion    ${VIEW_CRITERION_VALUE}
+    Wait For From Date Picker
+    Select Display Level    ${display_level}
+    IF    '${display_level}' == 'OPCO'
+        Verify Account Auto Selected
+    ELSE
+        Should Not Be Empty    ${account_name}
+        ...    msg=account_name required for display_level="${display_level}"
+        Select Account For Report    ${account_name}
+    END
+    Select Report Format    ${REPORT_FORMAT_VALUE}
+    Submit Create Report Form
+    Verify Report Created Successfully And Grid Visible
+    Log To Console    ✓ Report submitted for "${display_level}" — waiting for Completed state...
+    Apply Report Name Filter    ${REPORT_CATEGORY_NAME}
+    Download Report From First Row And Verify Click    ${REPORT_CATEGORY_NAME}
+    Log To Console    ✓ Report for "${display_level}" generated + downloaded successfully.
+
+# ═══════════════════════════════════════════════════════════════════════
 #  NEGATIVE — Validations
 # ═══════════════════════════════════════════════════════════════════════
 Verify Error Toast Shown

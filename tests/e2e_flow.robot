@@ -27,6 +27,7 @@ ${E2E_ORDER_ID}             ${EMPTY}
 ${E2E_EC_ID}                ${EMPTY}
 ${E2E_BU_ID}                ${EMPTY}
 @{E2E_ACTIVATED_IMSIS}
+@{E2E_IMSI_DATA}
 ${E2E_INVOICE_PATH}         ${EMPTY}
 ${E2E_CSR1_TARIFF_PLAN}     ${EMPTY}
 ${E2E_CSR1_APN_TYPE}        ${EMPTY}
@@ -118,7 +119,7 @@ TC_E2E_007 Expand EC And BU SIM Limits
     TC_E2E_007
 
 TC_E2E_008 Create SIM Order
-    [Documentation]    Creates a SIM Order with quantity 10 using the onboarded BU account
+    [Documentation]    Creates a SIM Order with quantity 5 using the onboarded BU account
     ...                selected via treeview (KSA_OPCO > EC > BU).
     [Tags]    regression    e2e    TC_E2E_008    positive
     TC_E2E_008
@@ -133,20 +134,22 @@ TC_E2E_009 Capture Order ID From Live Order Grid
 TC_E2E_010 Fetch EC And BU Account IDs From Database
     [Documentation]    Connects to the STC database, queries for the EC and BU account
     ...                IDs by name, stores them, and closes the DB connection.
-    [Tags]    regression    e2e    TC_E2E_010    positive
+    ...                SKIPPED on SIT — DB host not yet provided for SIT.
+    [Tags]    regression    e2e    TC_E2E_010    positive    no_sit
     TC_E2E_010
 
 TC_E2E_011 Run Create Order Script On Server
     [Documentation]    Connects to the order processing server via SSH and runs
     ...                start_createorder.sh. Waits for script completion.
-    ...                SKIPPED on SIT — cron job triggers order processing automatically.
+    ...                SKIPPED on SIT — cron auto-runs start_createorder.sh on SIT server.
     [Tags]    regression    e2e    TC_E2E_011    positive    no_sit
     TC_E2E_011
 
 TC_E2E_012 Validate Order Status New To In Progress
     [Documentation]    After start_createorder.sh completes, navigates to the Live Order
     ...                tab and validates the order status changed from New to In Progress.
-    ...                SKIPPED on SIT — order progresses automatically via cron.
+    ...                SKIPPED on SIT — cron handles order processing async; only the final
+    ...                Completed status is checked (TC_E2E_015) after a 3 min wait.
     [Tags]    regression    e2e    TC_E2E_012    positive    no_sit
     TC_E2E_012
 
@@ -154,29 +157,21 @@ TC_E2E_013 Generate And Upload Response Files To Server
     [Documentation]    Generates 3 response files (orderId.dsprsp, orderId.ordrsp,
     ...                orderId.pcsrsp) from templates by replacing 120326 with the
     ...                actual orderId. Uploads them to the server's order/input directory.
-    ...                SKIPPED on SIT — response files are handled automatically.
-    [Tags]    regression    e2e    TC_E2E_013    positive    no_sit
+    [Tags]    regression    e2e    TC_E2E_013    positive
     TC_E2E_013
 
 TC_E2E_014 Run Read Order Script On Server
     [Documentation]    Runs start_readorder.sh on the server to process the uploaded
     ...                response files. Closes the SSH connection after completion.
-    ...                SKIPPED on SIT — cron job runs read order automatically.
+    ...                SKIPPED on SIT — cron auto-picks up uploaded response files in 3–5 minutes.
     [Tags]    regression    e2e    TC_E2E_014    positive    no_sit
     TC_E2E_014
 
 TC_E2E_015 Validate Order Status In Progress To Completed
     [Documentation]    After start_readorder.sh completes, navigates to the Order History
     ...                tab and validates the order status changed to Completed.
-    ...                SKIPPED on SIT — replaced by TC_E2E_SIT_001 which polls until auto-complete.
-    [Tags]    regression    e2e    TC_E2E_015    positive    no_sit
+    [Tags]    regression    e2e    TC_E2E_015    positive
     TC_E2E_015
-
-TC_E2E_SIT_001 Wait For Order To Complete Automatically
-    [Documentation]    SIT only — polls Order History every 30s for up to 30 min until
-    ...                the order status reaches Completed (cron job drives this automatically).
-    [Tags]    regression    e2e    TC_E2E_SIT_001    positive    sit_only
-    TC_E2E_SIT_001
 
 TC_E2E_016 Validate SIMs In Warm State On Manage Devices
     [Documentation]    Navigates to Manage Devices page, applies BU account filter,
@@ -187,28 +182,35 @@ TC_E2E_016 Validate SIMs In Warm State On Manage Devices
 TC_E2E_017 Update Order Status To Approved Via SOAP API
     [Documentation]    Calls SOAP API to update the SIM order status to Approved.
     ...                Uses the captured orderId from Step 7.
-    ...                SKIPPED on SIT — order approval and InActive transition are automatic.
-    [Tags]    regression    e2e    TC_E2E_017    positive    no_sit
+    [Tags]    regression    e2e    TC_E2E_017    positive
     TC_E2E_017
 
-TC_E2E_SIT_002 Wait For SIMs To Reach InActive State Automatically
-    [Documentation]    SIT only — polls Manage Devices every 30s for up to 30 min until
-    ...                SIMs transition to InActive state (cron job drives this automatically).
-    [Tags]    regression    e2e    TC_E2E_SIT_002    positive    sit_only
-    TC_E2E_SIT_002
-
-TC_E2E_018 Activate 5 SIMs And Capture IMSIs
-    [Documentation]    Performs Device State Change on Manage Devices page to activate
-    ...                5 SIMs from InActive to Activated state. After Step 15 approval,
-    ...                SIMs are in InActive state. Captures all activated IMSIs for future use.
+TC_E2E_018 Activate 5 SIMs Via UI And Capture IMSIs
+    [Documentation]    UI ONLY — Manage Devices: select 5 InActive SIMs, click Activate state
+    ...                change. Captures IMSI/MSISDN/ICCID into E2E_IMSI_DATA for the next steps.
+    ...                After this test SIMs are in IN_PROGRESS / Async state, not yet Activated.
     [Tags]    regression    e2e    TC_E2E_018    positive
     TC_E2E_018
+
+TC_E2E_018A Drive Activation Fingerprint SOAP Flow
+    [Documentation]    SOAP ONLY — uses captured E2E_IMSI_DATA to drive the post-UI fingerprint
+    ...                flow: 1 min wait → DB query → FingerprintPermission.setOperationStatus
+    ...                with all MSISDNs → 30s wait → per-IMSI DB query + ResponseHandlerService.
+    [Tags]    regression    e2e    TC_E2E_018A    positive
+    TC_E2E_018A
+
+TC_E2E_018B Verify All SIMs Activated On UI
+    [Documentation]    UI ONLY — confirms each IMSI from E2E_IMSI_DATA shows Activated in the
+    ...                Manage Devices grid for the BU. Retries up to 5 min if grid lag.
+    [Tags]    regression    e2e    TC_E2E_018B    positive
+    TC_E2E_018B
 
 TC_E2E_019 Generate Invoice And Download CSV
     [Documentation]    Calls Invoice API with BU account ID, waits for server-side
     ...                invoice generation, then downloads latest CSV from server
     ...                to the local billing/ folder.
-    [Tags]    regression    e2e    TC_E2E_019    positive
+    ...                SKIPPED on SIT — invoice API host not yet provided for SIT.
+    [Tags]    regression    e2e    TC_E2E_019    positive    no_sit
     TC_E2E_019
 
 TC_E2E_020 Create Second CSR Journey With Different Plan
@@ -286,7 +288,7 @@ TC_E2E_006
 TC_E2E_007
     Should Not Be Empty    ${E2E_EC_NAME}    Step 1 must run first — EC name is empty.
     Should Not Be Empty    ${E2E_BU_NAME}    Step 1 must run first — BU name is empty.
-    E2E Expand EC And BU SIM Limits    ${E2E_EC_NAME}    ${E2E_BU_NAME}    10
+    E2E Expand EC And BU SIM Limits    ${E2E_EC_NAME}    ${E2E_BU_NAME}    5
 
 TC_E2E_008
     Should Not Be Empty    ${E2E_EC_NAME}    Step 1 must run first — EC name is empty.
@@ -340,9 +342,10 @@ TC_E2E_017
 
 TC_E2E_018
     Should Not Be Empty    ${E2E_BU_NAME}    Step 1 must run first — BU name is empty.
-    ${activated_imsis}    ${imsi_data}=    E2E Activate SIMs And Capture IMSIs    ${E2E_BU_NAME}
+    ${activated_imsis}    ${imsi_data}    ${activated_iccids}=    E2E Activate SIMs UI Action    ${E2E_BU_NAME}
     Set Suite Variable    @{E2E_ACTIVATED_IMSIS}    @{activated_imsis}
-    Log    Activated ${SIM_ACTIVATE_COUNT} SIMs. IMSIs stored for future use.    console=yes
+    Set Suite Variable    @{E2E_IMSI_DATA}    @{imsi_data}
+    Log    UI Activate submitted for ${SIM_ACTIVATE_COUNT} SIMs. IMSIs captured.    console=yes
     FOR    ${imsi}    IN    @{E2E_ACTIVATED_IMSIS}
         Log    Activated IMSI: ${imsi}    console=yes
     END
@@ -356,6 +359,15 @@ TC_E2E_018
         ${_second}=    Get From List    ${activated_imsis}    1
         Write Seed Value    e2e_second_activated_imsi    ${_second}
     END
+
+TC_E2E_018A
+    Should Not Be Empty    ${E2E_IMSI_DATA}    TC_E2E_018 must run first — IMSI/MSISDN data is empty.
+    E2E Drive Activation Fingerprint Flow    @{E2E_IMSI_DATA}
+
+TC_E2E_018B
+    Should Not Be Empty    ${E2E_BU_NAME}            Step 1 must run first — BU name is empty.
+    Should Not Be Empty    ${E2E_ACTIVATED_IMSIS}    TC_E2E_018 must run first — activated IMSI list is empty.
+    E2E Verify SIMs Activated UI    ${E2E_ACTIVATED_IMSIS}    ${E2E_BU_NAME}
 
 TC_E2E_019
     ${bu_id_str}=    Convert To String    ${E2E_BU_ID}
@@ -375,19 +387,3 @@ TC_E2E_021
     E2E Perform Device Plan Change On One Activated SIM And Validate    ${E2E_BU_NAME}
     Log    Step 19 complete: DP change performed and validated on one activated SIM.    console=yes
 
-TC_E2E_SIT_001
-    [Documentation]    Polls Order History every 30s for up to 30 min until order reaches Completed.
-    Should Not Be Empty    ${E2E_ORDER_ID}    Step 9 must run first — Order ID is empty.
-    Should Not Be Empty    ${E2E_BU_NAME}     Step 1 must run first — BU name is empty.
-    Log    SIT: Waiting for order ${E2E_ORDER_ID} to complete automatically (up to 30 min)...    console=yes
-    Wait Until Keyword Succeeds    60x    30s
-    ...    E2E Verify Order Status In History    ${E2E_BU_NAME}    ${E2E_ORDER_ID}    Completed
-    Log    SIT Step: Order ${E2E_ORDER_ID} reached Completed status.    console=yes
-
-TC_E2E_SIT_002
-    [Documentation]    Polls Manage Devices every 30s for up to 30 min until SIMs reach InActive state.
-    Should Not Be Empty    ${E2E_BU_NAME}    Step 1 must run first — BU name is empty.
-    Log    SIT: Waiting for SIMs to reach InActive state automatically (up to 30 min)...    console=yes
-    Wait Until Keyword Succeeds    60x    30s
-    ...    E2E Verify At Least One SIM In State    ${E2E_BU_NAME}    InActive
-    Log    SIT Step: SIMs reached InActive state.    console=yes

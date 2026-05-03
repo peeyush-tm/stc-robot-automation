@@ -354,12 +354,11 @@ def build_e2e_command(report_folder, args, suite_path=None):
 
     cmd += ["--variable", f"ENV:{args.env}"]
 
-    # SIT: skip steps replaced by cron (no_sit), run SIT-only polling steps (sit_only)
-    # QE/dev/staging/prod: skip SIT-only polling steps, run all no_sit steps normally
+    # SIT: skip steps that require resources not provided for SIT (DB query,
+    # SSH script execution which is cron-driven, invoice API).
+    # QE/dev/staging/prod: run all steps including the no_sit-tagged ones.
     if args.env == "sit":
         cmd += ["--exclude", "no_sit"]
-    else:
-        cmd += ["--exclude", "sit_only"]
 
     if args.browser:
         cmd += ["--variable", f"BROWSER_OVERRIDE:{args.browser}"]

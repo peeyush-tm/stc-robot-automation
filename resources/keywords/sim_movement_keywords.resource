@@ -102,16 +102,29 @@ SM Search Account By Name
     ...                presses ENTER, waits for grid reload, then validates via Kendo dataSource.
     ...                Uses the same approach as Search And Validate Account In Grid in e2e_keywords.
     [Arguments]    ${account_name}
+    Wait Until Element Is Visible    id=ManageAccountGrid    timeout=30s
     Wait For Loading Overlay To Disappear
+    Sleep    1s
     # Find the search input scoped to ManageAccountGrid container (not global search bar)
     ${input_loc}=    Set Variable
     ...    xpath=//div[@id='ManageAccountGrid']/ancestor::div[contains(@class,'card') or contains(@class,'panel') or contains(@class,'content')]//input[@type='text' or @type='search' or not(@type)][not(contains(@placeholder,'Search Device'))][not(ancestor::nav)][not(ancestor::header)]
     ${input_visible}=    Run Keyword And Return Status
-    ...    Wait Until Element Is Visible    ${input_loc}    timeout=10s
+    ...    Wait Until Element Is Visible    ${input_loc}    timeout=15s
     IF    not ${input_visible}
         ${input_loc}=    Set Variable
         ...    xpath=//input[not(contains(@placeholder,'Search Device'))][not(ancestor::nav)][not(ancestor::*[contains(@class,'navbar')])][@type='text' or @type='search' or not(@type)]
-        Wait Until Element Is Visible    ${input_loc}    timeout=10s
+        ${input_visible}=    Run Keyword And Return Status
+        ...    Wait Until Element Is Visible    ${input_loc}    timeout=15s
+        # Last-resort recovery: re-navigate to /ManageAccount to force a full re-render
+        IF    not ${input_visible}
+            Log    ManageAccount toolbar search input not visible after 30s — forcing re-navigation.    level=WARN    console=yes
+            ${url}=    SM Build URL    ${SM_MANAGE_ACCOUNT_PATH}
+            Navigate To Module Page    ${url}
+            Wait Until Element Is Visible    id=ManageAccountGrid    timeout=30s
+            Wait For Loading Overlay To Disappear
+            Sleep    1s
+            Wait Until Element Is Visible    ${input_loc}    timeout=20s
+        END
     END
     Clear Element Text    ${input_loc}
     Input Text    ${input_loc}    ${account_name}
@@ -173,20 +186,34 @@ SM Close Account Edit Form
 
 SM Click Wizard Button By Text
     [Documentation]    Finds and clicks a wizard button (Next/Previous/Update/Close) by its
-    ...                visible text using JavaScript — handles button, input[type=button], and
-    ...                anchor elements regardless of exact element type (same app pattern as
-    ...                btn-custom-color / btn-cancel-color used across all modules).
+    ...                visible text using JavaScript — SCOPED to the visible Edit Account modal/dialog
+    ...                so we don't accidentally click "Next"/"Update" text from the underlying listing
+    ...                page or from a sidebar/alert. Falls back to a global search only if the modal
+    ...                container can't be located (defensive — for wizard variants that aren't wrapped
+    ...                in a `.modal` element).
     [Arguments]    ${btn_text}
     ${clicked}=    Execute Javascript
-    ...    var els = document.querySelectorAll('button, input[type="button"], a, input[type="submit"]');
+    ...    function visible(el){return el && el.offsetParent !== null;}
+    ...    var modals = document.querySelectorAll('.modal, .modal-dialog, .ng-modal, [role="dialog"]');
+    ...    var scope = null;
+    ...    for(var i=0; i<modals.length; i++){ if(visible(modals[i])){ scope = modals[i]; break; } }
+    ...    if(!scope){
+    ...        var hdr = Array.from(document.querySelectorAll('h1,h2,h3,h4,h5,div,span,a'))
+    ...            .find(function(e){var t=(e.textContent||'').trim(); return /^Edit Account/.test(t) && visible(e);});
+    ...        if(hdr){ var p = hdr; for(var k=0; k<8 && p; k++){ if(p.querySelectorAll && p.querySelectorAll('button, a, input').length >= 2){ scope = p; break; } p = p.parentElement; } }
+    ...    }
+    ...    var root = scope || document;
+    ...    var els = root.querySelectorAll('button, input[type="button"], a, input[type="submit"]');
     ...    for(var i=0; i<els.length; i++){
     ...        var t = (els[i].textContent || els[i].value || '').trim();
-    ...        if(t === '${btn_text}' && els[i].offsetParent !== null){
-    ...            els[i].click(); return true;
+    ...        if(t === '${btn_text}' && visible(els[i])){
+    ...            els[i].scrollIntoView({block:'center'});
+    ...            els[i].click(); return (scope ? 'modal' : 'global') + ':' + (els[i].tagName || '?');
     ...        }
     ...    }
-    ...    return false;
-    Should Be True    ${clicked}    msg=Wizard button '${btn_text}' not found or not visible in DOM
+    ...    return '';
+    Should Not Be Empty    ${clicked}    msg=Wizard button '${btn_text}' not found or not visible in modal scope
+    Log    Wizard button '${btn_text}' clicked (scope=${clicked})    console=yes
     Sleep    1.5s
     Wait For Loading Overlay To Disappear
 
@@ -199,12 +226,19 @@ SM Navigate Wizard To Update And Save
     [Documentation]    Wizard save path: Next until Update is shown → click Update.
     ...                Persisted changes require this full flow; redirect alone does not guarantee save.
     ...                After Update, MUST see a success toast — not inferred from URL/grid only.
+    ...                Both Next and Update detections are SCOPED to the visible Edit Account modal so we
+    ...                don't match "Update"/"Next" text from the underlying listing page or sidebar.
     FOR    ${i}    IN RANGE    5
         ${has_update}=    Execute Javascript
-        ...    var els = document.querySelectorAll('button, input[type="button"], a, input[type="submit"]');
+        ...    function visible(el){return el && el.offsetParent !== null;}
+        ...    var modals = document.querySelectorAll('.modal, .modal-dialog, .ng-modal, [role="dialog"]');
+        ...    var scope = null;
+        ...    for(var i=0; i<modals.length; i++){ if(visible(modals[i])){ scope = modals[i]; break; } }
+        ...    var root = scope || document;
+        ...    var els = root.querySelectorAll('button, input[type="button"], a, input[type="submit"]');
         ...    for(var i=0; i<els.length; i++){
         ...        var t = (els[i].textContent || els[i].value || '').trim();
-        ...        if(t === 'Update' && els[i].offsetParent !== null) return true;
+        ...        if(t === 'Update' && visible(els[i])) return true;
         ...    }
         ...    return false;
         IF    ${has_update}    BREAK
@@ -517,7 +551,13 @@ SM Update EC Max IMSI
         SM Click Add Limit Button And Input Delta    + Add IMSI    ${delta}
         SM Navigate Wizard To Update And Save
     END
-    # ── Post-save: re-open wizard and verify value persisted ────────────────
+    # ── Post-save: re-navigate to /ManageAccount, re-enable Customer Wise View,
+    #    then re-open wizard to verify value persisted. The re-navigate forces the
+    #    grid toolbar (search input) to fully re-render — without it, the wizard's
+    #    closing transition can leave the toolbar half-rendered and the post-save
+    #    search times out.
+    SM Navigate To Account Module
+    SM Enable Customer Wise View
     SM Search Account By Name    ${ec_name}
     SM Open Account Edit Form    ${ec_name}
     SM Navigate Wizard To Account Settings Page
@@ -549,7 +589,12 @@ SM Update BU Max SIM
         SM Click Add Limit Button And Input Delta    + Add SIMs    ${delta}
         SM Navigate Wizard To Update And Save
     END
-    # ── Post-save: re-open wizard and verify value persisted (same as EC) ───
+    # ── Post-save: re-navigate + re-disable Customer Wise View (BU rows hidden when toggle ON),
+    #    then re-open wizard to verify value persisted. The re-navigate forces the grid toolbar
+    #    (search input) to fully re-render — without it, the wizard's closing transition can
+    #    leave the toolbar half-rendered and the post-save search times out.
+    SM Navigate To Account Module
+    SM Disable Customer Wise View
     SM Search Account By Name    ${bu_name}
     SM Open Account Edit Form    ${bu_name}
     SM Navigate Wizard To Account Settings Page
@@ -1486,6 +1531,7 @@ TC_SM_012
 
 TC_SM_013
     [Documentation]    Open SIM Movement modal then close it; SIM should not be moved.
+    Ensure Session Is Active
     ${iccid}=    SM Get Or Resolve ICCID
     SM Navigate To Manage Devices
     SM Search And Select SIM By ICCID    ${iccid}

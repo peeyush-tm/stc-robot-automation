@@ -18,7 +18,7 @@ _STANDALONE_SOURCE_BU = config_scalar("DEFAULT_BU_ACCOUNT", "")
 _STANDALONE_ICCID = ""
 _STANDALONE_IMSI = ""
 _STANDALONE_DEVICE_PLAN = ""
-_STANDALONE_TARGET_BU = ""
+_STANDALONE_TARGET_BU = config_scalar("SM_TARGET_BU_ACCOUNT", "")
 
 # ── Account from E2E Flow With Usage seed / _STANDALONE_* / STC_SM_* ─
 # Env: STC_SM_EC_ACCOUNT_NAME, STC_SM_SOURCE_BU_ACCOUNT
@@ -42,9 +42,11 @@ SM_DEVICE_PLAN_NAME = resolved(
 )
 
 # ── Target BU (move destination) ───────────────────────────────────────
+# Resolution order: E2E seed target_bu_account → onboard_bu_name → env var → config SM_TARGET_BU_ACCOUNT
 # Env: STC_SM_TARGET_BU_ACCOUNT
-SM_TARGET_BU_ACCOUNT = resolved(
-    "target_bu_account", "STC_SM_TARGET_BU_ACCOUNT", _STANDALONE_TARGET_BU
+SM_TARGET_BU_ACCOUNT = (
+    resolved("target_bu_account", "STC_SM_TARGET_BU_ACCOUNT", "")
+    or resolved("onboard_bu_name", "", _STANDALONE_TARGET_BU)
 )
 
 # ── Action / Config ───────────────────────────────────────────────────

@@ -444,23 +444,41 @@ Call Update Order Status API
         ${body_raw}=    Set Variable    ${UPDATE_ORDER_STATUS_BODY}
     END
     ${body}=    Replace String    ${body_raw}    ${TEMPLATE_ORDER_ID}    ${order_id}
-    Log    ===== SOAP Request Body =====    console=yes
-    Log    ${body}    console=yes
+    Log To Console    \n══════════════════════════════════════════════════════════════════════
+    Log To Console    SOAP REQUEST: SimOrderOperations.updateOrderStatus
+    Log To Console    ══════════════════════════════════════════════════════════════════════
+    Log To Console    Method        : POST
+    Log To Console    URL           : ${SOAP_ORDER_STATUS_URL}
+    Log To Console    Headers       : Content-Type=text/xml;charset=UTF-8
+    Log To Console     ${SPACE * 14}: Authorization=${ONBOARD_AUTH_HEADER}
+    Log To Console     ${SPACE * 14}: SOAPAction=${SOAP_ORDER_STATUS_ACTION}
+    Log To Console    Order Id      : ${order_id}
+    Log To Console    ── Body ─────────────────────────────────────────────────────────────
+    Log To Console    ${body}
+    Log To Console    ──────────────────────────────────────────────────────────────────────
     Create Session    order_status    ${SOAP_ORDER_STATUS_URL}    verify=${False}    disable_warnings=1
     ${headers}=    Create Dictionary
     ...    Content-Type=text/xml;charset=UTF-8
     ...    Authorization=${ONBOARD_AUTH_HEADER}
     ...    SOAPAction=${SOAP_ORDER_STATUS_ACTION}
+    ${start}=    Evaluate    __import__('time').time()
     ${response}=    POST On Session    order_status    url=${SOAP_ORDER_STATUS_URL}
     ...    data=${body}    headers=${headers}    expected_status=any
-    Log    ===== SOAP Response (Status: ${response.status_code}) =====    console=yes
-    Log    ${response.text}    console=yes
+    ${elapsed}=    Evaluate    round(__import__('time').time() - ${start}, 3)
+    Log To Console    \n══════════════════════════════════════════════════════════════════════
+    Log To Console    SOAP RESPONSE: SimOrderOperations.updateOrderStatus
+    Log To Console    ══════════════════════════════════════════════════════════════════════
+    Log To Console    Status        : ${response.status_code}
+    Log To Console    Elapsed       : ${elapsed}s
+    Log To Console    ── Body ─────────────────────────────────────────────────────────────
+    Log To Console    ${response.text}
+    Log To Console    ══════════════════════════════════════════════════════════════════════\n
     Should Be Equal As Integers    ${response.status_code}    200
     ...    Update Order Status API returned ${response.status_code} instead of 200
     Should Not Contain    ${response.text}    <faultstring>
     ...    SOAP fault found in updateOrderStatus response
     Delete All Sessions
-    Log    Order ${order_id} status updated to Approved successfully.    console=yes
+    Log To Console    ✓ updateOrderStatus succeeded for order_id=${order_id} (Approved).
     RETURN    ${response}
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -495,7 +513,16 @@ Activate SIMs From InActive State
     Close Filter Popup
     Sleep    0.3s
     Wait For Loading Overlay To Disappear
-    Wait Until Element Is Visible    ${LOC_DSC_GRID_ROWS}    timeout=30s
+    # Don't fail on empty grid here — distinguish "no InActive SIMs" from "grid never loaded"
+    ${rows_visible}=    Run Keyword And Return Status
+    ...    Wait Until Element Is Visible    ${LOC_DSC_GRID_ROWS}    timeout=30s
+    IF    not ${rows_visible}
+        ${row_count}=    Execute Javascript
+        ...    return document.querySelectorAll('#gridData table tbody tr.k-master-row').length;
+        Capture Page Screenshot    e2e_step16_no_inactive_sims.png
+        Fail
+        ...    No InActive SIMs found for BU="${bu_name}". The grid filter applied (Account=${bu_name}, State=InActive) returned 0 rows. Either run the full order pipeline (TC_E2EU_001–017) to create fresh SIMs, or pass a different BU via --variable E2E_BU_NAME:<bu_with_inactive_sims>.
+    END
     Log    Filters applied: Account=${bu_name}, State=${EXPECTED_INACTIVE_STATE}    console=yes
     Capture Page Screenshot    e2e_step16_filtered.png
     # --- 2. Scan rows, verify actual state, click checkboxes + capture IMSIs & MSISDNs ---

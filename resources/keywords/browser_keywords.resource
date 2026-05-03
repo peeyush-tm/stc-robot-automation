@@ -123,7 +123,7 @@ Open Test Browser
         Call Method    ${chrome_options}    add_argument    --ignore-certificate-errors
         Call Method    ${chrome_options}    add_argument    --allow-insecure-localhost
         Call Method    ${chrome_options}    add_argument    --allow-running-insecure-content
-        Evaluate    $chrome_options.add_argument('--unsafely-treat-insecure-origin-as-secure=https://10.121.77.45:8089')
+        Evaluate    $chrome_options.add_argument('--unsafely-treat-insecure-origin-as-secure=https://10.121.77.45:8089,https://10.23.48.35:8443')
         Call Method    ${chrome_options}    add_argument    --test-type
         Call Method    ${chrome_options}    add_argument    --disable-web-security
         Call Method    ${chrome_options}    add_argument    --disable-extensions
@@ -157,12 +157,12 @@ Open Test Browser
         Evaluate    $sl.driver.set_script_timeout(120)
         Evaluate    $sl.driver.maximize_window()
         ${chrome_actual}=    Execute Javascript    return JSON.stringify({w: window.innerWidth, h: window.innerHeight});
-        Log    CHROME VIEWPORT (maximized): actual=${chrome_actual}    console=yes
+        Log To Console    CHROME VIEWPORT (maximized): actual=${chrome_actual}
         Install Global Page Size Limiter
         Go To Url With Connection Retries    ${url}
         ${page_title}=    Execute Javascript    return document.title || '(no title)';
         ${page_url}=    Execute Javascript    return location.href;
-        Log    PAGE AFTER OPEN: title=${page_title} url=${page_url}    console=yes    level=WARN
+        Log To Console    PAGE AFTER OPEN: title=${page_title} url=${page_url}
         Inject Grid Oom Patch Into Current Page
     ELSE IF    '${browser}' == 'firefox'
         Open Browser    about:blank    ${browser}

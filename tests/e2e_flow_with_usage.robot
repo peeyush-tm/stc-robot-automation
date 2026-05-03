@@ -42,6 +42,7 @@ ${E2E_BU_ID}                ${EMPTY}
 @{E2E_ACTIVATED_IMSIS}
 @{E2E_IMSI_DATA}
 ${E2E_IMSI_CSV}             ${EMPTY}
+${E2E_MSISDN_CSV}           ${EMPTY}
 ${E2E_INVOICE_PATH}         ${EMPTY}
 ${E2E_CRUD_ROLE_NAME}       ${EMPTY}
 ${E2E_CRUD_USERNAME}        ${EMPTY}
@@ -91,17 +92,16 @@ ${E2E_CSR2_DP_ALIAS}        ${EMPTY}
 #    E2E_IMSI_CSV   — comma-separated IMSIs or IMSI:MSISDN pairs (CLI)
 #
 #  Steps:
-#    1   Onboard EC + BU via API        10  Validate order → In Progress     [no_sit]
-#    1b  Verify accounts on UI          11  Generate + upload 3 response files [no_sit]
-#    2   Create APN                     12  SSH: run start_readorder.sh       [no_sit]
-#    3   Create CSR Journey             13  Validate order → Completed        [no_sit]
-#    4   Create SIM Range (10)          SIT_001 Poll until order completes    [sit_only]
-#    5   Create + assign Product Type   14  Validate SIMs in Warm state
-#    6   Create SIM Order               15  SOAP: approve order (→ InActive)  [no_sit]
-#    7   Capture Order ID from grid     SIT_002 Poll until SIMs → InActive   [sit_only]
-#    8   Fetch EC/BU IDs from DB        16  Activate 5 SIMs + capture IMSIs
-#    9   SSH: run start_createorder.sh  16a Usage: CDR for all IMSIs
-#    [no_sit]                           16b Validate usage in UI
+#    1   Onboard EC + BU via API        10  Validate order → In Progress
+#    1b  Verify accounts on UI          11  Generate + upload 3 response files
+#    2   Create APN                     12  SSH: run start_readorder.sh
+#    3   Create CSR Journey             13  Validate order → Completed
+#    4   Create SIM Range (5)           14  Validate SIMs in Warm state
+#    5   Create + assign Product Type   15  SOAP: approve order (→ InActive)
+#    6   Create SIM Order               16  Activate 5 SIMs + capture IMSIs
+#    7   Capture Order ID from grid     16a Usage: CDR for all IMSIs
+#    8   Fetch EC/BU IDs from DB        16b Validate usage in UI
+#    9   SSH: run start_createorder.sh
 #                                       16c Suspend one IMSI + wait 5 min
 #                                       16d Validate IMSI Suspended
 #                                       16e Resume IMSI + wait 5 min
@@ -157,7 +157,7 @@ TC_E2EU_007 Expand EC And BU SIM Limits
     TC_E2EU_007
 
 TC_E2EU_008 Create SIM Order
-    [Documentation]    Creates a SIM Order with quantity 10 using the onboarded BU account
+    [Documentation]    Creates a SIM Order with quantity 5 using the onboarded BU account
     ...                selected via treeview (KSA_OPCO > EC > BU).
     [Tags]    regression    e2e    TC_E2EU_008    positive
     TC_E2EU_008
@@ -175,48 +175,42 @@ TC_E2EU_009 Capture Order ID From Live Order Grid
 TC_E2EU_010 Fetch EC And BU Account IDs From Database
     [Documentation]    Connects to the STC database, queries for the EC and BU account
     ...                IDs by name, stores them, and closes the DB connection.
-    [Tags]    regression    e2e    TC_E2EU_010    positive
+    ...                SKIPPED on SIT — DB host not yet provided for SIT.
+    [Tags]    regression    e2e    TC_E2EU_010    positive    no_sit
     TC_E2EU_010
 
 TC_E2EU_011 Run Create Order Script On Server
     [Documentation]    Connects to the order processing server via SSH and runs
     ...                start_createorder.sh. Waits for script completion.
-    ...                SKIPPED on SIT — cron job triggers order processing automatically.
+    ...                SKIPPED on SIT — cron auto-runs start_createorder.sh on SIT server.
     [Tags]    regression    e2e    TC_E2EU_011    positive    no_sit
     TC_E2EU_011
 
 TC_E2EU_012 Validate Order Status New To In Progress
     [Documentation]    After start_createorder.sh completes, navigates to the Live Order
     ...                tab and validates the order status changed from New to In Progress.
-    ...                SKIPPED on SIT — order progresses automatically via cron.
+    ...                SKIPPED on SIT — cron handles order processing async; only the final
+    ...                Completed status is checked (TC_E2EU_015) after a 3 min wait.
     [Tags]    regression    e2e    TC_E2EU_012    positive    no_sit
     TC_E2EU_012
 
 TC_E2EU_013 Generate And Upload Response Files To Server
     [Documentation]    Generates 3 response files and uploads them to the server.
-    ...                SKIPPED on SIT — response files are handled automatically.
-    [Tags]    regression    e2e    TC_E2EU_013    positive    no_sit
+    [Tags]    regression    e2e    TC_E2EU_013    positive
     TC_E2EU_013
 
 TC_E2EU_014 Run Read Order Script On Server
     [Documentation]    Runs start_readorder.sh on the server to process the uploaded
     ...                response files. Closes the SSH connection after completion.
-    ...                SKIPPED on SIT — cron job runs read order automatically.
+    ...                SKIPPED on SIT — cron auto-picks up uploaded response files in 3–5 minutes.
     [Tags]    regression    e2e    TC_E2EU_014    positive    no_sit
     TC_E2EU_014
 
 TC_E2EU_015 Validate Order Status In Progress To Completed
     [Documentation]    After start_readorder.sh completes, navigates to the Order History
     ...                tab and validates the order status changed to Completed.
-    ...                SKIPPED on SIT — replaced by TC_E2EU_SIT_001 which polls until auto-complete.
-    [Tags]    regression    e2e    TC_E2EU_015    positive    no_sit
+    [Tags]    regression    e2e    TC_E2EU_015    positive
     TC_E2EU_015
-
-TC_E2EU_SIT_001 Wait For Order To Complete Automatically
-    [Documentation]    SIT only — polls Order History every 30s for up to 30 min until
-    ...                the order status reaches Completed (cron job drives this automatically).
-    [Tags]    regression    e2e    TC_E2EU_SIT_001    positive    sit_only
-    TC_E2EU_SIT_001
 
 # ═══════════════════════════════════════════════════════════════════════
 #  POST-ORDER VALIDATION & ACTIVATION (Steps 14–16)
@@ -230,22 +224,29 @@ TC_E2EU_016 Validate SIMs In Warm State On Manage Devices
 
 TC_E2EU_017 Update Order Status To Approved Via SOAP API
     [Documentation]    Calls SOAP API to update the SIM order status to Approved.
-    ...                SKIPPED on SIT — order approval and InActive transition are automatic.
-    [Tags]    regression    e2e    TC_E2EU_017    positive    no_sit
+    [Tags]    regression    e2e    TC_E2EU_017    positive
     TC_E2EU_017
 
-TC_E2EU_SIT_002 Wait For SIMs To Reach InActive State Automatically
-    [Documentation]    SIT only — polls Manage Devices every 30s for up to 30 min until
-    ...                SIMs transition to InActive state (cron job drives this automatically).
-    [Tags]    regression    e2e    TC_E2EU_SIT_002    positive    sit_only
-    TC_E2EU_SIT_002
-
-TC_E2EU_018 Activate 5 SIMs And Capture IMSIs And MSISDNs
-    [Documentation]    Performs Device State Change on Manage Devices page to activate
-    ...                5 SIMs from InActive to Activated state. Captures both IMSIs and
-    ...                MSISDNs for usage steps. Stores E2E_IMSI_DATA for Steps 16a/16b.
+TC_E2EU_018 Activate 5 SIMs Via UI And Capture IMSIs And MSISDNs
+    [Documentation]    UI ONLY — Manage Devices: select 5 InActive SIMs, click Activate state
+    ...                change. Captures IMSI/MSISDN/ICCID into E2E_IMSI_DATA for the next steps.
+    ...                After this test SIMs are in IN_PROGRESS / Async state, not yet Activated.
     [Tags]    regression    e2e    TC_E2EU_018    positive
     TC_E2EU_018
+
+TC_E2EU_018A Drive Activation Fingerprint SOAP Flow
+    [Documentation]    SOAP ONLY — uses captured E2E_IMSI_DATA to drive the post-UI fingerprint
+    ...                flow: 1 min wait → DB query → FingerprintPermission.setOperationStatus
+    ...                with all MSISDNs → 30s wait → per-IMSI DB query + ResponseHandlerService.
+    [Tags]    regression    e2e    TC_E2EU_018A    positive
+    TC_E2EU_018A
+
+TC_E2EU_018B Verify All SIMs Activated On UI
+    [Documentation]    UI ONLY — confirms each IMSI from E2E_IMSI_DATA shows Activated in the
+    ...                Manage Devices grid for the BU. Retries up to 5 min if the grid lags
+    ...                behind the SOAP responses.
+    [Tags]    regression    e2e    TC_E2EU_018B    positive
+    TC_E2EU_018B
 
 # ═══════════════════════════════════════════════════════════════════════
 #  USAGE FLOW (Steps 16a, 16b) — Flow B Only (data usage only)
@@ -266,27 +267,45 @@ TC_E2EU_020 Validate Usage In UI For All IMSIs
 #  SUSPEND & RESUME (Steps 16c–16f)
 # ═══════════════════════════════════════════════════════════════════════
 
-TC_E2EU_029 Suspend One Activated IMSI
-    [Documentation]    Takes the first IMSI from E2E_IMSI_DATA, performs device state change
-    ...                Activated → Suspended. Waits 5 min for async processing.
+TC_E2EU_029 Suspend One Activated IMSI Via UI
+    [Documentation]    UI ONLY — Manage Devices: search the activated IMSI (first from
+    ...                E2E_IMSI_DATA, or pass --variable E2E_SUSPEND_IMSI:<imsi>), select row,
+    ...                Change State Activated → Suspended, submit popup, validate success toast.
+    ...                After this test the SIM is in Suspended pending state on the system.
     [Tags]    regression    e2e    TC_E2EU_029    positive
     TC_E2EU_029
 
-TC_E2EU_030 Validate IMSI Is Suspended
-    [Documentation]    Searches Manage Devices by IMSI captured in TC_E2EU_029 and
-    ...                verifies the state column shows Suspended.
+TC_E2EU_029A Drive Suspend ResponseHandler SOAP Flow
+    [Documentation]    SOAP ONLY — uses E2E_SUSPEND_IMSI captured by TC_E2EU_029. Sleeps 60s for
+    ...                goup_notification_url DB row → DB query for latest request_id → POST
+    ...                ResponseHandlerService with that tx_id in <OrderNo> → 20s settle.
+    ...                No setOperationStatus call — only ResponseHandler is needed for state
+    ...                changes on already-activated SIMs.
+    [Tags]    regression    e2e    TC_E2EU_029A    positive
+    TC_E2EU_029A
+
+TC_E2EU_030 Validate IMSI Is Suspended On UI
+    [Documentation]    UI ONLY — searches Manage Devices by E2E_SUSPEND_IMSI and verifies the
+    ...                State column now shows Suspended.
     [Tags]    regression    e2e    TC_E2EU_030    positive
     TC_E2EU_030
 
-TC_E2EU_031 Resume Suspended IMSI Back To Activated
-    [Documentation]    Takes the suspended IMSI from TC_E2EU_029, performs device state change
-    ...                Suspended → Activated. Waits 5 min for async processing.
+TC_E2EU_031 Resume Suspended IMSI Via UI
+    [Documentation]    UI ONLY — Manage Devices: search the suspended IMSI (E2E_SUSPEND_IMSI),
+    ...                select row, Change State Suspended → Activated, submit popup, validate
+    ...                success toast.
     [Tags]    regression    e2e    TC_E2EU_031    positive
     TC_E2EU_031
 
-TC_E2EU_032 Validate IMSI Is Activated Again
-    [Documentation]    Searches Manage Devices by IMSI captured in TC_E2EU_029 and
-    ...                verifies the state column shows Activated again.
+TC_E2EU_031A Drive Resume ResponseHandler SOAP Flow
+    [Documentation]    SOAP ONLY — same shape as TC_E2EU_029A: 60s wait → DB query → SOAP
+    ...                ResponseHandlerService → 20s settle. No setOperationStatus.
+    [Tags]    regression    e2e    TC_E2EU_031A    positive
+    TC_E2EU_031A
+
+TC_E2EU_032 Validate IMSI Is Activated Again On UI
+    [Documentation]    UI ONLY — searches Manage Devices by E2E_SUSPEND_IMSI and verifies the
+    ...                State column shows Activated again.
     [Tags]    regression    e2e    TC_E2EU_032    positive
     TC_E2EU_032
 
@@ -310,10 +329,11 @@ TC_E2EU_023 Perform Device Plan Change On One Activated SIM And Validate
 #  REPORT (Step 19 — before invoice so report captures all usage events)
 # ═══════════════════════════════════════════════════════════════════════
 
-TC_E2EU_024 Create Usage Report For Onboarded Account And Download
-    [Documentation]    Creates a Usage Report at OPCO display level (KSA_OPCO) covering
-    ...                the onboarded EC and BU account. Downloads the report file to the
-    ...                Report subfolder of the current run's output directory.
+TC_E2EU_024 Create 3 Usage Reports OPCO EC BU And Download All
+    [Documentation]    Creates 3 Usage Reports — OPCO (KSA_OPCO), Customer (E2E_EC_NAME),
+    ...                Business Unit (E2E_BU_NAME). Validates each is generated successfully
+    ...                and downloaded successfully. Output goes to the Report subfolder of
+    ...                the current run's directory.
     [Tags]    regression    e2e    TC_E2EU_024    positive
     TC_E2EU_024
 
@@ -325,7 +345,8 @@ TC_E2EU_021 Generate Invoice And Download CSV
     [Documentation]    Calls Invoice API with BU account ID after all billing events
     ...                (usage, suspend/resume, DP change) so the invoice billing file
     ...                includes all charges. Downloads CSV from server to local billing/ folder.
-    [Tags]    regression    e2e    TC_E2EU_021    positive
+    ...                SKIPPED on SIT — invoice API host not yet provided for SIT.
+    [Tags]    regression    e2e    TC_E2EU_021    positive    no_sit
     TC_E2EU_021
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -417,7 +438,7 @@ TC_E2EU_006
 TC_E2EU_007
     Should Not Be Empty    ${E2E_EC_NAME}    Step 1 must run first — EC name is empty.
     Should Not Be Empty    ${E2E_BU_NAME}    Step 1 must run first — BU name is empty.
-    E2E Expand EC And BU SIM Limits    ${E2E_EC_NAME}    ${E2E_BU_NAME}    10
+    E2E Expand EC And BU SIM Limits    ${E2E_EC_NAME}    ${E2E_BU_NAME}    5
 
 TC_E2EU_008
     Should Not Be Empty    ${E2E_EC_NAME}    Step 1 must run first — EC name is empty.
@@ -471,10 +492,10 @@ TC_E2EU_017
 
 TC_E2EU_018
     Should Not Be Empty    ${E2E_BU_NAME}    Step 1 must run first — BU name is empty.
-    ${activated_imsis}    ${imsi_data}=    E2E Activate SIMs And Capture IMSIs    ${E2E_BU_NAME}
+    ${activated_imsis}    ${imsi_data}    ${activated_iccids}=    E2E Activate SIMs UI Action    ${E2E_BU_NAME}
     Set Suite Variable    @{E2E_ACTIVATED_IMSIS}    @{activated_imsis}
     Set Suite Variable    @{E2E_IMSI_DATA}    @{imsi_data}
-    Log    Activated ${SIM_ACTIVATE_COUNT} SIMs. IMSIs + MSISDNs stored for usage.    console=yes
+    Log    UI Activate submitted for ${SIM_ACTIVATE_COUNT} SIMs. IMSIs + MSISDNs captured.    console=yes
     FOR    ${entry}    IN    @{E2E_IMSI_DATA}
         Log    IMSI: ${entry}[imsi] | MSISDN: ${entry}[msisdn]    console=yes
     END
@@ -488,6 +509,33 @@ TC_E2EU_018
         ${_second}=    Get From List    ${activated_imsis}    1
         Write Seed Value    e2e_usage_second_activated_imsi    ${_second}
     END
+
+TC_E2EU_018A
+    # Allow standalone runs by building E2E_IMSI_DATA from CLI variables when suite var is empty:
+    #   --variable E2E_IMSI_CSV:imsi1,imsi2,...    --variable E2E_MSISDN_CSV:msisdn1,msisdn2,...
+    ${count}=    Get Length    ${E2E_IMSI_DATA}
+    IF    ${count} == 0 and "${E2E_IMSI_CSV}" != "${EMPTY}" and "${E2E_MSISDN_CSV}" != "${EMPTY}"
+        @{imsis}=     Split String    ${E2E_IMSI_CSV}      ,
+        @{msisdns}=   Split String    ${E2E_MSISDN_CSV}    ,
+        ${ic}=    Get Length    ${imsis}
+        ${mc}=    Get Length    ${msisdns}
+        Should Be Equal As Numbers    ${ic}    ${mc}    msg=E2E_IMSI_CSV (${ic}) and E2E_MSISDN_CSV (${mc}) must have equal counts.
+        @{built}=    Create List
+        FOR    ${i}    IN RANGE    ${ic}
+            ${entry}=    Create Dictionary    imsi=${imsis}[${i}]    msisdn=${msisdns}[${i}]
+            Append To List    ${built}    ${entry}
+        END
+        Set Suite Variable    @{E2E_IMSI_DATA}    @{built}
+        Log To Console    Built E2E_IMSI_DATA from CLI: ${ic} entries.
+    END
+    Should Not Be Empty    ${E2E_IMSI_DATA}
+    ...    TC_E2EU_018 must run first OR pass --variable E2E_IMSI_CSV:... --variable E2E_MSISDN_CSV:...
+    E2E Drive Activation Fingerprint Flow    @{E2E_IMSI_DATA}
+
+TC_E2EU_018B
+    Should Not Be Empty    ${E2E_BU_NAME}            Step 1 must run first — BU name is empty.
+    Should Not Be Empty    ${E2E_ACTIVATED_IMSIS}    TC_E2EU_018 must run first — activated IMSI list is empty.
+    E2E Verify SIMs Activated UI    ${E2E_ACTIVATED_IMSIS}    ${E2E_BU_NAME}
 
 TC_E2EU_019
     Populate IMSI Data If Needed
@@ -524,23 +572,21 @@ TC_E2EU_023
     Log    Step 19 complete: DP change performed and validated on one activated SIM.    console=yes
 
 TC_E2EU_024
-    [Documentation]    Creates a Usage Report at OPCO display level (auto-selects KSA_OPCO),
-    ...                waits for it to be ready, downloads it into the Report subfolder of
-    ...                the current run output directory.
+    [Documentation]    Creates 3 Usage Reports — one per display level (OPCO, Customer/EC,
+    ...                Business Unit/BU) — and validates each one is generated successfully and
+    ...                downloaded successfully. Uses E2E_EC_NAME / E2E_BU_NAME captured by Step 1
+    ...                (or pass via --variable for standalone runs).
+    Should Not Be Empty    ${E2E_EC_NAME}    Step 1 must run first OR pass --variable E2E_EC_NAME:<ec>
+    Should Not Be Empty    ${E2E_BU_NAME}    Step 1 must run first OR pass --variable E2E_BU_NAME:<bu>
     ${report_dir}=    Set Variable    ${OUTPUT DIR}${/}Report
     Create Directory    ${report_dir}
-    Login And Navigate To Create Report
-    Select Report Category    ${REPORT_CATEGORY_NAME}
-    Select View Criterion    ${VIEW_CRITERION_VALUE}
-    Wait For From Date Picker
-    Select Display Level    OPCO
-    Verify Account Auto Selected
-    Select Report Format    ${REPORT_FORMAT_VALUE}
-    Submit Create Report Form
-    Verify Report Created Successfully And Grid Visible
-    Apply Report Name Filter    ${REPORT_CATEGORY_NAME}
-    Download Report From First Row And Verify Click    ${REPORT_CATEGORY_NAME}
-    Log    Step 17 complete: Usage Report created and downloaded to ${report_dir}    console=yes
+    # Report 1: OPCO level (KSA_OPCO auto-selected)
+    E2E Create And Download One Report    OPCO
+    # Report 2: Customer (EC) level
+    E2E Create And Download One Report    Customer    ${E2E_EC_NAME}
+    # Report 3: Business Unit (BU) level
+    E2E Create And Download One Report    Business Unit    ${E2E_BU_NAME}
+    Log    Step 17 complete: 3 Usage Reports (OPCO + EC=${E2E_EC_NAME} + BU=${E2E_BU_NAME}) created and downloaded to ${report_dir}    console=yes
 
 TC_E2EU_025
     [Documentation]    Creates a role for E2E CRUD validation.
@@ -588,15 +634,28 @@ TC_E2EU_028
     Log    Step 20d complete: User '${E2E_CRUD_USERNAME}' deleted.    console=yes
 
 TC_E2EU_029
-    Populate IMSI Data If Needed
-    ${count}=    Get Length    ${E2E_IMSI_DATA}
-    Should Be True    ${count} > 0    No IMSI data available. TC_E2EU_018 must run first.
-    ${first_entry}=    Get From List    ${E2E_IMSI_DATA}    0
-    ${imsi}=    Set Variable    ${first_entry}[imsi]
-    Set Suite Variable    ${E2E_SUSPEND_IMSI}    ${imsi}
-    Log    Step 16c: Suspending IMSI ${imsi} (Activated → Suspended)...    console=yes
-    E2E Change SIM State    ${E2E_BU_NAME}    ${imsi}    Activated    Suspended
-    Log    Step 16c complete: Suspend submitted for IMSI ${imsi}. Waiting 5 min...    console=yes
+    # Standalone: pass --variable E2E_SUSPEND_IMSI:<imsi> to skip the lookup from E2E_IMSI_DATA.
+    # Otherwise the first IMSI from TC_E2EU_018's capture is suspended.
+    IF    "${E2E_SUSPEND_IMSI}" == "${EMPTY}"
+        Populate IMSI Data If Needed
+        ${count}=    Get Length    ${E2E_IMSI_DATA}
+        Should Be True    ${count} > 0
+        ...    No IMSI data available. Either run TC_E2EU_018 first OR pass --variable E2E_SUSPEND_IMSI:<imsi>.
+        ${first_entry}=    Get From List    ${E2E_IMSI_DATA}    0
+        ${imsi}=    Set Variable    ${first_entry}[imsi]
+        Set Suite Variable    ${E2E_SUSPEND_IMSI}    ${imsi}
+    ELSE
+        Log To Console    Using IMSI from CLI: ${E2E_SUSPEND_IMSI}
+    END
+    Log    Step 16c: UI Suspend submit for IMSI ${E2E_SUSPEND_IMSI} (Activated → Suspended)...    console=yes
+    E2E Change SIM State    ${E2E_BU_NAME}    ${E2E_SUSPEND_IMSI}    Activated    Suspended    wait_after_seconds=0
+    Log    Step 16c complete: UI Suspend action submitted + success toast for IMSI ${E2E_SUSPEND_IMSI}.    console=yes
+
+TC_E2EU_029A
+    Should Not Be Empty    ${E2E_SUSPEND_IMSI}    TC_E2EU_029 must run first OR pass --variable E2E_SUSPEND_IMSI:<imsi>.
+    Log    Step 16c-soap: Suspend ResponseHandler flow for IMSI ${E2E_SUSPEND_IMSI}    console=yes
+    FP Process Single IMSI Transaction Flow    ${E2E_SUSPEND_IMSI}    state_label=Suspend
+    Log    Step 16c-soap complete: ResponseHandler posted for IMSI ${E2E_SUSPEND_IMSI}.    console=yes
 
 TC_E2EU_030
     Should Not Be Empty    ${E2E_SUSPEND_IMSI}    TC_E2EU_029 must run first.
@@ -606,32 +665,21 @@ TC_E2EU_030
 
 TC_E2EU_031
     Should Not Be Empty    ${E2E_SUSPEND_IMSI}    TC_E2EU_029 must run first.
-    Log    Step 16e: Resuming IMSI ${E2E_SUSPEND_IMSI} (Suspended → Activated)...    console=yes
-    E2E Change SIM State    ${E2E_BU_NAME}    ${E2E_SUSPEND_IMSI}    Suspended    Activated
-    Log    Step 16e complete: Resume submitted for IMSI ${E2E_SUSPEND_IMSI}. Waiting 5 min...    console=yes
+    Log    Step 16e: UI Resume submit for IMSI ${E2E_SUSPEND_IMSI} (Suspended → Activated)...    console=yes
+    E2E Change SIM State    ${E2E_BU_NAME}    ${E2E_SUSPEND_IMSI}    Suspended    Activated    wait_after_seconds=0
+    Log    Step 16e complete: UI Resume action submitted + success toast for IMSI ${E2E_SUSPEND_IMSI}.    console=yes
+
+TC_E2EU_031A
+    Should Not Be Empty    ${E2E_SUSPEND_IMSI}    TC_E2EU_029 must run first OR pass --variable E2E_SUSPEND_IMSI:<imsi>.
+    Log    Step 16e-soap: Resume ResponseHandler flow for IMSI ${E2E_SUSPEND_IMSI}    console=yes
+    FP Process Single IMSI Transaction Flow    ${E2E_SUSPEND_IMSI}    state_label=Resume
+    Log    Step 16e-soap complete: ResponseHandler posted for IMSI ${E2E_SUSPEND_IMSI}.    console=yes
 
 TC_E2EU_032
     Should Not Be Empty    ${E2E_SUSPEND_IMSI}    TC_E2EU_029 must run first.
     Log    Step 16f: Verifying IMSI ${E2E_SUSPEND_IMSI} is Activated again...    console=yes
     Verify Device State After Change    ${E2E_SUSPEND_IMSI}    Activated
     Log    Step 16f complete: IMSI ${E2E_SUSPEND_IMSI} confirmed Activated.    console=yes
-
-TC_E2EU_SIT_001
-    [Documentation]    Polls Order History every 30s for up to 30 min until order reaches Completed.
-    Should Not Be Empty    ${E2E_ORDER_ID}    Step 9 must run first — Order ID is empty.
-    Should Not Be Empty    ${E2E_BU_NAME}     Step 1 must run first — BU name is empty.
-    Log    SIT: Waiting for order ${E2E_ORDER_ID} to complete automatically (up to 30 min)...    console=yes
-    Wait Until Keyword Succeeds    60x    30s
-    ...    E2E Verify Order Status In History    ${E2E_BU_NAME}    ${E2E_ORDER_ID}    Completed
-    Log    SIT Step: Order ${E2E_ORDER_ID} reached Completed status.    console=yes
-
-TC_E2EU_SIT_002
-    [Documentation]    Polls Manage Devices every 30s for up to 30 min until SIMs reach InActive state.
-    Should Not Be Empty    ${E2E_BU_NAME}    Step 1 must run first — BU name is empty.
-    Log    SIT: Waiting for SIMs to reach InActive state automatically (up to 30 min)...    console=yes
-    Wait Until Keyword Succeeds    60x    30s
-    ...    E2E Verify At Least One SIM In State    ${E2E_BU_NAME}    InActive
-    Log    SIT Step: SIMs reached InActive state.    console=yes
 
 Populate IMSI Data If Needed
     [Documentation]    If E2E_IMSI_DATA is empty but E2E_IMSI_CSV was passed via CLI,

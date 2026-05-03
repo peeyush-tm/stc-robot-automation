@@ -17,6 +17,7 @@ Resource    order_processing_keywords.resource
 Resource    usage_keywords.resource
 Resource    device_plan_keywords.resource
 Resource    sim_movement_keywords.resource
+Resource    fingerprint_permission_keywords.resource
 Resource    ../locators/login_locators.resource
 Resource    ../locators/apn_locators.resource
 Resource    ../locators/csr_journey_locators.resource
@@ -230,28 +231,34 @@ E2E Create CSR Journey
 #  STEP 4: SIM RANGE CREATION (UI)
 # ═══════════════════════════════════════════════════════════════════════
 E2E Create SIM Range
-    [Documentation]    Creates (1) ICCID/IMSI SIM range with 10 pool count and (2) MSISDN SIM range
-    ...                with 10 pool count, using the default account (KSA_OPCO). Validates both in grid.
+    [Documentation]    Creates (1) ICCID/IMSI SIM range and (2) MSISDN SIM range using the configured
+    ...                pool count from ``config/<env>.json``. Validates both in grid. ICCID/IMSI/MSISDN
+    ...                cursors auto-advance after successful submission so subsequent runs do not collide.
+    ${pool_for_log}=    Set Variable    ${EXPECTED_POOL_COUNT}
+    ${used_iccid_from}=    Set Variable    ${VALID_ICCID_FROM}
+    ${used_iccid_to}=      Set Variable    ${VALID_ICCID_TO}
+    ${used_imsi_from}=     Set Variable    ${VALID_IMSI_FROM}
+    ${used_imsi_to}=       Set Variable    ${VALID_IMSI_TO}
     Ensure Session Is Active
-    # --- 1. ICCID/IMSI range (10 pool count) ---
+    # --- 1. ICCID/IMSI range ---
     Navigate To Module Page    ${CREATE_SIM_RANGE_URL}
     Wait Until Element Is Visible    ${LOC_SR_POOL_NAME}    timeout=30s
     Fill SIM Range With ICCID And IMSI
     Verify Pool Count    ${EXPECTED_POOL_COUNT}
     Submit SIM Range Form
     Verify SIM Range Created Successfully
-    Log    E2E SIM Range created: pool="${VALID_POOL_NAME}" ICCID/IMSI count=10 (default account)    console=yes
-    E2E Validate SIM Range In Grid    ${VALID_POOL_NAME}    ${VALID_ICCID_FROM}    ${VALID_ICCID_TO}
-    ...    ${VALID_IMSI_FROM}    ${VALID_IMSI_TO}
-    # --- 2. MSISDN range (10 pool count) ---
+    Log    E2E SIM Range created: pool="${VALID_POOL_NAME}" ICCID/IMSI count=${pool_for_log} (default account)    console=yes
+    E2E Validate SIM Range In Grid    ${VALID_POOL_NAME}    ${used_iccid_from}    ${used_iccid_to}
+    ...    ${used_imsi_from}    ${used_imsi_to}
+    # --- 2. MSISDN range ---
     Navigate To Module Page    ${CREATE_SIM_RANGE_MSISDN_URL}
     Wait Until Element Is Visible    ${LOC_SR_POOL_NAME}    timeout=30s
     Fill MSISDN SIM Range With Ranges    ${MSISDN_POOL_NAME}    ${MSISDN_DESCRIPTION}
     ...    ${VALID_MSISDN_FROM}    ${VALID_MSISDN_TO}
     Verify MSISDN Grid Has Rows    expected_min=1
     Submit SIM Range Form
-    Verify SIM Range Created Successfully
-    Log    E2E MSISDN SIM Range created: pool="${MSISDN_POOL_NAME}" count=10 (default account)    console=yes
+    Verify MSISDN SIM Range Created Successfully
+    Log    E2E MSISDN SIM Range created: pool="${MSISDN_POOL_NAME}" count=${EXPECTED_MSISDN_POOL_COUNT} (default account)    console=yes
 
 E2E Validate SIM Range In Grid
     [Documentation]    Delegates to the shared Validate SIM Range Grid Row keyword.
@@ -364,7 +371,7 @@ E2E Expand EC And BU SIM Limits
     ...                ManageAccount, go to Account Settings page, click + Add IMSI /
     ...                + Add SIMs modal with the given increment, then Next → Update.
     ...                Required so the BU has SIM capacity headroom for the upcoming order.
-    [Arguments]    ${ec_name}    ${bu_name}    ${increment}=10
+    [Arguments]    ${ec_name}    ${bu_name}    ${increment}=5
     Ensure Session Is Active
     # ─── EC ───────────────────────────────────────────────
     ${ec_cur}=    SM Get EC Max IMSI Count    ${ec_name}
@@ -383,8 +390,8 @@ E2E Expand EC And BU SIM Limits
 # ═══════════════════════════════════════════════════════════════════════
 E2E Create SIM Order
     [Documentation]    Creates a SIM Order by selecting the onboarded BU account from the
-    ...                treeview (KSA_OPCO > EC > BU) with configurable quantity (default 10).
-    [Arguments]    ${ec_name}    ${bu_name}    ${quantity}=${10}
+    ...                treeview (KSA_OPCO > EC > BU) with configurable quantity (default 5).
+    [Arguments]    ${ec_name}    ${bu_name}    ${quantity}=${5}
     Ensure Session Is Active
     Navigate To Module Page    ${CREATE_SIM_ORDER_URL}
     Wait For Loading Overlay To Disappear
@@ -806,12 +813,21 @@ E2E Run Create Order Script
 #  STEP 10: VALIDATE ORDER STATUS — New → In Progress
 # ═══════════════════════════════════════════════════════════════════════
 E2E Validate Order Status New To In Progress
-    [Documentation]    Waits 2 minutes for server-side processing, then validates order
-    ...                status changed to In Progress on Live Order tab.
+    [Documentation]    Waits for server-side processing then validates order status changed
+    ...                to In Progress on Live Order tab. On QE/dev, processing is synchronous
+    ...                (start_createorder.sh ran in TC_011) so a 2 min sleep is enough. On SIT,
+    ...                cron drives the script async so we poll up to ~6 min.
     [Arguments]    ${order_id}
-    Log    Waiting 2 minutes for server to process create order...    console=yes
-    Sleep    120s    reason=Waiting 2 min after start_createorder.sh
-    Validate Order Status In Live Order Grid    ${order_id}    ${STATUS_IN_PROGRESS}
+    ${is_sit}=    Evaluate    '${ENV}'.lower() == 'sit'
+    IF    ${is_sit}
+        Log    SIT: polling Live Order for status In Progress (up to ~6 min for cron)...    console=yes
+        Wait Until Keyword Succeeds    12x    30s
+        ...    Validate Order Status In Live Order Grid    ${order_id}    ${STATUS_IN_PROGRESS}
+    ELSE
+        Log    Waiting 2 minutes for server to process create order...    console=yes
+        Sleep    120s    reason=Waiting 2 min after start_createorder.sh
+        Validate Order Status In Live Order Grid    ${order_id}    ${STATUS_IN_PROGRESS}
+    END
     Capture Page Screenshot    e2e_order_status_in_progress.png
     Log    Order ${order_id} status confirmed: In Progress    console=yes
 
@@ -860,11 +876,20 @@ E2E Run Read Order Script
 #  STEP 13: VALIDATE ORDER STATUS — In Progress → Completed
 # ═══════════════════════════════════════════════════════════════════════
 E2E Validate Order Status Completed
-    [Documentation]    Waits 2 minutes for server-side processing, then validates order
-    ...                status changed to Completed on Order History tab.
+    [Documentation]    Waits for server-side processing then validates order status changed
+    ...                to Completed on Order History tab. On QE/dev, processing is synchronous
+    ...                (start_readorder.sh ran in TC_014) so a 2 min sleep is enough. On SIT,
+    ...                cron picks up uploaded response files and processes them within ~3 min,
+    ...                so we sleep 3 min then assert Completed once.
     [Arguments]    ${order_id}
-    Log    Waiting 2 minutes for server to process read order...    console=yes
-    Sleep    120s    reason=Waiting 2 min after start_readorder.sh
+    ${is_sit}=    Evaluate    '${ENV}'.lower() == 'sit'
+    IF    ${is_sit}
+        Log    SIT: waiting 3 minutes for cron to process uploaded response files...    console=yes
+        Sleep    180s    reason=Wait 3 min for SIT cron to pick up + process response files
+    ELSE
+        Log    Waiting 2 minutes for server to process read order...    console=yes
+        Sleep    120s    reason=Waiting 2 min after start_readorder.sh
+    END
     Validate Order Status In Order History    ${order_id}    ${STATUS_COMPLETED}
     Capture Page Screenshot    e2e_order_status_completed.png
     Log    Order ${order_id} status confirmed: Completed in Order History    console=yes
@@ -899,17 +924,15 @@ E2E Update Order Status To Approved
 # ═══════════════════════════════════════════════════════════════════════
 #  STEP 16: ACTIVATE 5 SIMs (InActive → Activated) + CAPTURE IMSIs
 # ═══════════════════════════════════════════════════════════════════════
-E2E Activate SIMs And Capture IMSIs
-    [Documentation]    Selects InActive SIMs (default ${SIM_ACTIVATE_COUNT}), activates them all in one go,
-    ...                waits 5 min, then verifies each IMSI is Activated.
-    ...                Writes ``first_activated_imsi``, ``first_activated_iccid``, and when present
-    ...                ``second_activated_imsi`` / ``second_activated_iccid`` to .run_seed.json for downstream suites.
-    ...                Returns two values: flat IMSI list and list of {imsi, msisdn, iccid} dicts.
+E2E Activate SIMs UI Action
+    [Documentation]    UI step only: selects ${count} InActive SIMs and submits the Activate state
+    ...                change action. Captures the IMSIs / MSISDNs / ICCIDs that were just submitted
+    ...                so the next test can drive the SOAP fingerprint flow against them.
+    ...                Persists ``first_activated_imsi`` / ``first_activated_iccid`` (+ ``second_*``)
+    ...                to .run_seed.json for downstream suites.
+    ...                Returns three values: flat IMSI list, list of {imsi, msisdn, iccid} dicts, and ICCID list.
     [Arguments]    ${bu_name}    ${count}=${SIM_ACTIVATE_COUNT}
     ${activated_imsis}    ${imsi_data}    ${activated_iccids}=    Activate SIMs From InActive State    ${bu_name}    ${count}
-    Log    Verifying all ${count} SIMs are now Activated...    console=yes
-    Verify Activated SIMs    ${activated_imsis}    ${bu_name}
-    Capture Page Screenshot    e2e_all_sims_activated_verified.png
     # Persist activated IMSIs/ICCIDs for SIM Movement, Device Plan, Device State (full pipeline)
     ${iccid_count}=    Get Length    ${activated_iccids}
     ${imsi_count}=    Get Length    ${activated_imsis}
@@ -933,8 +956,37 @@ E2E Activate SIMs And Capture IMSIs
         Write Seed Value    second_activated_iccid    ${second_iccid}
         Log    Persisted second_activated_iccid=${second_iccid} to .run_seed.json    console=yes
     END
-    Log    Step 16 complete: All ${SIM_ACTIVATE_COUNT} SIMs verified Activated for ${bu_name}    console=yes
-    RETURN    ${activated_imsis}    ${imsi_data}
+    Log    UI activate submitted: ${imsi_count} SIM(s) for BU="${bu_name}". IMSIs+MSISDNs captured.    console=yes
+    RETURN    ${activated_imsis}    ${imsi_data}    ${activated_iccids}
+
+E2E Drive Activation Fingerprint Flow
+    [Documentation]    SOAP-only step: takes the IMSI/MSISDN data captured from the UI activate
+    ...                action and drives the post-UI fingerprint flow:
+    ...                  - Sleep 1 min, capture latest transaction_id from goup_notification_url DB.
+    ...                  - Call FingerprintPermissionImplService.setOperationStatus once with all MSISDNs.
+    ...                  - For each IMSI capture latest transaction_id and call ResponseHandlerService.
+    [Arguments]    @{imsi_data}
+    FP Process Activation Fingerprint Flow    @{imsi_data}
+
+E2E Verify SIMs Activated UI
+    [Documentation]    UI verification step: confirms each IMSI shows ``Activated`` in the Manage
+    ...                Devices grid for the given BU. Retries up to 5 minutes if grid lag.
+    ...                Accepts ``${activated_imsis}`` as either a Robot list or a comma-separated
+    ...                string (so it can be passed via ``--variable E2E_ACTIVATED_IMSIS:imsi1,imsi2,...``
+    ...                from the CLI for standalone runs).
+    [Arguments]    ${activated_imsis}    ${bu_name}
+    ${is_string}=    Evaluate    isinstance($activated_imsis, str)
+    IF    ${is_string}
+        @{imsis}=    Split String    ${activated_imsis}    ,
+        ${imsis}=    Evaluate    [s.strip() for s in $imsis if s.strip()]
+    ELSE
+        ${imsis}=    Set Variable    ${activated_imsis}
+    END
+    ${count}=    Get Length    ${imsis}
+    Log    Verifying all ${count} SIM(s) are now Activated for BU="${bu_name}"...    console=yes
+    Verify Activated SIMs    ${imsis}    ${bu_name}
+    Capture Page Screenshot    e2e_all_sims_activated_verified.png
+    Log    All ${count} SIMs verified Activated for BU="${bu_name}".    console=yes
 
 # ═══════════════════════════════════════════════════════════════════════
 #  STEP 17: INVOICE GENERATION + DOWNLOAD
@@ -1158,8 +1210,10 @@ E2E Perform Device Plan Change On One Activated SIM And Validate
 E2E Change SIM State
     [Documentation]    Navigates to Manage Devices, searches for the given IMSI, selects it,
     ...                performs a state change from ${from_state} to ${to_state},
-    ...                waits for success toast, then waits 5 minutes for async processing.
-    [Arguments]    ${bu_name}    ${imsi}    ${from_state}    ${to_state}
+    ...                waits for success toast, then optionally waits ``${wait_after_seconds}`` (default
+    ...                300s) for async processing. Pass ``wait_after_seconds=0`` when the caller drives
+    ...                the state transition explicitly via the SOAP fingerprint flow (suspend/resume).
+    [Arguments]    ${bu_name}    ${imsi}    ${from_state}    ${to_state}    ${wait_after_seconds}=300
     Ensure Session Is Active
     Go To    ${MANAGE_DEVICES_URL_E2E}
     Wait For Loading Overlay To Disappear
@@ -1175,7 +1229,22 @@ E2E Change SIM State
     ...    Expected IMSI ${imsi} to be in "${from_state}" but grid shows "${actual_state}".
     Select Device By Row Index    ${0}
     Select Change State Action
-    Select Target State And Submit    ${to_state}
+    # Map state-pair → dropdown action label (CMP shows ACTIONS in the dropdown, not target states):
+    #   Activated  → Suspended  : "Suspend"
+    #   Suspended  → Activated  : "Resume"
+    #   InActive   → Activated  : "Activated" (works as-is)
+    #   *          → Terminated : "Terminate"
+    # Default = ${to_state} for backward compatibility.
+    ${dropdown_action}=    Set Variable    ${to_state}
+    IF    '${from_state}' == 'Activated' and '${to_state}' == 'Suspended'
+        ${dropdown_action}=    Set Variable    Suspend
+    ELSE IF    '${from_state}' == 'Suspended' and '${to_state}' == 'Activated'
+        ${dropdown_action}=    Set Variable    Resume
+    ELSE IF    '${to_state}' == 'Terminated'
+        ${dropdown_action}=    Set Variable    Terminate
+    END
+    Log To Console    State change ${from_state} → ${to_state} maps to dropdown action "${dropdown_action}"
+    Select Target State And Submit    ${dropdown_action}
     Fill Popup And Submit    ${from_state}    ${to_state}
     ${toast_ok}=    Run Keyword And Return Status
     ...    Wait Until Element Is Visible    ${LOC_DSC_TOAST_SUCCESS}    timeout=30s
@@ -1192,9 +1261,14 @@ E2E Change SIM State
         Sleep    1s
     END
     Capture Page Screenshot    e2e_state_change_${from_state}_to_${to_state}_${imsi}.png
-    Log    State change ${from_state} → ${to_state} submitted for IMSI ${imsi}. Waiting 5 min...    console=yes
-    Sleep    300s
-    Wait For Loading Overlay To Disappear
+    ${wait_int}=    Convert To Integer    ${wait_after_seconds}
+    IF    ${wait_int} > 0
+        Log    State change ${from_state} → ${to_state} submitted for IMSI ${imsi}. Waiting ${wait_int}s...    console=yes
+        Sleep    ${wait_int}s
+        Wait For Loading Overlay To Disappear
+    ELSE
+        Log    State change ${from_state} → ${to_state} submitted for IMSI ${imsi}. Skipping post-wait (caller drives completion).    console=yes
+    END
 
 # ═══════════════════════════════════════════════════════════════════════
 #  SIT-ONLY: POLLING KEYWORDS (used by TC_E2E_SIT_001/002)
