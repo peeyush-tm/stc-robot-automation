@@ -212,10 +212,10 @@ E2E Step 01 Onboard
     Log    STEP 01 - ONBOARD EC AND BU [${tc_id}]    console=yes
     Log    ============================================================    console=yes
     ${tariff_plan}    ${bundle_plan}    ${tariff_plan_2}    ${bundle_plan_2}=    Get Plan Data From CSV    ${tc_id}
-    Log    [PLAN] Tariff Plan   : ${tariff_plan}    console=yes
-    Log    [PLAN] Bundle Plan   : ${bundle_plan}    console=yes
-    Log    [PLAN] Tariff Plan 2 : ${tariff_plan_2}    console=yes
-    Log    [PLAN] Bundle Plan 2 : ${bundle_plan_2}    console=yes
+    Log    [PLAN] Tariff Plan: ${tariff_plan}    console=yes
+    Log    [PLAN] Bundle Plan: ${bundle_plan}    console=yes
+    Log    [PLAN] Tariff Plan 2: ${tariff_plan_2}    console=yes
+    Log    [PLAN] Bundle Plan 2: ${bundle_plan_2}    console=yes
     Set Suite Variable    ${CSRJ_DEFAULT_TARIFF_PLAN}    ${tariff_plan}
     Set Suite Variable    ${CSRJ_DEFAULT_BUNDLE_PLAN}    ${bundle_plan}
     Set Suite Variable    ${CSRJ_DEFAULT_TARIFF_PLAN_2}    ${tariff_plan_2}
