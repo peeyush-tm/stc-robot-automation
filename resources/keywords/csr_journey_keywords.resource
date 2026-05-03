@@ -441,9 +441,9 @@ CSRJ Assert Bu Button Reflects Selection
 
 Verify Create Order Button Visible
     [Documentation]    Asserts the Create Order button is visible (user has RW permission).
-    Wait Until Page Contains Element    ${LOC_CSRJ_CREATE_ORDER_BTN}    ${CSRJ_TIMEOUT}
+    Wait Until Page Contains Element    ${LOC_CSRJ_CREATE_ORDER_BTN}    60s
     Scroll To Element Via JS    ${LOC_CSRJ_CREATE_ORDER_BTN}
-    Wait Until Element Is Visible    ${LOC_CSRJ_CREATE_ORDER_BTN}    ${CSRJ_TIMEOUT}
+    Wait Until Element Is Visible    ${LOC_CSRJ_CREATE_ORDER_BTN}    60s
 
 Verify Create Order Button Not Visible
     [Documentation]    Asserts the Create Order button is not visible.
@@ -502,7 +502,7 @@ Click Create Order
     [Documentation]    Clicks Create Order button; waits until page is fully loaded before selecting tariff plan
     ...                (avoids tariff plan reset due to loading). Do not select tariff plan before loading finishes.
     Wait For App Loading To Complete    timeout=60s
-    Wait Until Element Is Visible    ${LOC_CSRJ_CREATE_ORDER_BTN}    ${CSRJ_TIMEOUT}
+    Wait Until Element Is Visible    ${LOC_CSRJ_CREATE_ORDER_BTN}    60s
     Click Element Via JS             ${LOC_CSRJ_CREATE_ORDER_BTN}
     Wait Until Keyword Succeeds      ${CSRJ_RETRY_COUNT}    ${CSRJ_RETRY_INTERVAL}
     ...    Location Should Contain    CreateCSRJourney
@@ -3071,9 +3071,8 @@ Navigate To Standard Services With Tariff And APN
     Select CSR Journey Business Unit
     Click Create Order
     Verify Standard Services Screen Loaded
-    # Select tariff + APN type, with conflict resolution and fallback to secondary tariff
-    CSRJ Select Tariff And Handle Conflict    ${CSRJ_DEFAULT_TARIFF_PLAN}
-    # Re-select after conflict resolution (CSRJ_Select_Tariff already sets tariff+APN)
+    # Feature tests use the dedicated CSR_FEATURE_* tariff/bundle/APN (not the E2E DEFAULT_CSR_*).
+    CSRJ Select Tariff And Handle Conflict    ${CSRJ_FEATURE_TARIFF_PLAN}
     Click Add APNs
     Open And Select First APN From Modal
     Click Fetch Device Plan
@@ -3081,7 +3080,7 @@ Navigate To Standard Services With Tariff And APN
     ${post_conflict}=    Run Keyword And Return Status
     ...    Wait Until Element Is Visible    ${LOC_CSRJ_APN_CONFLICT_ERROR}    timeout=5s
     IF    ${post_conflict}
-        CSRJ Select Tariff And Handle Conflict    ${CSRJ_DEFAULT_TARIFF_PLAN}
+        CSRJ Select Tariff And Handle Conflict    ${CSRJ_FEATURE_TARIFF_PLAN}
         Click Add APNs
         Open And Select First APN From Modal
         Click Fetch Device Plan
