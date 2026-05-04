@@ -441,9 +441,14 @@ CSRJ Assert Bu Button Reflects Selection
 
 Verify Create Order Button Visible
     [Documentation]    Asserts the Create Order button is visible (user has RW permission).
-    Wait Until Page Contains Element    ${LOC_CSRJ_CREATE_ORDER_BTN}    60s
-    Scroll To Element Via JS    ${LOC_CSRJ_CREATE_ORDER_BTN}
-    Wait Until Element Is Visible    ${LOC_CSRJ_CREATE_ORDER_BTN}    60s
+    ...                Uses JS text-match fallback when strict locator fails (QE class drift).
+    ${ok}=    Run Keyword And Return Status    Wait Until Page Contains Element    ${LOC_CSRJ_CREATE_ORDER_BTN}    20s
+    IF    ${ok}
+        Scroll To Element Via JS    ${LOC_CSRJ_CREATE_ORDER_BTN}
+        Wait Until Element Is Visible    ${LOC_CSRJ_CREATE_ORDER_BTN}    60s
+        RETURN
+    END
+    Wait For Create Order Button Via JS Text
 
 Verify Create Order Button Not Visible
     [Documentation]    Asserts the Create Order button is not visible.
@@ -501,9 +506,15 @@ Verify Create Order Button Not Clickable Without BU
 Click Create Order
     [Documentation]    Clicks Create Order button; waits until page is fully loaded before selecting tariff plan
     ...                (avoids tariff plan reset due to loading). Do not select tariff plan before loading finishes.
+    ...                Falls back to JS text-match if strict locator never becomes visible (QE class drift).
     Wait For App Loading To Complete    timeout=60s
-    Wait Until Element Is Visible    ${LOC_CSRJ_CREATE_ORDER_BTN}    60s
-    Click Element Via JS             ${LOC_CSRJ_CREATE_ORDER_BTN}
+    ${strict_visible}=    Run Keyword And Return Status    Wait Until Element Is Visible    ${LOC_CSRJ_CREATE_ORDER_BTN}    20s
+    IF    ${strict_visible}
+        Click Element Via JS    ${LOC_CSRJ_CREATE_ORDER_BTN}
+    ELSE
+        Wait For Create Order Button Via JS Text
+        Click Create Order Via JS Text
+    END
     Wait Until Keyword Succeeds      ${CSRJ_RETRY_COUNT}    ${CSRJ_RETRY_INTERVAL}
     ...    Location Should Contain    CreateCSRJourney
     Wait For App Loading To Complete    timeout=60s
@@ -513,6 +524,39 @@ Click Create Order
     Wait For App Loading To Complete    timeout=60s
     Sleep    0.5s
     Log    Create CSR Journey wizard loaded — loading complete; safe to select tariff plan.
+
+Wait For Create Order Button Via JS Text
+    [Documentation]    Polls the page for any visible button whose text is "Create Order" (class-agnostic).
+    ...                Use when the strict CSS class locator drifts in a build.
+    Wait Until Keyword Succeeds    30x    2s    Create Order Button Should Be Visible Via JS
+
+Create Order Button Should Be Visible Via JS
+    ${found}=    Execute Javascript
+    ...    var btns = document.querySelectorAll('button');
+    ...    for (var i = 0; i < btns.length; i++) {
+    ...        var t = (btns[i].textContent || '').replace(/\s+/g,' ').trim();
+    ...        if (t === 'Create Order' && btns[i].offsetParent !== null) {
+    ...            btns[i].scrollIntoView({block: 'center'});
+    ...            return true;
+    ...        }
+    ...    }
+    ...    return false;
+    Should Be True    ${found}    Create Order button not visible (JS text match).
+
+Click Create Order Via JS Text
+    [Documentation]    Clicks the visible "Create Order" button found by text match (class-agnostic).
+    ${clicked}=    Execute Javascript
+    ...    var btns = document.querySelectorAll('button');
+    ...    for (var i = 0; i < btns.length; i++) {
+    ...        var t = (btns[i].textContent || '').replace(/\s+/g,' ').trim();
+    ...        if (t === 'Create Order' && btns[i].offsetParent !== null) {
+    ...            btns[i].scrollIntoView({block: 'center'});
+    ...            btns[i].click();
+    ...            return true;
+    ...        }
+    ...    }
+    ...    return false;
+    Should Be True    ${clicked}    Create Order button click failed (JS text match).
 
 # ═══════════════════════════════════════════════════════════════════════
 #  STEP 1: STANDARD SERVICES
