@@ -13,6 +13,7 @@ Suite Setup       Run Keywords    Load Environment Config From Json    ${ENV}   
 Suite Teardown    Close All Browsers
 Test Setup        Ensure Session Is Active
 Test Teardown     Handle Test Teardown
+Test Tags         feature
 
 
 *** Test Cases ***

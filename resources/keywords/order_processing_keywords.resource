@@ -407,8 +407,8 @@ Navigate To Manage Devices And Filter BU
 
 Validate All SIMs In Warm State
     [Documentation]    After filtering, verifies every visible row has SIM State = Warm
-    ...                and the total row count is >= min_count (default 10).
-    [Arguments]    ${min_count}=${10}
+    ...                and the total row count is >= min_count (default 5).
+    [Arguments]    ${min_count}=${5}
     ${state_col}=    Get Column Index By Header Text    ${STATE_COLUMN_HEADER}
     ${row_count}=    Execute Javascript
     ...    return document.querySelectorAll('#gridData table tbody tr.k-master-row').length;
@@ -569,14 +569,7 @@ Activate SIMs From InActive State
     Select Change State Action
     Select Target State And Submit    ${EXPECTED_ACTIVATED_STATE}
     Fill Popup And Submit    InActive    ${EXPECTED_ACTIVATED_STATE}
-    ${toast_ok}=    Run Keyword And Return Status
-    ...    Wait Until Element Is Visible    ${LOC_DSC_TOAST_SUCCESS}    timeout=30s
-    IF    ${toast_ok}
-        ${toast_text}=    Get Text    ${LOC_DSC_TOAST_SUCCESS}
-        Log    Success toast: ${toast_text}    console=yes
-    ELSE
-        Log    No success toast found within 30s — proceeding anyway.    WARN
-    END
+    Wait For Toast And Assert Success    timeout=30
     ${popup_gone}=    Run Keyword And Return Status
     ...    Wait Until Element Is Not Visible    ${LOC_DSC_POPUP}    timeout=15s
     IF    not ${popup_gone}
@@ -584,8 +577,7 @@ Activate SIMs From InActive State
         Sleep    1s
     END
     Capture Page Screenshot    e2e_step16_state_change_submitted.png
-    Log    State change submitted for ${selected} SIMs. Waiting 5 minutes...    console=yes
-    Sleep    300s
+    Log    State change submitted for ${selected} SIMs. SOAP fingerprint flow (TC_E2EU_018A) drives progression — no 5-min wait here.    console=yes
     Wait For Loading Overlay To Disappear
     RETURN    ${activated_imsis}    ${imsi_data}    ${activated_iccids}
 

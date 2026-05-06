@@ -23,6 +23,7 @@ Suite Setup       Run Keywords    Load Environment Config From Json    ${ENV}
 ...               AND    Suite Login Setup    ${BASE_URL}    ${BROWSER}
 Suite Teardown    Close All Browsers
 Test Teardown     Handle Test Teardown
+Test Tags         feature
 
 
 *** Test Cases ***

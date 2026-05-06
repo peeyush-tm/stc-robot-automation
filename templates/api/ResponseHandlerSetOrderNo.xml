@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<S:Envelope xmlns:S="http://www.w3.org/2003/05/soap-envelope">
+   <S:Body>
+      <Response xmlns="http://soa.comptel.com/2011/02/instantlink">
+         <ResponseHeader>
+            <RequestId>213335</RequestId>
+            <Status>9</Status>
+            <OrderNo>__TRANSACTION_ID__</OrderNo>
+            <StatusMessage>Request executed successfully.</StatusMessage>
+            <StatusMessageId>BST000</StatusMessageId>
+            <Priority>5</Priority>
+            <ReqUser>IOTEAI</ReqUser>
+            <ReceivedDate>2021-01-08T11:14:47.408+03:00</ReceivedDate>
+            <FinishedDate>2021-01-08T11:15:01.115+03:00</FinishedDate>
+         </ResponseHeader>
+         <ResponseParameters>
+            <Parameter name="SO4_SMESSAGE_ID" value="BST000" />
+            <Parameter name="SO5_SMESSAGE" value="Request successful:Task successfully executed." />
+            <Parameter name="SO3_STATUS" value="9" />
+            <Parameter name="SO3_SMESSAGE_ID" value="BST000" />
+            <Parameter name="SO2_SMESSAGE" value="Request successful:Task successfully executed." />
+            <Parameter name="SO2_SMESSAGE_ID" value="BST000" />
+            <Parameter name="SO2_STATUS" value="9" />
+            <Parameter name="SO1_SMESSAGE_ID" value="BST000" />
+            <Parameter name="SO7_STATUS" value="9" />
+            <Parameter name="SO6_SMESSAGE" value="Request successful:Task successfully executed." />
+            <Parameter name="SO3_FINISHDATE" value="20210108111456" />
+            <Parameter name="SO4_FINISHDATE" value="20210108111457" />
+            <Parameter name="SO5_FINISHDATE" value="20210108111459" />
+            <Parameter name="SO6_FINISHDATE" value="20210108111459" />
+            <Parameter name="SO7_FINISHDATE" value="20210108111501" />
+            <Parameter name="SO3_SMESSAGE" value="Request successful:Task successfully executed." />
+            <Parameter name="SO1_STATUS" value="9" />
+            <Parameter name="SO1_FINISHDATE" value="20210108111451" />
+            <Parameter name="SO2_FINISHDATE" value="20210108111452" />
+            <Parameter name="SO6_STATUS" value="9" />
+            <Parameter name="SO5_STATUS" value="9" />
+            <Parameter name="SO7_SMESSAGE" value="Request successful:Task successfully executed." />
+            <Parameter name="SO4_SMESSAGE" value="Request successful:Task successfully executed." />
+            <Parameter name="SO7_SMESSAGE_ID" value="BST000" />
+            <Parameter name="SO1_SMESSAGE" value="Request successful:Task successfully executed." />
+            <Parameter name="SO6_SMESSAGE_ID" value="BST000" />
+            <Parameter name="SO4_STATUS" value="9" />
+            <Parameter name="SO5_SMESSAGE_ID" value="BST000" />
+         </ResponseParameters>
+         <RequestParameters>
+            <Parameter name="NOTIFICATION_MSG_LEVEL" value="0" />
+            <Parameter name="RESP_QUEUE_ID" value="S##00034" />
+            <Parameter name="REQUEST_MODE" value="ASYNCHRONOUS" />
+            <Parameter name="ILJmsSenderId" value="jms-proxy-ilws-IL-GSM-TST.stc.com.sa-s7hE5wXpwG" />
+            <Parameter name="REPLY_TO_ADDRESS" value="" />
+            <Parameter name="IL_REQ_USER" value="IOTEAI" />
+            <Parameter name="SO3_APN_ID" value="248" />
+            <Parameter name="SO1_MSISDN1" value="966537776276" />
+            <Parameter name="REQ_TYPE" value="1" />
+            <Parameter name="SO2_EQOSID" value="3002" />
+            <Parameter name="CLIENT_ID" value="IOTEAI" />
+            <Parameter name="SO7_ACTIONCODE" value="RMV_ROAM" />
+            <Parameter name="SO3_STATIC_IP_ADDRESS" value="8.11.2.15" />
+            <Parameter name="SO4_ACTIONCODE" value="ADD_SMS" />
+            <Parameter name="SO1_TECHNICALPRODUCT" value="TP_IOT" />
+            <Parameter name="SO1_ACTIONCODE" value="CREATE_SUBS" />
+            <Parameter name="SO3_EQOSID" value="3002" />
+            <Parameter name="SO3_TECHNICALPRODUCT" value="TP_IP" />
+            <Parameter name="SO2_TECHNICALPRODUCT" value="TP_APN" />
+            <Parameter name="SO5_TECHNICALPRODUCT" value="TP_IOT" />
+            <Parameter name="SO4_TECHNICALPRODUCT" value="TP_IOT" />
+            <Parameter name="SO7_TECHNICALPRODUCT" value="TP_IOT" />
+            <Parameter name="SO5_ACTIONCODE" value="ADD_VOICE" />
+            <Parameter name="ORDERTYPE" value="CREATE" />
+            <Parameter name="SO6_TECHNICALPRODUCT" value="TP_IOT" />
+            <Parameter name="SO2_ACTIONCODE" value="New" />
+            <Parameter name="ORDERSUBTYPE" value="DEFAULT" />
+            <Parameter name="SO2_APN_ID" value="248" />
+            <Parameter name="INTERFACE_VERSION" value="1" />
+            <Parameter name="SO1_IMSI1" value="420011057775299" />
+            <Parameter name="REQ_OBJ" value="1" />
+            <Parameter name="SO6_ACTIONCODE" value="RMV_VOICE_INTL" />
+            <Parameter name="CDP_PREV_SIM_STATE" value="AQAAAAIAAAACAQEB" />
+            <Parameter name="CDP_OPERATION_TYPE" value="Activate" />
+            <Parameter name="SO3_ACTIONCODE" value="New" />
+            <Parameter name="ORIGIN" value="1" />
+         </RequestParameters>
+      </Response>
+   </S:Body>
+</S:Envelope>

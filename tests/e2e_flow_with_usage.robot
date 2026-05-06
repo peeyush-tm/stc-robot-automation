@@ -138,8 +138,8 @@ TC_E2EU_004 Create CSR Journey For Onboarded Account
     [Tags]    regression    e2e    TC_E2EU_004    positive
     TC_E2EU_004
 
-TC_E2EU_005 Create SIM Range With 10 ICCID IMSI
-    [Documentation]    Creates a SIM Range with 10 ICCID/IMSI entries using the default account (KSA_OPCO).
+TC_E2EU_005 Create SIM Range With 5 ICCID IMSI
+    [Documentation]    Creates a SIM Range with 5 ICCID/IMSI entries using the default account (KSA_OPCO).
     [Tags]    regression    e2e    TC_E2EU_005    positive
     TC_E2EU_005
 
@@ -218,7 +218,7 @@ TC_E2EU_015 Validate Order Status In Progress To Completed
 
 TC_E2EU_016 Validate SIMs In Warm State On Manage Devices
     [Documentation]    Navigates to Manage Devices page, applies BU account filter,
-    ...                verifies all SIMs are in Warm state and row count >= 10.
+    ...                verifies all SIMs are in Warm state and row count >= 5.
     [Tags]    regression    e2e    TC_E2EU_016    positive
     TC_E2EU_016
 

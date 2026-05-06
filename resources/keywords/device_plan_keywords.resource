@@ -538,18 +538,39 @@ Verify DP Change Success And Wait
 
 Verify Device Plan After Change
     [Documentation]    Resets the grid, searches by IMSI, verifies Device Plan column
-    ...                shows the expected new plan (DP2).
-    [Arguments]    ${imsi}    ${expected_plan}
-    Reset DP Grid To Default View
-    Sleep    0.3s
-    Wait For Loading Overlay To Disappear
-    Search DP Device By IMSI    ${imsi}
-    Wait Until Element Is Visible    ${LOC_DP_GRID_ROWS}    timeout=30s
-    ${dp_col}=    Get DP Column Index By Header Text    ${DP_DEVICE_PLAN_COLUMN}
-    ${actual_plan}=    Get DP Cell Value By Row And Column    1    ${dp_col}
-    Should Be Equal As Strings    ${actual_plan}    ${expected_plan}
-    ...    Expected Device Plan "${expected_plan}" but grid shows "${actual_plan}" for IMSI ${imsi}.
-    Log    VERIFIED: IMSI ${imsi} Device Plan is now "${actual_plan}".    console=yes
+    ...                shows the expected new plan (DP2). Retries up to ``${retries}``
+    ...                times (default 6 × 30s = 3 min) to absorb any residual backend
+    ...                propagation lag after the 6-minute sleep in the change keyword.
+    ...                Every 3rd attempt does a hard Reload Page to bust React grid caching
+    ...                (headless Chrome holds stale grid state across Reset+Search).
+    [Arguments]    ${imsi}    ${expected_plan}    ${retries}=6    ${interval}=30s
+    ${actual_plan}=    Set Variable    ${EMPTY}
+    FOR    ${i}    IN RANGE    ${retries}
+        ${attempt}=    Evaluate    ${i} + 1
+        Log To Console    [verify DP attempt ${attempt}/${retries}] expecting "${expected_plan}" for IMSI ${imsi}
+        ${should_reload}=    Evaluate    ${i} > 0 and (${i} % 3) == 0
+        IF    ${should_reload}
+            Log To Console    [reload] forcing hard browser reload to bust grid cache
+            Reload Page
+            Wait For Loading Overlay To Disappear
+            Sleep    1s
+        END
+        Reset DP Grid To Default View
+        Sleep    0.3s
+        Wait For Loading Overlay To Disappear
+        Search DP Device By IMSI    ${imsi}
+        Wait Until Element Is Visible    ${LOC_DP_GRID_ROWS}    timeout=30s
+        ${dp_col}=    Get DP Column Index By Header Text    ${DP_DEVICE_PLAN_COLUMN}
+        ${actual_plan}=    Get DP Cell Value By Row And Column    1    ${dp_col}
+        IF    "${actual_plan}" == "${expected_plan}"
+            Log    VERIFIED: IMSI ${imsi} Device Plan is now "${actual_plan}".    console=yes
+            RETURN
+        END
+        Log To Console    DP is "${actual_plan}" — sleeping ${interval} before retry...
+        Sleep    ${interval}
+    END
+    Fail
+    ...    Expected Device Plan "${expected_plan}" but grid shows "${actual_plan}" for IMSI ${imsi} after ${retries} attempts.
 
 Verify Device Plan Unchanged
     [Documentation]    Verifies that the Device Plan has NOT changed for the given IMSI.

@@ -1545,3 +1545,124 @@ TC_SM_013
     ...    msg=SIM Movement should NOT have completed but a success message appeared!
     Log    PASS: SIM Movement cancelled without submitting. No success message confirmed.
 
+# ═══════════════════════════════════════════════════════════════════════
+#  SMF — SIM MOVEMENT FEATURE TEST KEYWORDS
+# ═══════════════════════════════════════════════════════════════════════
+
+SMF Select Target CC In Modal
+    [Documentation]    Extends SM Select Target BU In Modal to a 4th level.
+    ...                Navigates tree: KSA_OPCO → EC → BU → CC (leaf node).
+    [Arguments]    ${ec_name}    ${bu_name}    ${cc_name}
+    SM Open Select Account Dropdown For Sim Movement
+    ${st}=    SM Click Tree Expand Icon For Label In Sim Movement Modal    KSA_OPCO
+    Log    Tree step KSA_OPCO: ${st}    console=yes
+    Wait For Loading Overlay To Disappear
+    Sleep    0.5s
+    ${st_ec}=    SM Click Tree Expand Icon For Label In Sim Movement Modal    ${ec_name}
+    Log    Tree step EC '${ec_name}': ${st_ec}    console=yes
+    Wait For Loading Overlay To Disappear
+    Sleep    0.5s
+    ${st_bu}=    SM Click Tree Expand Icon For Label In Sim Movement Modal    ${bu_name}
+    Log    Tree step BU '${bu_name}': ${st_bu}    console=yes
+    Wait For Loading Overlay To Disappear
+    Sleep    0.5s
+    FOR    ${attempt}    IN RANGE    3
+        ${sel}=    SM Select Tree Node By Label In Sim Movement Modal    ${cc_name}
+        ${ok}=    Run Keyword And Return Status    Should Start With    ${sel}    OK_
+        IF    ${ok}
+            Log    Target CC '${cc_name}' selected (${sel}).    console=yes
+            Wait For Loading Overlay To Disappear
+            RETURN
+        END
+        Log    CC select attempt ${attempt}: ${sel} — re-expanding BU and retrying.    console=yes
+        SM Click Tree Expand Icon For Label In Sim Movement Modal    ${bu_name}
+        Wait For Loading Overlay To Disappear
+        Sleep    0.5s
+    END
+    Fail    Could not select target CC '${cc_name}' in SIM Movement tree. Last result: ${sel}
+
+SMF Capture And Validate Result Popup
+    [Documentation]    After Submit+Proceed, waits for the result popup (title=GC Request ID),
+    ...                validates OLD VALUE, NEW VALUE, RESULT, STATUS, Details columns,
+    ...                closes the popup, and returns the GC Request ID string.
+    [Arguments]    ${expected_old_value}    ${expected_new_value}
+    ...            ${expected_result}=SUCCESSFUL    ${expected_status}=COMPLETED
+    ...            ${expected_details_substr}=${EMPTY}
+    Wait Until Element Is Visible    ${LOC_SMF_RESULT_POPUP}    timeout=20s
+    ${gc_id}=    Get Text    ${LOC_SMF_RESULT_POPUP_TITLE}
+    ${gc_id}=    Strip String    ${gc_id}
+    Log    Result popup GC ID: ${gc_id}    console=yes
+    ${old_val}=    Get Text    ${LOC_SMF_RESULT_POPUP_OLD_VAL}
+    ${new_val}=    Get Text    ${LOC_SMF_RESULT_POPUP_NEW_VAL}
+    ${result}=     Get Text    ${LOC_SMF_RESULT_POPUP_RESULT}
+    ${status}=     Get Text    ${LOC_SMF_RESULT_POPUP_STATUS}
+    Should Contain    ${old_val}    ${expected_old_value}
+    Should Contain    ${new_val}    ${expected_new_value}
+    Should Contain    ${result}     ${expected_result}
+    Should Contain    ${status}     ${expected_status}
+    IF    '${expected_details_substr}' != '${EMPTY}'
+        ${details}=    Get Text    ${LOC_SMF_RESULT_POPUP_DETAILS}
+        Should Contain    ${details}    ${expected_details_substr}
+    END
+    Log    Result popup validated — OLD: ${old_val}, NEW: ${new_val}, RESULT: ${result}, STATUS: ${status}    console=yes
+    Click Element Via JS    ${LOC_SMF_RESULT_POPUP_CLOSE}
+    Wait For Loading Overlay To Disappear
+    RETURN    ${gc_id}
+
+SMF Click Bell Notification By GC Id And Validate
+    [Documentation]    Opens bell panel, clicks the notification matching the GC ID,
+    ...                waits for result popup to appear, validates columns, then closes popup.
+    [Arguments]    ${gc_id}    ${expected_old_value}    ${expected_new_value}
+    SM Open Header Notifications Panel
+    ${notif_loc}=    Set Variable
+    ...    xpath=//div[contains(@class,'alertrequestno') and contains(normalize-space(text()),'${gc_id}')]
+    Wait Until Element Is Visible    ${notif_loc}    timeout=15s
+    Click Element Via JS    ${notif_loc}
+    Wait Until Element Is Visible    ${LOC_SMF_RESULT_POPUP}    timeout=15s
+    ${old_val}=    Get Text    ${LOC_SMF_RESULT_POPUP_OLD_VAL}
+    ${new_val}=    Get Text    ${LOC_SMF_RESULT_POPUP_NEW_VAL}
+    ${result}=     Get Text    ${LOC_SMF_RESULT_POPUP_RESULT}
+    ${status}=     Get Text    ${LOC_SMF_RESULT_POPUP_STATUS}
+    Should Contain    ${old_val}    ${expected_old_value}
+    Should Contain    ${new_val}    ${expected_new_value}
+    Should Contain    ${result}     SUCCESSFUL
+    Should Contain    ${status}     COMPLETED
+    Log    Bell notification validated for GC ID: ${gc_id} — OLD: ${old_val}, NEW: ${new_val}    console=yes
+    Click Element Via JS    ${LOC_SMF_RESULT_POPUP_CLOSE}
+    Wait For Loading Overlay To Disappear
+
+SMF Validate Notes Tab First Movement Entry
+    [Documentation]    Called after SM Expand SIM And Go To Notes Tab.
+    ...                Validates ATTRIBUTE, OLD VALUE, and NEW VALUE of the first notes row.
+    [Arguments]    ${expected_old_value}    ${expected_new_value}
+    Wait Until Element Is Visible    ${LOC_SMF_NOTES_FIRST_ROW}    timeout=15s
+    ${attribute}=    Get Text    ${LOC_SMF_NOTES_FIRST_ATTRIBUTE}
+    ${old_val}=      Get Text    ${LOC_SMF_NOTES_FIRST_OLD_VAL}
+    ${new_val}=      Get Text    ${LOC_SMF_NOTES_FIRST_NEW_VAL}
+    Should Contain    ${attribute}    SIM Movement
+    Should Contain    ${old_val}      ${expected_old_value}
+    Should Contain    ${new_val}      ${expected_new_value}
+    Log    Notes first row validated — Attribute: ${attribute}, OLD: ${old_val}, NEW: ${new_val}    console=yes
+
+SMF Navigate And Validate Audit Trail By GC Id
+    [Documentation]    Navigates to Audit Trail, applies Description column filter with the
+    ...                GC Request ID, then validates OLD VALUE, NEW VALUE, and RESULT of the
+    ...                first matching row (IMSI movement entry).
+    [Arguments]    ${gc_id}    ${expected_old_value}    ${expected_new_value}
+    SM Navigate To Audit Trail
+    Wait Until Element Is Visible    ${LOC_SM_AUDIT_GRID}    timeout=15s
+    Click Element Via JS    ${LOC_SMF_AUDIT_DESC_FILTER_BTN}
+    Wait Until Element Is Visible    ${LOC_SMF_AUDIT_FILTER_INPUT}    timeout=10s
+    Clear Element Text    ${LOC_SMF_AUDIT_FILTER_INPUT}
+    Input Text    ${LOC_SMF_AUDIT_FILTER_INPUT}    ${gc_id}
+    Click Element Via JS    ${LOC_SMF_AUDIT_FILTER_APPLY}
+    Wait For Loading Overlay To Disappear
+    Wait Until Element Is Visible    ${LOC_SMF_AUDIT_FIRST_OLD_VAL}    timeout=15s
+    ${old_val}=    Get Text    ${LOC_SMF_AUDIT_FIRST_OLD_VAL}
+    ${new_val}=    Get Text    ${LOC_SMF_AUDIT_FIRST_NEW_VAL}
+    ${result}=     Get Text    ${LOC_SMF_AUDIT_FIRST_RESULT}
+    Should Contain    ${old_val}    ${expected_old_value}
+    Should Contain    ${new_val}    ${expected_new_value}
+    Should Contain    ${result}     Success
+    Log    Audit Trail row 1 validated — OLD: ${old_val}, NEW: ${new_val}, RESULT: ${result}    console=yes
+

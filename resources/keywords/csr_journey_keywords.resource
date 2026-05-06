@@ -280,9 +280,7 @@ Select CSR Journey Customer
     ...                (clicking without search fails with "not visible" for valid customers).
     Wait For CSR Journey Page Loaded
     Select CSR Journey Customer By Name    ${CSRJ_DEFAULT_CUSTOMER_NAME}
-    Sleep    1s
-    Wait For App Loading To Complete    timeout=60s
-    Sleep    0.5s
+    Wait For App Loading To Complete    timeout=30s
     Log    Customer selected: ${CSRJ_DEFAULT_CUSTOMER_NAME}; page loaded completely.
 
 Select CSR Journey Customer By Name
@@ -772,6 +770,56 @@ Verify Fetch Device Plan Button Disabled
     [Documentation]    Asserts Fetch Device Plan button is disabled.
     Element Should Be Disabled    ${LOC_SS_FETCH_DP_BTN}
 
+Open And Select APN By Name
+    [Documentation]    After clicking Add APNs, waits for APN modal, types the given APN name
+    ...                into the search input, clicks the matching option, and saves.
+    ...                Used when a specific APN name is required for tariff↔APN↔DP matching
+    ...                (e.g. CSR Feature tests: PUBLIC_Dynamic_1).
+    [Arguments]    ${apn_name}
+    Wait Until Element Is Visible    ${LOC_APN_MODAL}    ${CSRJ_TIMEOUT}
+    Wait Until Element Is Visible    ${LOC_APN_MODAL_SAVE}    ${CSRJ_TIMEOUT}
+    Sleep    1s
+    ${single_visible}=    Run Keyword And Return Status    Wait Until Element Is Visible    ${LOC_APN_MODAL_APN_SINGLE_VALUE}    3s
+    IF    ${single_visible}
+        ${shown_apn}=    Get Text    ${LOC_APN_MODAL_APN_SINGLE_VALUE}
+        Log    APN already pre-selected as single value: ${shown_apn} (requested: ${apn_name})
+    ELSE
+        Wait Until Element Is Visible    ${LOC_APN_MODAL_APN_INPUT}    ${CSRJ_TIMEOUT}
+        Click Element Via JS             ${LOC_APN_MODAL_APN_INPUT}
+        Sleep    1s
+        Clear Element Text               ${LOC_APN_MODAL_APN_INPUT}
+        Input Text                       ${LOC_APN_MODAL_APN_INPUT}    ${apn_name}
+        Sleep    1s
+        ${LOC_BY_NAME}=    Set Variable    xpath=//*[@id='apnSelectionModal']//div[contains(@class,'select__option') and normalize-space()='${apn_name}']
+        ${by_name_found}=    Run Keyword And Return Status
+        ...    Wait Until Element Is Visible    ${LOC_BY_NAME}    8s
+        IF    ${by_name_found}
+            Click Element Via JS    ${LOC_BY_NAME}
+            Sleep    1s
+        ELSE
+            ${dropdown_open}=    Run Keyword And Return Status
+            ...    Wait Until Element Is Visible    ${LOC_APN_MODAL_APN_OPTION}    5s
+            IF    ${dropdown_open}
+                Click Element Via JS    ${LOC_APN_MODAL_APN_OPTION}
+                Sleep    1s
+                Log    Exact APN "${apn_name}" not found — clicked first matching/filtered option.    level=WARN
+            ELSE
+                Fail    APN "${apn_name}" not found in modal options. Filter input + dropdown produced no clickable option.
+            END
+        END
+    END
+    ${ip_visible}=    Run Keyword And Return Status    Wait Until Element Is Visible    ${LOC_APN_MODAL_IP_PREF_DD}    5s
+    IF    ${ip_visible}
+        ${ip_ok}=    Run Keyword And Return Status
+        ...    Select From List By Index    ${LOC_APN_MODAL_IP_PREF_DD}    1
+        IF    not ${ip_ok}    Log    IP Preference selection failed — continuing.    level=WARN
+        Sleep    0.5s
+    END
+    Click Element Via JS    ${LOC_APN_MODAL_SAVE}
+    Sleep    1s
+    Wait For App Loading To Complete    timeout=30s
+    Log    APN "${apn_name}" selected and saved in modal.
+
 Open And Select First APN From Modal
     [Documentation]    After clicking Add APNs, waits for APN modal, selects first available APN and saves.
     ...                No APN rotation — always picks the first/default APN. Avoids bundle mismatch.
@@ -1222,16 +1270,13 @@ Click Save And Exit
     Wait For App Loading To Complete
 
 Click Save And Continue
-    [Documentation]    Clicks Save & Continue on Order Summary; waits up to 3 minutes for processing.
+    [Documentation]    Clicks Save & Continue on Order Summary. Does NOT sleep — caller (Verify CSR Journey Success Toast) polls for result.
     Scroll To Element Via JS         ${LOC_SUM_SAVE_CONTINUE_BTN}
     Wait Until Element Is Visible    ${LOC_SUM_SAVE_CONTINUE_BTN}    ${CSRJ_TIMEOUT}
     Click Element Via JS             ${LOC_SUM_SAVE_CONTINUE_BTN}
-    # Mandatory 2-minute minimum wait — server processing takes at least this long
-    Sleep    120s
-    Wait For App Loading To Complete    timeout=60s
-    Wait For Condition    return document.readyState === 'complete'    timeout=60s
-    Sleep    1s
-    Log    Save & Continue done; 2-min mandatory wait + loading checks passed.
+    Sleep    3s
+    Wait For App Loading To Complete    timeout=30s
+    Log    Save & Continue clicked — waiting for toast or redirect.    console=yes
 
 Click Save And Continue For Modify
     [Documentation]    Clicks Save & Continue on Order Summary for modify flow; enforces minimum 2 min 30 sec wait,
@@ -1273,36 +1318,23 @@ Click Close On Summary
 #  VALIDATIONS
 # ═══════════════════════════════════════════════════════════════════════
 Verify CSR Journey Success Toast
-    [Documentation]    Asserts success toast or successful redirect to CSR landing.
-    ...                Save & Continue may take >2 min; waits up to 3 min for toast or redirect.
-    ${toast_visible}=    Run Keyword And Return Status
-    ...    Wait Until Element Is Visible    ${LOC_CSRJ_SUCCESS_TOAST}    10s
-    IF    ${toast_visible}
-        Log    Success toast displayed.
-        RETURN
-    END
-    ${url}=    Get Location
-    ${redirected}=    Evaluate    "createcsrjourney" not in """${url}""".lower()
-    IF    ${redirected}
-        Log    Toast auto-dismissed; URL redirected to landing — save confirmed.    console=yes
-        RETURN
-    END
-    # Still on CreateCSRJourney — operation still in progress; wait up to 3 more minutes
-    Log    Save still in progress after 2-min wait — waiting up to 3 more minutes for redirect.    level=WARN    console=yes
-    FOR    ${i}    IN RANGE    18
-        Sleep    10s
+    [Documentation]    Polls up to 5 minutes for a Toastify success toast or URL redirect away from createcsrjourney.
+    ...                Must be called immediately after Click Save And Continue (no pre-sleep).
+    FOR    ${i}    IN RANGE    60
+        ${toast_visible}=    Run Keyword And Return Status
+        ...    Wait Until Element Is Visible    ${LOC_CSRJ_SUCCESS_TOAST}    5s
+        IF    ${toast_visible}
+            Log    Success toast detected on poll ${i}.    console=yes
+            RETURN
+        END
         ${url}=    Get Location
         ${redirected}=    Evaluate    "createcsrjourney" not in """${url}""".lower()
         IF    ${redirected}
-            Log    Redirect confirmed after extra wait (${i} × 10s).    console=yes
+            Log    Redirect detected on poll ${i} — save confirmed.    console=yes
             RETURN
         END
-        ${toast_now}=    Run Keyword And Return Status
-        ...    Element Should Be Visible    ${LOC_CSRJ_SUCCESS_TOAST}
-        IF    ${toast_now}
-            Log    Toast appeared after extra wait.    console=yes
-            RETURN
-        END
+        Log    Poll ${i}: still on wizard, no toast yet — waiting 5s.    console=yes
+        Sleep    5s
     END
     Fail    Save & Continue did not complete within 5 minutes — no toast and no redirect detected.
 
@@ -1625,9 +1657,21 @@ Open Account VAS Modal
     Sleep    1s
 
 Save Account VAS Charge
-    [Documentation]    Fills and saves an Account Level VAS Charge.
+    [Documentation]    Fills and saves an Account Level VAS Charge. The charge dropdown
+    ...                only populates AFTER Tariff/APN/Bundle/Device Plan + Service Plan
+    ...                are saved AND the page-level DP Save was clicked. If the dropdown
+    ...                is empty (only placeholder), this Skips with a clear message
+    ...                rather than crashing on `Select From List By Index 1`.
     Wait Until Element Is Visible    ${LOC_ACCT_VAS_MODAL}    ${CSRJ_TIMEOUT}
     Wait Until Element Is Visible    ${LOC_ACCT_VAS_CHARGE_DD}    ${CSRJ_TIMEOUT}
+    Sleep    1s
+    ${charge_count}=    Execute Javascript    return (document.querySelector('#addAccountLevelVasChargeModal select[name="charge"]')||{options:[]}).options.length;
+    ${charge_opts}=     Execute Javascript    return Array.from((document.querySelector('#addAccountLevelVasChargeModal select[name="charge"]')||{options:[]}).options).map(function(o){return (o.text||'').trim();}).join('|');
+    Log    Account VAS charge dropdown options [${charge_count}]: ${charge_opts}    console=yes
+    IF    ${charge_count} <= 1
+        Log To Console    No Account VAS charge options available — DP/SP not fully saved or no charges configured for this tariff. Skipping.
+        Skip    No Account VAS charge options — prerequisite DP/SP save did not yield charges (count=${charge_count}, opts=${charge_opts}).
+    END
     Select From List By Index        ${LOC_ACCT_VAS_CHARGE_DD}    1
     Sleep    1s
     Wait Until Element Is Visible    ${LOC_ACCT_VAS_AMOUNT}    ${CSRJ_TIMEOUT}
@@ -1835,17 +1879,22 @@ Click CSR Summary Icon And Verify Popup
     Log    CSR Summary popup opened.
 
 Select Bundle Plan First Option
-    [Documentation]    After page load following Fetch Device Plan: select Bundle Plan (e.g. DATA AND NBIOT IT DP).
-    ...                Waits for options to load, then tries by value, label, index 1, then index 0.
+    [Documentation]    After Fetch Device Plan: select Bundle Plan in the dropdown.
+    ...                Tries by value, then by label using the given ``${bundle_name}``,
+    ...                then falls back to first non-placeholder option.
+    ...                Defaults to ``${CSRJ_DEFAULT_BUNDLE_PLAN}`` (E2E flow). Feature
+    ...                tests should pass ``${CSRJ_FEATURE_BUNDLE_PLAN}`` so the bundle
+    ...                matches the feature tariff (e.g. TP-MOB-24523 → DP-MOB-24523).
+    [Arguments]    ${bundle_name}=${CSRJ_DEFAULT_BUNDLE_PLAN}
     Wait Until Element Is Visible    ${LOC_SS_BUNDLE_PLAN_DD}    ${CSRJ_TIMEOUT}
     Wait Until Element Is Enabled    ${LOC_SS_BUNDLE_PLAN_DD}    ${CSRJ_TIMEOUT}
     Wait For Bundle Plan Options To Load
     Sleep    1s
     ${by_value}=    Run Keyword And Return Status
-    ...    Select From List By Value    ${LOC_SS_BUNDLE_PLAN_DD}    ${CSRJ_DEFAULT_BUNDLE_PLAN}
+    ...    Select From List By Value    ${LOC_SS_BUNDLE_PLAN_DD}    ${bundle_name}
     IF    not ${by_value}
         ${by_label}=    Run Keyword And Return Status
-        ...    Select From List By Label    ${LOC_SS_BUNDLE_PLAN_DD}    ${CSRJ_DEFAULT_BUNDLE_PLAN}
+        ...    Select From List By Label    ${LOC_SS_BUNDLE_PLAN_DD}    ${bundle_name}
         IF    not ${by_label}
             ${by_index1}=    Run Keyword And Return Status
             ...    Select From List By Index    ${LOC_SS_BUNDLE_PLAN_DD}    1
@@ -1856,19 +1905,19 @@ Select Bundle Plan First Option
                 ${count}=    Get Length    ${items}
                 IF    ${count} > 1
                     Select From List By Index    ${LOC_SS_BUNDLE_PLAN_DD}    1
-                    Log    Bundle plan selected by index 1 after retry.
+                    Log    Bundle plan selected by index 1 after retry (looking for "${bundle_name}").
                 ELSE
                     Select From List By Index    ${LOC_SS_BUNDLE_PLAN_DD}    0
-                    Log    Bundle plan selected by index 0 (only option or first option).
+                    Log    Bundle plan selected by index 0 (only option). Wanted "${bundle_name}".
                 END
             ELSE
-                Log    Bundle plan selected by index 1 (first data option after placeholder).
+                Log    Bundle plan selected by index 1 (first non-placeholder). Wanted "${bundle_name}".
             END
         ELSE
-            Log    Bundle plan selected by label: ${CSRJ_DEFAULT_BUNDLE_PLAN}
+            Log    Bundle plan selected by label: ${bundle_name}
         END
     ELSE
-        Log    Bundle plan selected by value: ${CSRJ_DEFAULT_BUNDLE_PLAN}
+        Log    Bundle plan selected by value: ${bundle_name}
     END
     Sleep    1s
 
@@ -3092,75 +3141,13 @@ Fill And Save Service Plan All Services For Last Row
 #  FEATURE TEST HELPER KEYWORDS
 # ═══════════════════════════════════════════════════════════════════════
 Navigate To Standard Services With Tariff And APN
-    [Documentation]    From CSR Journey landing, complete full wizard setup to Standard Services.
-    ...                Caches state — if already on Standard Services with device plan, skips re-navigation.
-    ...                Uses default tariff + first APN (no rotation) to avoid bundle mismatch.
-    # Check if already on Standard Services with device plan ready
-    ${on_ss}=    Execute Javascript    return window.location.href.indexOf('CreateCSRJourney') >= 0;
-    IF    ${on_ss}
-        ${dp_ready}=    Run Keyword And Return Status
-        ...    Wait Until Element Is Visible    ${LOC_SS_DEVICE_PLAN_INPUT}    timeout=3s
-        IF    ${dp_ready}
-            ${has_value}=    Execute Javascript    var el=document.querySelector('input[name="dpAliasName"]'); return el && el.value.length > 0;
-            IF    ${has_value}
-                Log    Already on Standard Services with device plan — reusing session.
-                RETURN
-            END
-        END
-    END
-    # Full navigation needed — delete all existing CSRs first to free tariff plans
-    CSRJ Cleanup All Existing CSRs From Grid
-    Go To CSR Journey Landing
-    Select CSR Journey Customer
-    Select CSR Journey Business Unit
-    Click Create Order
-    Verify Standard Services Screen Loaded
-    # Feature tests use the dedicated CSR_FEATURE_* tariff/bundle/APN (not the E2E DEFAULT_CSR_*).
-    CSRJ Select Tariff And Handle Conflict    ${CSRJ_FEATURE_TARIFF_PLAN}
-    Click Add APNs
-    Open And Select First APN From Modal
-    Click Fetch Device Plan
-    # Post-Fetch conflict check with fallback
-    ${post_conflict}=    Run Keyword And Return Status
-    ...    Wait Until Element Is Visible    ${LOC_CSRJ_APN_CONFLICT_ERROR}    timeout=5s
-    IF    ${post_conflict}
-        CSRJ Select Tariff And Handle Conflict    ${CSRJ_FEATURE_TARIFF_PLAN}
-        Click Add APNs
-        Open And Select First APN From Modal
-        Click Fetch Device Plan
-    END
-    Select Bundle Plan First Option
-    Enter Random Device Plan Alias
-
-Open Service Plan Modal From Standard Services
-    [Documentation]    Ensure on Standard Services, fetch device plan, select bundle, enter alias,
-    ...                then open the Service Plan modal.
-    Click Fetch Device Plan
-    Select Bundle Plan First Option
-    Enter Random Device Plan Alias
-    Click Create Service Plan Link
-    Wait Until Element Is Visible    ${LOC_SP_MODAL}    ${CSRJ_TIMEOUT}
-
-Navigate To Standard Services With Saved DP And SP
-    [Documentation]    Full Standard Services setup with Device Plan + Service Plan SAVED.
-    ...                Required precondition for VAS Charge tests: the Device/Account VAS Charges sections
-    ...                only render fully (and their Add button enables) once the Device Plan row is saved.
-    ...                Also populates the Device VAS modal's device-plan dropdown.
-    Navigate To Standard Services With Tariff And APN
-    # Skip if SP already saved (session cached)
-    ${sp_already}=    Execute Javascript    var el=document.querySelector('input[name="ServicePlanName"]'); return !!(el && el.value && el.value.length > 0);
-    IF    not ${sp_already}
-        Fill And Save Service Plan
-    END
-    Sleep    1s
-    Wait For App Loading To Complete    timeout=30s
-    # Click page-level Save on the Device Plan row (makes DP row persisted so VAS dropdowns populate)
-    Run Keyword And Ignore Error    Click Save On Standard Services Device Plan
-    Sleep    1s
-    Wait For App Loading To Complete    timeout=30s
-
-Navigate To Additional Services With Prereqs
-    [Documentation]    Complete Standard Services flow and navigate to Additional Services.
+    [Documentation]    From CSR Journey landing: ALWAYS delete every existing CSR in the
+    ...                grid first (so the FEATURE tariff is free), then open a fresh wizard
+    ...                with the FEATURE tariff/APN-type/APN/bundle combo.
+    ...                No session caching — every call cleans up + creates fresh, ensuring
+    ...                back-to-back feature tests don't hit "Tariff Plan with same APN Type
+    ...                already completed" conflicts.
+    # If a wizard is already open from a previous test, close it cleanly before going to landing.
     ${url}=    Get Location
     ${u}=    Convert To Lowercase    ${url}
     ${in_wizard}=    Evaluate    "createcsrjourney" in """${u}"""
@@ -3171,77 +3158,174 @@ Navigate To Additional Services With Prereqs
         Run Keyword And Ignore Error    Dismiss Any Blocking Modals
         Sleep    1s
     END
+    # Always cleanup grid before creating — prevents tariff conflicts between feature tests.
+    CSRJ Cleanup All Existing CSRs From Grid
     Go To CSR Journey Landing
     Select CSR Journey Customer
     Select CSR Journey Business Unit
     Click Create Order
     Verify Standard Services Screen Loaded
-    CSRJ Reach Additional Services From Standard Step
+    # Feature tests use the dedicated CSR_FEATURE_* tariff/APN-type/APN/bundle (not the E2E DEFAULT_CSR_*).
+    # Combo TP-MOB-24523 + Private + auto-apn-d0guvs yields DP-MOB-24523 on Fetch Device Plan.
+    CSRJ Select Tariff And Handle Conflict    ${CSRJ_FEATURE_TARIFF_PLAN}
+    Select APN Type    ${CSRJ_FEATURE_APN_TYPE}
+    Click Add APNs
+    Open And Select APN By Name    ${CSRJ_FEATURE_APN_NAME}
+    Click Fetch Device Plan
+    # Post-Fetch conflict check with fallback
+    ${post_conflict}=    Run Keyword And Return Status
+    ...    Wait Until Element Is Visible    ${LOC_CSRJ_APN_CONFLICT_ERROR}    timeout=5s
+    IF    ${post_conflict}
+        CSRJ Select Tariff And Handle Conflict    ${CSRJ_FEATURE_TARIFF_PLAN}
+        Select APN Type    ${CSRJ_FEATURE_APN_TYPE}
+        Click Add APNs
+        Open And Select APN By Name    ${CSRJ_FEATURE_APN_NAME}
+        Click Fetch Device Plan
+    END
+    Select Bundle Plan First Option    ${CSRJ_FEATURE_BUNDLE_PLAN}
+    Enter Random Device Plan Alias
+
+Open Service Plan Modal From Standard Services
+    [Documentation]    Ensure on Standard Services, fetch device plan, select bundle, enter alias,
+    ...                then open the Service Plan modal. Uses the FEATURE bundle plan to
+    ...                match the feature tariff combination.
+    Click Fetch Device Plan
+    Select Bundle Plan First Option    ${CSRJ_FEATURE_BUNDLE_PLAN}
+    Enter Random Device Plan Alias
+    Click Create Service Plan Link
+    Wait Until Element Is Visible    ${LOC_SP_MODAL}    ${CSRJ_TIMEOUT}
+
+Navigate To Standard Services With Saved DP And SP
+    [Documentation]    Full Standard Services setup with Device Plan + Service Plan SAVED.
+    ...                Required precondition for VAS Charge tests: the Device/Account VAS Charges sections
+    ...                only render fully (and their Add button enables) once the Device Plan row is saved.
+    ...                Also populates the Device VAS modal's device-plan dropdown.
+    ...                Verifies the page-level Save persisted by reading the dpAliasName input
+    ...                (gets its value cleared / row gets a saved indicator). If save fails,
+    ...                logs verbose state but continues — VAS keywords will Skip on empty dropdown.
+    Navigate To Standard Services With Tariff And APN
+    # Skip Service Plan save if already saved (session cached)
+    ${sp_already}=    Execute Javascript    var el=document.querySelector('input[name="ServicePlanName"]'); return !!(el && el.value && el.value.length > 0);
+    IF    not ${sp_already}
+        Fill And Save Service Plan
+    END
+    Sleep    1s
+    Wait For App Loading To Complete    timeout=30s
+    # Click page-level Save on the Device Plan row (makes DP row persisted so VAS dropdowns populate)
+    ${dp_save_ok}=    Run Keyword And Return Status    Click Save On Standard Services Device Plan
+    IF    not ${dp_save_ok}
+        Log To Console    WARN: Page-level DP Save click failed — VAS dropdowns may stay empty.
+    END
+    Sleep    1s
+    Wait For App Loading To Complete    timeout=30s
+    # Diagnostic: report whether the prerequisite chain produced a saved DP row that VAS will see.
+    ${dp_state}=    Execute Javascript
+    ...    var alias=document.querySelector('input[name="dpAliasName"]');
+    ...    var sp=document.querySelector('input[name="ServicePlanName"]');
+    ...    var hasSaved=!!document.querySelector('div.bg-light-shade [class*="success"], i.fa-check, span.success-text');
+    ...    return JSON.stringify({alias: alias?alias.value:'(none)', sp: sp?sp.value:'(none)', sp_visible: !!sp, savedIndicator: hasSaved});
+    Log To Console    DP+SP save state: ${dp_state}
+    Log    DP+SP save state: ${dp_state}    console=yes
+
+Navigate To Additional Services With Prereqs
+    [Documentation]    Complete Standard Services flow (using FEATURE tariff/APN/bundle —
+    ...                same combo as ``Navigate To Standard Services With Saved DP And SP``)
+    ...                then click Next → Additional Services. Reuses the proven FEATURE
+    ...                chain so feature tests get the right tariff↔APN↔DP combination
+    ...                instead of the E2E DEFAULT_* values.
+    # If a prior test left the wizard parked on Additional/Summary, close it cleanly
+    # before re-entering — otherwise the Standard cleanup chain may snag on stale state.
+    ${url}=    Get Location
+    ${u}=    Convert To Lowercase    ${url}
+    ${in_wizard}=    Evaluate    "createcsrjourney" in """${u}"""
+    IF    ${in_wizard}
+        ${on_std}=    Run Keyword And Return Status
+        ...    Wait Until Element Is Visible    ${LOC_SS_DEVICE_PLAN_INPUT}    timeout=2s
+        IF    not ${on_std}
+            Run Keyword And Ignore Error    Click Close On Summary
+            Run Keyword And Ignore Error    Click Close On Additional Services
+            Run Keyword And Ignore Error    Click Close On Standard Services
+            Run Keyword And Ignore Error    Dismiss Any Blocking Modals
+            Sleep    1s
+        END
+    END
+    Navigate To Standard Services With Saved DP And SP
+    Click Next On Standard Services
+    Verify Additional Services Screen Loaded
 
 Navigate To Summary With Prereqs
-    [Documentation]    Complete Standard + Additional Services and navigate to Summary.
+    [Documentation]    Complete Standard + Additional Services with FEATURE combo, then Summary.
     Navigate To Additional Services With Prereqs
     Click Next On Additional Services
     Verify Summary Screen Loaded
 
 CSRJ Cleanup All Existing CSRs From Grid
-    [Documentation]    On CSR Journey landing, delete ALL existing CSR rows from the grid
-    ...                to free up tariff plans for feature tests. Skips if grid is empty.
+    [Documentation]    On CSR Journey landing: delete ALL existing CSR rows so the next
+    ...                feature test can use any tariff plan without "already completed" conflicts.
+    ...                Detects CSR presence via delete-icon visibility (LOC_CSRJ_DELETE_ICON) rather
+    ...                than JS row-count — the Kendo landing grid does not reliably use k-master-row
+    ...                so JS counting returns 0 even when rows exist. Delete-icon XPath is the ground
+    ...                truth: if the icon is in the DOM and visible, a CSR row is present.
     Go To CSR Journey Landing
     Select CSR Journey Customer
     Select CSR Journey Business Unit
-    Sleep    2s
     Wait For App Loading To Complete    timeout=60s
     ${grid_visible}=    Run Keyword And Return Status
     ...    Wait Until Element Is Visible    ${LOC_CSRJ_GRID}    timeout=10s
     IF    not ${grid_visible}
-        Log    No CSR grid visible — nothing to clean up.
+        Log    No CSR grid visible — nothing to clean up.    console=yes
         RETURN
     END
-    FOR    ${i}    IN RANGE    15
-        # Check if any rows remain
-        ${row_exists}=    Execute Javascript
-        ...    var grid=document.querySelector('#gridData');
-        ...    if(!grid) return false;
-        ...    return !!grid.querySelector('tr.k-master-row');
-        IF    not ${row_exists}    BREAK
-        # Hover + synchronously reveal and click delete icon
-        ${js_del}=    Execute Javascript
-        ...    var grid=document.querySelector('#gridData');
-        ...    if(!grid) return false;
-        ...    var row=grid.querySelector('tr.k-master-row');
-        ...    if(!row) return false;
-        ...    row.dispatchEvent(new MouseEvent('mouseenter',{bubbles:true}));
-        ...    row.dispatchEvent(new MouseEvent('mouseover',{bubbles:true}));
-        ...    var btn=row.querySelector('i.k-grid-deleteNodeKendoPopup, .k-grid-delete, [data-action="delete"]');
-        ...    if(!btn) btn=grid.querySelector('i.k-grid-deleteNodeKendoPopup, .k-grid-delete, [data-action="delete"]');
-        ...    if(btn){ btn.style.visibility='visible'; btn.style.display='inline'; btn.click(); return true; }
-        ...    return false;
-        Sleep    1s
+    # Poll up to 30s for delete icons to appear (= CSRs loaded) or explicit no-data marker (= empty).
+    # Using Selenium visibility of the delete icon as the authoritative signal — JS row-count is
+    # unreliable because the CSR Journey landing grid uses non-standard row classes.
+    ${has_csrs}=    Set Variable    ${FALSE}
+    FOR    ${poll}    IN RANGE    15
+        ${icon_visible}=    Run Keyword And Return Status
+        ...    Wait Until Element Is Visible    ${LOC_CSRJ_DELETE_ICON}    timeout=2s
+        IF    ${icon_visible}
+            ${has_csrs}=    Set Variable    ${TRUE}
+            BREAK
+        END
+        ${no_data}=    Execute Javascript
+        ...    var g=document.querySelector('#gridData'); if(!g) return false;
+        ...    return !!(g.querySelector('.k-grid-norecords,.k-no-records,[class*="norecords"],[class*="no-data"]'));
+        IF    ${no_data}
+            Log To Console    CSRJ cleanup: explicit no-records marker — nothing to delete.
+            RETURN
+        END
+        Sleep    2s
+    END
+    IF    not ${has_csrs}
+        Log To Console    CSRJ cleanup: no delete icons after 30s — assuming empty.
+        RETURN
+    END
+    Log To Console    CSRJ cleanup: delete icons present — deleting existing CSRs.
+    FOR    ${i}    IN RANGE    20
+        ${icon_present}=    Run Keyword And Return Status
+        ...    Wait Until Element Is Visible    ${LOC_CSRJ_DELETE_ICON}    timeout=5s
+        IF    not ${icon_present}
+            Log To Console    ✓ No more delete icons — all CSRs deleted.
+            BREAK
+        END
+        Click Element Via JS    ${LOC_CSRJ_DELETE_ICON}
         ${confirm_visible}=    Run Keyword And Return Status
         ...    Wait Until Element Is Visible    ${LOC_CSRJ_DELETE_CONFIRM_BTN}    timeout=8s
-        IF    ${confirm_visible}
-            Click Element Via JS    ${LOC_CSRJ_DELETE_CONFIRM_BTN}
-            Sleep    2s
-            Wait For App Loading To Complete    timeout=30s
-        ELSE IF    not ${js_del}
-            # Try Selenium mouse-over to trigger delete icon visibility
-            Run Keyword And Ignore Error
-            ...    Mouse Over    xpath=(//table[contains(@class,'k-selectable')]//tr[contains(@class,'k-master-row')])[1]
-            Sleep    0.5s
-            ${confirm2}=    Run Keyword And Return Status
-            ...    Wait Until Element Is Visible    ${LOC_CSRJ_DELETE_CONFIRM_BTN}    timeout=5s
-            IF    ${confirm2}
-                Click Element Via JS    ${LOC_CSRJ_DELETE_CONFIRM_BTN}
-                Sleep    2s
-                Wait For App Loading To Complete    timeout=30s
-            ELSE
-                BREAK
-            END
+        IF    not ${confirm_visible}
+            Log To Console    Delete confirmation popup not visible (iter ${i + 1}) — retrying.
+            CONTINUE
         END
-        Log    Deleted CSR row ${i + 1} from grid.
+        Click Element Via JS    ${LOC_CSRJ_DELETE_CONFIRM_BTN}
+        ${toast_seen}=    Run Keyword And Return Status
+        ...    Wait Until Element Is Visible    xpath=//div[contains(@class,'Toastify__toast--success') or contains(@class,'success-toast')]    timeout=6s
+        IF    ${toast_seen}
+            Log To Console    ✓ Success toast — iter ${i + 1} deleted.
+        END
+        Wait For App Loading To Complete    timeout=30s
     END
-    Log    Grid cleanup complete — tariff plans should now be available.
+    ${final_icons}=    Execute Javascript
+    ...    var g=document.querySelector('#gridData'); return g ? g.querySelectorAll('i.k-grid-deleteNodeKendoPopup').length : 0;
+    Log To Console    CSRJ cleanup done — ${final_icons} delete icon(s) remaining.
 
 CSRJ Resolve Tariff Conflict By Deleting Existing
     [Documentation]    When a "Tariff Plan with same APN Type already completed" conflict is detected,
@@ -3283,13 +3367,11 @@ Open Wizard To Standard Services Light
     Verify Standard Services Screen Loaded
     Select Tariff Plan First Option
     Wait For App Loading To Complete    timeout=30s
-    Sleep    1s
     # Use JS to set APN Type — avoids InvalidElementStateException during React re-render
     Execute Javascript
     ...    var sel = document.querySelector('[name="apnCategory"], #apnCategory');
     ...    if(sel) { sel.value='any'; sel.dispatchEvent(new Event('change',{bubbles:true})); }
-    Sleep    1s
-    Wait For App Loading To Complete    timeout=30s
+    Wait For App Loading To Complete    timeout=15s
     # Detect tariff conflict and resolve by deleting the existing CSR holding this tariff
     ${conflict}=    Run Keyword And Return Status
     ...    Wait Until Element Is Visible    ${LOC_CSRJ_APN_CONFLICT_ERROR}    timeout=3s

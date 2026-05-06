@@ -528,13 +528,35 @@ Select Service Plan In Popup
     Wait For Loading Overlay To Disappear
 
 Select Device Plan In Popup
-    [Documentation]    Selects the first device plan inside the popup.
+    [Documentation]    Selects the Device Plan in the popup.
+    ...                Resolution order:
+    ...                  1. ``${E2E_CSR1_DP_ALIAS}`` (Suite var) — the exact DP alias created by CSR
+    ...                     Journey in TC_E2EU_004; selected by visible label.
+    ...                  2. Fallback to index 1 (first non-placeholder) when the alias is unset
+    ...                     (e.g. standalone runs without prior CSR Journey).
+    ...                If alias is set but not present in the dropdown, FAILS fast with a clear
+    ...                error so wrong-DP silent selections never happen.
     Wait Until Element Is Visible    ${LOC_DSC_DEV_PLAN_DROP}    timeout=30s
     Wait Until Element Is Enabled    ${LOC_DSC_DEV_PLAN_DROP}    timeout=30s
-    ${option_ok}=    Run Keyword And Return Status
-    ...    Select From List By Index    ${LOC_DSC_DEV_PLAN_DROP}    1
-    IF    not ${option_ok}
-        Select Option By Index Via JS    ${LOC_DSC_DEV_PLAN_DROP}    1
+    ${alias}=    Get Variable Value    ${E2E_CSR1_DP_ALIAS}    ${EMPTY}
+    IF    "${alias}" != "${EMPTY}"
+        Log To Console    Selecting Device Plan by CSR Journey alias: "${alias}"
+        ${by_label_ok}=    Run Keyword And Return Status
+        ...    Select From List By Label    ${LOC_DSC_DEV_PLAN_DROP}    ${alias}
+        IF    not ${by_label_ok}
+            ${available}=    Execute Javascript
+            ...    var sel = document.querySelector('[data-testid="simStatwReasons"]'); if (!sel) return 'NO_SELECT'; var out = []; for (var i=0; i<sel.options.length; i++) out.push(sel.options[i].text.trim()); return out.join(' | ');
+            Capture Page Screenshot
+            Fail    Device Plan "${alias}" (from CSR Journey) not found in popup dropdown. Available options: [${available}]
+        END
+        Log To Console    ✓ Device Plan "${alias}" selected.
+    ELSE
+        Log To Console    No CSR alias available — falling back to first non-placeholder option (index 1).
+        ${option_ok}=    Run Keyword And Return Status
+        ...    Select From List By Index    ${LOC_DSC_DEV_PLAN_DROP}    1
+        IF    not ${option_ok}
+            Select Option By Index Via JS    ${LOC_DSC_DEV_PLAN_DROP}    1
+        END
     END
     Sleep    0.3s
     Wait For Loading Overlay To Disappear
@@ -558,6 +580,74 @@ Click Proceed Button
     Sleep    0.3s
     Wait For Loading Overlay To Disappear
 
+Install Toast Capture Observer
+    [Documentation]    Installs a MutationObserver that captures the FIRST visible Toastify toast
+    ...                (success or error) and stashes its text + class on ``window.__stcCapturedToast``.
+    ...                Call this BEFORE the action that triggers the toast (e.g. before Proceed click)
+    ...                so even fast-disappearing toasts (~2-3s) are caught.
+    Execute Javascript
+    ...    window.__stcCapturedToast = null;
+    ...    if (window.__stcToastObserver) { try { window.__stcToastObserver.disconnect(); } catch(e){} }
+    ...    function checkToasts(root){
+    ...        if (!root || !root.querySelectorAll) return;
+    ...        var els = root.querySelectorAll('.Toastify__toast, [class*="Toastify__toast"], .toast, .alert');
+    ...        for (var i=0; i<els.length; i++){
+    ...            if (window.__stcCapturedToast) break;
+    ...            var el = els[i];
+    ...            if (el.offsetParent === null) continue;
+    ...            var cls = (el.className || '');
+    ...            var txt = (el.innerText || el.textContent || '').trim();
+    ...            if (!txt) continue;
+    ...            window.__stcCapturedToast = { text: txt, cls: cls, ts: Date.now() };
+    ...        }
+    ...    }
+    ...    checkToasts(document);
+    ...    window.__stcToastObserver = new MutationObserver(function(muts){
+    ...        if (window.__stcCapturedToast) return;
+    ...        for (var i=0; i<muts.length; i++){
+    ...            var m = muts[i];
+    ...            for (var j=0; j<m.addedNodes.length; j++){
+    ...                var n = m.addedNodes[j];
+    ...                if (n.nodeType === 1) checkToasts(n);
+    ...                if (window.__stcCapturedToast) return;
+    ...            }
+    ...        }
+    ...    });
+    ...    window.__stcToastObserver.observe(document.body, {childList: true, subtree: true});
+    Log To Console    Toast capture observer installed.
+
+Wait For Toast And Assert Success
+    [Documentation]    Polls for the captured toast (set by ``Install Toast Capture Observer``) for up
+    ...                to ``${timeout}`` seconds. Asserts a toast WAS captured and its class indicates
+    ...                success. Fails fast on error toasts with the error text. FAILS if no toast
+    ...                appeared at all (no more silent warns).
+    [Arguments]    ${timeout}=30
+    ${captured}=    Set Variable    ${None}
+    ${total_iters}=    Evaluate    int(${timeout} * 5)
+    FOR    ${i}    IN RANGE    ${total_iters}
+        ${captured}=    Execute Javascript    return window.__stcCapturedToast;
+        ${found}=    Run Keyword And Return Status    Should Be True    $captured is not None
+        IF    ${found}    BREAK
+        Sleep    0.2s
+    END
+    # Disconnect the observer regardless of outcome
+    Run Keyword And Ignore Error    Execute Javascript
+    ...    if (window.__stcToastObserver) { window.__stcToastObserver.disconnect(); window.__stcToastObserver = null; }
+    ${has_toast}=    Run Keyword And Return Status    Should Be True    $captured is not None
+    IF    not ${has_toast}
+        Capture Page Screenshot
+        Fail    No success toast appeared within ${timeout}s after action submission. Either the form was rejected silently or the toast never rendered. Check popup fields, network errors, or backend response.
+    END
+    ${cls}=    Set Variable    ${captured}[cls]
+    ${txt}=    Set Variable    ${captured}[text]
+    ${is_error}=    Evaluate    'error' in '${cls}'.lower() or 'fail' in '${cls}'.lower()
+    IF    ${is_error}
+        Capture Page Screenshot
+        Fail    Action returned an ERROR toast (class="${cls}"): ${txt}
+    END
+    Log To Console    ✓ Success toast captured: "${txt}" (class="${cls}")
+    RETURN    ${txt}
+
 Close Popup Without Submitting
     [Documentation]    Clicks the Close/Cancel button inside the popup.
     Wait Until Element Is Visible    ${LOC_DSC_POPUP_CLOSE_BTN}    timeout=15s
@@ -568,27 +658,40 @@ Close Popup Without Submitting
 #  COMPOSITE FLOWS
 # ═══════════════════════════════════════════════════════════════════════
 Fill Popup And Submit
-    [Documentation]    Fills the popup fields that are visible and clicks Proceed.
-    ...                Service Plan, Device Plan, and Reason are each checked independently.
+    [Documentation]    Fills the popup fields that are visible and clicks Proceed. Installs a
+    ...                JS toast observer immediately BEFORE clicking Proceed so the success
+    ...                toast is captured even if it auto-dismisses within ~2-3s. Caller should
+    ...                call ``Wait For Toast And Assert Success`` next to verify the toast.
+    ...
+    ...                Service Plan + Device Plan are ONLY filled for the activation transition
+    ...                (InActive → Activated); for Suspend / Resume / Terminate the popup either
+    ...                doesn't show those fields OR shows them as read-only — selecting the first
+    ...                option there would override the existing DP and cause backend errors.
     [Arguments]    ${from_state}    ${to_state}
     Wait For Popup To Open
     Sleep    0.3s
     Wait For Loading Overlay To Disappear
-    ${svc_visible}=    Run Keyword And Return Status
-    ...    Wait Until Element Is Visible    ${LOC_DSC_SVC_PLAN_DROP}    timeout=5s
-    IF    ${svc_visible}
-        Select Service Plan In Popup
-    END
-    ${dev_visible}=    Run Keyword And Return Status
-    ...    Wait Until Element Is Visible    ${LOC_DSC_DEV_PLAN_DROP}    timeout=5s
-    IF    ${dev_visible}
-        Select Device Plan In Popup
+    ${is_activation}=    Evaluate    '${from_state}'.lower() == 'inactive' and '${to_state}'.lower() == 'activated'
+    IF    ${is_activation}
+        ${svc_visible}=    Run Keyword And Return Status
+        ...    Wait Until Element Is Visible    ${LOC_DSC_SVC_PLAN_DROP}    timeout=5s
+        IF    ${svc_visible}
+            Select Service Plan In Popup
+        END
+        ${dev_visible}=    Run Keyword And Return Status
+        ...    Wait Until Element Is Visible    ${LOC_DSC_DEV_PLAN_DROP}    timeout=5s
+        IF    ${dev_visible}
+            Select Device Plan In Popup
+        END
+    ELSE
+        Log To Console    Skipping Service Plan / Device Plan for ${from_state} → ${to_state} (not an activation transition).
     END
     ${reason_visible}=    Run Keyword And Return Status
     ...    Wait Until Element Is Visible    ${LOC_DSC_REASON_DROP}    timeout=10s
     IF    ${reason_visible}
         Select Reason In Popup
     END
+    Install Toast Capture Observer
     Click Proceed Button
 
 Perform Full State Change
@@ -641,15 +744,24 @@ Verify Device State After Change
     [Documentation]    Resets the grid, searches for the device by IMSI, and verifies that the
     ...                SIM State column shows ``${expected_state}``. If the grid does not yet
     ...                reflect the expected state, retries every ``${interval}`` (default 30s)
-    ...                for up to ``${retries}`` attempts (default 10 → ~5 minutes total). Use this
-    ...                after a UI state-change action + SOAP ResponseHandler so any backend lag
-    ...                doesn't fail the assertion on the first read.
-    [Arguments]    ${imsi}    ${expected_state}    ${retries}=10    ${interval}=30s
+    ...                for up to ``${retries}`` attempts (default 12 → ~6 minutes total).
+    ...                Every 3rd attempt does a full Reload Page to bust React state caching
+    ...                that headless Chrome on the server can hold across Reset+Search alone.
+    [Arguments]    ${imsi}    ${expected_state}    ${retries}=12    ${interval}=30s
     ${state_col}=    Set Variable    ${None}
     ${actual_state}=    Set Variable    ${EMPTY}
     FOR    ${i}    IN RANGE    ${retries}
         ${attempt}=    Evaluate    ${i} + 1
         Log To Console    [verify state attempt ${attempt}/${retries}] expecting "${expected_state}" for IMSI ${imsi}
+        # Every 3rd retry, force a hard browser reload — Reset+Search alone leaves React state
+        # cached on headless Chrome, so even if backend updated, UI still shows old value.
+        ${should_reload}=    Evaluate    ${i} > 0 and (${i} % 3) == 0
+        IF    ${should_reload}
+            Log To Console    [reload] forcing hard browser reload to bust grid cache
+            Reload Page
+            Wait For Loading Overlay To Disappear
+            Sleep    1s
+        END
         Reset Grid To Default View
         Sleep    0.3s
         Wait For Loading Overlay To Disappear

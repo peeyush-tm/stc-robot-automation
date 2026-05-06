@@ -17,6 +17,7 @@ Suite Setup       Run Keywords    Load Environment Config From Json    ${ENV}
 ...               AND    CSRJ Cleanup All Existing CSRs From Grid
 Suite Teardown    Close All Browsers
 Test Teardown     Handle Test Teardown
+Test Tags         feature
 
 
 *** Test Cases ***

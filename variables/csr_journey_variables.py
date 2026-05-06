@@ -53,6 +53,22 @@ CSRJ_DEFAULT_APN_NAME_2 = config_scalar(
 CSRJ_DEFAULT_BUNDLE_PLAN_2 = config_scalar(
     "DEFAULT_CSR_BUNDLE_PLAN_2", "SimReplacementDpRC"
 )
+# ── CSR Feature-test data (separate from E2E DEFAULT_CSR_*) ───────────
+# Used by tests/csr_journey_feature_tests.robot (TC_CSRJ_*) so the deep UI
+# feature tests can target a stable Tariff/Bundle/APN combination that may
+# differ from the E2E flow defaults.
+CSRJ_FEATURE_TARIFF_PLAN = config_scalar(
+    "CSR_FEATURE_TARIFF_PLAN", "TP-MOB-24523"
+)
+CSRJ_FEATURE_BUNDLE_PLAN = config_scalar(
+    "CSR_FEATURE_BUNDLE_PLAN", "DP-MOB-24523"
+)
+CSRJ_FEATURE_APN_NAME = config_scalar(
+    "CSR_FEATURE_APN_NAME", "auto-apn-d0guvs"
+)
+CSRJ_FEATURE_APN_TYPE = config_scalar(
+    "CSR_FEATURE_APN_TYPE", "Private"
+)
 # Random device plan alias for dpAliasName input (Create CSR - TC_CSRJ_004)
 CSRJ_DEVICE_PLAN_ALIAS = f"DP_{_random_string(6)}"
 # Device plan alias for Modify CSR (TC_CSRJ_052) — independent from create

@@ -422,17 +422,30 @@ def parse_output_xml(output_dir):
 
     start_display = ""
     duration = ""
+
+    def _parse_rf_time(value):
+        """Parse a Robot Framework time string. Handles RF7 (ISO with T) and
+        RF6 legacy (`YYYYMMDD HH:MM:SS.fff`) — both with optional milliseconds."""
+        if not value:
+            return None
+        s = value.strip()
+        if "T" in s:
+            # RF7 ISO: 2026-05-04T20:42:21.825
+            base = s[:19]
+            return datetime.strptime(base, "%Y-%m-%dT%H:%M:%S")
+        # RF6 legacy: 20260504 20:42:21.825 — base is 17 chars (no millis)
+        base = s[:17]
+        return datetime.strptime(base, "%Y%m%d %H:%M:%S")
+
     if start_time:
         try:
-            fmt = "%Y-%m-%dT%H:%M:%S" if "T" in start_time else "%Y%m%d %H:%M:%S"
-            st = datetime.strptime(start_time[:19], fmt)
-            start_display = _utc_to_ist(st)
+            st = _parse_rf_time(start_time)
+            start_display = _utc_to_ist(st) if st else start_time
             if elapsed:
                 total_secs = int(float(elapsed))
             elif end_time:
-                et_fmt = "%Y-%m-%dT%H:%M:%S" if "T" in end_time else "%Y%m%d %H:%M:%S"
-                et = datetime.strptime(end_time[:19], et_fmt)
-                total_secs = max(0, int((et - st).total_seconds()))
+                et = _parse_rf_time(end_time)
+                total_secs = max(0, int((et - st).total_seconds())) if (st and et) else 0
             else:
                 total_secs = 0
             h, m, s = total_secs // 3600, (total_secs % 3600) // 60, total_secs % 60
@@ -440,10 +453,10 @@ def parse_output_xml(output_dir):
         except (ValueError, TypeError):
             start_display = start_time
 
-    # Fallback: sum test elapsed (RF7)
+    # Fallback: sum test elapsed (RF7) OR endtime-minus-starttime per test (RF6).
     if not duration or duration == "00:00:00":
         try:
-            total_elapsed = 0
+            total_elapsed = 0.0
             earliest_start = None
             for test in root.iter("test"):
                 ts = test.find("status")
@@ -452,6 +465,17 @@ def parse_output_xml(output_dir):
                 el = ts.get("elapsed", "")
                 if el:
                     total_elapsed += float(el)
+                else:
+                    t_start = ts.get("starttime", ts.get("start", ""))
+                    t_end   = ts.get("endtime",   ts.get("end",   ""))
+                    if t_start and t_end:
+                        try:
+                            ts_dt = _parse_rf_time(t_start)
+                            te_dt = _parse_rf_time(t_end)
+                            if ts_dt and te_dt:
+                                total_elapsed += max(0.0, (te_dt - ts_dt).total_seconds())
+                        except (ValueError, TypeError):
+                            pass
                 s = ts.get("starttime", ts.get("start", ""))
                 if s and (earliest_start is None or s < earliest_start):
                     earliest_start = s

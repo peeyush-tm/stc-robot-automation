@@ -245,7 +245,7 @@ ${LOC_CSR_OVERWRITE_MSG}         xpath=//*[@id='csrOverWriteModal']//*[contains(
 ${LOC_CSR_OVERWRITE_CONFIRM_BTN}    xpath=//*[@id="csrOverWriteModal"]//button[contains(@class,"btn-custom-color") or contains(@class,"btn-primary")]
 
 # ── Toast Notifications (Toastify) ───────────────────────────────────
-${LOC_CSRJ_SUCCESS_TOAST}        xpath=//div[@role='alert' and contains(@class,'Toastify__toast-body')]
+${LOC_CSRJ_SUCCESS_TOAST}        xpath=//div[@role='alert' and contains(@class,'Toastify__toast')]
 ${LOC_CSRJ_ERROR_TOAST}          xpath=//div[contains(@class,'Toastify__toast--error')] | //div[@role='alert' and (contains(text(),'error') or contains(text(),'Error'))]
 # APN Type conflict error
 ${LOC_CSRJ_APN_CONFLICT_ERROR}   xpath=//div[contains(@class,'apnError')]

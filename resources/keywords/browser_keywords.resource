@@ -79,9 +79,13 @@ Open Test Browser
         Call Method    ${chrome_options}    add_argument    --disable-extensions
         Call Method    ${chrome_options}    add_argument    --disable-infobars
         Call Method    ${chrome_options}    add_argument    --disable-background-networking
+        ${_dl_dir}=    Evaluate    __import__('os').path.expanduser('~/Downloads')
+        Evaluate    __import__('os').makedirs('${_dl_dir}', exist_ok=True)    modules=os
         IF    '${blk}' == '1'
-            Evaluate    $chrome_options.add_experimental_option('prefs', {'profile.default_content_setting_values': {'images': 2}})
+            Evaluate    $chrome_options.add_experimental_option('prefs', {'profile.default_content_setting_values': {'images': 2}, 'download.default_directory': '${_dl_dir}', 'download.prompt_for_download': False, 'download.directory_upgrade': True, 'safebrowsing.enabled': True})
             Log    STC_CHROME_BLOCK_IMAGES=1: blocking images to reduce headless Chrome memory.    level=INFO
+        ELSE
+            Evaluate    $chrome_options.add_experimental_option('prefs', {'download.default_directory': '${_dl_dir}', 'download.prompt_for_download': False, 'download.directory_upgrade': True, 'safebrowsing.enabled': True})
         END
         Evaluate    $chrome_options.add_argument('--disk-cache-size=1')
         Evaluate    $chrome_options.add_argument('--remote-debugging-port=0')
@@ -96,12 +100,22 @@ Open Test Browser
         Evaluate    $chrome_options.add_argument('--disable-sync')
         Evaluate    $chrome_options.add_argument('--disable-breakpad')
         Call Method    ${chrome_options}    add_argument    --mute-audio
-        Create Webdriver    Chrome    options=${chrome_options}
+        # If STC_CHROMEDRIVER is set (e.g. by run_tests.py auto-config on Linux servers),
+        # bypass Selenium Manager and pin the bundled chromedriver matching the bundled Chrome.
+        ${custom_driver}=    Evaluate    __import__('os').environ.get('STC_CHROMEDRIVER','')
+        IF    '${custom_driver}' != ''
+            ${cd_service}=    Evaluate    sys.modules['selenium.webdriver.chrome.service'].Service(executable_path='${custom_driver}')    sys, selenium.webdriver.chrome.service
+            Create Webdriver    Chrome    options=${chrome_options}    service=${cd_service}
+        ELSE
+            Create Webdriver    Chrome    options=${chrome_options}
+        END
         Set Selenium Implicit Wait    ${IMPLICIT_WAIT}s
         Set Selenium Timeout    ${PAGE_LOAD_TIMEOUT}s
         # Set script timeout to 120s so long JS polls (rule creation, async waits) don't abort at 30s default
         ${sl}=    Get Library Instance    SeleniumLibrary
         Evaluate    $sl.driver.set_script_timeout(120)
+        # Enable file downloads in headless Chrome via CDP — without this, headless Chrome silently drops downloads
+        Evaluate    $sl.driver.execute_cdp_cmd('Browser.setDownloadBehavior', {'behavior': 'allow', 'downloadPath': '${_dl_dir}'})
         # CRITICAL FIX for headless: --window-size argument is often ignored by --headless=new mode.
         # Explicitly force a large viewport so elements don't render off-screen (which is why elements
         # appeared "not visible" on server but worked fine locally in headed Chrome).

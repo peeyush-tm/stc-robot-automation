@@ -16,6 +16,7 @@ Suite Setup       Run Keywords    Load Environment Config From Json    ${ENV}
 ...               AND    Open Target Device Detail Page    ${DEVICE_ICCID}
 Suite Teardown    Close All Browsers
 Test Teardown     Handle Test Teardown
+Test Tags         feature
 
 
 *** Variables ***

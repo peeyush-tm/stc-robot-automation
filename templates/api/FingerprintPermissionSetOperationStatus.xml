@@ -1,0 +1,11 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:per="http://permission.fingerprint.webservice.stc.comarch.com/">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <per:setOperationStatus>
+         <transactionId>__TRANSACTION_ID__</transactionId>
+         <operationResult>
+__RESULT_BLOCKS__
+         </operationResult>
+      </per:setOperationStatus>
+   </soapenv:Body>
+</soapenv:Envelope>

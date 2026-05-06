@@ -15,6 +15,7 @@ Suite Setup       Run Keywords    Load Environment Config From Json    ${ENV}
 ...               AND    Navigate To Manage Devices Page
 Suite Teardown    Close All Browsers
 Test Teardown     Handle Test Teardown
+Test Tags         feature
 
 
 *** Test Cases ***

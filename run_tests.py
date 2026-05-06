@@ -6,39 +6,41 @@ Reads tasks.csv for suite ordering, runs Robot Framework suites sequentially,
 then merges reports with rebot.  All XML, HTML, and screenshot artifacts are
 collected into a single timestamped folder under reports/.
 
-Usage:
-    python run_tests.py                                            # all tasks.csv suites
-    python run_tests.py --e2e                                      # Flow A: E2E without usage (17 steps)
-    python run_tests.py --e2e-with-usage                           # Flow B: E2E with usage (20 steps)
-    python run_tests.py --e2e --browser headlesschrome             # E2E headless
-    python run_tests.py --e2e-with-usage --browser headlesschrome  # Flow B headless
-    python run_tests.py --e2e --exitonfailure                      # stop on first fail
-    python run_tests.py tests/login_tests.robot                    # specific suite
-    python run_tests.py --suite Login                               # by suite name
-    python run_tests.py --include smoke                             # by tag
-    python run_tests.py --env staging --browser firefox             # overrides
+Any combination of modes works — all flags are independent and outputs are merged
+into one combined report at the end.
 
-Re-run only tests that FAILED in a previous run (Robot --rerunfailed):
-    python run_tests.py tests/rule_engine_tests.robot --rerunfailed reports/2026-03-25_13-33-19/output_1_rule_engine_tests.xml
+Usage:
+    # Single modes
+    python run_tests.py                                              # all tasks.csv suites
+    python run_tests.py --sanity                                     # sanity suite only
+    python run_tests.py --e2e                                        # E2E Flow A (no usage)
+    python run_tests.py --e2e-with-usage                             # E2E Flow B (with usage)
+    python run_tests.py --suite Login                                 # one named module
+    python run_tests.py --suite Login --suite APN                     # multiple modules
+    python run_tests.py --module "Rule Engine" --module "Label"       # alias for --suite
+    python run_tests.py tests/login_tests.robot                       # direct file path
+
+    # Combined modes (any mix — run sequentially, one combined report)
+    python run_tests.py --sanity --e2e-with-usage --env qe --browser headlesschrome --email
+    python run_tests.py --sanity --e2e --suite Login --env qe
+    python run_tests.py --sanity --suite APN --suite "Rule Engine" --env qe
+
+    # Filters (applied to all modes)
+    python run_tests.py --include smoke                               # by RF tag
+    python run_tests.py --suite Login --test TC_LOGIN_001*            # by test name
+    python run_tests.py --env staging --browser firefox               # env/browser overrides
+    python run_tests.py --api                                         # API suites only
+    python run_tests.py --ui                                          # UI suites only
+
+    # Re-run failures
     python run_tests.py --suite "Rule Engine" --rerunfailed reports/2026-03-25_13-33-19
-    # Directory: uses output_<n>_<suite_stem>.xml per suite, or combined_output.xml if present.
 
 E2E partial runs (skip earlier steps by passing variables):
-    python run_tests.py --e2e --test "Step 16*" --test "Step 17*" ^
-        --variable E2E_EC_NAME:AQ_AUTO_EC_11030048 ^
-        --variable E2E_BU_NAME:AQ_AUTO_BU_11030048 ^
-        --variable E2E_ORDER_ID:101076 ^
-        --variable E2E_EC_ID:29421 ^
-        --variable E2E_BU_ID:29422
-
     python run_tests.py --e2e-with-usage --test "Step 16a*" --test "Step 17*" ^
         --variable E2E_EC_NAME:AQ_AUTO_EC_11030048 ^
-        --variable E2E_BU_NAME:AQ_AUTO_BU_11030048 ^
-        --variable E2E_ORDER_ID:101076 ^
-        --variable E2E_EC_ID:29421 ^
-        --variable E2E_BU_ID:29422
+        --variable E2E_ORDER_ID:101076
 
-Variables needed when skipping steps:
+Variables needed when skipping E2E steps:
     E2E_EC_NAME    - EC account name       (from Step 1)
     E2E_BU_NAME    - BU account name       (from Step 1)
     E2E_ORDER_ID   - Order ID              (from Step 7)
@@ -142,7 +144,7 @@ def write_run_info(report_folder, args, tag=""):
         "client": "STC",
         "env": getattr(args, "env", "qe") or "qe",
         "tag": tag,
-        "module": getattr(args, "suite", "") or "",
+        "module": ", ".join(getattr(args, "suite", None) or []),
         "triggered_by": triggered_by,
     }
     try:
@@ -342,10 +344,10 @@ def build_robot_command(suite_path, report_folder, index, args, is_api=False, tc
     return cmd
 
 
-def build_e2e_command(report_folder, args, suite_path=None):
+def build_e2e_command(report_folder, args, suite_path=None, output_name="output.xml"):
     cmd = [sys.executable, "-m", "robot"]
     cmd += ["--outputdir", report_folder]
-    cmd += ["--output", "output.xml"]
+    cmd += ["--output", output_name]
     cmd += ["--log", "NONE"]
     cmd += ["--report", "NONE"]
 
@@ -409,9 +411,9 @@ def run_suites(suites, report_folder, args):
     return outputs
 
 
-def run_e2e(report_folder, args, suite_path=None):
+def run_e2e(report_folder, args, suite_path=None, output_name="output.xml"):
     suite_path = suite_path or E2E_SUITE
-    cmd = build_e2e_command(report_folder, args, suite_path)
+    cmd = build_e2e_command(report_folder, args, suite_path, output_name=output_name)
     suite_label = os.path.relpath(suite_path, ROOT_DIR)
 
     print(f"\n{'='*60}")
@@ -420,7 +422,7 @@ def run_e2e(report_folder, args, suite_path=None):
     print(f"  Command: {' '.join(cmd)}\n")
 
     result = subprocess.run(cmd, cwd=ROOT_DIR, env=_child_env(report_folder))
-    output_path = os.path.join(report_folder, "output.xml")
+    output_path = os.path.join(report_folder, output_name)
     outputs = [output_path] if os.path.exists(output_path) else []
 
     if result.returncode not in (0, 1):
@@ -768,178 +770,208 @@ def run_sanity(report_folder, args):
 
 def main():
     parser = argparse.ArgumentParser(description="STC Automation Test Runner")
-    parser.add_argument("suites", nargs="*", help="Suite file path(s)")
-    parser.add_argument("--env", default="dev", help="Environment (dev/staging/prod)")
+    parser.add_argument("suites", nargs="*", help="Suite file path(s) — direct robot files")
+    parser.add_argument("--env", default="dev", help="Environment (dev/qe/sit/staging/prod)")
     parser.add_argument("--browser", default=None, help="Browser override (chrome/headlesschrome/firefox)")
     parser.add_argument("--test", action="append", help="Test name filter (repeatable)")
-    parser.add_argument("--include", default=None, help="Include tag")
-    parser.add_argument("--exclude", default=None, help="Exclude tag")
+    parser.add_argument("--include", default=None, help="Include by RF tag (e.g. smoke)")
+    parser.add_argument("--exclude", default=None, help="Exclude by RF tag")
     parser.add_argument("--skip-suite", action="append", default=[], dest="skip_suite",
-                        help="Module name to skip entirely — no browser launch (repeatable)")
+                        help="Module name to skip entirely (repeatable)")
     parser.add_argument("--skip-test", action="append", default=[], dest="skip_test",
                         help="Test name pattern to skip, e.g. TC_LBL_014* (repeatable)")
-    parser.add_argument("--suite", default=None, help="Suite name (resolved from tasks.csv)")
-    parser.add_argument("--tasks", action="store_true", help="Run all from tasks.csv")
+    parser.add_argument("--suite", action="append", default=[], dest="suite",
+                        help="Module name from tasks.csv to run (repeatable, e.g. --suite Login --suite APN)")
+    parser.add_argument("--module", action="append", default=[], dest="suite",
+                        help="Alias for --suite (repeatable)")
+    parser.add_argument("--tasks", action="store_true", help="Run all suites from tasks.csv")
     parser.add_argument("--api", action="store_true", help="Run only API suites")
     parser.add_argument("--ui", action="store_true", help="Run only UI suites")
-    parser.add_argument("--e2e", action="store_true", help="Run E2E Flow A without usage (tests/e2e_flow.robot)")
+    parser.add_argument("--sanity", action="store_true",
+                        help="Run Sanity suite (tests/sanity_tests.robot)")
+    parser.add_argument("--e2e", action="store_true",
+                        help="Run E2E Flow A without usage (tests/e2e_flow.robot)")
     parser.add_argument("--e2e-with-usage", action="store_true", dest="e2e_with_usage",
                         help="Run E2E Flow B with usage (tests/e2e_flow_with_usage.robot)")
     parser.add_argument("--with-crud", action="store_true", dest="with_crud",
-                        help="After E2E, also run Role+User CRUD positive tests (tests/role_user_crud_tests.robot)")
-    parser.add_argument("--sanity", action="store_true",
-                        help="Run Sanity suite (tests/sanity_tests.robot)")
+                        help="Also run Role+User CRUD tests after E2E (tests/role_user_crud_tests.robot)")
     parser.add_argument("--parallel", type=int, default=1, metavar="N",
-                        help="Run sanity tests in parallel using pabot (N processes, default 1 = sequential)")
+                        help="Run sanity in parallel using pabot (N processes)")
     parser.add_argument("--exitonfailure", action="store_true", help="Stop on first test failure")
     parser.add_argument("--variable", action="append", help="Override Robot variable (KEY:VALUE)")
-    parser.add_argument("--outputdir", default=None, help="Override report output directory (e.g. reports/RUNNAME_timestamp)")
+    parser.add_argument("--outputdir", default=None,
+                        help="Override report output directory")
     parser.add_argument("--keep-seed", action="store_true", dest="keep_seed",
-                        help="Do NOT clear .run_seed.json at the start of this run. "
-                             "Use this when running a dependent suite (e.g. SIM Movement) "
-                             "with data from the last E2E run.")
-    parser.add_argument(
-        "--rerunfailed",
-        metavar="PATH",
-        help="Robot --rerunfailed: PATH to a previous output .xml file, or a report folder "
-             "(uses output_<n>_<suite>.xml or combined_output.xml). Only failed tests run.",
-    )
+                        help="Preserve .run_seed.json from a previous E2E run")
+    parser.add_argument("--rerunfailed", metavar="PATH",
+                        help="Re-run only failed tests from a previous output XML or report folder")
     parser.add_argument("--email", action="store_true",
-                        help="Send email report after test run completes")
+                        help="Send email report after run completes")
     args = parser.parse_args()
 
-    # So ``variables/_config_defaults.py`` matches ``-v ENV:`` when suites import Python variable files.
     os.environ["STC_AUTOMATION_ENV"] = (args.env or "dev").strip().lower()
 
     if not args.keep_seed:
         clear_seed()
 
-    # ── Determine run mode and report folder ─────────────────────────
+    is_e2e = args.e2e or args.e2e_with_usage
+
+    # ── Report folder label derived from active modes ─────────────────
     if args.outputdir:
         report_folder = os.path.abspath(args.outputdir)
         os.makedirs(report_folder, exist_ok=True)
     else:
-        is_e2e = args.e2e or args.e2e_with_usage
-        if is_e2e:
-            if args.e2e_with_usage:
-                label = "e2e_usage_headless" if args.browser == "headlesschrome" else "e2e_usage"
-            else:
-                label = "e2e_headless" if args.browser == "headlesschrome" else "e2e"
-            report_folder = create_report_folder(label)
-        else:
-            report_folder = create_report_folder()
-    is_e2e = args.e2e or args.e2e_with_usage
+        parts = []
+        if args.sanity:
+            parts.append("sanity")
+        if args.e2e_with_usage:
+            parts.append("e2eu")
+        elif args.e2e:
+            parts.append("e2e")
+        if args.suite:
+            parts.extend(s.lower().replace(" ", "_") for s in args.suite[:2])
+        if args.browser == "headlesschrome":
+            parts.append("headless")
+        report_folder = create_report_folder("_".join(parts) if parts else "")
 
     # Write run_info.json for send_report.py
-    tag = getattr(args, "include", "") or ""
-    write_run_info(report_folder, args, tag=tag)
+    write_run_info(report_folder, args, tag=getattr(args, "include", "") or "")
+
+    # ── Header ────────────────────────────────────────────────────────
+    mode_parts = []
+    if args.sanity:           mode_parts.append("Sanity")
+    if args.e2e:              mode_parts.append("E2E Flow A")
+    if args.e2e_with_usage:   mode_parts.append("E2E Flow B (With Usage)")
+    if args.suite:            mode_parts.extend(args.suite)
+    if args.suites:           mode_parts.extend(os.path.basename(s) for s in args.suites)
+    if args.tasks or args.api or args.ui:
+        mode_parts.append("tasks.csv")
+    if not mode_parts:        mode_parts.append("All Suites (tasks.csv)")
 
     print(f"\n{'='*60}")
     print(f"  STC Automation — Test Runner")
     print(f"{'='*60}")
     print(f"  Environment : {args.env}")
     print(f"  Browser     : {args.browser or '(from config)'}")
+    print(f"  Mode        : {' + '.join(mode_parts)}")
     print(f"  Report Dir  : {report_folder}")
     if args.keep_seed:
         seed_exists = os.path.exists(SEED_FILE)
-        print(f"  Seed        : PRESERVED{' (.run_seed.json exists)' if seed_exists else ' (WARNING: .run_seed.json not found — E2E must run first)'}")
+        print(f"  Seed        : PRESERVED{' (exists)' if seed_exists else ' (WARNING: not found)'}")
     if getattr(args, "rerunfailed", None):
-        print(f"  Re-run      : FAILED ONLY (--rerunfailed {args.rerunfailed})")
+        print(f"  Re-run      : FAILED ONLY ({args.rerunfailed})")
+    print(f"{'='*60}")
 
-    if getattr(args, "sanity", False):
-        print(f"  Mode        : Sanity Suite")
+    outputs = []
+
+    # ── 1. Sanity ─────────────────────────────────────────────────────
+    if args.sanity:
         if getattr(args, "parallel", 1) > 1:
-            print(f"  Parallel    : {args.parallel} processes (pabot)")
-        print(f"{'='*60}")
-        outputs = run_sanity(report_folder, args)
-    elif is_e2e:
-        if args.e2e_with_usage:
-            print(f"  Mode        : E2E Flow B (With Usage)")
-            suite_path = E2E_USAGE_SUITE
-        else:
-            print(f"  Mode        : E2E Flow A (Without Usage)")
-            suite_path = E2E_SUITE
-        if getattr(args, "with_crud", False):
-            print(f"  CRUD        : Role + User CRUD tests will run after E2E")
-        if args.exitonfailure:
-            print(f"  Options     : --exitonfailure")
-        print(f"{'='*60}")
-        outputs = run_e2e(report_folder, args, suite_path)
+            print(f"  Parallel    : {args.parallel} processes (pabot) for sanity")
+        outputs += run_sanity(report_folder, args)
 
-        # ── Run CRUD suite after E2E when --with-crud is specified ────────
-        if getattr(args, "with_crud", False):
-            print(f"\n{'='*60}")
-            print(f"  Running CRUD Suite: tests/role_user_crud_tests.robot")
-            print(f"{'='*60}")
-            crud_args_copy = argparse.Namespace(**vars(args))
-            crud_args_copy.test = []      # don't filter by --test for CRUD suite
-            crud_cmd = build_robot_command(
-                os.path.relpath(CRUD_SUITE, ROOT_DIR),
-                report_folder,
-                len(outputs) + 1,
-                crud_args_copy,
-            )
-            print(f"  Command: {' '.join(crud_cmd)}\n")
-            crud_result = subprocess.run(
-                crud_cmd, cwd=ROOT_DIR, env=_child_env(report_folder)
-            )
-            crud_output_name = f"output_{len(outputs)+1}_role_user_crud_tests.xml"
-            crud_output_path = os.path.join(report_folder, crud_output_name)
-            if os.path.exists(crud_output_path):
-                outputs.append(crud_output_path)
-            if crud_result.returncode not in (0, 1):
-                print(f"  WARNING: CRUD suite exited with code {crud_result.returncode}")
-    else:
-        if args.suites:
-            if any("e2e_flow_with_usage_plans" in s for s in args.suites):
-                auto_generate_e2e_plan_tests()
-            suites = [(s, None) for s in args.suites]
-        elif args.suite or args.tasks or args.api or args.ui:
-            tasks = read_tasks()
-            suites = resolve_suites_from_tasks(
+    # ── 2. E2E Flow A ─────────────────────────────────────────────────
+    if args.e2e:
+        outputs += run_e2e(report_folder, args, E2E_SUITE,
+                           output_name="output_e2e.xml")
+
+    # ── 3. E2E Flow B (with usage) ────────────────────────────────────
+    if args.e2e_with_usage:
+        outputs += run_e2e(report_folder, args, E2E_USAGE_SUITE,
+                           output_name="output_e2eu.xml")
+
+    # ── 4. CRUD addon (after any E2E) ─────────────────────────────────
+    if args.with_crud and is_e2e:
+        print(f"\n{'='*60}")
+        print(f"  Running CRUD Suite: tests/role_user_crud_tests.robot")
+        print(f"{'='*60}")
+        crud_args_copy = argparse.Namespace(**vars(args))
+        crud_args_copy.test = []
+        crud_idx = len(outputs) + 1
+        crud_cmd = build_robot_command(
+            os.path.relpath(CRUD_SUITE, ROOT_DIR),
+            report_folder, crud_idx, crud_args_copy,
+        )
+        print(f"  Command: {' '.join(crud_cmd)}\n")
+        crud_result = subprocess.run(crud_cmd, cwd=ROOT_DIR, env=_child_env(report_folder))
+        crud_output = os.path.join(report_folder, f"output_{crud_idx}_role_user_crud_tests.xml")
+        if os.path.exists(crud_output):
+            outputs.append(crud_output)
+        if crud_result.returncode not in (0, 1):
+            print(f"  WARNING: CRUD suite exited with code {crud_result.returncode}")
+
+    # ── 5. Named modules (--suite / --module) and direct file paths ───
+    suite_pairs = []
+
+    if args.suites:
+        if any("e2e_flow_with_usage_plans" in s for s in args.suites):
+            auto_generate_e2e_plan_tests()
+        suite_pairs += [(s, None) for s in args.suites]
+
+    if args.suite or args.tasks or args.api or args.ui:
+        tasks = read_tasks()
+        seen_files = {s for s, _ in suite_pairs}
+        if args.suite:
+            for suite_name in args.suite:
+                resolved = resolve_suites_from_tasks(
+                    tasks,
+                    suite_filter=suite_name,
+                    api_only=args.api,
+                    ui_only=args.ui,
+                    skip_modules=args.skip_suite,
+                )
+                for item in resolved:
+                    if item[0] not in seen_files:
+                        suite_pairs.append(item)
+                        seen_files.add(item[0])
+        else:
+            resolved = resolve_suites_from_tasks(
                 tasks,
-                suite_filter=args.suite,
                 api_only=args.api,
                 ui_only=args.ui,
                 skip_modules=args.skip_suite,
             )
-            if any("e2e_flow_with_usage_plans" in s for s, _ in suites):
-                auto_generate_e2e_plan_tests()
-        else:
-            tasks = read_tasks()
-            if tasks:
-                suites = resolve_suites_from_tasks(tasks, skip_modules=args.skip_suite)
-            else:
-                print("No tasks.csv found and no suites specified. Nothing to run.")
-                sys.exit(1)
+            for item in resolved:
+                if item[0] not in seen_files:
+                    suite_pairs.append(item)
+                    seen_files.add(item[0])
+        if any("e2e_flow_with_usage_plans" in s for s, _ in suite_pairs):
+            auto_generate_e2e_plan_tests()
 
-        if not suites:
-            print("No suites matched the given criteria.")
+    # ── 6. Default fallback: run everything from tasks.csv ────────────
+    if not args.sanity and not is_e2e and not suite_pairs:
+        tasks = read_tasks()
+        if tasks:
+            suite_pairs = resolve_suites_from_tasks(tasks, skip_modules=args.skip_suite)
+        else:
+            print("No tasks.csv found and no suites specified. Nothing to run.")
             sys.exit(1)
 
-        if args.include:
-            before = len(suites)
-            suites = [(s, tc) for s, tc in suites if suite_has_tag_matching_include(s, args.include)]
-            skipped = before - len(suites)
-            if skipped:
-                print(
-                    f"  Tag filter: skipping {skipped} suite(s) with no [Tags] matching "
-                    f"--include {args.include!r} (avoids Robot exit 252 on those files)."
-                )
-            if not suites:
-                print(
-                    f"No remaining suites contain tags matching --include {args.include!r}. Nothing to run."
-                )
+    # ── Run collected suite pairs ─────────────────────────────────────
+    if suite_pairs:
+        if not suite_pairs:
+            print("No suites matched the given criteria.")
+            if not outputs:
                 sys.exit(1)
 
-        print(f"  Mode        : Suite Runner")
-        print(f"  Suites ({len(suites)}):")
-        for s, tc_ids in suites:
-            suffix = f" ({len(tc_ids)} data rows)" if tc_ids else ""
-            print(f"    - {s}{suffix}")
-        print(f"{'='*60}")
+        if args.include:
+            before = len(suite_pairs)
+            suite_pairs = [(s, tc) for s, tc in suite_pairs
+                           if suite_has_tag_matching_include(s, args.include)]
+            skipped = before - len(suite_pairs)
+            if skipped:
+                print(f"  Tag filter: skipping {skipped} suite(s) with no tags matching "
+                      f"--include {args.include!r}.")
+            if not suite_pairs and not outputs:
+                print(f"No suites contain tags matching --include {args.include!r}. Nothing to run.")
+                sys.exit(1)
 
-        outputs = run_suites(suites, report_folder, args)
+        if suite_pairs:
+            print(f"\n  Suites ({len(suite_pairs)}):")
+            for s, tc_ids in suite_pairs:
+                suffix = f" ({len(tc_ids)} data rows)" if tc_ids else ""
+                print(f"    - {s}{suffix}")
+            outputs += run_suites(suite_pairs, report_folder, args)
 
     # ── Post-run: each stage is wrapped so one failure doesn't block others ──
     collect_stray_artifacts(report_folder)

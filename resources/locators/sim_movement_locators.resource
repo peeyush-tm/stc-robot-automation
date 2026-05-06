@@ -94,3 +94,29 @@ ${LOC_SM_TOAST_ERROR}              xpath=//div[contains(@class,'Toastify__toast-
 ${LOC_SM_SUCCESS_MSG}              xpath=//*[contains(text(),'successfully') or contains(text(),'Success') or contains(text(),'Submitted')]
 ${LOC_SM_PERSONAL_DATA_ALERT}      xpath=//div[contains(text(),'personal data') or contains(.,'personal data')]
 ${LOC_SM_ALERT_CLOSE}              xpath=//button[@type='button' and (contains(@class,'close') or contains(text(),'×'))]
+
+# ── SMF: SIM Movement result popup (auto-shows after Submit+Proceed) ──────────
+# Popup title is the GC Request ID (starts with "GC")
+${LOC_SMF_RESULT_POPUP}           xpath=//div[contains(@class,'modal') and .//*[starts-with(normalize-space(text()),'GC')]]
+${LOC_SMF_RESULT_POPUP_TITLE}     xpath=(//div[contains(@class,'modal-header') or contains(@class,'modal-title')]//*[starts-with(normalize-space(text()),'GC')])[1]
+${LOC_SMF_RESULT_POPUP_CLOSE}     xpath=(//div[contains(@class,'modal') and .//*[starts-with(normalize-space(text()),'GC')]]//button[contains(@class,'close') or contains(@aria-label,'Close')])[1]
+${LOC_SMF_RESULT_POPUP_GRID}      xpath=//div[contains(@class,'modal') and .//*[starts-with(normalize-space(text()),'GC')]]//div[contains(@class,'k-grid')]
+${LOC_SMF_RESULT_POPUP_OLD_VAL}   xpath=(//div[contains(@class,'modal') and .//*[starts-with(normalize-space(text()),'GC')]]//div[contains(@class,'k-grid')]//tr[contains(@class,'k-master-row')])[1]//td[5]
+${LOC_SMF_RESULT_POPUP_NEW_VAL}   xpath=(//div[contains(@class,'modal') and .//*[starts-with(normalize-space(text()),'GC')]]//div[contains(@class,'k-grid')]//tr[contains(@class,'k-master-row')])[1]//td[6]
+${LOC_SMF_RESULT_POPUP_RESULT}    xpath=(//div[contains(@class,'modal') and .//*[starts-with(normalize-space(text()),'GC')]]//div[contains(@class,'k-grid')]//tr[contains(@class,'k-master-row')])[1]//td[7]
+${LOC_SMF_RESULT_POPUP_STATUS}    xpath=(//div[contains(@class,'modal') and .//*[starts-with(normalize-space(text()),'GC')]]//div[contains(@class,'k-grid')]//tr[contains(@class,'k-master-row')])[1]//td[8]
+${LOC_SMF_RESULT_POPUP_DETAILS}   xpath=(//div[contains(@class,'modal') and .//*[starts-with(normalize-space(text()),'GC')]]//div[contains(@class,'k-grid')]//tr[contains(@class,'k-master-row')])[1]//td[9]
+
+# ── SMF: Audit Trail — Description column filter ──────────────────────────────
+${LOC_SMF_AUDIT_DESC_FILTER_BTN}  xpath=//div[@id='ManageAuditTrailGrid']//th[contains(.,'DESCRIPTION')]//a[contains(@class,'k-grid-filter')]
+${LOC_SMF_AUDIT_FILTER_INPUT}     xpath=//div[@id='ManageAuditTrailGrid']//div[contains(@class,'k-filter-menu')]//input[@type='text']
+${LOC_SMF_AUDIT_FILTER_APPLY}     xpath=//div[@id='ManageAuditTrailGrid']//div[contains(@class,'k-filter-menu')]//button[contains(text(),'Filter') or @type='submit']
+${LOC_SMF_AUDIT_FIRST_OLD_VAL}    xpath=(//div[@id='ManageAuditTrailGrid']//tr[contains(@class,'k-master-row')])[1]//td[8]
+${LOC_SMF_AUDIT_FIRST_NEW_VAL}    xpath=(//div[@id='ManageAuditTrailGrid']//tr[contains(@class,'k-master-row')])[1]//td[9]
+${LOC_SMF_AUDIT_FIRST_RESULT}     xpath=(//div[@id='ManageAuditTrailGrid']//tr[contains(@class,'k-master-row')])[1]//td[10]
+
+# ── SMF: Notes tab — first row column values ──────────────────────────────────
+${LOC_SMF_NOTES_FIRST_ROW}        xpath=(//div[contains(@class,'k-detail-row')]//tr[contains(@class,'k-master-row')])[1]
+${LOC_SMF_NOTES_FIRST_ATTRIBUTE}  xpath=(//div[contains(@class,'k-detail-row')]//tr[contains(@class,'k-master-row')])[1]//td[2]
+${LOC_SMF_NOTES_FIRST_OLD_VAL}    xpath=(//div[contains(@class,'k-detail-row')]//tr[contains(@class,'k-master-row')])[1]//td[3]
+${LOC_SMF_NOTES_FIRST_NEW_VAL}    xpath=(//div[contains(@class,'k-detail-row')]//tr[contains(@class,'k-master-row')])[1]//td[4]
