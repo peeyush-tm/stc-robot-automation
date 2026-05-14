@@ -395,6 +395,15 @@ Navigate To Manage Devices And Filter BU
             Close Filter Popup
             Wait For Loading Overlay To Disappear
             Wait Until Element Is Visible    ${LOC_DSC_GRID_ROWS}   timeout=30s
+            # Set page size to 100 so all SIMs are visible in one page (default is 20)
+            Execute Javascript
+            ...    var sel = document.querySelector('.k-pager-sizes select');
+            ...    if(sel){
+            ...        sel.value='100';
+            ...        sel.dispatchEvent(new Event('change',{bubbles:true}));
+            ...    }
+            Sleep    1s
+            Wait For Loading Overlay To Disappear
             BREAK
         EXCEPT    OSError*    type=GLOB    AS    ${err}
             Log    Filter BU attempt ${attempt + 1} hit OSError: ${err}. Retrying...    console=yes    level=WARN
@@ -409,6 +418,15 @@ Validate All SIMs In Warm State
     [Documentation]    After filtering, verifies every visible row has SIM State = Warm
     ...                and the total row count is >= min_count (default 5).
     [Arguments]    ${min_count}=${5}
+    # Ensure page size is 100 so all SIMs fit on one page before counting
+    Execute Javascript
+    ...    var sel = document.querySelector('.k-pager-sizes select');
+    ...    if(sel && sel.value !== '100'){
+    ...        sel.value='100';
+    ...        sel.dispatchEvent(new Event('change',{bubbles:true}));
+    ...    }
+    Sleep    1s
+    Wait For Loading Overlay To Disappear
     ${state_col}=    Get Column Index By Header Text    ${STATE_COLUMN_HEADER}
     ${row_count}=    Execute Javascript
     ...    return document.querySelectorAll('#gridData table tbody tr.k-master-row').length;
