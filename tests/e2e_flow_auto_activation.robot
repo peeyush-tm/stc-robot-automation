@@ -188,8 +188,9 @@ TC_E2E_AA_TST_007 Expand EC And BU SIM Limits
     [Tags]    regression    e2e_aa_testactive    TC_E2E_AA_TST_007    positive
     TC_E2E_AA_TST_007
 
-TC_E2E_AA_TST_008 Create SIM Order
-    [Documentation]    Creates SIM Order (nonAutoActivation, no device plan) — SIMs go Warm, TC_018 drives FP SOAP to TestActive.
+TC_E2E_AA_TST_008 Create SIM Order With Auto Activation And TestActive State
+    [Documentation]    Creates SIM Order with Auto Activation + TestActive SIM state + Device Plan.
+    ...                Device plan is the alias captured from TC_004's CSR Journey (E2E_AA_TARIFF_PLAN config).
     [Tags]    regression    e2e_aa_testactive    TC_E2E_AA_TST_008    positive
     TC_E2E_AA_TST_008
 
@@ -316,8 +317,7 @@ TC_E2E_AA_ACT_003
 
 TC_E2E_AA_ACT_004
     Should Not Be Empty    ${E2E_EC_NAME}    Step 1 must run first — EC name is empty.
-    E2E Create CSR Journey    ${E2E_EC_NAME}    ${E2E_BU_NAME}
-    E2E Activate BU Device Plans In DB    ${E2E_BU_NAME}
+    E2E Create CSR Journey For Auto Activation    ${E2E_EC_NAME}    ${E2E_BU_NAME}
 
 TC_E2E_AA_ACT_005
     E2E Create SIM Range
@@ -486,8 +486,7 @@ TC_E2E_AA_TST_003
 
 TC_E2E_AA_TST_004
     Should Not Be Empty    ${E2E_EC_NAME}    Step 1 must run first — EC name is empty.
-    E2E Create CSR Journey    ${E2E_EC_NAME}    ${E2E_BU_NAME}
-    E2E Activate BU Device Plans In DB    ${E2E_BU_NAME}
+    E2E Create CSR Journey For Auto Activation    ${E2E_EC_NAME}    ${E2E_BU_NAME}
 
 TC_E2E_AA_TST_005
     E2E Create SIM Range
@@ -504,7 +503,11 @@ TC_E2E_AA_TST_007
 TC_E2E_AA_TST_008
     Should Not Be Empty    ${E2E_EC_NAME}    Step 1 must run first — EC name is empty.
     Should Not Be Empty    ${E2E_BU_NAME}    Step 1 must run first — BU name is empty.
-    E2E Create SIM Order    ${E2E_EC_NAME}    ${E2E_BU_NAME}
+    E2E Create SIM Order
+    ...    ${E2E_EC_NAME}    ${E2E_BU_NAME}
+    ...    activation_type=autoActivation
+    ...    sim_state=${E2E_AA_SIM_STATE_TESTACTIVE}
+    ...    dp_name=${E2E_CSR1_DP_ALIAS}
 
 TC_E2E_AA_TST_009
     Should Not Be Empty    ${E2E_BU_NAME}    Step 1 must run first — BU name is empty.

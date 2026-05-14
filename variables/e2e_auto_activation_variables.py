@@ -18,6 +18,14 @@ E2E_AA_SIM_STATE_TESTACTIVE  = config_scalar("E2E_AA_SIM_STATE_TESTACTIVE", "2")
 # ── Device Plan name to select during SIM order creation ──────────────
 E2E_AA_DEVICE_PLAN = config_scalar("E2E_AA_DEVICE_PLAN", "")
 
+# ── CSR Journey plan config for auto-activation orders ────────────────
+# These specific plan values produce a device plan visible in the SIM Order
+# dropdown immediately (unlike default plans which need 24h backend processing).
+E2E_AA_TARIFF_PLAN  = config_scalar("E2E_AA_TARIFF_PLAN", "")
+E2E_AA_APN_TYPE     = config_scalar("E2E_AA_APN_TYPE", "Public")
+E2E_AA_APN_NAME     = config_scalar("E2E_AA_APN_NAME", "")
+E2E_AA_BUNDLE_PLAN  = config_scalar("E2E_AA_BUNDLE_PLAN", "")
+
 # ── Runtime — populated by TC_E2E_AA_*_001 (onboard API) ──────────────
 E2E_AA_EC_NAME  = ""
 E2E_AA_BU_NAME  = ""
