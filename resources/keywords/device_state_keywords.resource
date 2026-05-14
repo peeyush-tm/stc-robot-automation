@@ -671,7 +671,7 @@ Fill Popup And Submit
     Wait For Popup To Open
     Sleep    0.3s
     Wait For Loading Overlay To Disappear
-    ${is_activation}=    Evaluate    '${from_state}'.lower() == 'inactive' and '${to_state}'.lower() == 'activated'
+    ${is_activation}=    Evaluate    '${from_state}'.lower() in ('inactive', 'testactive') and '${to_state}'.lower() == 'activated'
     IF    ${is_activation}
         ${svc_visible}=    Run Keyword And Return Status
         ...    Wait Until Element Is Visible    ${LOC_DSC_SVC_PLAN_DROP}    timeout=5s

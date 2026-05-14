@@ -428,11 +428,18 @@ Add ICCID Range
     ${btn_ready}=    Run Keyword And Return Status
     ...    Wait Until Element Is Enabled    ${LOC_ICCID_POPUP_SUBMIT}    timeout=10s
     IF    not ${btn_ready}
-        Log    ICCID Submit still disabled after execCommand fill; force-enabling.    level=WARN    console=yes
+        Log    ICCID Submit still disabled after execCommand fill; applying native setter fallback.    level=WARN    console=yes
+        Set ICCID Popup Fields Via JS    ${from_value}    ${to_value}
+        Sleep    1s
+        Press Keys    ${LOC_ICCID_TO}    TAB
+        Sleep    1s
         ${force_result}=    Execute Javascript
         ...    var btn = document.querySelector('#addRangePopup button[class*="btn-custom-color"]');
+        ...    if(!btn){ var all = document.querySelectorAll('#addRangePopup button');
+        ...      for(var i=0;i<all.length;i++){ var t=all[i].textContent.trim().toLowerCase();
+        ...        if(t==='save'||t==='add'||t==='submit'||t==='ok'){btn=all[i];break;} } }
         ...    if(btn){ btn.disabled=false; btn.removeAttribute('disabled');
-        ...        btn.classList.remove('disabled'); btn.click(); return 'FORCE_CLICKED'; }
+        ...        btn.classList.remove('disabled'); btn.click(); return 'FORCE_CLICKED:'+btn.textContent.trim(); }
         ...    return 'NO_BTN_FOUND';
         Log    ICCID force-enable result: ${force_result}    console=yes
         Sleep    2s

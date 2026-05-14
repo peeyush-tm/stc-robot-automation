@@ -2881,20 +2881,23 @@ Check All Service Type Checkboxes
 #  MULTIPLE DEVICE PLANS IN SINGLE CSR JOURNEY
 # ═══════════════════════════════════════════════════════════════════════
 Add Second Device Plan Row
-    [Documentation]    In edit mode: Add APNs → select public_dynamic → Save → Fetch Device Plan →
-    ...                Select Bundle Plan → enter second device plan alias → Create Service Plan (modal) → page Save.
+    [Documentation]    In edit mode: Add APNs → select APN → Save → Fetch Device Plan →
+    ...                Select Bundle Plan (${bundle_plan}) → enter second device plan alias →
+    ...                Create Service Plan (modal) → page Save.
+    ...                Returns the generated DP alias, or empty string if Add APNs was unavailable.
+    [Arguments]    ${bundle_plan}=${CSRJ_DEFAULT_BUNDLE_PLAN}
     Apply CSRJ Flexible Add APN Locator
     ${add_visible}=    Run Keyword And Return Status
     ...    Wait Until Element Is Visible    ${CSRJ_LOC_ADD_APNS_BTN}    5s
     IF    not ${add_visible}
         Log    Add APNs button not visible — app may support only one device plan per journey. Skipping second row.
-        Return From Keyword
+        RETURN    ${EMPTY}
     END
     ${add_enabled}=    Run Keyword And Return Status
     ...    Element Should Be Enabled    ${CSRJ_LOC_ADD_APNS_BTN}
     IF    not ${add_enabled}
         Log    Add APNs button disabled after first device plan. Skipping second row.
-        Return From Keyword
+        RETURN    ${EMPTY}
     END
     Click Element Via JS             ${CSRJ_LOC_ADD_APNS_BTN}
     Sleep    1s
@@ -2902,19 +2905,20 @@ Add Second Device Plan Row
     ...    Wait Until Element Is Visible    ${LOC_APN_MODAL}    5s
     IF    not ${modal}
         Log    APN modal did not open for second row — single device plan flow only.
-        Return From Keyword
+        RETURN    ${EMPTY}
     END
     Save APN And IP Preference
     Sleep    1s
     Click Fetch Device Plan
     Sleep    0.5s
     Wait For App Loading To Complete
-    Select Bundle Plan First Option
-    Enter Second Device Plan Alias
+    Select Bundle Plan First Option    ${bundle_plan}
+    ${alias}=    Enter Second Device Plan Alias
     Click Create Service Plan Link For Last Row
     Fill And Save Service Plan Modal
     Click Save On Standard Services Device Plan
-    Log    Second device plan row added with Create Service Plan and page Save.
+    Log    Second device plan row added: alias="${alias}", bundle="${bundle_plan}".    console=yes
+    RETURN    ${alias}
 
 Verify Multiple Device Plan Rows On Summary
     [Documentation]    Expands Device Plan accordion on Summary and asserts at least 2

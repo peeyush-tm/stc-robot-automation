@@ -6,7 +6,7 @@ Library    ../../libraries/GridOOM.py
 Go To Url With Connection Retries
     [Documentation]    Navigates with retries for transient ``net::ERR_CONNECTION_TIMED_OUT`` / network blips.
     ...                If all attempts fail, fails with a hint to check VPN, BASE_URL in config, and server reachability.
-    [Arguments]    ${url}    ${attempts}=3    ${pause_between}=5s
+    [Arguments]    ${url}    ${attempts}=5    ${pause_between}=8s
     FOR    ${i}    IN RANGE    ${attempts}
         ${ok}=    Run Keyword And Return Status    Go To    ${url}
         IF    ${ok}
@@ -80,12 +80,12 @@ Open Test Browser
         Call Method    ${chrome_options}    add_argument    --disable-infobars
         Call Method    ${chrome_options}    add_argument    --disable-background-networking
         ${_dl_dir}=    Evaluate    __import__('os').path.expanduser('~/Downloads')
-        Evaluate    __import__('os').makedirs('${_dl_dir}', exist_ok=True)    modules=os
+        Evaluate    __import__('os').makedirs(r'${_dl_dir}', exist_ok=True)    modules=os
         IF    '${blk}' == '1'
-            Evaluate    $chrome_options.add_experimental_option('prefs', {'profile.default_content_setting_values': {'images': 2}, 'download.default_directory': '${_dl_dir}', 'download.prompt_for_download': False, 'download.directory_upgrade': True, 'safebrowsing.enabled': True})
+            Evaluate    $chrome_options.add_experimental_option('prefs', {'profile.default_content_setting_values': {'images': 2}, 'download.default_directory': r'${_dl_dir}', 'download.prompt_for_download': False, 'download.directory_upgrade': True, 'safebrowsing.enabled': True})
             Log    STC_CHROME_BLOCK_IMAGES=1: blocking images to reduce headless Chrome memory.    level=INFO
         ELSE
-            Evaluate    $chrome_options.add_experimental_option('prefs', {'download.default_directory': '${_dl_dir}', 'download.prompt_for_download': False, 'download.directory_upgrade': True, 'safebrowsing.enabled': True})
+            Evaluate    $chrome_options.add_experimental_option('prefs', {'download.default_directory': r'${_dl_dir}', 'download.prompt_for_download': False, 'download.directory_upgrade': True, 'safebrowsing.enabled': True})
         END
         Evaluate    $chrome_options.add_argument('--disk-cache-size=1')
         Evaluate    $chrome_options.add_argument('--remote-debugging-port=0')
@@ -115,7 +115,7 @@ Open Test Browser
         ${sl}=    Get Library Instance    SeleniumLibrary
         Evaluate    $sl.driver.set_script_timeout(120)
         # Enable file downloads in headless Chrome via CDP — without this, headless Chrome silently drops downloads
-        Evaluate    $sl.driver.execute_cdp_cmd('Browser.setDownloadBehavior', {'behavior': 'allow', 'downloadPath': '${_dl_dir}'})
+        Evaluate    $sl.driver.execute_cdp_cmd('Browser.setDownloadBehavior', {'behavior': 'allow', 'downloadPath': r'${_dl_dir}'})
         # CRITICAL FIX for headless: --window-size argument is often ignored by --headless=new mode.
         # Explicitly force a large viewport so elements don't render off-screen (which is why elements
         # appeared "not visible" on server but worked fine locally in headed Chrome).

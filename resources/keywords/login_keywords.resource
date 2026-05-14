@@ -375,6 +375,7 @@ Ensure Session Is Active
         Log    Browser unresponsive in Ensure Session Is Active — restarting.    level=WARN
         Run Keyword And Ignore Error    Close All Browsers
         Force Kill Chrome Processes
+        Sleep    15s
         Open Test Browser    ${BASE_URL}    ${BROWSER}
         Login With Credentials    ${VALID_USERNAME}    ${VALID_PASSWORD}
         Verify Login Success
@@ -403,6 +404,7 @@ Navigate To Module Page
         Log    Go To ${url} failed — Chrome process may have crashed. Restarting browser.    level=WARN
         Run Keyword And Ignore Error    Close All Browsers
         Force Kill Chrome Processes
+        Sleep    15s
         Open Test Browser    ${BASE_URL}    ${BROWSER}
         Login With Credentials    ${VALID_USERNAME}    ${VALID_PASSWORD}
         Verify Login Success

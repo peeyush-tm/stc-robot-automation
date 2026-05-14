@@ -581,14 +581,163 @@ Activate SIMs From InActive State
     Wait For Loading Overlay To Disappear
     RETURN    ${activated_imsis}    ${imsi_data}    ${activated_iccids}
 
+# ═══════════════════════════════════════════════════════════════════════
+#  AUTO ACTIVATION — COLLECT IMSI DATA WITHOUT STATE CHANGE
+# ═══════════════════════════════════════════════════════════════════════
+Collect IMSI Data From State
+    [Documentation]    Navigates to Manage Devices, applies Account + state filter,
+    ...                and collects IMSI/MSISDN/ICCID from visible rows WITHOUT changing state.
+    ...                Used for Auto Activation (Activated) flow where SIMs are already Activated
+    ...                after order approval — no UI activation step needed, just capture data.
+    ...                Returns three values:
+    ...                  1) flat list of IMSI strings
+    ...                  2) list of dicts [{imsi, msisdn, iccid}, ...]
+    ...                  3) flat list of ICCID strings
+    [Arguments]    ${bu_name}    ${sim_state}    ${count}=${SIM_ACTIVATE_COUNT}
+    Ensure Session Is Active
+    Request Page Garbage Collection Best Effort
+    Go To    ${MANAGE_DEVICES_URL_E2E}
+    Inject Grid Oom Patch Into Current Page
+    Sleep    0.3s
+    Wait For Loading Overlay To Disappear
+    Wait Until Element Is Visible    ${LOC_DSC_GRID}    timeout=30s
+    Wait Until Element Is Visible    ${LOC_DSC_GRID_ROWS}    timeout=30s
+    Reset Grid To Default View
+    Sleep    0.3s
+    Wait For Loading Overlay To Disappear
+    Open Filter Popup
+    Apply Account Filter Device Plan Style    ${bu_name}
+    Apply SIM State Filter    ${sim_state}
+    Close Filter Popup
+    Sleep    0.3s
+    Wait For Loading Overlay To Disappear
+    ${rows_visible}=    Run Keyword And Return Status
+    ...    Wait Until Element Is Visible    ${LOC_DSC_GRID_ROWS}    timeout=30s
+    IF    not ${rows_visible}
+        Capture Page Screenshot    e2e_aa_no_sims_in_state.png
+        Fail
+        ...    No SIMs found in state "${sim_state}" for BU="${bu_name}". Verify order was processed with auto activation.
+    END
+    ${imsi_col}=    Get Column Index By Header Text    ${IMSI_COLUMN_HEADER}
+    ${msisdn_col}=    Get Column Index By Header Text    ${MSISDN_COLUMN_HEADER}
+    ${iccid_col}=    Get Column Index By Header Text    ${ICCID_COLUMN_HEADER}
+    ${total_rows}=    Execute Javascript
+    ...    return document.querySelectorAll('#gridData table tbody tr.k-master-row').length;
+    Log    Total visible rows in state "${sim_state}": ${total_rows}    console=yes
+    @{collected_imsis}=    Create List
+    @{imsi_data}=    Create List
+    @{collected_iccids}=    Create List
+    ${collected}=    Set Variable    ${0}
+    FOR    ${i}    IN RANGE    ${total_rows}
+        IF    ${collected} >= ${count}    BREAK
+        ${row_num}=    Evaluate    ${i} + 1
+        ${imsi}=    Get Cell Value By Row And Column    ${row_num}    ${imsi_col}
+        ${msisdn}=    Get Cell Value By Row And Column    ${row_num}    ${msisdn_col}
+        ${iccid}=    Get Cell Value By Row And Column    ${row_num}    ${iccid_col}
+        Log    Row ${row_num}: ICCID=${iccid}, IMSI=${imsi}, MSISDN=${msisdn}    console=yes
+        Append To List    ${collected_imsis}    ${imsi}
+        Append To List    ${collected_iccids}    ${iccid}
+        ${entry}=    Create Dictionary    imsi=${imsi}    msisdn=${msisdn}    iccid=${iccid}
+        Append To List    ${imsi_data}    ${entry}
+        ${collected}=    Evaluate    ${collected} + 1
+    END
+    Log    Collected ${collected} SIM(s) in state "${sim_state}" for BU="${bu_name}".    console=yes
+    Capture Page Screenshot    e2e_aa_collected_sims.png
+    RETURN    ${collected_imsis}    ${imsi_data}    ${collected_iccids}
+
+# ═══════════════════════════════════════════════════════════════════════
+#  AUTO ACTIVATION — ACTIVATE SIMs FROM TESTACTIVE STATE
+# ═══════════════════════════════════════════════════════════════════════
+Activate SIMs From TestActive State
+    [Documentation]    On Manage Devices: apply Account + TestActive filter,
+    ...                click checkboxes for up to ${count} TestActive SIMs, capture their
+    ...                IMSIs/MSISDNs/ICCIDs, perform a single state change to Activated.
+    ...                Returns three values matching the Activate SIMs From InActive State signature.
+    [Arguments]    ${bu_name}    ${count}=${SIM_ACTIVATE_COUNT}
+    Ensure Session Is Active
+    Request Page Garbage Collection Best Effort
+    Go To    ${MANAGE_DEVICES_URL_E2E}
+    Inject Grid Oom Patch Into Current Page
+    Sleep    0.3s
+    Wait For Loading Overlay To Disappear
+    Wait Until Element Is Visible    ${LOC_DSC_GRID}    timeout=30s
+    Wait Until Element Is Visible    ${LOC_DSC_GRID_ROWS}    timeout=30s
+    Reset Grid To Default View
+    Sleep    0.3s
+    Wait For Loading Overlay To Disappear
+    Open Filter Popup
+    Apply Account Filter Device Plan Style    ${bu_name}
+    Apply SIM State Filter    ${EXPECTED_TESTACTIVE_STATE}
+    Close Filter Popup
+    Sleep    0.3s
+    Wait For Loading Overlay To Disappear
+    ${rows_visible}=    Run Keyword And Return Status
+    ...    Wait Until Element Is Visible    ${LOC_DSC_GRID_ROWS}    timeout=30s
+    IF    not ${rows_visible}
+        Capture Page Screenshot    e2e_aa_no_testactive_sims.png
+        Fail
+        ...    No TestActive SIMs found for BU="${bu_name}". Verify order was processed with auto activation + TestActive SIM state.
+    END
+    Log    Filters applied: Account=${bu_name}, State=${EXPECTED_TESTACTIVE_STATE}    console=yes
+    Capture Page Screenshot    e2e_aa_testactive_filtered.png
+    ${imsi_col}=    Get Column Index By Header Text    ${IMSI_COLUMN_HEADER}
+    ${state_col}=    Get Column Index By Header Text    ${STATE_COLUMN_HEADER}
+    ${msisdn_col}=    Get Column Index By Header Text    ${MSISDN_COLUMN_HEADER}
+    ${iccid_col}=    Get Column Index By Header Text    ${ICCID_COLUMN_HEADER}
+    ${total_rows}=    Execute Javascript
+    ...    return document.querySelectorAll('#gridData table tbody tr.k-master-row').length;
+    Log    Total visible rows after filter: ${total_rows}    console=yes
+    @{activated_imsis}=    Create List
+    @{imsi_data}=    Create List
+    @{activated_iccids}=    Create List
+    ${selected}=    Set Variable    ${0}
+    FOR    ${i}    IN RANGE    ${total_rows}
+        IF    ${selected} >= ${count}    BREAK
+        ${row_num}=    Evaluate    ${i} + 1
+        ${actual_state}=    Get Cell Value By Row And Column    ${row_num}    ${state_col}
+        ${imsi}=    Get Cell Value By Row And Column    ${row_num}    ${imsi_col}
+        ${msisdn}=    Get Cell Value By Row And Column    ${row_num}    ${msisdn_col}
+        ${iccid}=    Get Cell Value By Row And Column    ${row_num}    ${iccid_col}
+        Log    Row ${row_num}: ICCID=${iccid}, IMSI=${imsi}, MSISDN=${msisdn}, State=${actual_state}    console=yes
+        IF    "${actual_state}" == "${EXPECTED_TESTACTIVE_STATE}"
+            Select Device By Row Index    ${i}
+            Log    Clicked checkbox for row ${row_num} (ICCID: ${iccid}, IMSI: ${imsi})    console=yes
+            Append To List    ${activated_imsis}    ${imsi}
+            Append To List    ${activated_iccids}    ${iccid}
+            ${entry}=    Create Dictionary    imsi=${imsi}    msisdn=${msisdn}    iccid=${iccid}
+            Append To List    ${imsi_data}    ${entry}
+            ${selected}=    Evaluate    ${selected} + 1
+        ELSE
+            Log    Skipping row ${row_num}: state is "${actual_state}", not TestActive    WARN
+        END
+    END
+    Should Be True    ${selected} >= ${count}
+    ...    Only found ${selected} TestActive SIMs but need ${count}. Check if SIMs are already activated.
+    Capture Page Screenshot    e2e_aa_testactive_checked.png
+    Sleep    1s
+    Select Change State Action
+    Select Target State And Submit    ${EXPECTED_ACTIVATED_STATE}
+    Fill Popup And Submit    TestActive    ${EXPECTED_ACTIVATED_STATE}
+    Wait For Toast And Assert Success    timeout=30
+    ${popup_gone}=    Run Keyword And Return Status
+    ...    Wait Until Element Is Not Visible    ${LOC_DSC_POPUP}    timeout=15s
+    IF    not ${popup_gone}
+        Run Keyword And Ignore Error    Click Element Via JS    ${LOC_DSC_POPUP_X_BTN}
+        Sleep    1s
+    END
+    Capture Page Screenshot    e2e_aa_testactive_activate_submitted.png
+    Log    State change submitted for ${selected} TestActive SIMs. SOAP fingerprint flow drives progression.    console=yes
+    Wait For Loading Overlay To Disappear
+    RETURN    ${activated_imsis}    ${imsi_data}    ${activated_iccids}
+
 Verify Activated SIMs
     [Documentation]    Verifies all IMSIs are Activated. If any IMSI is not yet Activated,
-    ...                refreshes the page and retries every 1 min for up to 5 minutes.
+    ...                refreshes the page and retries every 1 min for up to 12 minutes.
     [Arguments]    ${imsi_list}    ${bu_name}
     ${total}=    Get Length    ${imsi_list}
-    FOR    ${attempt}    IN RANGE    5
+    FOR    ${attempt}    IN RANGE    12
         ${attempt_num}=    Evaluate    ${attempt} + 1
-        Log    ===== Verification attempt ${attempt_num}/5 =====    console=yes
+        Log    ===== Verification attempt ${attempt_num}/12 =====    console=yes
         Ensure Session Is Active
         Go To    ${MANAGE_DEVICES_URL_E2E}
         Sleep    1s
@@ -624,7 +773,51 @@ Verify Activated SIMs
         Log    ${pass_count}/${total} Activated. ${total - ${pass_count}} pending. Waiting 60s before retry...    console=yes
         Sleep    60s
     END
-    Fail    After 5 attempts (5 min), only ${pass_count}/${total} SIMs are Activated. Still pending: @{pending_imsis}
+    Fail    After 12 attempts (12 min), only ${pass_count}/${total} SIMs are Activated. Still pending: @{pending_imsis}
+
+Verify TestActive SIMs
+    [Documentation]    Verifies all IMSIs are in TestActive state. Refreshes and retries every 1 min for up to 12 min.
+    [Arguments]    ${imsi_list}    ${bu_name}
+    ${total}=    Get Length    ${imsi_list}
+    FOR    ${attempt}    IN RANGE    12
+        ${attempt_num}=    Evaluate    ${attempt} + 1
+        Log    ===== Verification attempt ${attempt_num}/12 =====    console=yes
+        Ensure Session Is Active
+        Go To    ${MANAGE_DEVICES_URL_E2E}
+        Sleep    1s
+        Wait For Loading Overlay To Disappear
+        Wait Until Element Is Visible    ${LOC_DSC_GRID}    timeout=30s
+        Wait Until Element Is Visible    ${LOC_DSC_GRID_ROWS}    timeout=30s
+        ${state_col}=    Get Column Index By Header Text    ${STATE_COLUMN_HEADER}
+        ${pass_count}=    Set Variable    ${0}
+        @{pending_imsis}=    Create List
+        FOR    ${imsi}    IN    @{imsi_list}
+            Reset Grid To Default View
+            Sleep    1s
+            Wait For Loading Overlay To Disappear
+            Search Device By IMSI    ${imsi}
+            Sleep    1s
+            Wait For Loading Overlay To Disappear
+            Wait Until Element Is Visible    ${LOC_DSC_GRID_ROWS}    timeout=30s
+            ${actual_state}=    Get Cell Value By Row And Column    1    ${state_col}
+            Log    IMSI ${imsi}: state = "${actual_state}"    console=yes
+            IF    "${actual_state}" == "${EXPECTED_TESTACTIVE_STATE}"
+                ${pass_count}=    Evaluate    ${pass_count} + 1
+                Log    VERIFIED ${pass_count}/${total}: IMSI ${imsi} is TestActive    console=yes
+                Capture Page Screenshot    e2e_testactive_verified_${imsi}.png
+            ELSE
+                Log    IMSI ${imsi} is "${actual_state}" — not yet TestActive    WARN
+                Append To List    ${pending_imsis}    ${imsi}
+            END
+        END
+        IF    ${pass_count} == ${total}
+            Log    ===== ALL ${total} SIMs VERIFIED AS TESTACTIVE =====    console=yes
+            RETURN
+        END
+        Log    ${pass_count}/${total} TestActive. ${total - ${pass_count}} pending. Waiting 60s before retry...    console=yes
+        Sleep    60s
+    END
+    Fail    After 12 attempts (12 min), only ${pass_count}/${total} SIMs are TestActive. Still pending: @{pending_imsis}
 
 # ═══════════════════════════════════════════════════════════════════════
 #  STEP 17: INVOICE GENERATION

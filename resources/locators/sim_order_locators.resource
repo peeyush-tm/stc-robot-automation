@@ -90,6 +90,7 @@ ${LOC_SO_ACTIVATION_MANUAL}        xpath=//input[@name='activationOption' and @v
 ${LOC_SO_SIM_STATE_CONTAINER}      xpath=//div[@data-testid='simState' and contains(@class,'select')]
 ${LOC_SO_SIM_STATE_BTN}            xpath=//div[@data-testid='simState']//div[contains(@class,'selectBtn')]
 ${LOC_SO_DEVICE_PLAN_SELECT}       xpath=//*[@data-testid='selectPlacnpdert']
+${LOC_SO_DEVICE_PLAN_BTN}          xpath=//*[@data-testid='selectPlacnpdert']//div[contains(@class,'selectBtn')]
 ${LOC_SO_SERVICE_PLAN_SELECT}      xpath=//*[@data-testid='servicePlan']
 ${LOC_SO_BTN_STEP1_NEXT}           xpath=//div[@id='discover']//a[@href='#strategy']
 

@@ -42,15 +42,17 @@ ${LOC_SM_MODAL_TITLE}              xpath=//*[@id='actionChangeComment']/ancestor
 ${LOC_SM_MODAL_TREE}               xpath=(//*[@id='actionChangeComment']/ancestor::form[1]//ul[contains(@class,'k-treeview-lines')]//span[contains(@class,'k-in')])[1] | (//*[@id='actionChangeComment']/ancestor::div[contains(@class,'modal')][1]//ul[contains(@class,'k-treeview-lines')]//span[contains(@class,'k-in')])[1] | (//ul[contains(@class,'k-treeview-lines')]//li//span[contains(@class,'k-in')])[1]
 ${LOC_SM_PROCEED_BTN}              xpath=//*[@id='actionChangeComment']/ancestor::form//button[contains(@id,'proceed') or contains(@id,'Proceed') or contains(normalize-space(text()),'Proceed') or @type='submit'] | //button[@id='prceedBtn']
 ${LOC_SM_MODAL_CLOSE_BTN}         xpath=//*[@id='actionChangeComment']/ancestor::div[contains(@class,'modal') or @role='dialog' or contains(@class,'popup') or contains(@class,'k-dialog')][1]//button[contains(@class,'close') or contains(@class,'btn-cancel') or contains(normalize-space(text()),'Close') or contains(normalize-space(text()),'Cancel')]
-# Device Plan dropdown — only shown for Activated SIMs inside the modal
-${LOC_SM_DP_DROPDOWN}              xpath=//div[contains(@class,'modal') and contains(.,'SIM Movement')]//select[contains(@id,'devicePlan') or contains(@name,'devicePlan') or contains(@class,'device-plan')]
-${LOC_SM_DP_DROPDOWN_ALT}         xpath=//div[contains(@class,'modal') and contains(.,'SIM Movement')]//select[1]
+# Device Plan dropdown — identified by its placeholder option "Device Plan Change"
+# The action bar select element does not expose a predictable id/name/class,
+# so we locate it by the option text that is always present as placeholder.
+${LOC_SM_DP_DROPDOWN}              xpath=//select[.//option[normalize-space(text())='Device Plan Change']]
+${LOC_SM_DP_DROPDOWN_ALT}         xpath=//*[@id='actionChangeComment']/ancestor::div[1]//select[last()]
 
 # ── Manage Account — Edit button (EC row) ─────────────────────────────
 ${LOC_SM_ACCT_EDIT_BTN}           xpath=//div[@id='ManageAccountGrid']//button[contains(@class,'edit') or contains(text(),'Edit') or @title='Edit']
 
 # ── SIM Details — Expand + Tabs ──────────────────────────────────────
-${LOC_SM_TAB_NOTES}                xpath=//ul[contains(@id,'tab')]//a[contains(text(),'Notes')]
+${LOC_SM_TAB_NOTES}                xpath=//tr[contains(@class,'k-detail-row')]//a[contains(normalize-space(),'Notes')] | //ul[contains(@id,'tab')]//a[contains(text(),'Notes')]
 ${LOC_SM_TAB_GENERAL}             xpath=//ul[@id='tabHeading']//a[@href='#tab1' and contains(text(),'General')]
 
 # ── Notes section ────────────────────────────────────────────────────
@@ -101,11 +103,11 @@ ${LOC_SMF_RESULT_POPUP}           xpath=//div[contains(@class,'modal') and .//*[
 ${LOC_SMF_RESULT_POPUP_TITLE}     xpath=(//div[contains(@class,'modal-header') or contains(@class,'modal-title')]//*[starts-with(normalize-space(text()),'GC')])[1]
 ${LOC_SMF_RESULT_POPUP_CLOSE}     xpath=(//div[contains(@class,'modal') and .//*[starts-with(normalize-space(text()),'GC')]]//button[contains(@class,'close') or contains(@aria-label,'Close')])[1]
 ${LOC_SMF_RESULT_POPUP_GRID}      xpath=//div[contains(@class,'modal') and .//*[starts-with(normalize-space(text()),'GC')]]//div[contains(@class,'k-grid')]
-${LOC_SMF_RESULT_POPUP_OLD_VAL}   xpath=(//div[contains(@class,'modal') and .//*[starts-with(normalize-space(text()),'GC')]]//div[contains(@class,'k-grid')]//tr[contains(@class,'k-master-row')])[1]//td[5]
-${LOC_SMF_RESULT_POPUP_NEW_VAL}   xpath=(//div[contains(@class,'modal') and .//*[starts-with(normalize-space(text()),'GC')]]//div[contains(@class,'k-grid')]//tr[contains(@class,'k-master-row')])[1]//td[6]
-${LOC_SMF_RESULT_POPUP_RESULT}    xpath=(//div[contains(@class,'modal') and .//*[starts-with(normalize-space(text()),'GC')]]//div[contains(@class,'k-grid')]//tr[contains(@class,'k-master-row')])[1]//td[7]
-${LOC_SMF_RESULT_POPUP_STATUS}    xpath=(//div[contains(@class,'modal') and .//*[starts-with(normalize-space(text()),'GC')]]//div[contains(@class,'k-grid')]//tr[contains(@class,'k-master-row')])[1]//td[8]
-${LOC_SMF_RESULT_POPUP_DETAILS}   xpath=(//div[contains(@class,'modal') and .//*[starts-with(normalize-space(text()),'GC')]]//div[contains(@class,'k-grid')]//tr[contains(@class,'k-master-row')])[1]//td[9]
+${LOC_SMF_RESULT_POPUP_OLD_VAL}   xpath=(//div[contains(@class,'modal') and .//*[starts-with(normalize-space(text()),'GC')]]//div[contains(@class,'k-grid')]//tr[contains(@class,'k-master-row')])[1]//td[4]
+${LOC_SMF_RESULT_POPUP_NEW_VAL}   xpath=(//div[contains(@class,'modal') and .//*[starts-with(normalize-space(text()),'GC')]]//div[contains(@class,'k-grid')]//tr[contains(@class,'k-master-row')])[1]//td[5]
+${LOC_SMF_RESULT_POPUP_RESULT}    xpath=(//div[contains(@class,'modal') and .//*[starts-with(normalize-space(text()),'GC')]]//div[contains(@class,'k-grid')]//tr[contains(@class,'k-master-row')])[1]//td[6]
+${LOC_SMF_RESULT_POPUP_STATUS}    xpath=(//div[contains(@class,'modal') and .//*[starts-with(normalize-space(text()),'GC')]]//div[contains(@class,'k-grid')]//tr[contains(@class,'k-master-row')])[1]//td[7]
+${LOC_SMF_RESULT_POPUP_DETAILS}   xpath=(//div[contains(@class,'modal') and .//*[starts-with(normalize-space(text()),'GC')]]//div[contains(@class,'k-grid')]//tr[contains(@class,'k-master-row')])[1]//td[8]
 
 # ── SMF: Audit Trail — Description column filter ──────────────────────────────
 ${LOC_SMF_AUDIT_DESC_FILTER_BTN}  xpath=//div[@id='ManageAuditTrailGrid']//th[contains(.,'DESCRIPTION')]//a[contains(@class,'k-grid-filter')]
@@ -116,7 +118,5 @@ ${LOC_SMF_AUDIT_FIRST_NEW_VAL}    xpath=(//div[@id='ManageAuditTrailGrid']//tr[c
 ${LOC_SMF_AUDIT_FIRST_RESULT}     xpath=(//div[@id='ManageAuditTrailGrid']//tr[contains(@class,'k-master-row')])[1]//td[10]
 
 # ── SMF: Notes tab — first row column values ──────────────────────────────────
-${LOC_SMF_NOTES_FIRST_ROW}        xpath=(//div[contains(@class,'k-detail-row')]//tr[contains(@class,'k-master-row')])[1]
-${LOC_SMF_NOTES_FIRST_ATTRIBUTE}  xpath=(//div[contains(@class,'k-detail-row')]//tr[contains(@class,'k-master-row')])[1]//td[2]
-${LOC_SMF_NOTES_FIRST_OLD_VAL}    xpath=(//div[contains(@class,'k-detail-row')]//tr[contains(@class,'k-master-row')])[1]//td[3]
-${LOC_SMF_NOTES_FIRST_NEW_VAL}    xpath=(//div[contains(@class,'k-detail-row')]//tr[contains(@class,'k-master-row')])[1]//td[4]
+# Handles both k-master-row (expandable) and k-alt/plain tr (flat) Kendo grids
+${LOC_SMF_NOTES_FIRST_ROW}        xpath=(//tr[contains(@class,'k-detail-row')]//tbody/tr[not(contains(@class,'k-grouping-row')) and not(contains(@class,'k-header')) and not(contains(@class,'k-grid-norecords'))])[1]

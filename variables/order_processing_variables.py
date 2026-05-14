@@ -1,3 +1,5 @@
+from _config_defaults import config_scalar
+
 # Placeholder in OrderId field that gets replaced with actual orderId at runtime
 TEMPLATE_ORDER_ID = "REPLACE_ORDER_ID"
 
@@ -107,8 +109,9 @@ UPDATE_ORDER_STATUS_BODY = """\
 # ── Manage Devices (MANAGE_DEVICES_URL_E2E from config per ENV) ────────
 EXPECTED_WARM_STATE = "Warm"
 EXPECTED_INACTIVE_STATE = "InActive"
+EXPECTED_TESTACTIVE_STATE = "TestActive"
 EXPECTED_ACTIVATED_STATE = "Activated"
-SIM_ACTIVATE_COUNT = 5
+SIM_ACTIVATE_COUNT = int(config_scalar("E2E_SIM_QUANTITY", "5"))
 
 # ── Billing / Invoice ────────────────────────────────────────────────
 BILLING_LOCAL_DIR = "billing"

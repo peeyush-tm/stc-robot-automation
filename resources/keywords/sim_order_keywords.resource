@@ -660,6 +660,45 @@ Select SIM State
     Sleep    0.3s
     Wait For Loading Overlay To Disappear
 
+Select Device Plan By Name
+    [Documentation]    Selects a Device Plan from the custom selectPlacnpdert dropdown.
+    ...                DOM structure: <div data-testid="selectPlacnpdert" class="option">NAME</div>
+    ...                Native Selenium click is required — JS click does not trigger React state update.
+    ...                Falls back to first available option if named plan is not found.
+    [Arguments]    ${dp_name}
+    Wait For Loading Overlay To Disappear
+    ${btn_visible}=    Run Keyword And Return Status
+    ...    Wait Until Element Is Visible    ${LOC_SO_DEVICE_PLAN_BTN}    timeout=8s
+    IF    ${btn_visible}
+        Scroll To Element Via JS    ${LOC_SO_DEVICE_PLAN_BTN}
+        Click Element    ${LOC_SO_DEVICE_PLAN_BTN}
+        Sleep    0.5s
+        ${opt_named}=    Set Variable
+        ...    xpath=//div[@data-testid='selectPlacnpdert' and @class='option' and normalize-space()='${dp_name}']
+        ${opt_first}=    Set Variable
+        ...    xpath=(//div[@data-testid='selectPlacnpdert' and @class='option'])[1]
+        ${found_named}=    Run Keyword And Return Status
+        ...    Wait Until Element Is Visible    ${opt_named}    timeout=10s
+        IF    ${found_named}
+            Click Element Via JS    ${opt_named}
+            Log    Device Plan "${dp_name}" selected.    console=yes
+        ELSE
+            ${found_first}=    Run Keyword And Return Status
+            ...    Wait Until Element Is Visible    ${opt_first}    timeout=5s
+            IF    ${found_first}
+                ${dp_text}=    Get Text    ${opt_first}
+                Log    DP "${dp_name}" not found. Using first available: "${dp_text}"    level=WARN    console=yes
+                Click Element Via JS    ${opt_first}
+            ELSE
+                Log    Device Plan dropdown has no options — Product Type may have no plans configured.    level=WARN    console=yes
+            END
+        END
+        Sleep    0.3s
+        Wait For Loading Overlay To Disappear
+    ELSE
+        Log    Device Plan dropdown not visible — skipping (may not apply for this activation type).    level=WARN    console=yes
+    END
+
 Click Next To Shipping
     [Documentation]    Clicks the Next button on Step 1 to navigate to Shipping Details.
     Wait For Loading Overlay To Disappear

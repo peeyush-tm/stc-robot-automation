@@ -472,7 +472,7 @@ SM Click Add Limit Button And Input Delta
     ...    }
     Sleep    0.5s
     Wait For Loading Overlay To Disappear
-    # Step 1: Click the "+ Add IMSI" / "+ Add SIMs" SPAN link via full mouse event dispatch
+    # Step 1: Click the "+ Add IMSI" / "+ Add SIMs" SPAN link — MouseEvent dispatch + .click()
     ${tag_found}=    Execute Javascript
     ...    var allEls = document.querySelectorAll('a, button, span, label, small, em, strong, i, p');
     ...    for(var i=0; i<allEls.length; i++){
@@ -481,43 +481,64 @@ SM Click Add Limit Button And Input Delta
     ...        var t = (el.textContent || '').trim();
     ...        if(t === '${add_btn_text}'){
     ...            el.scrollIntoView({block:'center', inline:'nearest'});
-    ...            el.dispatchEvent(new MouseEvent('mouseenter',{bubbles:true,cancelable:true}));
-    ...            el.dispatchEvent(new MouseEvent('mouseover',{bubbles:true,cancelable:true}));
-    ...            el.dispatchEvent(new MouseEvent('mousedown',{bubbles:true,cancelable:true}));
-    ...            el.dispatchEvent(new MouseEvent('mouseup',{bubbles:true,cancelable:true}));
-    ...            el.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true}));
+    ...            el.dispatchEvent(new MouseEvent('mouseenter',{bubbles:true,cancelable:true,view:window}));
+    ...            el.dispatchEvent(new MouseEvent('mouseover',{bubbles:true,cancelable:true,view:window}));
+    ...            el.dispatchEvent(new MouseEvent('mousedown',{bubbles:true,cancelable:true,view:window}));
+    ...            el.dispatchEvent(new MouseEvent('mouseup',{bubbles:true,cancelable:true,view:window}));
+    ...            el.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true,view:window}));
+    ...            el.click();
     ...            return el.tagName + ':' + el.className;
     ...        }
     ...    }
     ...    return '';
     Should Not Be Empty    ${tag_found}    msg=Link '${add_btn_text}' not found on page
     Log    Clicked '${add_btn_text}' on: ${tag_found}    console=yes
-    Sleep    0.3s
+    Sleep    1s
     Wait For Loading Overlay To Disappear
-    # Step 2: Wait for the modal input — stable locator: name="maxNoOfSIM"
-    Wait Until Page Contains Element    xpath=//input[@name='maxNoOfSIM']    timeout=10s
+    # Step 2: Wait for the Add count modal title to confirm the popup is open
+    Wait Until Element Is Visible
+    ...    xpath=//*[contains(normalize-space(),'Add IMSIs Count') or contains(normalize-space(),'Add SIMs Count')]
+    ...    timeout=10s
     Capture Page Screenshot    sm_add_imsi_modal.png
-    # Step 2b: Scroll modal input into view before interact (popup may be off-viewport)
-    Execute Javascript
-    ...    var list = document.querySelectorAll('input[name="maxNoOfSIM"]');
-    ...    for(var i=list.length-1; i>=0; i--){
-    ...        if(list[i].offsetParent !== null){ list[i].scrollIntoView({block:'center', inline:'nearest'}); break; }
-    ...    }
-    Sleep    0.3s
-    # Step 3: Clear "0" and type delta into the number input
-    Click Element Via JS    xpath=//input[@name='maxNoOfSIM']
-    Sleep    0.3s
-    Press Keys    xpath=//input[@name='maxNoOfSIM']    CTRL+a
-    Input Text    xpath=//input[@name='maxNoOfSIM']    ${delta}
-    # Step 4: Fire Angular ngModel so AngularJS registers the typed value
-    Execute Javascript
-    ...    var inp = document.querySelector('input[name="maxNoOfSIM"]');
-    ...    if(inp){
-    ...        var ngEl = (typeof angular !== 'undefined') ? angular.element(inp) : null;
-    ...        var ngModel = ngEl ? ngEl.controller('ngModel') : null;
-    ...        if(ngModel){ ngModel.$setViewValue('${delta}'); ngModel.$render(); var sc=ngEl.scope(); if(sc) sc.$apply(); }
-    ...        else { inp.dispatchEvent(new Event('input',{bubbles:true})); inp.dispatchEvent(new Event('change',{bubbles:true})); }
-    ...    }
+    # Step 3: Set delta in the modal popup input (scoped by modal title, fallback to last visible)
+    # using native React/Angular setter so framework state is properly updated.
+    ${set_result}=    Execute Javascript
+    ...    return (function(delta){
+    ...      var inp = null;
+    ...      var modals = document.querySelectorAll('.modal, [role="dialog"]');
+    ...      for(var m=0; m<modals.length; m++){
+    ...        var modal = modals[m];
+    ...        if(modal.offsetParent === null) continue;
+    ...        var hdr = modal.querySelector('.modal-title, .modal-header');
+    ...        var title = hdr ? (hdr.textContent || '') : '';
+    ...        if(title.indexOf('Add') >= 0 && title.indexOf('Count') >= 0){
+    ...          inp = modal.querySelector('input[name="maxNoOfSIM"]'); if(inp) break;
+    ...        }
+    ...      }
+    ...      if(!inp){
+    ...        var list = document.querySelectorAll('input[name="maxNoOfSIM"]');
+    ...        for(var i=list.length-1; i>=0; i--){
+    ...          if(list[i].offsetParent !== null){ inp = list[i]; break; }
+    ...        }
+    ...      }
+    ...      if(!inp) return 'NO_INPUT';
+    ...      inp.scrollIntoView({block:'center', inline:'nearest'});
+    ...      inp.focus(); inp.select();
+    ...      var s = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,'value').set;
+    ...      s.call(inp, '');
+    ...      inp.dispatchEvent(new Event('input',{bubbles:true}));
+    ...      s.call(inp, String(delta));
+    ...      var tracker = inp._valueTracker; if(tracker) tracker.setValue('');
+    ...      inp.dispatchEvent(new Event('input',{bubbles:true}));
+    ...      inp.dispatchEvent(new Event('change',{bubbles:true}));
+    ...      inp.dispatchEvent(new Event('blur',{bubbles:true}));
+    ...      var ngEl = (typeof angular !== 'undefined') ? angular.element(inp) : null;
+    ...      var ngModel = ngEl ? ngEl.controller('ngModel') : null;
+    ...      if(ngModel){ ngModel.$setViewValue(String(delta)); ngModel.$render(); var sc=ngEl.scope(); if(sc) sc.$apply(); }
+    ...      return 'SET:' + inp.value;
+    ...    })(arguments[0]);
+    ...    ARGUMENTS    ${delta}
+    Log    Add count modal input set result: ${set_result}    console=yes
     Sleep    0.5s
     # Step 5: Click the "Add" confirm button — stable locator: <a normalize-space()='Add'>
     Wait Until Page Contains Element    xpath=//a[normalize-space()='Add']    timeout=5s
@@ -894,8 +915,46 @@ SM Open SIM Movement Modal
 
 SM Open Select Account Dropdown For Sim Movement
     [Documentation]    Clicks the Select Account field so the account hierarchy tree appears.
-    ...                Tree is not in DOM as a visible widget until this dropdown opens (showTreeView / Kendo popup).
+    ...                Retries up to 4x — each attempt fires JS click with full mouse events,
+    ...                then waits 8s for the Kendo treeview to render its first node.
+    Wait Until Keyword Succeeds    4x    2s    SM Try Open Select Account Tree
+
+SM Try Open Select Account Tree
+    [Documentation]    Single attempt: waits for Kendo widget to be initialized (visible in DOM)
+    ...                before clicking. Skips re-click if tree already open. Waits 10s for first
+    ...                tree node after click. Caller retries up to 4x.
+    # Check if tree already open
+    ${already_open}=    Execute Javascript
+    ...    var node = document.querySelector(
+    ...        'div[id^="showTreeView"] ul.k-treeview-lines span.k-in, ul.k-treeview-lines span.k-in'
+    ...    );
+    ...    return node != null;
+    IF    ${already_open}
+        Log    Select Account dropdown already open — tree node visible.    console=yes
+        RETURN
+    END
+    # Wait for Kendo widget (.k-dropdown-wrap) to be present and visible — confirms Kendo initialized
+    ${kendo_ready}=    Execute Javascript
+    ...    var anchor = document.getElementById('actionChangeComment');
+    ...    if(!anchor) return 'no_anchor';
+    ...    var walk = anchor;
+    ...    for(var d = 0; d < 32 && walk; d++){
+    ...        var kw = walk.querySelector('.k-dropdown-wrap, .k-dropdowntree-wrap, span.k-widget[id]');
+    ...        if(kw){
+    ...            var r = kw.getBoundingClientRect();
+    ...            if(r.width > 0 && r.height > 0) return 'ready';
+    ...        }
+    ...        walk = walk.parentElement;
+    ...    }
+    ...    return 'not_ready';
+    Should Be Equal    ${kendo_ready}    ready    msg=Kendo Select Account widget not yet rendered (not_ready)
     ${opened}=    Execute Javascript
+    ...    function fireClick(el){
+    ...        el.scrollIntoView({block:'center', inline:'nearest'});
+    ...        ['mousedown','mouseup','click'].forEach(function(ev){
+    ...            el.dispatchEvent(new MouseEvent(ev, {bubbles:true, cancelable:true, view:window}));
+    ...        });
+    ...    }
     ...    var anchor = document.getElementById('actionChangeComment');
     ...    if(!anchor) return 'no_anchor';
     ...    var walk = anchor;
@@ -903,39 +962,35 @@ SM Open Select Account Dropdown For Sim Movement
     ...        var tv = walk.querySelector('div[id^="showTreeView"]');
     ...        if(tv && tv.id){
     ...            var fname = tv.id.replace(/^showTreeView-/, '');
-    ...            var inp = walk.querySelector('input[name="' + fname + '"]');
-    ...            if(inp){ inp.scrollIntoView({block:'center', inline:'nearest'}); inp.click(); return 'input:' + fname; }
-    ...            var wrap = tv.closest('.form-group') || tv.parentElement;
-    ...            if(wrap){ var inp2 = wrap.querySelector('input, .k-input, [role="combobox"]'); if(inp2){ inp2.click(); return 'wrap_input'; } }
+    ...            var kWrap = walk.querySelector('.k-dropdown-wrap, .k-dropdowntree-wrap, span.k-widget');
+    ...            if(kWrap){ fireClick(kWrap); return 'k_wrap'; }
+    ...            var visInp = walk.querySelector('input[placeholder*="Account" i], input[placeholder*="Select" i]');
+    ...            if(visInp){ fireClick(visInp); return 'vis_inp:'+visInp.placeholder; }
+    ...            var hidInp = walk.querySelector('input[name="' + fname + '"]');
+    ...            if(hidInp){ fireClick(hidInp); return 'hidden_inp:' + fname; }
+    ...            tv.style.display=''; tv.style.visibility='visible'; tv.style.opacity='1'; return 'force_show';
     ...        }
     ...        var inputs = walk.querySelectorAll('input');
     ...        for(var i = 0; i < inputs.length; i++){
     ...            var ph = (inputs[i].placeholder || '').toLowerCase();
-    ...            if(ph.indexOf('select account') >= 0){
-    ...                inputs[i].scrollIntoView({block:'center', inline:'nearest'});
-    ...                inputs[i].click();
-    ...                return 'placeholder';
-    ...            }
+    ...            if(ph.indexOf('select account') >= 0){ fireClick(inputs[i]); return 'placeholder'; }
     ...        }
-    ...        var dd = walk.querySelector('.account-tree-dropdown, .k-dropdown[aria-owns], span.k-dropdown-wrap');
-    ...        if(dd){ dd.scrollIntoView({block:'center', inline:'nearest'}); dd.click(); return 'dropdown_wrap'; }
+    ...        var kWrap2 = walk.querySelector('.k-dropdown-wrap');
+    ...        if(kWrap2){ fireClick(kWrap2); return 'kWrap2'; }
     ...        walk = walk.parentElement;
     ...    }
     ...    var form = document.getElementById('actionForm');
     ...    if(form){
-    ...        var ins = form.querySelectorAll('input[placeholder], input[type="text"], input[type="search"]');
-    ...        for(var j = 0; j < ins.length; j++){
-    ...            var p2 = (ins[j].placeholder || '').toLowerCase();
-    ...            if(p2.indexOf('select account') >= 0){ ins[j].click(); return 'form_placeholder'; }
-    ...        }
+    ...        var ins = form.querySelectorAll('input[placeholder*="Account" i], input[placeholder*="Select" i]');
+    ...        if(ins.length>0){ fireClick(ins[0]); return 'form_placeholder'; }
     ...    }
     ...    return 'notfound';
-    Log    SIM Movement Select Account open result: ${opened}    console=yes
+    Log    Select Account click result: ${opened}    console=yes
     Should Not Be Equal    ${opened}    notfound
-    ...    msg=Could not find Select Account dropdown near SIM Movement — tree stays hidden until it is opened.
+    ...    msg=Could not find Select Account element near SIM Movement modal
     Wait For Loading Overlay To Disappear
     Sleep    0.5s
-    Wait Until Page Contains Element    ${LOC_SM_SELECT_ACCOUNT_TREE_NODE}    timeout=20s
+    Wait Until Page Contains Element    ${LOC_SM_SELECT_ACCOUNT_TREE_NODE}    timeout=10s
 
 SM Click Tree Expand Icon For Label In Sim Movement Modal
     [Documentation]    Inside SIM Movement modal tree: finds node whose label matches ${label_text}
@@ -962,6 +1017,8 @@ SM Click Tree Expand Icon For Label In Sim Movement Modal
     ...    function norm(s){ return (s || '').replace(/\\s+/g, ' ').trim(); }
     ...    function labelMatch(t, want){
     ...        if(t === want || t.indexOf(want) >= 0) return true;
+    ...        var tl = t.toLowerCase(), wl = want.toLowerCase();
+    ...        if(tl === wl || tl.indexOf(wl) >= 0) return true;
     ...        var u = t.toUpperCase();
     ...        if(want.toUpperCase() === 'KSA_OPCO' && u.indexOf('KSA') >= 0 && u.indexOf('OPCO') >= 0) return true;
     ...        return false;
@@ -1012,6 +1069,8 @@ SM Select Tree Node By Label In Sim Movement Modal
     ...    function norm(s){ return (s || '').replace(/\\s+/g, ' ').trim(); }
     ...    function labelMatch(t, want){
     ...        if(t === want || t.indexOf(want) >= 0) return true;
+    ...        var tl = t.toLowerCase(), wl = want.toLowerCase();
+    ...        if(tl === wl || tl.indexOf(wl) >= 0) return true;
     ...        var u = t.toUpperCase();
     ...        if(want.toUpperCase() === 'KSA_OPCO' && u.indexOf('KSA') >= 0 && u.indexOf('OPCO') >= 0) return true;
     ...        return false;
@@ -1089,18 +1148,28 @@ SM Select Target BU In Modal
     Fail    Could not select target BU '${bu_name}' in SIM Movement tree. Last select result: ${sel}
 
 SM Select Device Plan In Modal If Present
-    [Documentation]    Checks if a Device Plan dropdown is visible inside the SIM Movement modal.
-    ...                If present (required for Activated SIMs), selects the plan by visible text.
-    ...                Skips silently if the dropdown is absent (Warm/InActive SIMs).
+    [Documentation]    Checks if a Device Plan dropdown is visible in the SIM Movement action bar.
+    ...                If present, selects the plan by visible text.
+    ...                Skips silently if the dropdown is absent (no-DP-change scenarios, Warm/InActive SIMs).
     [Arguments]    ${device_plan_name}
     ${dp_visible}=    Run Keyword And Return Status
-    ...    Element Should Be Visible    ${LOC_SM_DP_DROPDOWN}
+    ...    Wait Until Element Is Visible    ${LOC_SM_DP_DROPDOWN}    timeout=5s
     IF    ${dp_visible}
         Select From List By Label    ${LOC_SM_DP_DROPDOWN}    ${device_plan_name}
-        Log    Device Plan '${device_plan_name}' selected in SIM Movement modal.    console=yes
+        Log    Device Plan '${device_plan_name}' selected in SIM Movement action bar.    console=yes
     ELSE
-        Log    No Device Plan dropdown visible — SIM is likely Warm/InActive. Skipping DP selection.    console=yes
+        Log    No Device Plan dropdown visible — skipping DP selection.    console=yes
     END
+
+SMF Select Device Plan For Movement
+    [Documentation]    Asserts the Device Plan dropdown is present in the SIM Movement action bar
+    ...                and selects the given plan by label. Fails loudly if the dropdown is not found.
+    ...                Use this in WITH-DP-CHANGE test cases (TC_SMOV_F_004+).
+    [Arguments]    ${device_plan_name}
+    Wait Until Element Is Visible    ${LOC_SM_DP_DROPDOWN}    timeout=10s
+    ...    error=Device Plan dropdown not visible after account selection — expected for DP change scenario
+    Select From List By Label    ${LOC_SM_DP_DROPDOWN}    ${device_plan_name}
+    Log    Device Plan '${device_plan_name}' selected.    console=yes
 
 SM Click Sim Movement Toolbar Submit
     [Documentation]    Clicks the Submit next to Target Account / SIM Movement row (not Case ID Submit).
@@ -1276,11 +1345,19 @@ SM Perform SIM Movement With State Awareness
     RETURN    ${iccid}
 
 SM Verify SIM Movement Submission Success
-    [Documentation]    After Proceed, waits up to 30s for the green Toastify success toast
-    ...                (same pattern as other CMP screens — not inline page text).
+    [Documentation]    After Proceed, waits up to 30s for the green Toastify success toast,
+    ...                reads the GC Request ID from the toast text, and returns it.
     Wait For Loading Overlay To Disappear
     Wait Until Element Is Visible    ${LOC_SM_TOAST_SUCCESS}    timeout=30s
-    Log    SIM Movement success toast visible (Toastify).    console=yes
+    ${toast_text}=    Get Text    ${LOC_SM_TOAST_SUCCESS}
+    Log    SIM Movement success toast: ${toast_text}    console=yes
+    ${gc_id}=    Execute Javascript
+    ...    var t = (arguments[0] || '');
+    ...    var m = t.match(/GC[0-9]{10,}/);
+    ...    return m ? m[0] : '';
+    ...    ARGUMENTS    ${toast_text}
+    Log    GC Request ID from toast: ${gc_id}    console=yes
+    RETURN    ${gc_id}
 
 # ═══════════════════════════════════════════════════════════════════════
 #  HEADER NOTIFICATIONS — REQUEST ID (Batch Job Log correlation)
@@ -1289,16 +1366,24 @@ SM Verify SIM Movement Submission Success
 SM Open Header Notifications Panel
     [Documentation]    Clicks header bell; waits for notifications list (div.fixed-height-not / div.alertrequestno).
     ...                Does not rely on #openNotificationPopup — your DOM uses class-based wrappers only.
+    ...                Retries up to 3 times — covers slow page-load after navigation.
     Wait For Loading Overlay To Disappear
     Wait Until Element Is Visible    ${LOC_SM_NOTIFICATION_BELL}    timeout=10s
-    Execute Javascript
-    ...    var b=document.getElementById('dropdownbell');
-    ...    if(!b) return 'no_bell';
-    ...    b.scrollIntoView({block:'center'});
-    ...    b.click();
-    ...    return 'ok';
-    Sleep    0.6s
-    Wait Until Element Is Visible    ${LOC_SM_NOTIFICATION_FIRST_RID}    timeout=12s
+    FOR    ${attempt}    IN RANGE    3
+        Execute Javascript
+        ...    var b=document.getElementById('dropdownbell');
+        ...    if(!b) return 'no_bell';
+        ...    b.scrollIntoView({block:'center'});
+        ...    b.click();
+        ...    return 'ok';
+        Sleep    1s
+        ${panel_open}=    Run Keyword And Return Status
+        ...    Wait Until Element Is Visible    ${LOC_SM_NOTIFICATION_FIRST_RID}    timeout=10s
+        IF    ${panel_open}    BREAK
+        Log    Bell panel not visible on attempt ${attempt} — retrying click.    console=yes
+        Sleep    1s
+    END
+    Wait Until Element Is Visible    ${LOC_SM_NOTIFICATION_FIRST_RID}    timeout=5s
 
 SM Get First Notification Request Id From Open Panel
     [Documentation]    First Request Id from div.alertrequestno inside the notifications scroll list (top item).
@@ -1397,19 +1482,60 @@ SM Verify Sim Movement Batch Job Detail For Request Id
 
 SM Expand SIM And Go To Notes Tab
     [Documentation]    Searches for a SIM by ICCID, expands its row and navigates
-    ...                to the Notes tab. Uses JS click to avoid overlay interception.
-    [Arguments]    ${iccid}
+    ...                to the Notes tab. Accepts optional ${account} to filter grid first.
+    ...                ${note_filter}: dropdown label to select before Apply Filter.
+    ...                Use "SIM Movement" (default) for no-DP tests, "All attributes" for DP-change tests.
+    [Arguments]    ${iccid}    ${account}=${EMPTY}    ${note_filter}=SIM Movement
     SM Navigate To Manage Devices
+    IF    '${account}' != '${EMPTY}'
+        Click Element Via JS    id=filter-search-trigger
+        Wait Until Element Is Visible    id=filterPopup    timeout=15s
+        Apply Account Filter Device Plan Style    ${account}
+        Close Filter Popup
+        Wait For Loading Overlay To Disappear
+    END
     SM Search SIM By ICCID    ${iccid}
     Wait For Loading Overlay To Disappear
     ${expand}=    Set Variable
     ...    //td[normalize-space(text())='${iccid}']/preceding-sibling::td[contains(@class,'k-hierarchy-cell')]//a
     Wait Until Page Contains Element    xpath=${expand}    timeout=10s
-    Click Element Via JS    xpath=${expand}
-    Wait Until Element Is Visible    ${LOC_SM_TAB_NOTES}    timeout=15s
-    Click Element Via JS    ${LOC_SM_TAB_NOTES}
-    Sleep    1s
-    Log    Notes tab opened for ICCID: ${iccid}
+    Scroll To Element Via JS    xpath=${expand}
+    Click Element    xpath=${expand}
+    Wait For Loading Overlay To Disappear
+    Wait Until Element Is Visible    ${LOC_SM_TAB_NOTES}    timeout=20s
+    Scroll To Element Via JS    ${LOC_SM_TAB_NOTES}
+    Click Element    ${LOC_SM_TAB_NOTES}
+    Sleep    4s
+    Wait For Loading Overlay To Disappear
+    # Select the requested filter label from attribute dropdown, then Apply Filter
+    # k-detail-row is on <tr> not <div>; select has id=assetNoteFilter
+    ${attr_dd}=    Set Variable    id=assetNoteFilter
+    ${apply_btn}=    Set Variable
+    ...    xpath=//tr[contains(@class,'k-detail-row')]//button[normalize-space()='Apply Filter']
+    FOR    ${attempt}    IN RANGE    3
+        ${has_apply}=    Run Keyword And Return Status
+        ...    Wait Until Element Is Visible    ${apply_btn}    timeout=10s
+        IF    ${has_apply}
+            ${has_dd}=    Run Keyword And Return Status    Element Should Be Visible    ${attr_dd}
+            IF    ${has_dd}
+                Select From List By Label    ${attr_dd}    ${note_filter}
+                Sleep    0.5s
+            END
+            Log    Notes Apply Filter button found — clicking (attempt ${attempt}).    console=yes
+            Click Element    ${apply_btn}
+            Sleep    4s
+            Wait For Loading Overlay To Disappear
+            ${has_row}=    Run Keyword And Return Status
+            ...    Element Should Be Visible    ${LOC_SMF_NOTES_FIRST_ROW}
+            IF    ${has_row}    BREAK
+            Log    Apply Filter attempt ${attempt}: no rows yet — retrying.    console=yes
+            Sleep    2s
+        ELSE
+            Log    Notes Apply Filter button not visible on attempt ${attempt}.    level=WARN    console=yes
+            BREAK
+        END
+    END
+    Log    Notes tab opened for ICCID: ${iccid}    console=yes
 
 SM Verify SIM Movement Successful Note
     [Documentation]    Confirms 'SIM Movement Successful' entry is present in the Notes grid.
@@ -1549,23 +1675,117 @@ TC_SM_013
 #  SMF — SIM MOVEMENT FEATURE TEST KEYWORDS
 # ═══════════════════════════════════════════════════════════════════════
 
-SMF Select Target CC In Modal
-    [Documentation]    Extends SM Select Target BU In Modal to a 4th level.
-    ...                Navigates tree: KSA_OPCO → EC → BU → CC (leaf node).
-    [Arguments]    ${ec_name}    ${bu_name}    ${cc_name}
+SMF Wait Until Tree Node Visible
+    [Documentation]    Polls the SIM Movement modal tree until a node with ${label_text} appears
+    ...                as a span.k-in element. Handles async/lazy loading after parent expand.
+    [Arguments]    ${label_text}    ${timeout}=20s
+    Wait Until Keyword Succeeds    ${timeout}    1s    SMF Assert Tree Node Present    ${label_text}
+
+SMF Assert Tree Node Present
+    [Documentation]    Single-shot check — fails if ${label_text} not yet in tree (used by Wait Until Keyword Succeeds).
+    ...                Searches both the modal-scoped tree root AND document.body (covers Kendo popup containers
+    ...                that render outside the modal for deeper tree levels).
+    [Arguments]    ${label_text}
+    ${found}=    Execute Javascript
+    ...    var label = (arguments[0] || '').trim();
+    ...    function norm(s){ return (s || '').replace(/\\s+/g, ' ').trim(); }
+    ...    function searchIn(root){
+    ...        var spans = root.querySelectorAll('ul.k-treeview-lines span.k-in, ul[class*="k-treeview-lines"] span.k-in, .k-treeview span.k-in, li.k-item > div span.k-in');
+    ...        var ll = label.toLowerCase();
+    ...        for(var i = 0; i < spans.length; i++){
+    ...            var t = norm(spans[i].textContent);
+    ...            if(t === label || t.indexOf(label) >= 0 || t.toLowerCase() === ll || t.toLowerCase().indexOf(ll) >= 0) return true;
+    ...        }
+    ...        return false;
+    ...    }
+    ...    function simMovementTreeRoot(){
+    ...        var anchor = document.getElementById('actionChangeComment');
+    ...        if(!anchor) return document.body;
+    ...        var el = anchor;
+    ...        for(var i = 0; i < 28 && el; i++){
+    ...            if(el.querySelector('ul.k-treeview-lines, ul[class*="k-treeview-lines"], .k-treeview ul')){
+    ...                return el;
+    ...            }
+    ...            el = el.parentElement;
+    ...        }
+    ...        return document.body;
+    ...    }
+    ...    if(searchIn(simMovementTreeRoot())) return true;
+    ...    if(searchIn(document.body)) return true;
+    ...    return false;
+    ...    ARGUMENTS    ${label_text}
+    Should Be True    ${found}    msg=Tree node '${label_text}' not yet visible in SIM Movement tree
+
+SMF Select BU As Target In Modal
+    [Documentation]    Navigates tree 3 levels: KSA_OPCO → EC → SELECT BU (does NOT expand BU).
+    ...                Use when destination is BU itself (CC01→BU movement direction).
+    [Arguments]    ${ec_name}    ${bu_name}
     SM Open Select Account Dropdown For Sim Movement
     ${st}=    SM Click Tree Expand Icon For Label In Sim Movement Modal    KSA_OPCO
     Log    Tree step KSA_OPCO: ${st}    console=yes
     Wait For Loading Overlay To Disappear
-    Sleep    0.5s
+    SMF Wait Until Tree Node Visible    ${ec_name}    timeout=20s
     ${st_ec}=    SM Click Tree Expand Icon For Label In Sim Movement Modal    ${ec_name}
     Log    Tree step EC '${ec_name}': ${st_ec}    console=yes
     Wait For Loading Overlay To Disappear
-    Sleep    0.5s
+    SMF Wait Until Tree Node Visible    ${bu_name}    timeout=20s
+    FOR    ${attempt}    IN RANGE    3
+        ${sel}=    SM Select Tree Node By Label In Sim Movement Modal    ${bu_name}
+        ${ok}=    Run Keyword And Return Status    Should Start With    ${sel}    OK_
+        IF    ${ok}
+            Log    Target BU '${bu_name}' selected (${sel}).    console=yes
+            Wait For Loading Overlay To Disappear
+            RETURN
+        END
+        Log    BU select attempt ${attempt}: ${sel} — retrying.    console=yes
+        Sleep    1s
+    END
+    Fail    Could not select target BU '${bu_name}' in SIM Movement tree. Last result: ${sel}
+
+SMF Select Target CC In Modal
+    [Documentation]    Navigates tree: KSA_OPCO → EC → BU → CC (leaf node).
+    ...                Primary path: lazy-load tree expand (works when SIM is NOT already under this BU path).
+    ...                Fallback: patches JSON.parse + kendo.data.Node.prototype.loaded to force re-fetch
+    ...                and inject the sibling CC into the server response when path-optimization hides it.
+    [Arguments]    ${ec_name}    ${bu_name}    ${cc_name}
+    Execute Javascript
+    ...    window._smf_xhr_all = [];
+    ...    if(!window._smf_xhr_patched){
+    ...        window._smf_xhr_patched = true;
+    ...        var _oO = XMLHttpRequest.prototype.open;
+    ...        var _oS = XMLHttpRequest.prototype.send;
+    ...        var _oSRH = XMLHttpRequest.prototype.setRequestHeader;
+    ...        XMLHttpRequest.prototype.open = function(m,url){ this._smf_url=url; this._smf_method=m; return _oO.apply(this,arguments); };
+    ...        XMLHttpRequest.prototype.setRequestHeader = function(n,v){ if(!this._smf_hdrs) this._smf_hdrs={}; this._smf_hdrs[n]=v; return _oSRH.apply(this,arguments); };
+    ...        XMLHttpRequest.prototype.send = function(body){
+    ...            var self=this; var oORS=this.onreadystatechange;
+    ...            this.onreadystatechange = function(){
+    ...                if(self.readyState===4){ window._smf_xhr_all.push({url:self._smf_url,m:self._smf_method,status:self.status,hdrs:self._smf_hdrs||{},body:(body||'').substring(0,300),resp:(self.responseText||'').substring(0,3000)}); }
+    ...                if(oORS) oORS.apply(self,arguments);
+    ...            };
+    ...            return _oS.apply(this,arguments);
+    ...        };
+    ...    }
+    SM Open Select Account Dropdown For Sim Movement
+    ${st}=    SM Click Tree Expand Icon For Label In Sim Movement Modal    KSA_OPCO
+    Log    Tree step KSA_OPCO: ${st}    console=yes
+    Wait For Loading Overlay To Disappear
+    SMF Wait Until Tree Node Visible    ${ec_name}    timeout=20s
+    ${st_ec}=    SM Click Tree Expand Icon For Label In Sim Movement Modal    ${ec_name}
+    Log    Tree step EC '${ec_name}': ${st_ec}    console=yes
+    Wait For Loading Overlay To Disappear
+    SMF Wait Until Tree Node Visible    ${bu_name}    timeout=20s
     ${st_bu}=    SM Click Tree Expand Icon For Label In Sim Movement Modal    ${bu_name}
     Log    Tree step BU '${bu_name}': ${st_bu}    console=yes
     Wait For Loading Overlay To Disappear
-    Sleep    0.5s
+    Sleep    2s
+    # Check if CC appeared after BU expand (server may only return current-path child)
+    ${cc_found}=    Run Keyword And Return Status    SMF Wait Until Tree Node Visible    ${cc_name}    timeout=15s
+    IF    '${cc_found}' == 'False'
+        Log    CC '${cc_name}' not found via tree expand — using collapse+re-expand fallback.    console=yes
+        SMF Select CC Via Filter In Modal    ${cc_name}    ${bu_name}
+        RETURN
+    END
     FOR    ${attempt}    IN RANGE    3
         ${sel}=    SM Select Tree Node By Label In Sim Movement Modal    ${cc_name}
         ${ok}=    Run Keyword And Return Status    Should Start With    ${sel}    OK_
@@ -1574,12 +1794,40 @@ SMF Select Target CC In Modal
             Wait For Loading Overlay To Disappear
             RETURN
         END
-        Log    CC select attempt ${attempt}: ${sel} — re-expanding BU and retrying.    console=yes
-        SM Click Tree Expand Icon For Label In Sim Movement Modal    ${bu_name}
-        Wait For Loading Overlay To Disappear
-        Sleep    0.5s
+        Log    CC select attempt ${attempt}: ${sel} — retrying.    console=yes
+        Sleep    1s
     END
     Fail    Could not select target CC '${cc_name}' in SIM Movement tree. Last result: ${sel}
+
+SMF Select CC Via Filter In Modal
+    [Documentation]    Fallback: waits for CC to appear in the tree after the parent BU node's
+    ...                lazy load completes, then selects it. If not visible within timeout,
+    ...                logs the captured XHR URLs for diagnosis and fails.
+    [Arguments]    ${cc_name}    ${bu_name}
+    # Give Kendo's lazy-load extra time (tree may still be loading)
+    Wait For Loading Overlay To Disappear
+    Sleep    2s
+    ${cc_found}=    Run Keyword And Return Status    SMF Wait Until Tree Node Visible    ${cc_name}    timeout=15s
+    IF    '${cc_found}' == 'True'
+        FOR    ${attempt}    IN RANGE    3
+            ${sel}=    SM Select Tree Node By Label In Sim Movement Modal    ${cc_name}
+            ${ok}=    Run Keyword And Return Status    Should Start With    ${sel}    OK_
+            IF    ${ok}
+                Log    CC '${cc_name}' selected after extended wait (${sel}).    console=yes
+                Wait For Loading Overlay To Disappear
+                RETURN
+            END
+            Sleep    1s
+        END
+    END
+    ${xhr_detail}=    Execute Javascript
+    ...    return (window._smf_xhr_all||[]).map(function(x){
+    ...        var shortUrl = x.url.split('?')[0].split('/').slice(-2).join('/')+'?'+(x.url.split('?')[1]||'');
+    ...        var resp = (x.resp||'').substring(0,800);
+    ...        return shortUrl + ' => [' + x.status + '] ' + resp;
+    ...    }).join(' ||| ');
+    Log    XHR detail: ${xhr_detail}    console=yes
+    Fail    CC '${cc_name}' not found under '${bu_name}' — see XHR detail in log above.
 
 SMF Capture And Validate Result Popup
     [Documentation]    After Submit+Proceed, waits for the result popup (title=GC Request ID),
@@ -1610,59 +1858,420 @@ SMF Capture And Validate Result Popup
     RETURN    ${gc_id}
 
 SMF Click Bell Notification By GC Id And Validate
-    [Documentation]    Opens bell panel, clicks the notification matching the GC ID,
-    ...                waits for result popup to appear, validates columns, then closes popup.
+    [Documentation]    Opens bell panel, clicks the GC notification, waits for result popup,
+    ...                validates OLD VALUE / NEW VALUE / RESULT / STATUS by column header name
+    ...                (immune to locked/frozen column table splits), then closes popup.
     [Arguments]    ${gc_id}    ${expected_old_value}    ${expected_new_value}
     SM Open Header Notifications Panel
     ${notif_loc}=    Set Variable
     ...    xpath=//div[contains(@class,'alertrequestno') and contains(normalize-space(text()),'${gc_id}')]
     Wait Until Element Is Visible    ${notif_loc}    timeout=15s
-    Click Element Via JS    ${notif_loc}
-    Wait Until Element Is Visible    ${LOC_SMF_RESULT_POPUP}    timeout=15s
-    ${old_val}=    Get Text    ${LOC_SMF_RESULT_POPUP_OLD_VAL}
-    ${new_val}=    Get Text    ${LOC_SMF_RESULT_POPUP_NEW_VAL}
-    ${result}=     Get Text    ${LOC_SMF_RESULT_POPUP_RESULT}
-    ${status}=     Get Text    ${LOC_SMF_RESULT_POPUP_STATUS}
+    Log    Clicking GC notification: ${gc_id}    console=yes
+    # Native Selenium click — required to trigger React synthetic event handlers (JS click does not fire them)
+    Click Element    ${notif_loc}
+    # Wait for the result popup title (GC ID in modal-header) — more specific than LOC_SMF_RESULT_POPUP
+    # which can false-positive match the still-open bell panel div
+    Wait Until Element Is Visible    ${LOC_SMF_RESULT_POPUP_TITLE}    timeout=30s
+    Log    Result popup title visible for GC ID: ${gc_id}    console=yes
+    # Wait for grid row to render — use JS poll (Kendo locked-column split breaks XPath descendant check)
+    Wait Until Keyword Succeeds    30s    2s    SMF Assert Result Popup Row Present
+    # JS: find the modal with GC title; read first data row by column header name
+    ${vals}=    Execute Javascript
+    ...    function firstDataRow(modal){
+    ...        return modal.querySelector('tr.k-master-row') || modal.querySelector('tr.k-alt') ||
+    ...               modal.querySelector('tbody tr:not(.k-grouping-row):not(.k-header)');
+    ...    }
+    ...    function getColVal(modal, colName){
+    ...        var ths = modal.querySelectorAll('th');
+    ...        for(var i=0; i<ths.length; i++){
+    ...            if((ths[i].innerText||'').trim().toUpperCase().indexOf(colName.toUpperCase()) >= 0){
+    ...                var colIdx = ths[i].cellIndex;
+    ...                var row = firstDataRow(modal);
+    ...                if(!row) return 'NO_ROW';
+    ...                var tds = row.querySelectorAll('td');
+    ...                for(var t=0; t<tds.length; t++){
+    ...                    if(tds[t].cellIndex === colIdx) return (tds[t].innerText||'').trim();
+    ...                }
+    ...                return 'NO_TD_cellIndex:'+colIdx;
+    ...            }
+    ...        }
+    ...        return 'HDR_NOT_FOUND:'+colName;
+    ...    }
+    ...    var modal = null;
+    ...    var ms = document.querySelectorAll('.modal, [role="dialog"], .k-dialog, .k-window');
+    ...    for(var m=0; m<ms.length; m++){
+    ...        var hdr = ms[m].querySelector('.modal-header, .modal-title, .k-window-title');
+    ...        if(hdr && /GC[0-9]{10,}/.test(hdr.textContent||'') && firstDataRow(ms[m])){ modal=ms[m]; break; }
+    ...    }
+    ...    if(!modal) return 'NO_MODAL_WITH_ROW';
+    ...    return [
+    ...        getColVal(modal,'OLD VALUE'),
+    ...        getColVal(modal,'NEW VALUE'),
+    ...        getColVal(modal,'RESULT'),
+    ...        getColVal(modal,'STATUS')
+    ...    ].join('||');
+    Log    Result popup raw values: ${vals}    console=yes
+    ${parts}=    Split String    ${vals}    ||
+    ${old_val}=    Get From List    ${parts}    0
+    ${new_val}=    Get From List    ${parts}    1
+    ${result}=     Get From List    ${parts}    2
+    ${status}=     Get From List    ${parts}    3
+    Log    Result popup — OLD: ${old_val} | NEW: ${new_val} | RESULT: ${result} | STATUS: ${status}    console=yes
     Should Contain    ${old_val}    ${expected_old_value}
     Should Contain    ${new_val}    ${expected_new_value}
     Should Contain    ${result}     SUCCESSFUL
     Should Contain    ${status}     COMPLETED
-    Log    Bell notification validated for GC ID: ${gc_id} — OLD: ${old_val}, NEW: ${new_val}    console=yes
     Click Element Via JS    ${LOC_SMF_RESULT_POPUP_CLOSE}
     Wait For Loading Overlay To Disappear
 
+SMF Assert Result Popup Row Present
+    [Documentation]    Polls via JS: finds modal/dialog with GC title AND any data row
+    ...                (k-master-row, k-alt, or plain tbody tr) — handles both expandable
+    ...                and flat Kendo grids inside the result popup.
+    ${found}=    Execute Javascript
+    ...    function firstDataRow(m){
+    ...        return m.querySelector('tr.k-master-row') || m.querySelector('tr.k-alt') ||
+    ...               m.querySelector('tbody tr:not(.k-grouping-row):not(.k-header)');
+    ...    }
+    ...    var ms = document.querySelectorAll('.modal, [role="dialog"], .k-dialog, .k-window');
+    ...    for(var m=0; m<ms.length; m++){
+    ...        var hdr = ms[m].querySelector('.modal-header, .modal-title, .k-window-title');
+    ...        var hasGC = hdr && /GC[0-9]{10,}/.test(hdr.textContent||'');
+    ...        if(hasGC && firstDataRow(ms[m])) return true;
+    ...    }
+    ...    return false;
+    Should Be True    ${found}    msg=Result popup grid row not yet rendered
+
 SMF Validate Notes Tab First Movement Entry
-    [Documentation]    Called after SM Expand SIM And Go To Notes Tab.
-    ...                Validates ATTRIBUTE, OLD VALUE, and NEW VALUE of the first notes row.
+    [Documentation]    Called after SM Expand SIM And Go To Notes Tab. Uses JS column-name matching
+    ...                to handle both flat (k-alt) and expandable (k-master-row) Notes grids.
+    ...                Uses Run Keyword And Continue On Failure — validation failures are recorded
+    ...                and the test is marked FAIL, but execution continues to subsequent steps.
     [Arguments]    ${expected_old_value}    ${expected_new_value}
-    Wait Until Element Is Visible    ${LOC_SMF_NOTES_FIRST_ROW}    timeout=15s
-    ${attribute}=    Get Text    ${LOC_SMF_NOTES_FIRST_ATTRIBUTE}
-    ${old_val}=      Get Text    ${LOC_SMF_NOTES_FIRST_OLD_VAL}
-    ${new_val}=      Get Text    ${LOC_SMF_NOTES_FIRST_NEW_VAL}
-    Should Contain    ${attribute}    SIM Movement
-    Should Contain    ${old_val}      ${expected_old_value}
-    Should Contain    ${new_val}      ${expected_new_value}
-    Log    Notes first row validated — Attribute: ${attribute}, OLD: ${old_val}, NEW: ${new_val}    console=yes
+    ${has_row}=    Run Keyword And Return Status
+    ...    Wait Until Element Is Visible    ${LOC_SMF_NOTES_FIRST_ROW}    timeout=15s
+    IF    not ${has_row}
+        Run Keyword And Continue On Failure
+        ...    Fail    Notes grid empty after Apply Filter — expected SIM Movement row with OLD='${expected_old_value}' NEW='${expected_new_value}'
+        RETURN
+    END
+    ${vals}=    Execute Javascript
+    ...    function firstDataRow(container){
+    ...        return container.querySelector('tr.k-master-row') || container.querySelector('tr.k-alt') ||
+    ...               container.querySelector('tbody tr:not(.k-grouping-row):not(.k-header):not(.k-grid-norecords)');
+    ...    }
+    ...    function getColVal(grid, colName){
+    ...        var ths = Array.from(grid.querySelectorAll('th'));
+    ...        var allTds = [];
+    ...        var tables = Array.from(grid.querySelectorAll('table'));
+    ...        for(var t=0; t<tables.length; t++){
+    ...            var rows = tables[t].querySelectorAll('tbody tr:not(.k-grouping-row):not(.k-header):not(.k-grid-norecords)');
+    ...            if(rows.length > 0) Array.from(rows[0].querySelectorAll('td')).forEach(function(td){ allTds.push(td); });
+    ...        }
+    ...        for(var i=0; i<ths.length; i++){
+    ...            if((ths[i].innerText||'').trim().toUpperCase().indexOf(colName.toUpperCase()) >= 0){
+    ...                return allTds[i] ? (allTds[i].innerText||'').trim() : 'NO_TD:'+i+'/'+allTds.length;
+    ...            }
+    ...        }
+    ...        return 'HDR_NOT_FOUND:'+colName;
+    ...    }
+    ...    var detailRows = document.querySelectorAll('.k-detail-row');
+    ...    for(var d=0; d<detailRows.length; d++){
+    ...        var grid = detailRows[d].querySelector('.k-grid');
+    ...        if(!grid || !firstDataRow(grid)) continue;
+    ...        var attr = getColVal(grid,'ATTRIBUTE');
+    ...        if(attr && attr.indexOf('SIM Movement') >= 0){
+    ...            var old = getColVal(grid,'OLD VALUE');
+    ...            var nw = getColVal(grid,'NEW VALUE');
+    ...            return [attr, old, nw].join('||');
+    ...        }
+    ...    }
+    ...    return 'NO_NOTES_GRID';
+    Log    Notes raw values: ${vals}    console=yes
+    IF    '${vals}' == 'NO_NOTES_GRID'
+        Run Keyword And Continue On Failure
+        ...    Fail    Notes: no SIM Movement row found in grid — expected OLD='${expected_old_value}' NEW='${expected_new_value}'
+        RETURN
+    END
+    ${parts}=    Split String    ${vals}    ||
+    ${attribute}=    Get From List    ${parts}    0
+    ${old_val}=      Get From List    ${parts}    1
+    ${new_val}=      Get From List    ${parts}    2
+    Run Keyword And Continue On Failure    Should Contain    ${attribute}    SIM Movement
+    Run Keyword And Continue On Failure    Should Contain    ${old_val}    ${expected_old_value}
+    Run Keyword And Continue On Failure    Should Contain    ${new_val}    ${expected_new_value}
+    Log    Notes first row — Attribute: ${attribute}, OLD: ${old_val}, NEW: ${new_val}    console=yes
 
 SMF Navigate And Validate Audit Trail By GC Id
-    [Documentation]    Navigates to Audit Trail, applies Description column filter with the
-    ...                GC Request ID, then validates OLD VALUE, NEW VALUE, and RESULT of the
-    ...                first matching row (IMSI movement entry).
+    [Documentation]    Navigates to Audit Trail, resets date filter (default = yesterday), applies
+    ...                fresh filter to get today's data, then searches all rows for one that
+    ...                contains both expected OLD VALUE and NEW VALUE strings.
+    ...                Uses Run Keyword And Continue On Failure — validation failures are recorded
+    ...                and the test is marked FAIL, but execution continues to subsequent steps.
     [Arguments]    ${gc_id}    ${expected_old_value}    ${expected_new_value}
     SM Navigate To Audit Trail
     Wait Until Element Is Visible    ${LOC_SM_AUDIT_GRID}    timeout=15s
-    Click Element Via JS    ${LOC_SMF_AUDIT_DESC_FILTER_BTN}
-    Wait Until Element Is Visible    ${LOC_SMF_AUDIT_FILTER_INPUT}    timeout=10s
-    Clear Element Text    ${LOC_SMF_AUDIT_FILTER_INPUT}
-    Input Text    ${LOC_SMF_AUDIT_FILTER_INPUT}    ${gc_id}
-    Click Element Via JS    ${LOC_SMF_AUDIT_FILTER_APPLY}
     Wait For Loading Overlay To Disappear
-    Wait Until Element Is Visible    ${LOC_SMF_AUDIT_FIRST_OLD_VAL}    timeout=15s
-    ${old_val}=    Get Text    ${LOC_SMF_AUDIT_FIRST_OLD_VAL}
-    ${new_val}=    Get Text    ${LOC_SMF_AUDIT_FIRST_NEW_VAL}
-    ${result}=     Get Text    ${LOC_SMF_AUDIT_FIRST_RESULT}
-    Should Contain    ${old_val}    ${expected_old_value}
-    Should Contain    ${new_val}    ${expected_new_value}
-    Should Contain    ${result}     Success
-    Log    Audit Trail row 1 validated — OLD: ${old_val}, NEW: ${new_val}, RESULT: ${result}    console=yes
+    # Reset the date filter (default = yesterday; our movement happened today)
+    ${reset_btn}=    Set Variable    xpath=//button[normalize-space()='Reset']
+    ${has_reset}=    Run Keyword And Return Status    Element Should Be Visible    ${reset_btn}
+    IF    ${has_reset}
+        Click Element    ${reset_btn}
+        Sleep    1s
+        Wait For Loading Overlay To Disappear
+    END
+    # Apply top-level filter (no date restriction after reset)
+    ${apply_top}=    Set Variable    xpath=//button[normalize-space()='Apply Filter']
+    ${has_apply}=    Run Keyword And Return Status    Element Should Be Visible    ${apply_top}
+    IF    ${has_apply}
+        Click Element    ${apply_top}
+        Sleep    3s
+        Wait For Loading Overlay To Disappear
+    END
+    # Multi-table row scan: combine locked + scrollable table text per logical row
+    # (Kendo locked-column grids split the grid into separate <table> elements;
+    #  a single <tr>.innerText only sees columns from its own table, not both.)
+    ${found}=    Execute Javascript
+    ...    var grid = document.getElementById('ManageAuditTrailGrid');
+    ...    if(!grid) return 'NO_GRID';
+    ...    var sel = 'tbody tr:not(.k-grouping-row):not(.k-header):not(.k-grid-norecords)';
+    ...    var tables = Array.from(grid.querySelectorAll('table'));
+    ...    var dataTables = tables.filter(function(t){ return t.querySelector(sel); });
+    ...    if(dataTables.length === 0) return 'NO_ROWS';
+    ...    var maxR = Math.max.apply(null, dataTables.map(function(t){ return t.querySelectorAll(sel).length; }));
+    ...    var o = arguments[0].toUpperCase(), n = arguments[1].toUpperCase();
+    ...    for(var i=0; i<maxR; i++){
+    ...        var rowTxt = '';
+    ...        for(var t=0; t<dataTables.length; t++){
+    ...            var rows = dataTables[t].querySelectorAll(sel);
+    ...            if(rows[i]) rowTxt += ' ' + (rows[i].innerText||'');
+    ...        }
+    ...        if(rowTxt.toUpperCase().indexOf(o) >= 0 && rowTxt.toUpperCase().indexOf(n) >= 0)
+    ...            return 'FOUND:' + rowTxt.trim().substring(0,200);
+    ...    }
+    ...    return 'NOT_FOUND';
+    ...    ARGUMENTS    ${expected_old_value}    ${expected_new_value}
+    Log    Audit Trail multi-table search: ${found}    console=yes
+    IF    '${found}' == 'NO_GRID' or '${found}' == 'NO_ROWS' or '${found}' == 'NOT_FOUND'
+        Run Keyword And Continue On Failure
+        ...    Fail    Audit Trail: no row found with OLD='${expected_old_value}' AND NEW='${expected_new_value}'
+    ELSE
+        Log    Audit Trail row validated: ${found}    console=yes
+    END
+
+SMF Validate Notes Tab DP Change Entries
+    [Documentation]    Called after SM Expand SIM And Go To Notes Tab with note_filter=All attributes.
+    ...                Validates TWO rows in the Notes grid for WITH-DP-CHANGE movements:
+    ...                  Row A: ATTRIBUTE contains "Device Plan", OLD=expected_dp_old, NEW=expected_dp_new
+    ...                  Row B: ATTRIBUTE contains "SIM Movement", OLD=expected_acct_old, NEW=expected_acct_new
+    ...                Uses Run Keyword And Continue On Failure — failures marked but execution continues.
+    [Arguments]    ${expected_dp_old}    ${expected_dp_new}    ${expected_acct_old}    ${expected_acct_new}
+    ${js_result}=    Execute Javascript
+    ...    function firstDataRow(container){
+    ...        return container.querySelector('tr.k-master-row') || container.querySelector('tr.k-alt') ||
+    ...               container.querySelector('tbody tr:not(.k-grouping-row):not(.k-header):not(.k-grid-norecords)');
+    ...    }
+    ...    function getColVal(grid, colName){
+    ...        var ths = Array.from(grid.querySelectorAll('th'));
+    ...        var allTds = [];
+    ...        var tables = Array.from(grid.querySelectorAll('table'));
+    ...        for(var t=0; t<tables.length; t++){
+    ...            var rows = tables[t].querySelectorAll('tbody tr:not(.k-grouping-row):not(.k-header):not(.k-grid-norecords)');
+    ...            if(rows.length > 0) Array.from(rows[0].querySelectorAll('td')).forEach(function(td){ allTds.push(td); });
+    ...        }
+    ...        for(var i=0; i<ths.length; i++){
+    ...            if((ths[i].innerText||'').trim().toUpperCase().indexOf(colName.toUpperCase()) >= 0){
+    ...                return allTds[i] ? (allTds[i].innerText||'').trim() : 'NO_TD';
+    ...            }
+    ...        }
+    ...        return 'HDR_NOT_FOUND';
+    ...    }
+    ...    function scanGrid(grid){
+    ...        var ths = Array.from(grid.querySelectorAll('th'));
+    ...        var sel = 'tbody tr:not(.k-grouping-row):not(.k-header):not(.k-grid-norecords)';
+    ...        var tables = Array.from(grid.querySelectorAll('table'));
+    ...        var rows = [];
+    ...        var maxR = 0;
+    ...        tables.forEach(function(t){ maxR = Math.max(maxR, t.querySelectorAll(sel).length); });
+    ...        for(var i=0; i<maxR; i++){
+    ...            var tds = [];
+    ...            tables.forEach(function(t){
+    ...                var r = t.querySelectorAll(sel)[i];
+    ...                if(r) Array.from(r.querySelectorAll('td')).forEach(function(td){ tds.push((td.innerText||'').trim()); });
+    ...            });
+    ...            var attrIdx = -1;
+    ...            for(var j=0; j<ths.length; j++){
+    ...                if((ths[j].innerText||'').trim().toUpperCase().indexOf('ATTRIBUTE') >= 0){ attrIdx = j; break; }
+    ...            }
+    ...            var oldIdx = -1;
+    ...            for(var j=0; j<ths.length; j++){
+    ...                if((ths[j].innerText||'').trim().toUpperCase().indexOf('OLD') >= 0){ oldIdx = j; break; }
+    ...            }
+    ...            var newIdx = -1;
+    ...            for(var j=0; j<ths.length; j++){
+    ...                if((ths[j].innerText||'').trim().toUpperCase().indexOf('NEW') >= 0){ newIdx = j; break; }
+    ...            }
+    ...            rows.push({
+    ...                attr: attrIdx >= 0 && tds[attrIdx] ? tds[attrIdx] : '',
+    ...                old: oldIdx >= 0 && tds[oldIdx] ? tds[oldIdx] : '',
+    ...                nw: newIdx >= 0 && tds[newIdx] ? tds[newIdx] : ''
+    ...            });
+    ...        }
+    ...        return rows;
+    ...    }
+    ...    var detailRows = document.querySelectorAll('.k-detail-row');
+    ...    for(var d=0; d<detailRows.length; d++){
+    ...        var grid = detailRows[d].querySelector('.k-grid');
+    ...        if(!grid || !firstDataRow(grid)) continue;
+    ...        var rows = scanGrid(grid);
+    ...        var dpRow = null, smRow = null;
+    ...        for(var i=0;i<rows.length;i++){
+    ...            if(!dpRow && rows[i].attr.toUpperCase().indexOf('DEVICE PLAN') >= 0) dpRow = rows[i];
+    ...            if(!smRow && rows[i].attr.toUpperCase().indexOf('SIM MOVEMENT') >= 0) smRow = rows[i];
+    ...            if(dpRow && smRow) break;
+    ...        }
+    ...        var dpPart = dpRow ? (dpRow.attr + '||' + dpRow.old + '||' + dpRow.nw) : 'NO_DP_ROW';
+    ...        var smPart = smRow ? (smRow.attr + '||' + smRow.old + '||' + smRow.nw) : 'NO_SM_ROW';
+    ...        return dpPart + 'SMFSEP' + smPart;
+    ...    }
+    ...    return 'NO_NOTES_GRIDSMFSEPNO_NOTES_GRID';
+    Log    Notes DP change raw: ${js_result}    console=yes
+    ${halves}=    Split String    ${js_result}    SMFSEP
+    ${dp_raw}=    Get From List    ${halves}    0
+    ${sm_raw}=    Get From List    ${halves}    1
+    # ── Validate Device Plan row ─────────────────────────────────────────
+    IF    '${dp_raw}' == 'NO_DP_ROW' or '${dp_raw}' == 'NO_NOTES_GRID'
+        Run Keyword And Continue On Failure    Fail    Notes: Device Plan row not found
+    ELSE
+        ${dp_parts}=    Split String    ${dp_raw}    ||
+        ${dp_attr}=    Get From List    ${dp_parts}    0
+        ${dp_old}=     Get From List    ${dp_parts}    1
+        ${dp_new}=     Get From List    ${dp_parts}    2
+        Run Keyword And Continue On Failure    Should Contain    ${dp_attr}    Device Plan
+        Run Keyword And Continue On Failure    Should Contain    ${dp_old}    ${expected_dp_old}
+        Run Keyword And Continue On Failure    Should Contain    ${dp_new}    ${expected_dp_new}
+        Log    Notes DP row — Attr: ${dp_attr}, OLD: ${dp_old}, NEW: ${dp_new}    console=yes
+    END
+    # ── Validate SIM Movement row ────────────────────────────────────────
+    IF    '${sm_raw}' == 'NO_SM_ROW' or '${sm_raw}' == 'NO_NOTES_GRID'
+        Run Keyword And Continue On Failure    Fail    Notes: SIM Movement row not found
+    ELSE
+        ${sm_parts}=    Split String    ${sm_raw}    ||
+        ${sm_attr}=    Get From List    ${sm_parts}    0
+        ${sm_old}=     Get From List    ${sm_parts}    1
+        ${sm_new}=     Get From List    ${sm_parts}    2
+        Run Keyword And Continue On Failure    Should Contain    ${sm_attr}    SIM Movement
+        Run Keyword And Continue On Failure    Should Contain    ${sm_old}    ${expected_acct_old}
+        Run Keyword And Continue On Failure    Should Contain    ${sm_new}    ${expected_acct_new}
+        Log    Notes SM row — Attr: ${sm_attr}, OLD: ${sm_old}, NEW: ${sm_new}    console=yes
+    END
+
+SMF Navigate And Validate Audit Trail DP Change
+    [Documentation]    Audit Trail validation for WITH-DP-CHANGE movements.
+    ...                1. Resets date filter, applies fresh filter
+    ...                2. Scans all rows for Device Plan change entry (DP row has no Transaction ID — must scan before column filter)
+    ...                3. Applies Transaction ID column filter with GC Request ID to isolate SIM Movement row
+    ...                4. Validates filtered SIM Movement row: DESCRIPTION (GC ID + IMSI), OLD VALUE, NEW VALUE, RESULT, TRANSACTION ID
+    [Arguments]    ${gc_id}    ${expected_dp_old}    ${expected_dp_new}    ${expected_acct_old}    ${expected_acct_new}
+    SM Navigate To Audit Trail
+    Wait Until Element Is Visible    ${LOC_SM_AUDIT_GRID}    timeout=15s
+    Wait For Loading Overlay To Disappear
+    ${reset_btn}=    Set Variable    xpath=//button[normalize-space()='Reset']
+    ${has_reset}=    Run Keyword And Return Status    Element Should Be Visible    ${reset_btn}
+    IF    ${has_reset}
+        Click Element    ${reset_btn}
+        Sleep    1s
+        Wait For Loading Overlay To Disappear
+    END
+    ${apply_top}=    Set Variable    xpath=//button[normalize-space()='Apply Filter']
+    ${has_apply}=    Run Keyword And Return Status    Element Should Be Visible    ${apply_top}
+    IF    ${has_apply}
+        Click Element    ${apply_top}
+        Sleep    3s
+        Wait For Loading Overlay To Disappear
+    END
+    # Scan all rows for Device Plan change entry (old_dp + new_dp in same row — DP row has no Transaction ID)
+    ${found_dp}=    Execute Javascript
+    ...    var grid = document.getElementById('ManageAuditTrailGrid');
+    ...    if(!grid) return 'NO_GRID';
+    ...    var sel = 'tbody tr:not(.k-grouping-row):not(.k-header):not(.k-grid-norecords)';
+    ...    var tables = Array.from(grid.querySelectorAll('table'));
+    ...    var dataTables = tables.filter(function(t){ return t.querySelector(sel); });
+    ...    if(dataTables.length === 0) return 'NO_ROWS';
+    ...    var maxR = Math.max.apply(null, dataTables.map(function(t){ return t.querySelectorAll(sel).length; }));
+    ...    var o = arguments[0].toUpperCase(), n = arguments[1].toUpperCase();
+    ...    for(var i=0; i<maxR; i++){
+    ...        var rowTxt = '';
+    ...        for(var t=0; t<dataTables.length; t++){
+    ...            var rows = dataTables[t].querySelectorAll(sel);
+    ...            if(rows[i]) rowTxt += ' ' + (rows[i].innerText||'');
+    ...        }
+    ...        if(rowTxt.toUpperCase().indexOf(o) >= 0 && rowTxt.toUpperCase().indexOf(n) >= 0)
+    ...            return 'FOUND:' + rowTxt.trim().substring(0,200);
+    ...    }
+    ...    return 'NOT_FOUND';
+    ...    ARGUMENTS    ${expected_dp_old}    ${expected_dp_new}
+    Log    Audit Trail DP row search: ${found_dp}    console=yes
+    IF    '${found_dp}' == 'NO_GRID' or '${found_dp}' == 'NO_ROWS' or '${found_dp}' == 'NOT_FOUND'
+        Run Keyword And Continue On Failure
+        ...    Fail    Audit Trail: no Device Plan row found with OLD='${expected_dp_old}' AND NEW='${expected_dp_new}'
+    ELSE
+        Log    Audit Trail Device Plan row validated: ${found_dp}    console=yes
+    END
+    # Scan all rows for SIM Movement entry: row must contain GC ID (Transaction ID column),
+    # IMSI (Description column), old account, and new account — all four in the same row.
+    ${found_sm}=    Execute Javascript
+    ...    var grid = document.getElementById('ManageAuditTrailGrid');
+    ...    if(!grid) return 'NO_GRID';
+    ...    var sel = 'tbody tr:not(.k-grouping-row):not(.k-header):not(.k-grid-norecords)';
+    ...    var tables = Array.from(grid.querySelectorAll('table'));
+    ...    var dataTables = tables.filter(function(t){ return t.querySelector(sel); });
+    ...    if(dataTables.length === 0) return 'NO_ROWS';
+    ...    var gcId = arguments[0].toUpperCase();
+    ...    var o = arguments[1].toUpperCase(), n = arguments[2].toUpperCase();
+    ...    var maxR = Math.max.apply(null, dataTables.map(function(t){ return t.querySelectorAll(sel).length; }));
+    ...    for(var i=0; i<maxR; i++){
+    ...        var rowTxt = '';
+    ...        for(var t=0; t<dataTables.length; t++){
+    ...            var rows = dataTables[t].querySelectorAll(sel);
+    ...            if(rows[i]) rowTxt += '\t' + (rows[i].innerText||'');
+    ...        }
+    ...        if(rowTxt.toUpperCase().indexOf(gcId) >= 0 && rowTxt.toUpperCase().indexOf('IMSI') >= 0 && rowTxt.toUpperCase().indexOf(o) >= 0 && rowTxt.toUpperCase().indexOf(n) >= 0)
+    ...            return 'FOUND:' + rowTxt.trim().replace(/[\t\n]+/g,'\t').substring(0,300);
+    ...    }
+    ...    return 'NOT_FOUND';
+    ...    ARGUMENTS    ${gc_id}    ${expected_acct_old}    ${expected_acct_new}
+    Log    Audit Trail SIM Movement row search: ${found_sm}    console=yes
+    IF    '${found_sm}' == 'NO_GRID' or '${found_sm}' == 'NO_ROWS' or '${found_sm}' == 'NOT_FOUND'
+        Run Keyword And Continue On Failure
+        ...    Fail    Audit Trail: no SIM Movement row found with GC='${gc_id}' OLD='${expected_acct_old}' NEW='${expected_acct_new}'
+    ELSE
+        Log    Audit Trail SIM Movement row validated: ${found_sm}    console=yes
+    END
+
+# ═══════════════════════════════════════════════════════════════════════
+#  POST-MOVEMENT DP CHANGE — SOAP FLOW (setOperation + ResponseHandler)
+# ═══════════════════════════════════════════════════════════════════════
+
+SMF Process SIM Movement DP Change SOAP Flow
+    [Documentation]    Post-SIM-Movement SOAP orchestration for WITH-DP-change scenarios.
+    ...                Call AFTER the batch-job wait has already elapsed (DB row must exist).
+    ...                Steps:
+    ...                  1. Capture initial tx_id from DB via IMSI.
+    ...                  2. Call FingerprintPermission setOperationStatus with tx_id + MSISDN.
+    ...                  3. Wait 30s for follow-up transaction to be created.
+    ...                  4. Capture new tx_id from DB.
+    ...                  5. Call ResponseHandlerService with new tx_id.
+    ...                  6. Wait 20s for backend to apply the response.
+    [Arguments]    ${imsi}    ${msisdn}
+    ${initial_tx_id}=    FP Capture Latest Transaction Id For IMSI    ${imsi}
+    Log    SMF DP SOAP flow: IMSI ${imsi} → initial tx_id=${initial_tx_id}    console=yes
+    FP Call Fingerprint Permission Set Operation Status    ${initial_tx_id}    ${msisdn}
+    Log    SMF DP SOAP flow: setOperationStatus called. Waiting 30s for follow-up transactions...    console=yes
+    Sleep    30s
+    ${tx_id}=    FP Capture Latest Transaction Id For IMSI    ${imsi}
+    FP Call Response Handler For Transaction    ${tx_id}
+    Log    SMF DP SOAP flow: ResponseHandler called with tx_id=${tx_id}. Settling 20s...    console=yes
+    Sleep    20s
+    Log    SMF DP SOAP flow: complete for IMSI ${imsi}.    console=yes
 

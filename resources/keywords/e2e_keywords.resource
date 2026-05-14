@@ -367,12 +367,24 @@ E2E SIM Order Stale Preview Resubmit
     ...    var cb=document.getElementById('termsAndConditions');
     ...    if(cb&&!cb.checked){ var lbl=document.querySelector('label[for="termsAndConditions"]'); if(lbl) lbl.click(); else cb.click(); }
     Sleep    1s
+    # Scroll Continue into view and click via Selenium for proper React event dispatch
     Execute Javascript
     ...    var btns=document.querySelectorAll('#optimization button');
-    ...    for(var i=0;i<btns.length;i++){
-    ...      var t=btns[i].textContent.trim().toLowerCase();
-    ...      if(t==='continue'){ btns[i].disabled=false; btns[i].removeAttribute('disabled'); btns[i].click(); break; }
+    ...    for(var i=0;i<btns.length;i++){ var t=btns[i].textContent.trim().toLowerCase();
+    ...      if(t==='continue'){ btns[i].disabled=false; btns[i].removeAttribute('disabled');
+    ...        btns[i].scrollIntoView({block:'center',behavior:'smooth'}); break; }
     ...    }
+    Sleep    0.5s
+    ${cont_loc}=    Set Variable    xpath=//*[@id='optimization']//button[normalize-space()='Continue']
+    ${cont_ok}=    Run Keyword And Return Status    Wait Until Element Is Visible    ${cont_loc}    timeout=5s
+    IF    ${cont_ok}
+        Click Element    ${cont_loc}
+    ELSE
+        Execute Javascript
+        ...    var btns=document.querySelectorAll('#optimization button');
+        ...    for(var i=0;i<btns.length;i++){ var t=btns[i].textContent.trim().toLowerCase();
+        ...      if(t==='continue'){ btns[i].click(); break; } }
+    END
     Sleep    2s
     Wait For Loading Overlay To Disappear
     ${tc2}=    Execute Javascript
@@ -389,11 +401,22 @@ E2E SIM Order Stale Preview Resubmit
         Sleep    2s
         Wait For Loading Overlay To Disappear
     END
+    # Scroll Submit into view and click via Selenium
     Execute Javascript
-    ...    var as=document.querySelectorAll('#optimization a');
-    ...    for(var i=0;i<as.length;i++){
-    ...      if(as[i].textContent.trim().toLowerCase()==='submit'){ as[i].click(); break; }
-    ...    }
+    ...    var anchors=document.querySelectorAll('#optimization a');
+    ...    for(var i=0;i<anchors.length;i++){ var t=anchors[i].textContent.trim().toLowerCase();
+    ...      if(t==='submit'){ anchors[i].scrollIntoView({block:'center',behavior:'smooth'}); break; } }
+    Sleep    0.5s
+    ${sub_loc}=    Set Variable    xpath=//*[@id='optimization']//a[normalize-space()='Submit']
+    ${sub_ok}=    Run Keyword And Return Status    Wait Until Element Is Visible    ${sub_loc}    timeout=5s
+    IF    ${sub_ok}
+        Click Element    ${sub_loc}
+    ELSE
+        Execute Javascript
+        ...    var as=document.querySelectorAll('#optimization a');
+        ...    for(var i=0;i<as.length;i++){
+        ...      if(as[i].textContent.trim().toLowerCase()==='submit'){ as[i].click(); break; } }
+    END
     Sleep    2s
     Wait For Loading Overlay To Disappear
 
@@ -425,7 +448,12 @@ E2E Expand EC And BU SIM Limits
 E2E Create SIM Order
     [Documentation]    Creates a SIM Order by selecting the onboarded BU account from the
     ...                treeview (KSA_OPCO > EC > BU) with configurable quantity (default 5).
+    ...                Supports auto activation via optional args:
+    ...                  activation_type: autoActivation | nonAutoActivation (default)
+    ...                  sim_state:       dropdown value for SIM State (e.g. "1" = Activated, "2" = TestActive); empty = skip
+    ...                  dp_name:         Device Plan name to select; empty = skip
     [Arguments]    ${ec_name}    ${bu_name}    ${quantity}=${5}
+    ...            ${activation_type}=nonAutoActivation    ${sim_state}=${EMPTY}    ${dp_name}=${EMPTY}
     Ensure Session Is Active
     Navigate To Module Page    ${CREATE_SIM_ORDER_URL}
     Wait For Loading Overlay To Disappear
@@ -486,9 +514,15 @@ E2E Create SIM Order
         Log    Product Type "${PT_NAME}" selected for SIM Order.    console=yes
     END
     Enter Quantity    ${quantity}
-    Set Activation Type    nonAutoActivation
+    Set Activation Type    ${activation_type}
     Sleep    0.3s
     Wait For Loading Overlay To Disappear
+    IF    '${sim_state}' != '${EMPTY}'
+        Select SIM State    ${sim_state}
+    END
+    IF    '${dp_name}' != '${EMPTY}'
+        Select Device Plan By Name    ${dp_name}
+    END
     # Log form state before clicking Next
     ${form_state}=    Execute Javascript
     ...    var acc = document.querySelector("input[name='accountSelected']");
@@ -616,24 +650,56 @@ E2E Create SIM Order
     ...    var el = document.getElementById('optimization');
     ...    return el ? el.tagName : 'NOT_FOUND';
     Log    DOM id optimization element tag: ${opt_tag}    console=yes
-    # Click Continue via Selenium (use * instead of div to match any tag)
+    # Click Continue — diagnose CSS first, then try scroll+Selenium, then MouseEvent dispatch
     ${continue_loc}=    Set Variable    xpath=//*[@id='optimization']//button[normalize-space()='Continue']
+    ${cont_diag}=    Execute Javascript
+    ...    var btn=null; var all=document.querySelectorAll('#optimization button');
+    ...    for(var i=0;i<all.length;i++){ if(all[i].textContent.trim().toLowerCase()==='continue'){btn=all[i];break;} }
+    ...    if(!btn) return 'NOT_FOUND';
+    ...    var cs=window.getComputedStyle(btn); var rect=btn.getBoundingClientRect();
+    ...    var par=btn.parentElement; var pcs=par?window.getComputedStyle(par):{};
+    ...    return JSON.stringify({vis:cs.visibility,disp:cs.display,opac:cs.opacity,ptr:cs.pointerEvents,
+    ...      rect:{t:Math.round(rect.top),l:Math.round(rect.left),w:Math.round(rect.width),h:Math.round(rect.height)},
+    ...      inVP:rect.top>=0&&rect.top<=window.innerHeight,
+    ...      parOvf:pcs.overflow||'',parDisp:pcs.display||''});
+    Log    Continue button CSS/position: ${cont_diag}    console=yes
+    Execute Javascript
+    ...    var btn=null; var all=document.querySelectorAll('#optimization button');
+    ...    for(var i=0;i<all.length;i++){ if(all[i].textContent.trim().toLowerCase()==='continue'){btn=all[i];break;} }
+    ...    if(btn){ var rect=btn.getBoundingClientRect();
+    ...      window.scrollTo({top:window.scrollY+rect.top-Math.round(window.innerHeight/2),behavior:'instant'}); }
+    Sleep    0.8s
     ${continue_exists}=    Run Keyword And Return Status
-    ...    Wait Until Element Is Visible    ${continue_loc}    timeout=5s
+    ...    Wait Until Element Is Visible    ${continue_loc}    timeout=8s
     IF    ${continue_exists}
         Click Element    ${continue_loc}
         Log    Clicked Continue via Selenium.    console=yes
         Sleep    3s
     ELSE
-        Log    Continue button not found via Selenium. Trying JS click...    console=yes    level=WARN
-        Execute Javascript
-        ...    var btns = document.querySelectorAll('#optimization button');
-        ...    for(var i=0; i<btns.length; i++){
-        ...        var t = btns[i].textContent.trim().toLowerCase();
-        ...        if(t==='continue'){ btns[i].click(); break; } }
+        Log    Continue not visible via Selenium — firing full MouseEvent sequence via JS.    console=yes    level=WARN
+        ${cont_click}=    Execute Javascript
+        ...    var btn=null; var all=document.querySelectorAll('#optimization button');
+        ...    for(var i=0;i<all.length;i++){ if(all[i].textContent.trim().toLowerCase()==='continue'){btn=all[i];break;} }
+        ...    if(!btn) return 'NOT_FOUND';
+        ...    var rect=btn.getBoundingClientRect();
+        ...    window.scrollTo({top:window.scrollY+rect.top-200,behavior:'instant'});
+        ...    var opts={bubbles:true,cancelable:true,view:window,button:0,
+        ...      clientX:Math.round(rect.left+rect.width/2),clientY:Math.round(rect.top+rect.height/2)};
+        ...    ['mouseenter','mouseover','mousedown','mouseup','click'].forEach(function(t){
+        ...      btn.dispatchEvent(new MouseEvent(t,opts)); });
+        ...    return 'DISPATCHED';
+        Log    MouseEvent dispatch result: ${cont_click}    console=yes
         Sleep    3s
     END
+    Capture Page Screenshot    e2e_simorder_after_continue.png
     # ── STEP C: Check if we moved to a new page or modal appeared ──
+    ${modal_dump}=    Execute Javascript
+    ...    var modals=document.querySelectorAll('.modal, [role="dialog"]');
+    ...    var info=[];
+    ...    modals.forEach(function(m){ var vis=m.offsetParent!==null||getComputedStyle(m).display!=='none';
+    ...      if(vis) info.push({id:m.id,cls:m.className.substring(0,80)}); });
+    ...    return JSON.stringify(info);
+    Log    Visible modals after Continue: ${modal_dump}    console=yes
     ${tc_modal_visible}=    Execute Javascript
     ...    var m = document.querySelector('#termsConditionsPopup, .modal.show, .modal.in');
     ...    return !!(m && (m.offsetParent !== null || getComputedStyle(m).display !== 'none'));
@@ -677,8 +743,13 @@ E2E Create SIM Order
     IF    ${still_on_preview}
         Log    Still on preview. Clicking Submit via Selenium...    console=yes
         ${submit_loc}=    Set Variable    xpath=//*[@id='optimization']//a[normalize-space()='Submit']
+        Execute Javascript
+        ...    var anchors=document.querySelectorAll('#optimization a');
+        ...    for(var i=0;i<anchors.length;i++){ var t=anchors[i].textContent.trim().toLowerCase();
+        ...      if(t==='submit'){ anchors[i].scrollIntoView({block:'center',behavior:'smooth'}); break; } }
+        Sleep    0.5s
         ${submit_exists}=    Run Keyword And Return Status
-        ...    Wait Until Element Is Visible    ${submit_loc}    timeout=5s
+        ...    Wait Until Element Is Visible    ${submit_loc}    timeout=8s
         IF    ${submit_exists}
             Click Element    ${submit_loc}
             Log    Clicked Submit anchor via Selenium.    console=yes
@@ -827,6 +898,16 @@ E2E Fetch Account IDs From DB
     Log    BU "${bu_name}" → ID: ${bu_id}    console=yes
     RETURN    ${ec_id}    ${bu_id}
 
+E2E Activate BU Device Plans In DB
+    [Documentation]    Sets STATUS=1 on all device_rate_plan rows for the given BU.
+    ...                CSR Journey creates plans at STATUS=0; the SIM Order DP dropdown
+    ...                only shows STATUS=1 plans, so this promotion is required before TC_008.
+    [Arguments]    ${bu_name}
+    Connect To STC Database
+    Execute Sql String    UPDATE device_rate_plan drp JOIN accounts a ON drp.ACCOUNT_ID = a.ID SET drp.STATUS = 1 WHERE a.NAME = '${bu_name}'
+    Disconnect From STC Database
+    Log    Device plans STATUS set to 1 for BU "${bu_name}" — now visible in SIM Order DP dropdown.    console=yes
+
 # ═══════════════════════════════════════════════════════════════════════
 #  STEP 9: SSH — RUN start_createorder.sh
 # ═══════════════════════════════════════════════════════════════════════
@@ -934,7 +1015,7 @@ E2E Validate Order Status Completed
 E2E Validate SIMs In Warm State
     [Documentation]    Navigates to Manage Devices, applies BU account filter for Warm state,
     ...                and validates all SIMs are Warm with count >= min_count (default 5).
-    [Arguments]    ${bu_name}    ${min_count}=${5}
+    [Arguments]    ${bu_name}    ${min_count}=${SIM_ACTIVATE_COUNT}
     Navigate To Manage Devices And Filter BU    ${bu_name}
     ${row_count}=    Validate All SIMs In Warm State    ${min_count}
     Capture Page Screenshot    e2e_sims_warm_state.png
@@ -993,6 +1074,77 @@ E2E Activate SIMs UI Action
     Log    UI activate submitted: ${imsi_count} SIM(s) for BU="${bu_name}". IMSIs+MSISDNs captured.    console=yes
     RETURN    ${activated_imsis}    ${imsi_data}    ${activated_iccids}
 
+E2E Collect Activated IMSI Data
+    [Documentation]    Auto Activation (Activated) flow — collects SIMs from Warm state (post-SOAP-approve),
+    ...                drives the fingerprint SOAP flow (setOperationStatus + ResponseHandler per IMSI)
+    ...                which transitions SIMs to Activated state automatically, then returns data.
+    ...                No UI activation step is needed; the fingerprint SOAP calls replace it.
+    ...                Persists first/second activated IMSI/ICCID to .run_seed.json.
+    ...                Returns three values: flat IMSI list, list of {imsi,msisdn,iccid} dicts, ICCID list.
+    [Arguments]    ${bu_name}    ${count}=${SIM_ACTIVATE_COUNT}
+    # After SOAP approve (TC_017), SIMs are in Warm state. Collect their data from Warm state.
+    ${activated_imsis}    ${imsi_data}    ${activated_iccids}=
+    ...    Collect IMSI Data From State    ${bu_name}    ${EXPECTED_WARM_STATE}    ${count}
+    # Drive the auto-activation fingerprint SOAP flow (two-step DB lookup for combined GOUP tx ID,
+    # then setOperationStatus + ResponseHandler per IMSI). This replaces the UI activation step.
+    FP Process Auto Activation Fingerprint Flow    @{imsi_data}
+    ${imsi_count}=    Get Length    ${activated_imsis}
+    ${iccid_count}=    Get Length    ${activated_iccids}
+    IF    ${imsi_count} > 0
+        ${first_imsi}=    Get From List    ${activated_imsis}    0
+        Write Seed Value    first_activated_imsi    ${first_imsi}
+        Log    Persisted first_activated_imsi=${first_imsi} to .run_seed.json    console=yes
+    END
+    IF    ${iccid_count} > 0
+        ${first_iccid}=    Get From List    ${activated_iccids}    0
+        Write Seed Value    first_activated_iccid    ${first_iccid}
+        Log    Persisted first_activated_iccid=${first_iccid} to .run_seed.json    console=yes
+    END
+    IF    ${imsi_count} > 1
+        ${second_imsi}=    Get From List    ${activated_imsis}    1
+        Write Seed Value    second_activated_imsi    ${second_imsi}
+        Log    Persisted second_activated_imsi=${second_imsi} to .run_seed.json    console=yes
+    END
+    IF    ${iccid_count} > 1
+        ${second_iccid}=    Get From List    ${activated_iccids}    1
+        Write Seed Value    second_activated_iccid    ${second_iccid}
+        Log    Persisted second_activated_iccid=${second_iccid} to .run_seed.json    console=yes
+    END
+    Log    Auto Activation: collected ${imsi_count} Activated SIM(s) for BU="${bu_name}".    console=yes
+    RETURN    ${activated_imsis}    ${imsi_data}    ${activated_iccids}
+
+E2E Activate SIMs From TestActive State
+    [Documentation]    Auto Activation (TestActive) flow — activates TestActive SIMs via UI.
+    ...                Selects ${count} TestActive SIMs for BU, submits state change to Activated.
+    ...                Persists first/second activated IMSI/ICCID to .run_seed.json.
+    ...                Returns three values: flat IMSI list, list of {imsi,msisdn,iccid} dicts, ICCID list.
+    [Arguments]    ${bu_name}    ${count}=${SIM_ACTIVATE_COUNT}
+    ${activated_imsis}    ${imsi_data}    ${activated_iccids}=    Activate SIMs From TestActive State    ${bu_name}    ${count}
+    ${imsi_count}=    Get Length    ${activated_imsis}
+    ${iccid_count}=    Get Length    ${activated_iccids}
+    IF    ${imsi_count} > 0
+        ${first_imsi}=    Get From List    ${activated_imsis}    0
+        Write Seed Value    first_activated_imsi    ${first_imsi}
+        Log    Persisted first_activated_imsi=${first_imsi} to .run_seed.json    console=yes
+    END
+    IF    ${iccid_count} > 0
+        ${first_iccid}=    Get From List    ${activated_iccids}    0
+        Write Seed Value    first_activated_iccid    ${first_iccid}
+        Log    Persisted first_activated_iccid=${first_iccid} to .run_seed.json    console=yes
+    END
+    IF    ${imsi_count} > 1
+        ${second_imsi}=    Get From List    ${activated_imsis}    1
+        Write Seed Value    second_activated_imsi    ${second_imsi}
+        Log    Persisted second_activated_imsi=${second_imsi} to .run_seed.json    console=yes
+    END
+    IF    ${iccid_count} > 1
+        ${second_iccid}=    Get From List    ${activated_iccids}    1
+        Write Seed Value    second_activated_iccid    ${second_iccid}
+        Log    Persisted second_activated_iccid=${second_iccid} to .run_seed.json    console=yes
+    END
+    Log    TestActive UI activate submitted: ${imsi_count} SIM(s) for BU="${bu_name}". SOAP fingerprint flow next.    console=yes
+    RETURN    ${activated_imsis}    ${imsi_data}    ${activated_iccids}
+
 E2E Drive Activation Fingerprint Flow
     [Documentation]    SOAP-only step: takes the IMSI/MSISDN data captured from the UI activate
     ...                action and drives the post-UI fingerprint flow:
@@ -1021,6 +1173,25 @@ E2E Verify SIMs Activated UI
     Verify Activated SIMs    ${imsis}    ${bu_name}
     Capture Page Screenshot    e2e_all_sims_activated_verified.png
     Log    All ${count} SIMs verified Activated for BU="${bu_name}".    console=yes
+
+E2E Verify SIMs TestActive UI
+    [Documentation]    UI verification step: confirms each IMSI shows ``TestActive`` in the Manage
+    ...                Devices grid for the given BU. Retries up to 5 minutes if grid lag.
+    ...                Accepts ``${activated_imsis}`` as either a Robot list or a comma-separated
+    ...                string (so it can be passed via ``--variable`` from the CLI for standalone runs).
+    [Arguments]    ${activated_imsis}    ${bu_name}
+    ${is_string}=    Evaluate    isinstance($activated_imsis, str)
+    IF    ${is_string}
+        @{imsis}=    Split String    ${activated_imsis}    ,
+        ${imsis}=    Evaluate    [s.strip() for s in $imsis if s.strip()]
+    ELSE
+        ${imsis}=    Set Variable    ${activated_imsis}
+    END
+    ${count}=    Get Length    ${imsis}
+    Log    Verifying all ${count} SIM(s) are now TestActive for BU="${bu_name}"...    console=yes
+    Verify TestActive SIMs    ${imsis}    ${bu_name}
+    Capture Page Screenshot    e2e_all_sims_testactive_verified.png
+    Log    All ${count} SIMs verified TestActive for BU="${bu_name}".    console=yes
 
 # ═══════════════════════════════════════════════════════════════════════
 #  STEP 17: INVOICE GENERATION + DOWNLOAD
@@ -1147,10 +1318,12 @@ E2E Create CSR Journey With Specific Plans
     Log    E2E CSR Journey created — Tariff: "${CSRJ_DEFAULT_TARIFF_PLAN}", APN: "${VALID_APN_NAME}" (Private), Bundle: "${bundle_label}"    console=yes
 
 E2E Create Second CSR Journey With Different Plan
-    [Documentation]    Creates a second CSR Journey for the same EC/BU using config variables:
-    ...                CSRJ_DEFAULT_TARIFF_PLAN_2, CSRJ_DEFAULT_APN_TYPE_2,
-    ...                CSRJ_DEFAULT_APN_NAME_2, CSRJ_DEFAULT_BUNDLE_PLAN_2.
-    ...                Falls back to dynamic selection if any configured value is empty or not found.
+    [Documentation]    Adds a second device plan to the existing CSR Journey (from TC_004) by
+    ...                opening it in edit mode. This bypasses the "Tariff Plan + APN Type already
+    ...                completed" constraint that blocks creating a new CSR Journey for the same EC/BU
+    ...                when only one tariff plan is available in QE.
+    ...                Uses CSRJ_DEFAULT_BUNDLE_PLAN_2 for the second device plan so TC_021 has a
+    ...                distinct target plan. Captures E2E_CSR2_DP_ALIAS and E2E_CSR2_BUNDLE_PLAN.
     [Arguments]    ${ec_name}    ${bu_name}
     Ensure Session Is Active
     Navigate To Module Page    ${BASE_URL}ManageDevices
@@ -1158,45 +1331,24 @@ E2E Create Second CSR Journey With Different Plan
     Navigate To CSR Journey Module
     Select CSR Journey Customer By Name    ${ec_name}
     Select CSR Journey Business Unit By Name    ${bu_name}
-    Verify Create Order Button Visible
-    Click Create Order
-    Verify Standard Services Screen Loaded
-    # ── Tariff Plan: use configured plan 2, fall back to "different from Step 3" ──
-    ${has_tp2}=    Run Keyword And Return Status    Should Not Be Empty    ${CSRJ_DEFAULT_TARIFF_PLAN_2}
-    IF    ${has_tp2}
-        Select Tariff Plan By Name    ${CSRJ_DEFAULT_TARIFF_PLAN_2}
-        Log    Step 18 tariff plan: "${CSRJ_DEFAULT_TARIFF_PLAN_2}" (from config)    console=yes
+    # Open the existing CSR Journey (from TC_004) in edit mode to add a second device plan row.
+    # Edit mode bypasses the "same tariff plan + APN type already completed" block.
+    ${has_alias}=    Run Keyword And Return Status    Should Not Be Empty    ${E2E_CSR1_DP_ALIAS}
+    IF    ${has_alias}
+        Log    Opening CSR Journey for DP alias "${E2E_CSR1_DP_ALIAS}" in edit mode.    console=yes
+        Open CSR Journey Edit Mode For CSR By Device Plan Alias    ${E2E_CSR1_DP_ALIAS}
     ELSE
-        Select Tariff Plan Different From    ${E2E_CSR1_TARIFF_PLAN}
+        Log    E2E_CSR1_DP_ALIAS not set — opening first available CSR Journey in edit mode.    level=WARN    console=yes
+        Open CSR Journey Edit Mode
     END
-    # ── APN Type: use configured type 2 ──
-    csr_journey_keywords.Select APN Type    ${CSRJ_DEFAULT_APN_TYPE_2}
-    Log    Step 18 APN type: "${CSRJ_DEFAULT_APN_TYPE_2}"    console=yes
-    Click Add APNs
-    # ── APN: type configured APN name 2 into modal and select it ──
-    Select First Available APN And Save    ${CSRJ_DEFAULT_APN_NAME_2}
-    Click Fetch Device Plan
-    Wait Until Element Is Visible    ${LOC_SS_BUNDLE_PLAN_DD}    ${CSRJ_TIMEOUT}
-    Wait Until Element Is Enabled    ${LOC_SS_BUNDLE_PLAN_DD}    ${CSRJ_TIMEOUT}
-    Wait For Bundle Plan Options To Load
-    # ── Bundle Plan: use configured plan 2, fall back to different available ──
-    ${items}=    Get List Items    ${LOC_SS_BUNDLE_PLAN_DD}    values=True
-    Log    Step 18 bundle plan dropdown options: ${items}    console=yes
-    ${preferred_ok}=    Run Keyword And Return Status
-    ...    Select From List By Value    ${LOC_SS_BUNDLE_PLAN_DD}    ${CSRJ_DEFAULT_BUNDLE_PLAN_2}
-    IF    not ${preferred_ok}
-        Log    Configured plan "${CSRJ_DEFAULT_BUNDLE_PLAN_2}" not in dropdown — selecting a different available plan.    level=WARN
-        ${selected}=    Select Different Bundle Plan From Available    ${LOC_SS_BUNDLE_PLAN_DD}    ${E2E_CSR1_BUNDLE_PLAN}
-        Set Suite Variable    ${E2E_CSR2_BUNDLE_PLAN}    ${selected}
-    ELSE
-        Set Suite Variable    ${E2E_CSR2_BUNDLE_PLAN}    ${CSRJ_DEFAULT_BUNDLE_PLAN_2}
-    END
-    Sleep    1s
-    Log    Step 18 bundle plan selected: "${E2E_CSR2_BUNDLE_PLAN}"    console=yes
-    ${csr2_alias}=    Enter Second Device Plan Alias
-    Set Suite Variable    ${E2E_CSR2_DP_ALIAS}    ${csr2_alias}
-    Fill And Save Service Plan
-    Click Save On Standard Services Device Plan
+    # Add second device plan row with CSRJ_DEFAULT_BUNDLE_PLAN_2 (different from TC_004's bundle plan)
+    ${alias}=    Add Second Device Plan Row    ${CSRJ_DEFAULT_BUNDLE_PLAN_2}
+    Should Not Be Empty    ${alias}
+    ...    Second device plan row could not be added — Add APNs button was disabled or modal did not open in edit mode.
+    Set Suite Variable    ${E2E_CSR2_DP_ALIAS}      ${alias}
+    Set Suite Variable    ${E2E_CSR2_BUNDLE_PLAN}    ${CSRJ_DEFAULT_BUNDLE_PLAN_2}
+    Log    Step 18 second device plan added: alias="${alias}", bundle="${CSRJ_DEFAULT_BUNDLE_PLAN_2}"    console=yes
+    # Navigate through wizard to save the updated CSR Journey
     Click Next On Standard Services
     Verify Additional Services Screen Loaded
     Click Next On Additional Services
@@ -1204,8 +1356,7 @@ E2E Create Second CSR Journey With Different Plan
     Click Save And Exit
     Verify CSR Journey Success Toast
     Verify Redirected To CSR Journey Landing
-    Log    E2E second CSR Journey created for EC="${ec_name}" BU="${bu_name}"    console=yes
-    Log    Captured Step 18 — Bundle plan: "${CSRJ_DEFAULT_BUNDLE_PLAN_2}", DP alias: "${csr2_alias}"    console=yes
+    Log    E2E second CSR Journey (edit mode) complete for EC="${ec_name}" BU="${bu_name}" — DP alias="${alias}"    console=yes
 
 # ═══════════════════════════════════════════════════════════════════════
 #  STEP 19: DEVICE PLAN CHANGE ON ONE ACTIVATED SIM + VALIDATE

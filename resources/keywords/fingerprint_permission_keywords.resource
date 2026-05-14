@@ -252,6 +252,118 @@ FP Process Activation Fingerprint Flow
     Log    Fingerprint flow: complete. ${count} IMSI(s) processed; UI verification follows.    console=yes
 
 # ═══════════════════════════════════════════════════════════════════════
+#  AUTO ACTIVATION — TWO-STEP DB LOOKUP FOR GOUP TRANSACTION ID
+# ═══════════════════════════════════════════════════════════════════════
+FP Capture Auto Activation Transaction Id
+    [Documentation]    For auto-activation orders: the SOAP approve creates a GOUP entry in
+    ...                goup_notification_url where imsi/iccid are NULL (combined batch request).
+    ...                This keyword does a two-step lookup:
+    ...                  1. Query aircontrol.gc_notification_details for GC request ID
+    ...                     (WHERE IMSI=x AND STATUS=IN_PROGRESS AND NEW_VALUE=Activated).
+    ...                  2. Query goup_notification_url WHERE data LIKE '%gc_request_id%'
+    ...                     to get the GOUP transaction ID.
+    ...                Returns the GOUP transaction ID for use in setOperationStatus.
+    [Arguments]    ${imsi}    ${retries}=12    ${interval}=10s
+    Log To Console    \n────────── AUTO ACTIVATION DB LOOKUP ──────────
+    Log To Console    IMSI: ${imsi}
+    FOR    ${i}    IN RANGE    ${retries}
+        ${attempt}=    Evaluate    ${i} + 1
+        # Step 1: Get GC request ID from gc_notification_details
+        ${gc_query}=    Set Variable
+        ...    SELECT REQUEST_ID FROM aircontrol.gc_notification_details WHERE IMSI='${imsi}' AND STATUS='IN_PROGRESS' AND NEW_VALUE='Activated' ORDER BY CREATE_DATE DESC LIMIT 1
+        Connect To Database    pymysql    ${DB_NAME}    ${DB_USER}    ${DB_PASS}    ${DB_HOST}    ${DB_PORT}
+        ${gc_rows}=    Run Keyword And Ignore Error    Query    ${gc_query}
+        Disconnect From Database
+        ${gc_status}=    Set Variable    ${gc_rows}[0]
+        ${gc_data}=      Set Variable    ${gc_rows}[1]
+        ${has_gc}=    Run Keyword And Return Status
+        ...    Should Be True    $gc_status == 'PASS' and $gc_data and len($gc_data) > 0 and len($gc_data[0]) > 0
+        IF    ${has_gc}
+            ${gc_request_id}=    Convert To String    ${gc_data}[0][0]
+            IF    '${gc_request_id}' != ''
+                Log To Console    [attempt ${attempt}/${retries}] GC request ID: ${gc_request_id}
+                # Step 2: Get GOUP tx ID from goup_notification_url by GC request ID
+                ${goup_query}=    Set Variable
+                ...    SELECT request_id FROM cmp_stc_interface_thirdparty.goup_notification_url WHERE data LIKE '%${gc_request_id}%' ORDER BY createdAT DESC LIMIT 1
+                Connect To Database    pymysql    ${DB_NAME}    ${DB_USER}    ${DB_PASS}    ${DB_HOST}    ${DB_PORT}
+                ${goup_rows}=    Run Keyword And Ignore Error    Query    ${goup_query}
+                Disconnect From Database
+                ${g_status}=    Set Variable    ${goup_rows}[0]
+                ${g_data}=      Set Variable    ${goup_rows}[1]
+                ${has_goup}=    Run Keyword And Return Status
+                ...    Should Be True    $g_status == 'PASS' and $g_data and len($g_data) > 0 and len($g_data[0]) > 0
+                IF    ${has_goup}
+                    ${goup_tx_id}=    Convert To String    ${g_data}[0][0]
+                    IF    '${goup_tx_id}' != ''
+                        Log To Console    ✓ GOUP transaction ID: ${goup_tx_id}
+                        Log To Console    ──────────────────────────────\n
+                        RETURN    ${goup_tx_id}
+                    END
+                END
+                Log To Console    GC request found but GOUP entry not yet visible — retrying
+            END
+        ELSE
+            Log To Console    [attempt ${attempt}/${retries}] No IN_PROGRESS activation entry yet — sleeping ${interval}
+        END
+        Sleep    ${interval}
+    END
+    Log To Console    ✗ Failed to capture GOUP transaction ID after ${retries} attempts.
+    Fail    Could not capture GOUP transaction ID for IMSI ${imsi} from gc_notification_details/goup_notification_url after ${retries} retries.
+
+# ═══════════════════════════════════════════════════════════════════════
+#  ORCHESTRATOR — AUTO ACTIVATION FINGERPRINT FLOW (POST-SOAP-APPROVE)
+# ═══════════════════════════════════════════════════════════════════════
+FP Process Auto Activation Fingerprint Flow
+    [Documentation]    Full fingerprint SOAP flow for AUTO-ACTIVATION orders.
+    ...                Called AFTER the SOAP order approve (TC_017) has been sent and SIMs are
+    ...                in Warm state. Unlike the UI activation flow, the initial GOUP transaction
+    ...                ID is a combined batch entry (imsi/iccid=null) found via a two-step
+    ...                DB lookup (gc_notification_details → goup_notification_url by GC request ID).
+    ...
+    ...                Steps:
+    ...                  1. Sleep 60s for GOUP DB entries to be populated.
+    ...                  2. Capture combined GOUP tx ID via two-step DB lookup (first IMSI).
+    ...                  3. Call FingerprintPermission setOperationStatus with all MSISDNs.
+    ...                  4. Wait 30s for per-IMSI GOUP entries to be created.
+    ...                  5. For each IMSI, capture per-IMSI tx ID and call ResponseHandler.
+    ...                  6. Wait 20s for backend to apply state change to Activated.
+    [Arguments]    @{imsi_data}
+    ${count}=    Get Length    ${imsi_data}
+    Should Be True    ${count} > 0    msg=FP Process Auto Activation Fingerprint Flow: imsi_data is empty.
+    Log    Auto Activation FP flow: waiting 60s for GOUP DB entries to be populated...    console=yes
+    Sleep    60s    reason=Wait for auto-activation GOUP transaction to be recorded in DB
+
+    # Step 2: Two-step DB lookup for the combined GOUP transaction ID
+    ${first_entry}=    Get From List    ${imsi_data}    0
+    ${first_imsi}=    Set Variable    ${first_entry}[imsi]
+    ${initial_tx_id}=    FP Capture Auto Activation Transaction Id    ${first_imsi}
+    Log    Auto Activation FP flow: combined GOUP tx ID=${initial_tx_id}    console=yes
+
+    # Step 3: Build MSISDN list and call setOperationStatus
+    @{msisdns}=    Create List
+    FOR    ${entry}    IN    @{imsi_data}
+        Append To List    ${msisdns}    ${entry}[msisdn]
+    END
+    FP Call Fingerprint Permission Set Operation Status    ${initial_tx_id}    @{msisdns}
+
+    # Step 4: Wait for per-IMSI GOUP entries to appear after setOperationStatus
+    Log    Auto Activation FP flow: waiting ${FP_POST_PERMISSION_WAIT} for per-IMSI GOUP entries...    console=yes
+    Sleep    ${FP_POST_PERMISSION_WAIT}    reason=Wait for per-IMSI ResponseHandler transactions to land in DB
+
+    # Step 5: For each IMSI, capture per-IMSI tx ID and call ResponseHandler
+    FOR    ${entry}    IN    @{imsi_data}
+        ${imsi}=    Set Variable    ${entry}[imsi]
+        ${tx_id}=    FP Capture Latest Transaction Id For IMSI    ${imsi}
+        FP Call Response Handler For Transaction    ${tx_id}
+        Log    Auto Activation FP flow: IMSI ${imsi} → ResponseHandler called with tx_id=${tx_id}    console=yes
+    END
+
+    # Step 6: Settle wait before UI verification
+    Log    Auto Activation FP flow: waiting ${FP_POST_RESPONSE_HANDLER_WAIT} for backend to apply state changes...    console=yes
+    Sleep    ${FP_POST_RESPONSE_HANDLER_WAIT}    reason=Settle wait before Activated state verification
+    Log    Auto Activation FP flow: complete. ${count} IMSI(s) processed.    console=yes
+
+# ═══════════════════════════════════════════════════════════════════════
 #  ORCHESTRATOR — POST-UI SUSPEND / RESUME FLOW (SINGLE IMSI)
 # ═══════════════════════════════════════════════════════════════════════
 FP Process Single IMSI Transaction Flow
