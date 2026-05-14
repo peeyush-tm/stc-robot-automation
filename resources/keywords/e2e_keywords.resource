@@ -1396,6 +1396,23 @@ E2E Create Second CSR Journey With Different Plan
 #  STEP 19: DEVICE PLAN CHANGE ON ONE ACTIVATED SIM + VALIDATE
 #  Uses same account (E2E_BU_NAME) and one of E2E activated SIMs.
 # ═══════════════════════════════════════════════════════════════════════
+E2E Perform Bulk Device Plan Change And Validate
+    [Documentation]    Bulk DP change for all SIM_ACTIVATE_COUNT Activated SIMs in the BU.
+    ...                Applies BU + Activated filter, selects all ${count} checkboxes, submits
+    ...                one "Change Device Plan" action using E2E_CSR2_DP_ALIAS as preferred plan.
+    ...                Waits 6 min then verifies every IMSI shows the new DP in the grid.
+    [Arguments]    ${bu_name}    ${count}=${SIM_ACTIVATE_COUNT}
+    Log    Step 19: Bulk DP change for ${count} Activated SIMs. Preferred DP: "${E2E_CSR2_DP_ALIAS}"    console=yes
+    ${imsi_list}    ${new_dp}=    Bulk Change Device Plan For Activated SIMs
+    ...    ${bu_name}    ${count}    ${E2E_CSR2_DP_ALIAS}
+    ${total}=    Get Length    ${imsi_list}
+    IF    '${E2E_CSR2_DP_ALIAS}' != '${EMPTY}' and '${new_dp}' != '${E2E_CSR2_DP_ALIAS}'
+        Log    WARN: Preferred DP "${E2E_CSR2_DP_ALIAS}" not found — auto-picked "${new_dp}".    level=WARN    console=yes
+    END
+    Log    Step 19: DP change submitted for ${total} SIMs → "${new_dp}". Verifying grid...    console=yes
+    Verify Device Plan After Bulk Change    ${imsi_list}    ${new_dp}
+    Log    Step 19 complete: all ${total} SIMs verified with Device Plan "${new_dp}".    console=yes
+
 E2E Perform Device Plan Change On One Activated SIM And Validate
     [Documentation]    Navigates to Manage Devices and performs a device plan change.
     ...                Strategy (in priority order):

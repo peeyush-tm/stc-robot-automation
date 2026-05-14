@@ -512,6 +512,69 @@ Perform Full Device Plan Change For Account
     RETURN    ${imsi}    ${initial_dp_grid}    ${dp2}
 
 # ═══════════════════════════════════════════════════════════════════════
+#  BULK DEVICE PLAN CHANGE
+# ═══════════════════════════════════════════════════════════════════════
+Bulk Change Device Plan For Activated SIMs
+    [Documentation]    On Manage Devices: apply Account + Activated filter, click checkboxes
+    ...                for up to ${count} Activated SIMs, capture their IMSIs and initial DPs,
+    ...                perform a single bulk "Change Device Plan" action targeting ${preferred_dp}
+    ...                (falls back to auto-pick if empty or not found). Waits 6 min for async
+    ...                processing. Returns flat IMSI list and the new DP name selected.
+    [Arguments]    ${bu_name}    ${count}=${SIM_ACTIVATE_COUNT}    ${preferred_dp}=${EMPTY}
+    Login And Navigate To Manage Devices DP
+    Filter DP Grid By Account And State    ${bu_name}    Activated    Activated
+    ${imsi_col}=    Get DP Column Index By Header Text    ${DP_IMSI_COLUMN}
+    ${state_col}=    Get DP Column Index By Header Text    ${DP_STATE_COLUMN}
+    ${dp_col}=    Get DP Column Index By Header Text    ${DP_DEVICE_PLAN_COLUMN}
+    ${total_rows}=    Execute Javascript
+    ...    return document.querySelectorAll('#gridData table tbody tr.k-master-row').length;
+    Log    Total visible Activated rows for DP change: ${total_rows}    console=yes
+    @{imsi_list}=    Create List
+    ${initial_dp}=    Set Variable    ${EMPTY}
+    ${selected}=    Set Variable    ${0}
+    FOR    ${i}    IN RANGE    ${total_rows}
+        IF    ${selected} >= ${count}    BREAK
+        ${row_num}=    Evaluate    ${i} + 1
+        ${actual_state}=    Get DP Cell Value By Row And Column    ${row_num}    ${state_col}
+        ${imsi}=    Get DP Cell Value By Row And Column    ${row_num}    ${imsi_col}
+        ${row_dp}=    Get DP Cell Value By Row And Column    ${row_num}    ${dp_col}
+        Log    Row ${row_num}: IMSI=${imsi}, State=${actual_state}, DP=${row_dp}    console=yes
+        IF    "${actual_state}" == "Activated"
+            Select DP Device By Row Index    ${i}
+            IF    "${initial_dp}" == "${EMPTY}"
+                ${initial_dp}=    Set Variable    ${row_dp}
+            END
+            Append To List    ${imsi_list}    ${imsi}
+            ${selected}=    Evaluate    ${selected} + 1
+        ELSE
+            Log    Skipping row ${row_num}: state is "${actual_state}", not Activated    WARN
+        END
+    END
+    Should Be True    ${selected} >= ${count}
+    ...    Only found ${selected} Activated SIMs but need ${count}. Check SIM state.
+    Capture Page Screenshot    e2e_dp_change_checked.png
+    Log    ===== Selected ${selected} SIMs for bulk DP change — initial DP: "${initial_dp}" =====    console=yes
+    Sleep    1s
+    Select Change Device Plan Action
+    ${dp1}    ${dp2}=    Select Target Device Plan By Preferred Name    ${preferred_dp}    ${initial_dp}
+    Log    Bulk DP change: "${dp1}" → "${dp2}" for ${selected} SIMs    console=yes
+    Fill DP Popup And Submit
+    Verify DP Change Success And Wait
+    Capture Page Screenshot    e2e_dp_change_submitted.png
+    RETURN    ${imsi_list}    ${dp2}
+
+Verify Device Plan After Bulk Change
+    [Documentation]    After a bulk DP change + 6 min wait, verifies every IMSI in the list
+    ...                shows ${expected_plan} in the grid. Retries each IMSI up to ${retries}×30s.
+    [Arguments]    ${imsi_list}    ${expected_plan}    ${retries}=6
+    ${total}=    Get Length    ${imsi_list}
+    Log    Verifying Device Plan "${expected_plan}" for all ${total} SIMs...    console=yes
+    FOR    ${imsi}    IN    @{imsi_list}
+        Verify Device Plan After Change    ${imsi}    ${expected_plan}    ${retries}
+    END
+    Log    ===== ALL ${total} SIMs verified with Device Plan "${expected_plan}" =====    console=yes
+
+# ═══════════════════════════════════════════════════════════════════════
 #  POST-CHANGE VERIFICATION
 # ═══════════════════════════════════════════════════════════════════════
 Verify DP Change Success And Wait

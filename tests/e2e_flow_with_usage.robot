@@ -318,9 +318,10 @@ TC_E2EU_022 Create Second CSR Journey With Different Plan
     [Tags]    regression    e2e    TC_E2EU_022    positive
     TC_E2EU_022
 
-TC_E2EU_023 Perform Device Plan Change On One Activated SIM And Validate
-    [Documentation]    On Manage Devices, filters by BU + Activated, performs device plan
-    ...                change on one SIM, waits 5 min, then verifies device plan updated in grid.
+TC_E2EU_023 Perform Bulk Device Plan Change On All Activated SIMs And Validate
+    [Documentation]    On Manage Devices, filters by BU + Activated, selects all
+    ...                SIM_ACTIVATE_COUNT SIMs, performs one bulk Device Plan change action,
+    ...                waits 6 min, then verifies every SIM shows the new DP in the grid.
     [Tags]    regression    e2e    TC_E2EU_023    positive
     TC_E2EU_023
 
@@ -567,8 +568,8 @@ TC_E2EU_022
 
 TC_E2EU_023
     Should Not Be Empty    ${E2E_BU_NAME}    Step 1 must run first — BU name is empty.
-    E2E Perform Device Plan Change On One Activated SIM And Validate    ${E2E_BU_NAME}
-    Log    Step 19 complete: DP change performed and validated on one activated SIM.    console=yes
+    E2E Perform Bulk Device Plan Change And Validate    ${E2E_BU_NAME}
+    Log    Step 19 complete: Bulk DP change performed and validated for ${SIM_ACTIVATE_COUNT} SIMs.    console=yes
 
 TC_E2EU_024
     [Documentation]    Creates 3 Usage Reports — one per display level (OPCO, Customer/EC,
