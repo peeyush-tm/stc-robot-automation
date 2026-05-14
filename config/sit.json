@@ -104,6 +104,7 @@
   "__comment_sim_range_overrides": "Optional manual overrides — leave empty for random generation.",
   "SIM_RANGE_POOL_NAME": "",
   "SIM_RANGE_DESCRIPTION": "",
+  "E2E_SIM_QUANTITY": "5",
   "SIM_RANGE_POOL_COUNT": "5",
   "SIM_RANGE_ICCID_FROM": "11111110026745700001",
   "SIM_RANGE_ICCID_TO": "11111110026745700005",
