@@ -730,6 +730,178 @@ Activate SIMs From TestActive State
     Wait For Loading Overlay To Disappear
     RETURN    ${activated_imsis}    ${imsi_data}    ${activated_iccids}
 
+# ═══════════════════════════════════════════════════════════════════════
+#  BULK SUSPEND — Activated → Suspended
+# ═══════════════════════════════════════════════════════════════════════
+Suspend SIMs From Activated State
+    [Documentation]    On Manage Devices: apply Account + Activated filter,
+    ...                click checkboxes for up to ${count} Activated SIMs, capture their
+    ...                IMSIs, MSISDNs and ICCIDs, perform a single bulk state change to
+    ...                Suspended. SOAP ResponseHandler flow drives completion (caller's step).
+    ...                Returns three values: flat IMSI list, list of {imsi, msisdn, iccid} dicts, ICCID list.
+    [Arguments]    ${bu_name}    ${count}=${SIM_ACTIVATE_COUNT}
+    Ensure Session Is Active
+    Request Page Garbage Collection Best Effort
+    Go To    ${MANAGE_DEVICES_URL_E2E}
+    Inject Grid Oom Patch Into Current Page
+    Sleep    0.3s
+    Wait For Loading Overlay To Disappear
+    Wait Until Element Is Visible    ${LOC_DSC_GRID}    timeout=30s
+    Wait Until Element Is Visible    ${LOC_DSC_GRID_ROWS}    timeout=30s
+    Reset Grid To Default View
+    Sleep    0.3s
+    Wait For Loading Overlay To Disappear
+    Wait Until Element Is Visible    ${LOC_DSC_GRID_ROWS}    timeout=30s
+    Open Filter Popup
+    Apply Account Filter Device Plan Style    ${bu_name}
+    Apply SIM State Filter    ${EXPECTED_ACTIVATED_STATE}
+    Close Filter Popup
+    Sleep    0.3s
+    Wait For Loading Overlay To Disappear
+    ${rows_visible}=    Run Keyword And Return Status
+    ...    Wait Until Element Is Visible    ${LOC_DSC_GRID_ROWS}    timeout=30s
+    IF    not ${rows_visible}
+        Capture Page Screenshot    e2e_suspend_no_activated_sims.png
+        Fail    No Activated SIMs found for BU="${bu_name}". Verify activation step completed.
+    END
+    Log    Filters applied: Account=${bu_name}, State=${EXPECTED_ACTIVATED_STATE}    console=yes
+    Capture Page Screenshot    e2e_suspend_filtered.png
+    ${imsi_col}=    Get Column Index By Header Text    ${IMSI_COLUMN_HEADER}
+    ${state_col}=    Get Column Index By Header Text    ${STATE_COLUMN_HEADER}
+    ${msisdn_col}=    Get Column Index By Header Text    ${MSISDN_COLUMN_HEADER}
+    ${iccid_col}=    Get Column Index By Header Text    ${ICCID_COLUMN_HEADER}
+    ${total_rows}=    Execute Javascript
+    ...    return document.querySelectorAll('#gridData table tbody tr.k-master-row').length;
+    Log    Total visible Activated rows: ${total_rows}    console=yes
+    @{suspended_imsis}=    Create List
+    @{imsi_data}=    Create List
+    @{suspended_iccids}=    Create List
+    ${selected}=    Set Variable    ${0}
+    FOR    ${i}    IN RANGE    ${total_rows}
+        IF    ${selected} >= ${count}    BREAK
+        ${row_num}=    Evaluate    ${i} + 1
+        ${actual_state}=    Get Cell Value By Row And Column    ${row_num}    ${state_col}
+        ${imsi}=    Get Cell Value By Row And Column    ${row_num}    ${imsi_col}
+        ${msisdn}=    Get Cell Value By Row And Column    ${row_num}    ${msisdn_col}
+        ${iccid}=    Get Cell Value By Row And Column    ${row_num}    ${iccid_col}
+        Log    Row ${row_num}: ICCID=${iccid}, IMSI=${imsi}, MSISDN=${msisdn}, State=${actual_state}    console=yes
+        IF    "${actual_state}" == "${EXPECTED_ACTIVATED_STATE}"
+            Select Device By Row Index    ${i}
+            Log    Clicked checkbox for row ${row_num} (ICCID: ${iccid}, IMSI: ${imsi})    console=yes
+            Append To List    ${suspended_imsis}    ${imsi}
+            Append To List    ${suspended_iccids}    ${iccid}
+            ${entry}=    Create Dictionary    imsi=${imsi}    msisdn=${msisdn}    iccid=${iccid}
+            Append To List    ${imsi_data}    ${entry}
+            ${selected}=    Evaluate    ${selected} + 1
+        ELSE
+            Log    Skipping row ${row_num}: state is "${actual_state}", not Activated    WARN
+        END
+    END
+    Should Be True    ${selected} >= ${count}
+    ...    Only found ${selected} Activated SIMs but need ${count}. Check SIM state.
+    Capture Page Screenshot    e2e_suspend_checked.png
+    Sleep    1s
+    Select Change State Action
+    Select Target State And Submit    ${EXPECTED_SUSPENDED_STATE}
+    Fill Popup And Submit    ${EXPECTED_ACTIVATED_STATE}    ${EXPECTED_SUSPENDED_STATE}
+    Wait For Toast And Assert Success    timeout=30
+    ${popup_gone}=    Run Keyword And Return Status
+    ...    Wait Until Element Is Not Visible    ${LOC_DSC_POPUP}    timeout=15s
+    IF    not ${popup_gone}
+        Run Keyword And Ignore Error    Click Element Via JS    ${LOC_DSC_POPUP_X_BTN}
+        Sleep    1s
+    END
+    Capture Page Screenshot    e2e_suspend_submitted.png
+    Log    Suspend submitted for ${selected} SIMs. SOAP ResponseHandler flow drives completion.    console=yes
+    Wait For Loading Overlay To Disappear
+    RETURN    ${suspended_imsis}    ${imsi_data}    ${suspended_iccids}
+
+# ═══════════════════════════════════════════════════════════════════════
+#  BULK RESUME — Suspended → Activated
+# ═══════════════════════════════════════════════════════════════════════
+Resume SIMs From Suspended State
+    [Documentation]    On Manage Devices: apply Account + Suspended filter,
+    ...                click checkboxes for up to ${count} Suspended SIMs, capture their
+    ...                IMSIs, MSISDNs and ICCIDs, perform a single bulk Resume state change.
+    ...                SOAP ResponseHandler flow drives completion (caller's step).
+    ...                Returns three values: flat IMSI list, list of {imsi, msisdn, iccid} dicts, ICCID list.
+    [Arguments]    ${bu_name}    ${count}=${SIM_ACTIVATE_COUNT}
+    Ensure Session Is Active
+    Request Page Garbage Collection Best Effort
+    Go To    ${MANAGE_DEVICES_URL_E2E}
+    Inject Grid Oom Patch Into Current Page
+    Sleep    0.3s
+    Wait For Loading Overlay To Disappear
+    Wait Until Element Is Visible    ${LOC_DSC_GRID}    timeout=30s
+    Wait Until Element Is Visible    ${LOC_DSC_GRID_ROWS}    timeout=30s
+    Reset Grid To Default View
+    Sleep    0.3s
+    Wait For Loading Overlay To Disappear
+    Wait Until Element Is Visible    ${LOC_DSC_GRID_ROWS}    timeout=30s
+    Open Filter Popup
+    Apply Account Filter Device Plan Style    ${bu_name}
+    Apply SIM State Filter    ${EXPECTED_SUSPENDED_STATE}
+    Close Filter Popup
+    Sleep    0.3s
+    Wait For Loading Overlay To Disappear
+    ${rows_visible}=    Run Keyword And Return Status
+    ...    Wait Until Element Is Visible    ${LOC_DSC_GRID_ROWS}    timeout=30s
+    IF    not ${rows_visible}
+        Capture Page Screenshot    e2e_resume_no_suspended_sims.png
+        Fail    No Suspended SIMs found for BU="${bu_name}". Verify suspend step completed.
+    END
+    Log    Filters applied: Account=${bu_name}, State=${EXPECTED_SUSPENDED_STATE}    console=yes
+    Capture Page Screenshot    e2e_resume_filtered.png
+    ${imsi_col}=    Get Column Index By Header Text    ${IMSI_COLUMN_HEADER}
+    ${state_col}=    Get Column Index By Header Text    ${STATE_COLUMN_HEADER}
+    ${msisdn_col}=    Get Column Index By Header Text    ${MSISDN_COLUMN_HEADER}
+    ${iccid_col}=    Get Column Index By Header Text    ${ICCID_COLUMN_HEADER}
+    ${total_rows}=    Execute Javascript
+    ...    return document.querySelectorAll('#gridData table tbody tr.k-master-row').length;
+    Log    Total visible Suspended rows: ${total_rows}    console=yes
+    @{resumed_imsis}=    Create List
+    @{imsi_data}=    Create List
+    @{resumed_iccids}=    Create List
+    ${selected}=    Set Variable    ${0}
+    FOR    ${i}    IN RANGE    ${total_rows}
+        IF    ${selected} >= ${count}    BREAK
+        ${row_num}=    Evaluate    ${i} + 1
+        ${actual_state}=    Get Cell Value By Row And Column    ${row_num}    ${state_col}
+        ${imsi}=    Get Cell Value By Row And Column    ${row_num}    ${imsi_col}
+        ${msisdn}=    Get Cell Value By Row And Column    ${row_num}    ${msisdn_col}
+        ${iccid}=    Get Cell Value By Row And Column    ${row_num}    ${iccid_col}
+        Log    Row ${row_num}: ICCID=${iccid}, IMSI=${imsi}, MSISDN=${msisdn}, State=${actual_state}    console=yes
+        IF    "${actual_state}" == "${EXPECTED_SUSPENDED_STATE}"
+            Select Device By Row Index    ${i}
+            Log    Clicked checkbox for row ${row_num} (ICCID: ${iccid}, IMSI: ${imsi})    console=yes
+            Append To List    ${resumed_imsis}    ${imsi}
+            Append To List    ${resumed_iccids}    ${iccid}
+            ${entry}=    Create Dictionary    imsi=${imsi}    msisdn=${msisdn}    iccid=${iccid}
+            Append To List    ${imsi_data}    ${entry}
+            ${selected}=    Evaluate    ${selected} + 1
+        ELSE
+            Log    Skipping row ${row_num}: state is "${actual_state}", not Suspended    WARN
+        END
+    END
+    Should Be True    ${selected} >= ${count}
+    ...    Only found ${selected} Suspended SIMs but need ${count}. Check SIM state.
+    Capture Page Screenshot    e2e_resume_checked.png
+    Sleep    1s
+    Select Change State Action
+    Select Target State And Submit    Resume
+    Fill Popup And Submit    ${EXPECTED_SUSPENDED_STATE}    ${EXPECTED_ACTIVATED_STATE}
+    Wait For Toast And Assert Success    timeout=30
+    ${popup_gone}=    Run Keyword And Return Status
+    ...    Wait Until Element Is Not Visible    ${LOC_DSC_POPUP}    timeout=15s
+    IF    not ${popup_gone}
+        Run Keyword And Ignore Error    Click Element Via JS    ${LOC_DSC_POPUP_X_BTN}
+        Sleep    1s
+    END
+    Capture Page Screenshot    e2e_resume_submitted.png
+    Log    Resume submitted for ${selected} SIMs. SOAP ResponseHandler flow drives completion.    console=yes
+    Wait For Loading Overlay To Disappear
+    RETURN    ${resumed_imsis}    ${imsi_data}    ${resumed_iccids}
+
 Verify Activated SIMs
     [Documentation]    Verifies all IMSIs are Activated. If any IMSI is not yet Activated,
     ...                refreshes the page and retries every 1 min for up to 12 minutes.
@@ -818,6 +990,50 @@ Verify TestActive SIMs
         Sleep    60s
     END
     Fail    After 12 attempts (12 min), only ${pass_count}/${total} SIMs are TestActive. Still pending: @{pending_imsis}
+
+Verify Suspended SIMs
+    [Documentation]    Verifies all IMSIs are Suspended. Retries every 1 min for up to 12 min.
+    [Arguments]    ${imsi_list}    ${bu_name}
+    ${total}=    Get Length    ${imsi_list}
+    FOR    ${attempt}    IN RANGE    12
+        ${attempt_num}=    Evaluate    ${attempt} + 1
+        Log    ===== Verification attempt ${attempt_num}/12 =====    console=yes
+        Ensure Session Is Active
+        Go To    ${MANAGE_DEVICES_URL_E2E}
+        Sleep    1s
+        Wait For Loading Overlay To Disappear
+        Wait Until Element Is Visible    ${LOC_DSC_GRID}    timeout=30s
+        Wait Until Element Is Visible    ${LOC_DSC_GRID_ROWS}    timeout=30s
+        ${state_col}=    Get Column Index By Header Text    ${STATE_COLUMN_HEADER}
+        ${pass_count}=    Set Variable    ${0}
+        @{pending_imsis}=    Create List
+        FOR    ${imsi}    IN    @{imsi_list}
+            Reset Grid To Default View
+            Sleep    1s
+            Wait For Loading Overlay To Disappear
+            Search Device By IMSI    ${imsi}
+            Sleep    1s
+            Wait For Loading Overlay To Disappear
+            Wait Until Element Is Visible    ${LOC_DSC_GRID_ROWS}    timeout=30s
+            ${actual_state}=    Get Cell Value By Row And Column    1    ${state_col}
+            Log    IMSI ${imsi}: state = "${actual_state}"    console=yes
+            IF    "${actual_state}" == "${EXPECTED_SUSPENDED_STATE}"
+                ${pass_count}=    Evaluate    ${pass_count} + 1
+                Log    VERIFIED ${pass_count}/${total}: IMSI ${imsi} is Suspended    console=yes
+                Capture Page Screenshot    e2e_suspended_verified_${imsi}.png
+            ELSE
+                Log    IMSI ${imsi} is "${actual_state}" — not yet Suspended    WARN
+                Append To List    ${pending_imsis}    ${imsi}
+            END
+        END
+        IF    ${pass_count} == ${total}
+            Log    ===== ALL ${total} SIMs VERIFIED AS SUSPENDED =====    console=yes
+            RETURN
+        END
+        Log    ${pass_count}/${total} Suspended. ${total - ${pass_count}} pending. Waiting 60s before retry...    console=yes
+        Sleep    60s
+    END
+    Fail    After 12 attempts (12 min), only ${pass_count}/${total} SIMs are Suspended. Still pending: @{pending_imsis}
 
 # ═══════════════════════════════════════════════════════════════════════
 #  STEP 17: INVOICE GENERATION

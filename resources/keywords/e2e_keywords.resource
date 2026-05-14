@@ -1145,6 +1145,40 @@ E2E Activate SIMs From TestActive State
     Log    TestActive UI activate submitted: ${imsi_count} SIM(s) for BU="${bu_name}". SOAP fingerprint flow next.    console=yes
     RETURN    ${activated_imsis}    ${imsi_data}    ${activated_iccids}
 
+# ═══════════════════════════════════════════════════════════════════════
+#  BULK SUSPEND — Activated → Suspended (all SIM_ACTIVATE_COUNT SIMs)
+# ═══════════════════════════════════════════════════════════════════════
+E2E Suspend SIMs UI Action
+    [Documentation]    UI step: selects up to ${count} Activated SIMs for BU and submits the
+    ...                bulk Suspend state change. Captures IMSI/MSISDN/ICCID data for the
+    ...                SOAP ResponseHandler flow (TC_E2EU_029A).
+    ...                Sets suite variable E2E_IMSI_DATA_SUSPEND for downstream steps.
+    ...                Returns three values: flat IMSI list, list of {imsi, msisdn, iccid} dicts, ICCID list.
+    [Arguments]    ${bu_name}    ${count}=${SIM_ACTIVATE_COUNT}
+    ${suspended_imsis}    ${imsi_data}    ${suspended_iccids}=
+    ...    Suspend SIMs From Activated State    ${bu_name}    ${count}
+    ${imsi_count}=    Get Length    ${suspended_imsis}
+    Set Suite Variable    @{E2E_IMSI_DATA_SUSPEND}    @{imsi_data}
+    Log    UI Suspend submitted: ${imsi_count} SIM(s) for BU="${bu_name}". SOAP flow (TC_E2EU_029A) next.    console=yes
+    RETURN    ${suspended_imsis}    ${imsi_data}    ${suspended_iccids}
+
+# ═══════════════════════════════════════════════════════════════════════
+#  BULK RESUME — Suspended → Activated (all SIM_ACTIVATE_COUNT SIMs)
+# ═══════════════════════════════════════════════════════════════════════
+E2E Resume SIMs UI Action
+    [Documentation]    UI step: selects up to ${count} Suspended SIMs for BU and submits the
+    ...                bulk Resume state change. Captures IMSI/MSISDN/ICCID data for the
+    ...                SOAP ResponseHandler flow (TC_E2EU_031A).
+    ...                Sets suite variable E2E_IMSI_DATA_RESUME for downstream steps.
+    ...                Returns three values: flat IMSI list, list of {imsi, msisdn, iccid} dicts, ICCID list.
+    [Arguments]    ${bu_name}    ${count}=${SIM_ACTIVATE_COUNT}
+    ${resumed_imsis}    ${imsi_data}    ${resumed_iccids}=
+    ...    Resume SIMs From Suspended State    ${bu_name}    ${count}
+    ${imsi_count}=    Get Length    ${resumed_imsis}
+    Set Suite Variable    @{E2E_IMSI_DATA_RESUME}    @{imsi_data}
+    Log    UI Resume submitted: ${imsi_count} SIM(s) for BU="${bu_name}". SOAP flow (TC_E2EU_031A) next.    console=yes
+    RETURN    ${resumed_imsis}    ${imsi_data}    ${resumed_iccids}
+
 E2E Drive Activation Fingerprint Flow
     [Documentation]    SOAP-only step: takes the IMSI/MSISDN data captured from the UI activate
     ...                action and drives the post-UI fingerprint flow:

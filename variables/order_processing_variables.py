@@ -111,6 +111,7 @@ EXPECTED_WARM_STATE = "Warm"
 EXPECTED_INACTIVE_STATE = "InActive"
 EXPECTED_TESTACTIVE_STATE = "TestActive"
 EXPECTED_ACTIVATED_STATE = "Activated"
+EXPECTED_SUSPENDED_STATE = "Suspended"
 SIM_ACTIVATE_COUNT = int(config_scalar("E2E_SIM_QUANTITY", "5"))
 
 # ── Billing / Invoice ────────────────────────────────────────────────

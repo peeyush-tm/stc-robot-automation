@@ -390,3 +390,35 @@ FP Process Single IMSI Transaction Flow
     Log    ${state_label} flow: waiting ${FP_POST_RESPONSE_HANDLER_WAIT} for backend to apply ResponseHandler...    console=yes
     Sleep    ${FP_POST_RESPONSE_HANDLER_WAIT}    reason=Settle wait before UI re-validation
     Log    ${state_label} flow: complete for IMSI ${imsi}; UI verification follows.    console=yes
+
+# ═══════════════════════════════════════════════════════════════════════
+#  BULK SUSPEND / RESUME — one 60s wait, then ResponseHandler per IMSI
+# ═══════════════════════════════════════════════════════════════════════
+FP Process Bulk State Change Transaction Flow
+    [Documentation]    Post-UI bulk Suspend or Resume SOAP flow. Call AFTER the bulk UI state
+    ...                change has been submitted (all SIMs selected + action dispatched).
+    ...
+    ...                Steps:
+    ...                  1. Sleep 60s once for all goup_notification_url DB rows to be written.
+    ...                  2. For each IMSI: capture latest transaction_id + call ResponseHandlerService.
+    ...                  3. Single settle wait so the backend applies all responses.
+    ...
+    ...                Unlike the activation flow there is NO setOperationStatus call here —
+    ...                for Suspend/Resume on already-activated SIMs only ResponseHandler is needed.
+    ...
+    ...                ``imsi_data`` is a list of {imsi, msisdn, iccid} dicts (same shape as
+    ...                ``E2E_IMSI_DATA_SUSPEND`` / ``E2E_IMSI_DATA_RESUME`` suite variables).
+    [Arguments]    ${state_label}    @{imsi_data}
+    ${count}=    Get Length    ${imsi_data}
+    Should Be True    ${count} > 0    msg=FP Process Bulk State Change Transaction Flow: imsi_data is empty.
+    Log    ${state_label} bulk flow: waiting 60s for goup_notification_url DB entries (${count} SIM(s))...    console=yes
+    Sleep    60s    reason=Wait for ${state_label} transaction_ids to be recorded in DB
+    FOR    ${entry}    IN    @{imsi_data}
+        ${imsi}=    Set Variable    ${entry}[imsi]
+        ${tx_id}=    FP Capture Latest Transaction Id For IMSI    ${imsi}
+        FP Call Response Handler For Transaction    ${tx_id}
+        Log To Console    ✓ ${state_label} flow: IMSI ${imsi} → ResponseHandler called with tx_id=${tx_id}
+    END
+    Log    ${state_label} bulk flow: waiting ${FP_POST_RESPONSE_HANDLER_WAIT} for backend to apply responses...    console=yes
+    Sleep    ${FP_POST_RESPONSE_HANDLER_WAIT}    reason=Settle wait before UI re-validation
+    Log    ${state_label} bulk flow: complete. ${count} IMSI(s) processed; UI verification follows.    console=yes

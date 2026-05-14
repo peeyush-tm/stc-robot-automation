@@ -48,6 +48,8 @@ ${E2E_CRUD_ROLE_NAME}       ${EMPTY}
 ${E2E_CRUD_USERNAME}        ${EMPTY}
 ${E2E_CRUD_USER_EMAIL}      ${EMPTY}
 ${E2E_SUSPEND_IMSI}         ${EMPTY}
+@{E2E_IMSI_DATA_SUSPEND}
+@{E2E_IMSI_DATA_RESUME}
 ${E2E_CSR1_TARIFF_PLAN}     ${EMPTY}
 ${E2E_CSR1_APN_TYPE}        ${EMPTY}
 ${E2E_CSR1_APN_NAME}        ${EMPTY}
@@ -267,45 +269,42 @@ TC_E2EU_020 Validate Usage In UI For All IMSIs
 #  SUSPEND & RESUME (Steps 16c–16f)
 # ═══════════════════════════════════════════════════════════════════════
 
-TC_E2EU_029 Suspend One Activated IMSI Via UI
-    [Documentation]    UI ONLY — Manage Devices: search the activated IMSI (first from
-    ...                E2E_IMSI_DATA, or pass --variable E2E_SUSPEND_IMSI:<imsi>), select row,
-    ...                Change State Activated → Suspended, submit popup, validate success toast.
-    ...                After this test the SIM is in Suspended pending state on the system.
+TC_E2EU_029 Suspend All Activated SIMs Via UI
+    [Documentation]    UI ONLY — Manage Devices: apply BU + Activated filter, select all
+    ...                SIM_ACTIVATE_COUNT SIMs, bulk Change State Activated → Suspended.
+    ...                Captures IMSI data into E2E_IMSI_DATA_SUSPEND for SOAP + verify steps.
     [Tags]    regression    e2e    TC_E2EU_029    positive
     TC_E2EU_029
 
 TC_E2EU_029A Drive Suspend ResponseHandler SOAP Flow
-    [Documentation]    SOAP ONLY — uses E2E_SUSPEND_IMSI captured by TC_E2EU_029. Sleeps 60s for
-    ...                goup_notification_url DB row → DB query for latest request_id → POST
-    ...                ResponseHandlerService with that tx_id in <OrderNo> → 20s settle.
-    ...                No setOperationStatus call — only ResponseHandler is needed for state
-    ...                changes on already-activated SIMs.
+    [Documentation]    SOAP ONLY — single 60s wait then calls ResponseHandlerService once per
+    ...                IMSI from E2E_IMSI_DATA_SUSPEND. No setOperationStatus — only
+    ...                ResponseHandler is needed for Suspend on already-activated SIMs.
     [Tags]    regression    e2e    TC_E2EU_029A    positive
     TC_E2EU_029A
 
-TC_E2EU_030 Validate IMSI Is Suspended On UI
-    [Documentation]    UI ONLY — searches Manage Devices by E2E_SUSPEND_IMSI and verifies the
-    ...                State column now shows Suspended.
+TC_E2EU_030 Validate All SIMs Are Suspended On UI
+    [Documentation]    UI ONLY — verifies every IMSI in E2E_IMSI_DATA_SUSPEND shows Suspended
+    ...                in the Manage Devices grid. Retries up to 12 min.
     [Tags]    regression    e2e    TC_E2EU_030    positive
     TC_E2EU_030
 
-TC_E2EU_031 Resume Suspended IMSI Via UI
-    [Documentation]    UI ONLY — Manage Devices: search the suspended IMSI (E2E_SUSPEND_IMSI),
-    ...                select row, Change State Suspended → Activated, submit popup, validate
-    ...                success toast.
+TC_E2EU_031 Resume All Suspended SIMs Via UI
+    [Documentation]    UI ONLY — Manage Devices: apply BU + Suspended filter, select all
+    ...                Suspended SIMs, bulk Change State Suspended → Activated (Resume).
+    ...                Captures IMSI data into E2E_IMSI_DATA_RESUME for SOAP + verify steps.
     [Tags]    regression    e2e    TC_E2EU_031    positive
     TC_E2EU_031
 
 TC_E2EU_031A Drive Resume ResponseHandler SOAP Flow
-    [Documentation]    SOAP ONLY — same shape as TC_E2EU_029A: 60s wait → DB query → SOAP
-    ...                ResponseHandlerService → 20s settle. No setOperationStatus.
+    [Documentation]    SOAP ONLY — single 60s wait then calls ResponseHandlerService once per
+    ...                IMSI from E2E_IMSI_DATA_RESUME. No setOperationStatus.
     [Tags]    regression    e2e    TC_E2EU_031A    positive
     TC_E2EU_031A
 
-TC_E2EU_032 Validate IMSI Is Activated Again On UI
-    [Documentation]    UI ONLY — searches Manage Devices by E2E_SUSPEND_IMSI and verifies the
-    ...                State column shows Activated again.
+TC_E2EU_032 Validate All SIMs Are Activated Again On UI
+    [Documentation]    UI ONLY — verifies every IMSI in E2E_IMSI_DATA_RESUME shows Activated
+    ...                in the Manage Devices grid. Retries up to 12 min.
     [Tags]    regression    e2e    TC_E2EU_032    positive
     TC_E2EU_032
 
@@ -634,52 +633,55 @@ TC_E2EU_028
     Log    Step 20d complete: User '${E2E_CRUD_USERNAME}' deleted.    console=yes
 
 TC_E2EU_029
-    # Standalone: pass --variable E2E_SUSPEND_IMSI:<imsi> to skip the lookup from E2E_IMSI_DATA.
-    # Otherwise the first IMSI from TC_E2EU_018's capture is suspended.
-    IF    "${E2E_SUSPEND_IMSI}" == "${EMPTY}"
-        Populate IMSI Data If Needed
-        ${count}=    Get Length    ${E2E_IMSI_DATA}
-        Should Be True    ${count} > 0
-        ...    No IMSI data available. Either run TC_E2EU_018 first OR pass --variable E2E_SUSPEND_IMSI:<imsi>.
-        ${first_entry}=    Get From List    ${E2E_IMSI_DATA}    0
-        ${imsi}=    Set Variable    ${first_entry}[imsi]
-        Set Suite Variable    ${E2E_SUSPEND_IMSI}    ${imsi}
-    ELSE
-        Log To Console    Using IMSI from CLI: ${E2E_SUSPEND_IMSI}
-    END
-    Log    Step 16c: UI Suspend submit for IMSI ${E2E_SUSPEND_IMSI} (Activated → Suspended)...    console=yes
-    E2E Change SIM State    ${E2E_BU_NAME}    ${E2E_SUSPEND_IMSI}    Activated    Suspended    wait_after_seconds=0
-    Log    Step 16c complete: UI Suspend action submitted + success toast for IMSI ${E2E_SUSPEND_IMSI}.    console=yes
+    Should Not Be Empty    ${E2E_BU_NAME}    E2E_BU_NAME must be set (run TC_E2EU_001 first).
+    Log    Step 16c: UI Suspend submit for ${SIM_ACTIVATE_COUNT} Activated SIMs (Activated → Suspended)...    console=yes
+    E2E Suspend SIMs UI Action    ${E2E_BU_NAME}
+    ${count}=    Get Length    ${E2E_IMSI_DATA_SUSPEND}
+    Log    Step 16c complete: UI Suspend submitted for ${count} SIMs. SOAP flow (TC_E2EU_029A) next.    console=yes
 
 TC_E2EU_029A
-    Should Not Be Empty    ${E2E_SUSPEND_IMSI}    TC_E2EU_029 must run first OR pass --variable E2E_SUSPEND_IMSI:<imsi>.
-    Log    Step 16c-soap: Suspend ResponseHandler flow for IMSI ${E2E_SUSPEND_IMSI}    console=yes
-    FP Process Single IMSI Transaction Flow    ${E2E_SUSPEND_IMSI}    state_label=Suspend
-    Log    Step 16c-soap complete: ResponseHandler posted for IMSI ${E2E_SUSPEND_IMSI}.    console=yes
+    ${count}=    Get Length    ${E2E_IMSI_DATA_SUSPEND}
+    Should Be True    ${count} > 0    TC_E2EU_029 must run first — E2E_IMSI_DATA_SUSPEND is empty.
+    Log    Step 16c-soap: Suspend ResponseHandler flow for ${count} SIMs...    console=yes
+    FP Process Bulk State Change Transaction Flow    Suspend    @{E2E_IMSI_DATA_SUSPEND}
+    Log    Step 16c-soap complete: ResponseHandler posted for all ${count} SIMs.    console=yes
 
 TC_E2EU_030
-    Should Not Be Empty    ${E2E_SUSPEND_IMSI}    TC_E2EU_029 must run first.
-    Log    Step 16d: Verifying IMSI ${E2E_SUSPEND_IMSI} is Suspended...    console=yes
-    Verify Device State After Change    ${E2E_SUSPEND_IMSI}    Suspended
-    Log    Step 16d complete: IMSI ${E2E_SUSPEND_IMSI} confirmed Suspended.    console=yes
+    ${count}=    Get Length    ${E2E_IMSI_DATA_SUSPEND}
+    Should Be True    ${count} > 0    TC_E2EU_029 must run first — E2E_IMSI_DATA_SUSPEND is empty.
+    @{imsi_list}=    Create List
+    FOR    ${entry}    IN    @{E2E_IMSI_DATA_SUSPEND}
+        Append To List    ${imsi_list}    ${entry}[imsi]
+    END
+    Log    Step 16d: Verifying all ${count} SIMs are Suspended...    console=yes
+    Verify Suspended SIMs    ${imsi_list}    ${E2E_BU_NAME}
+    Log    Step 16d complete: all ${count} SIMs confirmed Suspended.    console=yes
 
 TC_E2EU_031
-    Should Not Be Empty    ${E2E_SUSPEND_IMSI}    TC_E2EU_029 must run first.
-    Log    Step 16e: UI Resume submit for IMSI ${E2E_SUSPEND_IMSI} (Suspended → Activated)...    console=yes
-    E2E Change SIM State    ${E2E_BU_NAME}    ${E2E_SUSPEND_IMSI}    Suspended    Activated    wait_after_seconds=0
-    Log    Step 16e complete: UI Resume action submitted + success toast for IMSI ${E2E_SUSPEND_IMSI}.    console=yes
+    ${count}=    Get Length    ${E2E_IMSI_DATA_SUSPEND}
+    Should Be True    ${count} > 0    TC_E2EU_029 must run first — E2E_IMSI_DATA_SUSPEND is empty.
+    Log    Step 16e: UI Resume submit for ${count} Suspended SIMs (Suspended → Activated)...    console=yes
+    E2E Resume SIMs UI Action    ${E2E_BU_NAME}
+    ${resumed_count}=    Get Length    ${E2E_IMSI_DATA_RESUME}
+    Log    Step 16e complete: UI Resume submitted for ${resumed_count} SIMs. SOAP flow (TC_E2EU_031A) next.    console=yes
 
 TC_E2EU_031A
-    Should Not Be Empty    ${E2E_SUSPEND_IMSI}    TC_E2EU_029 must run first OR pass --variable E2E_SUSPEND_IMSI:<imsi>.
-    Log    Step 16e-soap: Resume ResponseHandler flow for IMSI ${E2E_SUSPEND_IMSI}    console=yes
-    FP Process Single IMSI Transaction Flow    ${E2E_SUSPEND_IMSI}    state_label=Resume
-    Log    Step 16e-soap complete: ResponseHandler posted for IMSI ${E2E_SUSPEND_IMSI}.    console=yes
+    ${count}=    Get Length    ${E2E_IMSI_DATA_RESUME}
+    Should Be True    ${count} > 0    TC_E2EU_031 must run first — E2E_IMSI_DATA_RESUME is empty.
+    Log    Step 16e-soap: Resume ResponseHandler flow for ${count} SIMs...    console=yes
+    FP Process Bulk State Change Transaction Flow    Resume    @{E2E_IMSI_DATA_RESUME}
+    Log    Step 16e-soap complete: ResponseHandler posted for all ${count} SIMs.    console=yes
 
 TC_E2EU_032
-    Should Not Be Empty    ${E2E_SUSPEND_IMSI}    TC_E2EU_029 must run first.
-    Log    Step 16f: Verifying IMSI ${E2E_SUSPEND_IMSI} is Activated again...    console=yes
-    Verify Device State After Change    ${E2E_SUSPEND_IMSI}    Activated
-    Log    Step 16f complete: IMSI ${E2E_SUSPEND_IMSI} confirmed Activated.    console=yes
+    ${count}=    Get Length    ${E2E_IMSI_DATA_RESUME}
+    Should Be True    ${count} > 0    TC_E2EU_031 must run first — E2E_IMSI_DATA_RESUME is empty.
+    @{imsi_list}=    Create List
+    FOR    ${entry}    IN    @{E2E_IMSI_DATA_RESUME}
+        Append To List    ${imsi_list}    ${entry}[imsi]
+    END
+    Log    Step 16f: Verifying all ${count} SIMs are Activated again...    console=yes
+    Verify Activated SIMs    ${imsi_list}    ${E2E_BU_NAME}
+    Log    Step 16f complete: all ${count} SIMs confirmed Activated again.    console=yes
 
 Populate IMSI Data If Needed
     [Documentation]    If E2E_IMSI_DATA is empty but E2E_IMSI_CSV was passed via CLI,
