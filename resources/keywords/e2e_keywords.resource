@@ -261,6 +261,47 @@ E2E Create CSR Journey
     Log    E2E CSR Journey created for EC="${ec_name}" BU="${bu_name}"    console=yes
     Log    Stored CSR1 — Tariff: "${CSRJ_DEFAULT_TARIFF_PLAN}", APN type: "${CSRJ_APN_TYPE_ANY}", APN: "${CSRJ_DEFAULT_APN_NAME}", Bundle (actual label): "${csr1_bundle_actual}", DP alias: "${CSRJ_DEVICE_PLAN_ALIAS}"    console=yes
 
+E2E Create CSR Journey For Auto Activation
+    [Documentation]    Creates a CSR Journey using plan values from E2E_AA_TARIFF_PLAN / E2E_AA_APN_TYPE /
+    ...                E2E_AA_APN_NAME / E2E_AA_BUNDLE_PLAN. These specific plan values produce a device plan
+    ...                visible in the SIM Order dropdown immediately, enabling autoActivation SIM orders.
+    [Arguments]    ${ec_name}    ${bu_name}
+    Ensure Session Is Active
+    Navigate To Module Page    ${BASE_URL}ManageDevices
+    Wait For App Loading To Complete
+    Navigate To CSR Journey Module
+    Select CSR Journey Customer By Name    ${ec_name}
+    Select CSR Journey Business Unit By Name    ${bu_name}
+    Verify Create Order Button Visible
+    Click Create Order
+    Verify Standard Services Screen Loaded
+    Select Tariff Plan By Name    ${E2E_AA_TARIFF_PLAN}
+    Wait For App Loading To Complete    timeout=30s
+    Sleep    1s
+    Select APN Type    ${E2E_AA_APN_TYPE}
+    Click Add APNs
+    Open And Select APN By Name    ${E2E_AA_APN_NAME}
+    Click Fetch Device Plan
+    Select Bundle Plan First Option    ${E2E_AA_BUNDLE_PLAN}
+    ${csr1_bundle_actual}=    Get Selected List Label    ${LOC_SS_BUNDLE_PLAN_DD}
+    Enter Random Device Plan Alias
+    Fill And Save Service Plan
+    Click Save On Standard Services Device Plan
+    Click Next On Standard Services
+    Verify Additional Services Screen Loaded
+    Click Next On Additional Services
+    Verify Summary Screen Loaded
+    Click Save And Exit
+    Verify CSR Journey Success Toast
+    Verify Redirected To CSR Journey Landing
+    Set Suite Variable    ${E2E_CSR1_TARIFF_PLAN}    ${E2E_AA_TARIFF_PLAN}
+    Set Suite Variable    ${E2E_CSR1_APN_TYPE}        ${E2E_AA_APN_TYPE}
+    Set Suite Variable    ${E2E_CSR1_APN_NAME}        ${E2E_AA_APN_NAME}
+    Set Suite Variable    ${E2E_CSR1_BUNDLE_PLAN}     ${csr1_bundle_actual}
+    Set Suite Variable    ${E2E_CSR1_DP_ALIAS}        ${CSRJ_DEVICE_PLAN_ALIAS}
+    Log    E2E CSR Journey (auto-activation) created for EC="${ec_name}" BU="${bu_name}"    console=yes
+    Log    Stored CSR1 — Tariff: "${E2E_AA_TARIFF_PLAN}", APN type: "${E2E_AA_APN_TYPE}", APN: "${E2E_AA_APN_NAME}", Bundle: "${csr1_bundle_actual}", DP alias: "${CSRJ_DEVICE_PLAN_ALIAS}"    console=yes
+
 # ═══════════════════════════════════════════════════════════════════════
 #  STEP 4: SIM RANGE CREATION (UI)
 # ═══════════════════════════════════════════════════════════════════════
@@ -452,7 +493,7 @@ E2E Create SIM Order
     ...                  activation_type: autoActivation | nonAutoActivation (default)
     ...                  sim_state:       dropdown value for SIM State (e.g. "1" = Activated, "2" = TestActive); empty = skip
     ...                  dp_name:         Device Plan name to select; empty = skip
-    [Arguments]    ${ec_name}    ${bu_name}    ${quantity}=${5}
+    [Arguments]    ${ec_name}    ${bu_name}    ${quantity}=${VALID_QUANTITY}
     ...            ${activation_type}=nonAutoActivation    ${sim_state}=${EMPTY}    ${dp_name}=${EMPTY}
     Ensure Session Is Active
     Navigate To Module Page    ${CREATE_SIM_ORDER_URL}

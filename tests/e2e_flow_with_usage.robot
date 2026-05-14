@@ -443,7 +443,7 @@ TC_E2EU_007
 TC_E2EU_008
     Should Not Be Empty    ${E2E_EC_NAME}    Step 1 must run first — EC name is empty.
     Should Not Be Empty    ${E2E_BU_NAME}    Step 1 must run first — BU name is empty.
-    E2E Create SIM Order    ${E2E_EC_NAME}    ${E2E_BU_NAME}
+    E2E Create SIM Order    ${E2E_EC_NAME}    ${E2E_BU_NAME}    ${VALID_QUANTITY}
 
 TC_E2EU_009
     Should Not Be Empty    ${E2E_BU_NAME}    Step 1 must run first — BU name is empty.
